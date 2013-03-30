@@ -1,0 +1,478 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		6645055616EFCD7E00B90511 /* check.png in Resources */ = {isa = PBXBuildFile; fileRef = 6645055416EFCD7E00B90511 /* check.png */; };
+		6645055716EFCD7E00B90511 /* check@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6645055516EFCD7E00B90511 /* check@2x.png */; };
+		6661A70E16EE60BC00DD58D1 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 6661A70D16EE60BC00DD58D1 /* background.jpg */; };
+		66789D2C16793FE100E1EF75 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66789D2A16793F7800E1EF75 /* CoreBluetooth.framework */; };
+		668B560916F25B24000F6674 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B3AA11692BC7D00F12F42 /* CoreGraphics.framework */; };
+		668B560A16F25BA6000F6674 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B3AA31692BD6E00F12F42 /* QuartzCore.framework */; };
+		66910E8916803FCF0046EE12 /* Pen.m in Sources */ = {isa = PBXBuildFile; fileRef = 66910E8816803FCF0046EE12 /* Pen.m */; };
+		66910E94168043400046EE12 /* Marker.m in Sources */ = {isa = PBXBuildFile; fileRef = 66910E93168043400046EE12 /* Marker.m */; };
+		669B3A961692BAAC00F12F42 /* JotUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F922B416736C8600B1F868 /* JotUI.framework */; };
+		669B3A9E1692BC4500F12F42 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B3A9D1692BC4500F12F42 /* OpenGLES.framework */; };
+		669B3AC61692C6E300F12F42 /* FadedCircle.png in Resources */ = {isa = PBXBuildFile; fileRef = 669B3AC51692C6E300F12F42 /* FadedCircle.png */; };
+		669B3ACB1692CB4C00F12F42 /* Circle.png in Resources */ = {isa = PBXBuildFile; fileRef = 669B3ACA1692CB4C00F12F42 /* Circle.png */; };
+		669B3ACD169378DB00F12F42 /* Square.png in Resources */ = {isa = PBXBuildFile; fileRef = 669B3ACC169378DB00F12F42 /* Square.png */; };
+		66A340221694D3890093E81A /* Rectangle.png in Resources */ = {isa = PBXBuildFile; fileRef = 66A340211694D3890093E81A /* Rectangle.png */; };
+		66AA213816FCE28100E86922 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213716FCE28100E86922 /* JotTouchSDK.framework */; };
+		66AA5F55169946A60046CA26 /* button-reset-ruby.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F4D169946A60046CA26 /* button-reset-ruby.png */; };
+		66AA5F56169946A60046CA26 /* button-reset-ruby@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F4E169946A60046CA26 /* button-reset-ruby@2x.png */; };
+		66AA5F57169946A60046CA26 /* button-reset.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F4F169946A60046CA26 /* button-reset.png */; };
+		66AA5F58169946A60046CA26 /* Adonit_Header.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F50169946A60046CA26 /* Adonit_Header.png */; };
+		66AA5F59169946A60046CA26 /* button-reset@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F51169946A60046CA26 /* button-reset@2x.png */; };
+		66AA5F5A169946A60046CA26 /* Adonit_Header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F52169946A60046CA26 /* Adonit_Header@2x.png */; };
+		66AA5F5E169949AA0046CA26 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F5D169949A90046CA26 /* ViewController.xib */; };
+		66AA5F6B169A86C70046CA26 /* Icon-Gradient@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F6A169A86C70046CA26 /* Icon-Gradient@2x.png */; };
+		66AA5F6E169A86CC0046CA26 /* Icon-Gradient.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F6D169A86CC0046CA26 /* Icon-Gradient.png */; };
+		66AA5F8C169E20420046CA26 /* Eraser.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA5F8B169E20420046CA26 /* Eraser.m */; };
+		66F9214816734FF000B1F868 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F9214716734FF000B1F868 /* UIKit.framework */; };
+		66F9214A16734FF000B1F868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F9214916734FF000B1F868 /* Foundation.framework */; };
+		66F9215216734FF000B1F868 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 66F9215016734FF000B1F868 /* InfoPlist.strings */; };
+		66F9215416734FF000B1F868 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F9215316734FF000B1F868 /* main.m */; };
+		66F9215816734FF000B1F868 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F9215716734FF000B1F868 /* AppDelegate.m */; };
+		66F9215A16734FF000B1F868 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = 66F9215916734FF000B1F868 /* Default.png */; };
+		66F9215C16734FF000B1F868 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66F9215B16734FF000B1F868 /* Default@2x.png */; };
+		66F9215E16734FF000B1F868 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66F9215D16734FF000B1F868 /* Default-568h@2x.png */; };
+		66F9216116734FF000B1F868 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F9216016734FF000B1F868 /* ViewController.m */; };
+		66F923021677C83F00B1F868 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F923011677C83F00B1F868 /* AudioToolbox.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		6645055416EFCD7E00B90511 /* check.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check.png; sourceTree = "<group>"; };
+		6645055516EFCD7E00B90511 /* check@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check@2x.png"; sourceTree = "<group>"; };
+		6661A70D16EE60BC00DD58D1 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = background.jpg; sourceTree = "<group>"; };
+		66789D2A16793F7800E1EF75 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		66910E8716803FCF0046EE12 /* Pen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pen.h; sourceTree = "<group>"; };
+		66910E8816803FCF0046EE12 /* Pen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pen.m; sourceTree = "<group>"; };
+		66910E92168043400046EE12 /* Marker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Marker.h; sourceTree = "<group>"; };
+		66910E93168043400046EE12 /* Marker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Marker.m; sourceTree = "<group>"; };
+		669B3A9D1692BC4500F12F42 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		669B3AA11692BC7D00F12F42 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		669B3AA31692BD6E00F12F42 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		669B3AC51692C6E300F12F42 /* FadedCircle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = FadedCircle.png; sourceTree = "<group>"; };
+		669B3ACA1692CB4C00F12F42 /* Circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Circle.png; sourceTree = "<group>"; };
+		669B3ACC169378DB00F12F42 /* Square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Square.png; sourceTree = "<group>"; };
+		66A340211694D3890093E81A /* Rectangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Rectangle.png; sourceTree = "<group>"; };
+		66AA213716FCE28100E86922 /* JotTouchSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotTouchSDK.framework; path = ../JotTouchSDK/JotTouchSDK.framework; sourceTree = "<group>"; };
+		66AA5F4D169946A60046CA26 /* button-reset-ruby.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset-ruby.png"; sourceTree = "<group>"; };
+		66AA5F4E169946A60046CA26 /* button-reset-ruby@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset-ruby@2x.png"; sourceTree = "<group>"; };
+		66AA5F4F169946A60046CA26 /* button-reset.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset.png"; sourceTree = "<group>"; };
+		66AA5F50169946A60046CA26 /* Adonit_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Adonit_Header.png; sourceTree = "<group>"; };
+		66AA5F51169946A60046CA26 /* button-reset@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset@2x.png"; sourceTree = "<group>"; };
+		66AA5F52169946A60046CA26 /* Adonit_Header@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Adonit_Header@2x.png"; sourceTree = "<group>"; };
+		66AA5F5D169949A90046CA26 /* ViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ViewController.xib; sourceTree = "<group>"; };
+		66AA5F6A169A86C70046CA26 /* Icon-Gradient@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Gradient@2x.png"; path = "../Icon-Gradient@2x.png"; sourceTree = "<group>"; };
+		66AA5F6D169A86CC0046CA26 /* Icon-Gradient.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Gradient.png"; path = "../Icon-Gradient.png"; sourceTree = "<group>"; };
+		66AA5F8A169E20420046CA26 /* Eraser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Eraser.h; sourceTree = "<group>"; };
+		66AA5F8B169E20420046CA26 /* Eraser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Eraser.m; sourceTree = "<group>"; };
+		66F9214316734FF000B1F868 /* jotuiexample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = jotuiexample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		66F9214716734FF000B1F868 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		66F9214916734FF000B1F868 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		66F9214F16734FF000B1F868 /* jotuiexample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "jotuiexample-Info.plist"; sourceTree = "<group>"; };
+		66F9215116734FF000B1F868 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		66F9215316734FF000B1F868 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		66F9215516734FF000B1F868 /* jotuiexample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "jotuiexample-Prefix.pch"; sourceTree = "<group>"; };
+		66F9215616734FF000B1F868 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		66F9215716734FF000B1F868 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		66F9215916734FF000B1F868 /* Default.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Default.png; sourceTree = "<group>"; };
+		66F9215B16734FF000B1F868 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
+		66F9215D16734FF000B1F868 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		66F9215F16734FF000B1F868 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		66F9216016734FF000B1F868 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		66F922B416736C8600B1F868 /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../DerivedData/JotUI/Build/Products/Debug-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
+		66F923011677C83F00B1F868 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		66F9214016734FF000B1F868 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66AA213816FCE28100E86922 /* JotTouchSDK.framework in Frameworks */,
+				669B3A961692BAAC00F12F42 /* JotUI.framework in Frameworks */,
+				66F923021677C83F00B1F868 /* AudioToolbox.framework in Frameworks */,
+				66789D2C16793FE100E1EF75 /* CoreBluetooth.framework in Frameworks */,
+				668B560916F25B24000F6674 /* CoreGraphics.framework in Frameworks */,
+				669B3A9E1692BC4500F12F42 /* OpenGLES.framework in Frameworks */,
+				668B560A16F25BA6000F6674 /* QuartzCore.framework in Frameworks */,
+				66F9214816734FF000B1F868 /* UIKit.framework in Frameworks */,
+				66F9214A16734FF000B1F868 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6645055316EFCD1F00B90511 /* Default and Icon */ = {
+			isa = PBXGroup;
+			children = (
+				66AA5F6D169A86CC0046CA26 /* Icon-Gradient.png */,
+				66AA5F6A169A86C70046CA26 /* Icon-Gradient@2x.png */,
+				66F9215916734FF000B1F868 /* Default.png */,
+				66F9215B16734FF000B1F868 /* Default@2x.png */,
+				66F9215D16734FF000B1F868 /* Default-568h@2x.png */,
+			);
+			name = "Default and Icon";
+			sourceTree = "<group>";
+		};
+		66910E8516803FA50046EE12 /* Pen Styles */ = {
+			isa = PBXGroup;
+			children = (
+				66910E8716803FCF0046EE12 /* Pen.h */,
+				66910E8816803FCF0046EE12 /* Pen.m */,
+				66910E92168043400046EE12 /* Marker.h */,
+				66910E93168043400046EE12 /* Marker.m */,
+				66AA5F8A169E20420046CA26 /* Eraser.h */,
+				66AA5F8B169E20420046CA26 /* Eraser.m */,
+			);
+			name = "Pen Styles";
+			sourceTree = "<group>";
+		};
+		66A6E13116ADE24600651417 /* Pen Images */ = {
+			isa = PBXGroup;
+			children = (
+				66A340211694D3890093E81A /* Rectangle.png */,
+				669B3AC51692C6E300F12F42 /* FadedCircle.png */,
+				669B3ACC169378DB00F12F42 /* Square.png */,
+				669B3ACA1692CB4C00F12F42 /* Circle.png */,
+			);
+			name = "Pen Images";
+			sourceTree = "<group>";
+		};
+		66AA5F4C169946760046CA26 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				6645055416EFCD7E00B90511 /* check.png */,
+				6645055516EFCD7E00B90511 /* check@2x.png */,
+				6661A70D16EE60BC00DD58D1 /* background.jpg */,
+				66AA5F4D169946A60046CA26 /* button-reset-ruby.png */,
+				66AA5F4E169946A60046CA26 /* button-reset-ruby@2x.png */,
+				66AA5F4F169946A60046CA26 /* button-reset.png */,
+				66AA5F51169946A60046CA26 /* button-reset@2x.png */,
+				66AA5F50169946A60046CA26 /* Adonit_Header.png */,
+				66AA5F52169946A60046CA26 /* Adonit_Header@2x.png */,
+			);
+			name = Images;
+			sourceTree = "<group>";
+		};
+		66F9213816734FF000B1F868 = {
+			isa = PBXGroup;
+			children = (
+				66AA213716FCE28100E86922 /* JotTouchSDK.framework */,
+				66F9214D16734FF000B1F868 /* jotuiexample */,
+				66F9214616734FF000B1F868 /* Frameworks */,
+				66F9214416734FF000B1F868 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		66F9214416734FF000B1F868 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				66F9214316734FF000B1F868 /* jotuiexample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		66F9214616734FF000B1F868 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				66F923061677C85F00B1F868 /* JotUI */,
+				66F923051677C85100B1F868 /* JotTouchSDK */,
+				66F9214716734FF000B1F868 /* UIKit.framework */,
+				66F9214916734FF000B1F868 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		66F9214D16734FF000B1F868 /* jotuiexample */ = {
+			isa = PBXGroup;
+			children = (
+				66F9215616734FF000B1F868 /* AppDelegate.h */,
+				66F9215716734FF000B1F868 /* AppDelegate.m */,
+				66F9215F16734FF000B1F868 /* ViewController.h */,
+				66F9216016734FF000B1F868 /* ViewController.m */,
+				66AA5F5D169949A90046CA26 /* ViewController.xib */,
+				66910E8516803FA50046EE12 /* Pen Styles */,
+				66F9214E16734FF000B1F868 /* Supporting Files */,
+			);
+			path = jotuiexample;
+			sourceTree = "<group>";
+		};
+		66F9214E16734FF000B1F868 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				66A6E13116ADE24600651417 /* Pen Images */,
+				66AA5F4C169946760046CA26 /* Images */,
+				6645055316EFCD1F00B90511 /* Default and Icon */,
+				66F9214F16734FF000B1F868 /* jotuiexample-Info.plist */,
+				66F9215016734FF000B1F868 /* InfoPlist.strings */,
+				66F9215316734FF000B1F868 /* main.m */,
+				66F9215516734FF000B1F868 /* jotuiexample-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		66F923051677C85100B1F868 /* JotTouchSDK */ = {
+			isa = PBXGroup;
+			children = (
+				66789D2A16793F7800E1EF75 /* CoreBluetooth.framework */,
+				66F923011677C83F00B1F868 /* AudioToolbox.framework */,
+			);
+			name = JotTouchSDK;
+			sourceTree = "<group>";
+		};
+		66F923061677C85F00B1F868 /* JotUI */ = {
+			isa = PBXGroup;
+			children = (
+				669B3AA31692BD6E00F12F42 /* QuartzCore.framework */,
+				669B3AA11692BC7D00F12F42 /* CoreGraphics.framework */,
+				669B3A9D1692BC4500F12F42 /* OpenGLES.framework */,
+				66F922B416736C8600B1F868 /* JotUI.framework */,
+			);
+			name = JotUI;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		66F9214216734FF000B1F868 /* jotuiexample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 66F9216716734FF000B1F868 /* Build configuration list for PBXNativeTarget "jotuiexample" */;
+			buildPhases = (
+				66F9213F16734FF000B1F868 /* Sources */,
+				66F9214016734FF000B1F868 /* Frameworks */,
+				66F9214116734FF000B1F868 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = jotuiexample;
+			productName = jotuiexample;
+			productReference = 66F9214316734FF000B1F868 /* jotuiexample.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		66F9213A16734FF000B1F868 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0450;
+				ORGANIZATIONNAME = Adonit;
+			};
+			buildConfigurationList = 66F9213D16734FF000B1F868 /* Build configuration list for PBXProject "jotuiexample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 66F9213816734FF000B1F868;
+			productRefGroup = 66F9214416734FF000B1F868 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				66F9214216734FF000B1F868 /* jotuiexample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		66F9214116734FF000B1F868 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66F9215216734FF000B1F868 /* InfoPlist.strings in Resources */,
+				66F9215A16734FF000B1F868 /* Default.png in Resources */,
+				66F9215C16734FF000B1F868 /* Default@2x.png in Resources */,
+				66F9215E16734FF000B1F868 /* Default-568h@2x.png in Resources */,
+				669B3AC61692C6E300F12F42 /* FadedCircle.png in Resources */,
+				669B3ACB1692CB4C00F12F42 /* Circle.png in Resources */,
+				669B3ACD169378DB00F12F42 /* Square.png in Resources */,
+				66A340221694D3890093E81A /* Rectangle.png in Resources */,
+				66AA5F55169946A60046CA26 /* button-reset-ruby.png in Resources */,
+				66AA5F56169946A60046CA26 /* button-reset-ruby@2x.png in Resources */,
+				66AA5F57169946A60046CA26 /* button-reset.png in Resources */,
+				66AA5F58169946A60046CA26 /* Adonit_Header.png in Resources */,
+				66AA5F59169946A60046CA26 /* button-reset@2x.png in Resources */,
+				66AA5F5A169946A60046CA26 /* Adonit_Header@2x.png in Resources */,
+				66AA5F5E169949AA0046CA26 /* ViewController.xib in Resources */,
+				66AA5F6B169A86C70046CA26 /* Icon-Gradient@2x.png in Resources */,
+				66AA5F6E169A86CC0046CA26 /* Icon-Gradient.png in Resources */,
+				6661A70E16EE60BC00DD58D1 /* background.jpg in Resources */,
+				6645055616EFCD7E00B90511 /* check.png in Resources */,
+				6645055716EFCD7E00B90511 /* check@2x.png in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		66F9213F16734FF000B1F868 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				66F9215416734FF000B1F868 /* main.m in Sources */,
+				66F9215816734FF000B1F868 /* AppDelegate.m in Sources */,
+				66F9216116734FF000B1F868 /* ViewController.m in Sources */,
+				66910E8916803FCF0046EE12 /* Pen.m in Sources */,
+				66910E94168043400046EE12 /* Marker.m in Sources */,
+				66AA5F8C169E20420046CA26 /* Eraser.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		66F9215016734FF000B1F868 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				66F9215116734FF000B1F868 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		66F9216516734FF000B1F868 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		66F9216616734FF000B1F868 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		66F9216816734FF000B1F868 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../JotTouchSDK\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "jotuiexample/jotuiexample-Prefix.pch";
+				INFOPLIST_FILE = "jotuiexample/jotuiexample-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../DerivedData/JotUI/Build/Products/Debug-iphoneos\"",
+				);
+				OTHER_LDFLAGS = (
+					"-fobjc-arc",
+					"-all_load",
+					"-ObjC",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		66F9216916734FF000B1F868 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer: Adam Wulf (E3Q77AFJPJ)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Adam Wulf (E3Q77AFJPJ)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../JotTouchSDK\"",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "jotuiexample/jotuiexample-Prefix.pch";
+				INFOPLIST_FILE = "jotuiexample/jotuiexample-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/../DerivedData/JotUI/Build/Products/Debug-iphoneos\"",
+				);
+				OTHER_LDFLAGS = (
+					"-fobjc-arc",
+					"-all_load",
+					"-ObjC",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "824CC456-C71B-48E8-8D39-DB5B0EF5DA8C";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "824CC456-C71B-48E8-8D39-DB5B0EF5DA8C";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		66F9213D16734FF000B1F868 /* Build configuration list for PBXProject "jotuiexample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				66F9216516734FF000B1F868 /* Debug */,
+				66F9216616734FF000B1F868 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		66F9216716734FF000B1F868 /* Build configuration list for PBXNativeTarget "jotuiexample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				66F9216816734FF000B1F868 /* Debug */,
+				66F9216916734FF000B1F868 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 66F9213A16734FF000B1F868 /* Project object */;
+}
