@@ -1046,7 +1046,8 @@ typedef Vertex3D Vector3D;
 - (void) dealloc
 {
     [self destroyFramebuffer];
-    
+    [[JotStylusManager sharedInstance] unregisterView:self];
+
 	if (brushTexture){
 		glDeleteTextures(1, &brushTexture);
 		brushTexture = 0;
