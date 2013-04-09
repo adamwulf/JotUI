@@ -136,19 +136,13 @@ typedef Vertex3D Vector3D;
     
     [self createDefaultBrushTexture];
 
-    [self loadImage:nil];
-    
     // Set the view's scale factor
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
     
     // Setup OpenGL states
     glMatrixMode(GL_PROJECTION);
     
-    CGRect frame = self.layer.bounds;
-    CGFloat scale = self.contentScaleFactor;
     // Setup the view port in Pixels
-    glOrthof(0, frame.size.width * scale, 0, frame.size.height * scale, -1, 1);
-    glViewport(0, 0, frame.size.width * scale, frame.size.height * scale);
     glMatrixMode(GL_MODELVIEW);
     
     glDisable(GL_DITHER);
@@ -216,7 +210,8 @@ typedef Vertex3D Vector3D;
 	[EAGLContext setCurrentContext:context];
 	[self destroyFramebuffer];
 	[self createFramebuffer];
-	
+    [self loadImage:nil];
+    	
 	// Clear the framebuffer the first time it is allocated
 	if (needsErase) {
 		[self clear];
@@ -250,6 +245,11 @@ typedef Vertex3D Vector3D;
 	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
 	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
 	
+    CGRect frame = self.layer.bounds;
+    CGFloat scale = self.contentScaleFactor;
+    glOrthof(0, frame.size.width * scale, 0, frame.size.height * scale, -1, 1);
+    glViewport(0, 0, frame.size.width * scale, frame.size.height * scale);
+
 	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
 		NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));

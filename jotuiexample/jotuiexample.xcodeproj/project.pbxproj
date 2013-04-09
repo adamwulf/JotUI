@@ -165,7 +165,6 @@
 		66F9213816734FF000B1F868 = {
 			isa = PBXGroup;
 			children = (
-				66AA213716FCE28100E86922 /* JotTouchSDK.framework */,
 				66F9214D16734FF000B1F868 /* jotuiexample */,
 				66F9214616734FF000B1F868 /* Frameworks */,
 				66F9214416734FF000B1F868 /* Products */,
@@ -222,6 +221,7 @@
 		66F923051677C85100B1F868 /* JotTouchSDK */ = {
 			isa = PBXGroup;
 			children = (
+				66AA213716FCE28100E86922 /* JotTouchSDK.framework */,
 				66789D2A16793F7800E1EF75 /* CoreBluetooth.framework */,
 				66F923011677C83F00B1F868 /* AudioToolbox.framework */,
 			);
