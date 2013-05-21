@@ -1027,6 +1027,15 @@ typedef Vertex3D Vector3D;
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
     
+	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewRenderbuffer);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+    
+	if (backgroundTexture){
+		glDeleteTextures(1, &backgroundTexture);
+		backgroundTexture = 0;
+	}
+
 	// Display the buffer
     [self presentRenderBuffer];
     
