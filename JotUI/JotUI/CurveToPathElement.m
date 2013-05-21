@@ -19,7 +19,7 @@
          andCurveTo:(CGPoint)_curveTo
         andControl1:(CGPoint)_ctrl1
         andControl2:(CGPoint)_ctrl2{
-    if(self = [super initWithStart:start]){
+    if(self = [super initWithStart:start andLineTo:_curveTo]){
         curveTo = _curveTo;
         ctrl1 = _ctrl1;
         ctrl2 = _ctrl2;

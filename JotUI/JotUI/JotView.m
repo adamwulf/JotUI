@@ -661,7 +661,7 @@ typedef Vertex3D Vector3D;
         glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Position[0]);
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(struct Vertex), &vertexBuffer[0].Color[0]);
         glTexCoordPointer(2, GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Texture[0]);
-        glDrawArrays(GL_TRIANGLES, 0, [element numberOfSteps]);
+        glDrawArrays(GL_TRIANGLES, 0, [element numberOfSteps] * [element numberOfVerticesPerStep]);
     }
     
     if(frameBuffer){

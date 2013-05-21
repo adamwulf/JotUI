@@ -19,5 +19,6 @@
 @property (nonatomic, readonly) CGPoint lineTo;
 
 +(id) elementWithStart:(CGPoint)start andLineTo:(CGPoint)point;
+-(id) initWithStart:(CGPoint)start andLineTo:(CGPoint)_point;
 
 @end

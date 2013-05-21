@@ -31,12 +31,6 @@
     return sqrtf((lineTo.x - startPoint.x) * (lineTo.x - startPoint.x) + (lineTo.y - startPoint.y) * (lineTo.y - startPoint.y));
 }
 
-
-
--(NSInteger) numberOfSteps{
-    return 6;
-}
-
 /**
  * generate a vertex buffer array for all of the points
  * along this curve for the input scale.
@@ -62,7 +56,7 @@
     }
     // malloc the memory for our buffer, if needed
     if(!vertexBuffer){
-        vertexBuffer = (struct Vertex*) malloc([self numberOfSteps]*sizeof(struct Vertex));
+        vertexBuffer = (struct Vertex*) malloc([self numberOfSteps]*[self numberOfVerticesPerStep]*sizeof(struct Vertex));
     }
     
     // save our scale
@@ -70,7 +64,7 @@
     
     // Convert locations from Points to Pixels
 	// Add points to the buffer so there are drawing points every X pixels
-	int numberOfSteps = [self numberOfSteps];
+	int numberOfSteps = [self numberOfSteps] * [self numberOfVerticesPerStep];
     
     // now lets calculate the steps we need to adjust width
     CGFloat prevWidth =  [self widthOfPreviousElement:previousElement];
@@ -91,14 +85,13 @@
     
     // generate a single point vertex for each step
     // so that the stroke is essentially a series of dots
-	for(int step = 0; step < numberOfSteps; step+=6) {
+	for(int step = 0; step < numberOfSteps; step+=[self numberOfVerticesPerStep]) {
         // 0 <= t < 1
         CGFloat t = (CGFloat)step / (CGFloat)numberOfSteps;
         
         // calculate the point along the line
         CGPoint point = CGPointMake(startPoint.x + (lineTo.x - startPoint.x) * t,
                                     startPoint.y + (lineTo.y - startPoint.y) * t);
-        
         
         // precalculate the color that we'll use for all
         // of the vertices for this step

@@ -35,6 +35,15 @@
 }
 
 /**
+ * return the number of vertices to use per
+ * step. this should be a multiple of 3,
+ * since rendering is using GL_TRIANGLES
+ */
+-(NSInteger) numberOfVerticesPerStep{
+    return 6;
+}
+
+/**
  * the ideal number of steps we should take along
  * this line to render it with vertex points
  */

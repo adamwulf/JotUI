@@ -46,6 +46,8 @@ struct Vertex{
 
 -(CGFloat) lengthOfElement;
 
+-(NSInteger) numberOfVerticesPerStep;
+
 -(NSInteger) numberOfSteps;
 
 -(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
