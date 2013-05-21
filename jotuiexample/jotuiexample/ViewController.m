@@ -243,7 +243,7 @@
 
 
 -(IBAction) showSettings:(id)sender{
-    JotSettingsViewController* settings = [[JotSettingsViewController alloc] init];
+    JotSettingsViewController* settings = [[JotSettingsViewController alloc] initWithOnOffSwitch:YES andShowPalmRejection:YES];
     if(popoverController){
         [popoverController dismissPopoverAnimated:NO];
     }
