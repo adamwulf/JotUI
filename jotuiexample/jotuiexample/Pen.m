@@ -37,11 +37,11 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
 }
 
 -(id) init{
-    return [self initWithMinSize:6.0 andMaxSize:15.0 andMinAlpha:0.9 andMaxAlpha:0.9];
+    return [self initWithMinSize:60.0 andMaxSize:60.0 andMinAlpha:0.9 andMaxAlpha:0.9];
 }
 
 -(UIImage*) texture{
-    return [UIImage imageNamed:@"Circle.png"];
+    return [UIImage imageNamed:@"Filled.png"];
 }
 
 #pragma mark - Setters

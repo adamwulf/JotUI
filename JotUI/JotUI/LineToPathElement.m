@@ -34,7 +34,7 @@
 
 
 -(NSInteger) numberOfSteps{
-    return 3;
+    return 6;
 }
 
 /**
@@ -55,58 +55,6 @@
  * resolution content, even though its drawn with the same number of points
  */
 -(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
-//    // if we have a buffer generated and cached,
-//    // then just return that
-//    if(vertexBuffer && scaleOfVertexBuffer == scale){
-//        return vertexBuffer;
-//    }
-//    // malloc the memory for our buffer, if needed
-//    if(!vertexBuffer){
-//        vertexBuffer = (struct Vertex*) malloc([self numberOfSteps]*sizeof(struct Vertex));
-//    }
-//    
-//    // save our scale, we're only going to cache a vertex
-//    // buffer for 1 scale at a time
-//    scaleOfVertexBuffer = scale;
-//    
-//    
-//    GLubyte prevColor[4];
-//    [color getRGBAComponents:prevColor];
-//    
-//    for(int step = 0;step < [self numberOfSteps]; step ++){
-//        vertexBuffer[step].Position[0] = (GLfloat) startPoint.x * scaleOfVertexBuffer;
-//        vertexBuffer[step].Position[1] = (GLfloat) startPoint.y * scaleOfVertexBuffer;
-//        if(step == 1){
-//            vertexBuffer[step].Position[0] += 30;
-//        }else if(step == 2){
-//            vertexBuffer[step].Position[1] += 30;
-//        }
-//        
-//        vertexBuffer[step].Texture[0] = 0;
-//        vertexBuffer[step].Texture[1] = 0;
-//        if(step == 1){
-//            vertexBuffer[step].Texture[0] = 1;
-//        }else if(step == 2){
-//            vertexBuffer[step].Texture[1] = 1;
-//        }
-//        
-//        // normal brush
-//        // interpolate between starting and ending color
-//        vertexBuffer[step].Color[0] = prevColor[0];
-//        vertexBuffer[step].Color[1] = prevColor[1];
-//        vertexBuffer[step].Color[2] = prevColor[2];
-//        vertexBuffer[step].Color[3] = prevColor[3];
-//        
-//        // premultiply alpha
-//        vertexBuffer[step].Color[0] *= (vertexBuffer[step].Color[3] / 255.0);
-//        vertexBuffer[step].Color[1] *= (vertexBuffer[step].Color[3] / 255.0);
-//        vertexBuffer[step].Color[2] *= (vertexBuffer[step].Color[3] / 255.0);
-//    }
-    
-    
-    
-    
-
     // if we have a buffer generated and cached,
     // then just return that
     if(vertexBuffer && scaleOfVertexBuffer == scale){
@@ -143,7 +91,7 @@
     
     // generate a single point vertex for each step
     // so that the stroke is essentially a series of dots
-	for(int step = 0; step < numberOfSteps; step+=3) {
+	for(int step = 0; step < numberOfSteps; step+=6) {
         // 0 <= t < 1
         CGFloat t = (CGFloat)step / (CGFloat)numberOfSteps;
         
@@ -151,48 +99,94 @@
         CGPoint point = CGPointMake(startPoint.x + (lineTo.x - startPoint.x) * t,
                                     startPoint.y + (lineTo.y - startPoint.y) * t);
         
-        for(int innerStep = 0;innerStep < 3;innerStep++){
+        
+        // precalculate the color that we'll use for all
+        // of the vertices for this step
+        GLubyte calcColor[4];
+        if(!self.color){
+            // eraser
+            calcColor[0] = 0;
+            calcColor[1] = 0;
+            calcColor[2] = 0;
+            calcColor[3] = 255;
+        }else{
+            // normal brush
+            // interpolate between starting and ending color
+            calcColor[0] = prevColor[0] + colorSteps[0] * t;
+            calcColor[1] = prevColor[1] + colorSteps[1] * t;
+            calcColor[2] = prevColor[2] + colorSteps[2] * t;
+            calcColor[3] = prevColor[3] + colorSteps[3] * t;
+            // premultiply alpha
+            calcColor[0] *= (vertexBuffer[step].Color[3] / 255.0);
+            calcColor[1] *= (vertexBuffer[step].Color[3] / 255.0);
+            calcColor[2] *= (vertexBuffer[step].Color[3] / 255.0);
+        }
+        
+        NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point
+                                                          andWidth:prevWidth + widthDiff * t
+                                                       andRotation:0];
+        
+        for(int innerStep = 0;innerStep < [vertexPointArray count];innerStep++){
+            CGPoint stepPoint = [[vertexPointArray objectAtIndex:innerStep] CGPointValue];
             // Convert locations from Points to Pixels
-            vertexBuffer[step + innerStep].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
-            vertexBuffer[step + innerStep].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
-            vertexBuffer[step + innerStep].Texture[0] = 0;
-            vertexBuffer[step + innerStep].Texture[1] = 0;
-            if(innerStep == 1){
-                vertexBuffer[step + innerStep].Position[0] += prevWidth + widthDiff * t;
+            vertexBuffer[step + innerStep].Position[0] = stepPoint.x;
+            vertexBuffer[step + innerStep].Position[1] = stepPoint.y;
+            if(innerStep == 0){
+                vertexBuffer[step + innerStep].Texture[0] = 0;
+                vertexBuffer[step + innerStep].Texture[1] = 0;
+            }else if(innerStep == 1){
                 vertexBuffer[step + innerStep].Texture[0] = 1;
+                vertexBuffer[step + innerStep].Texture[1] = 0;
             }else if(innerStep == 2){
-                vertexBuffer[step + innerStep].Position[1] += prevWidth + widthDiff * t;
+                vertexBuffer[step + innerStep].Texture[0] = 0;
+                vertexBuffer[step + innerStep].Texture[1] = 1;
+            }else if(innerStep == 3){
+                vertexBuffer[step + innerStep].Texture[0] = 1;
+                vertexBuffer[step + innerStep].Texture[1] = 1;
+            }else if(innerStep == 4){
+                vertexBuffer[step + innerStep].Texture[0] = 1;
+                vertexBuffer[step + innerStep].Texture[1] = 0;
+            }else if(innerStep == 5){
+                vertexBuffer[step + innerStep].Texture[0] = 0;
                 vertexBuffer[step + innerStep].Texture[1] = 1;
             }
-            
             // set colors to the array
-            if(!self.color){
-                // eraser
-                vertexBuffer[step + innerStep].Color[0] = 0;
-                vertexBuffer[step + innerStep].Color[1] = 0;
-                vertexBuffer[step + innerStep].Color[2] = 0;
-                vertexBuffer[step + innerStep].Color[3] = 255;
-            }else{
-                // normal brush
-                // interpolate between starting and ending color
-                vertexBuffer[step + innerStep].Color[0] = prevColor[0] + colorSteps[0] * t;
-                vertexBuffer[step + innerStep].Color[1] = prevColor[1] + colorSteps[1] * t;
-                vertexBuffer[step + innerStep].Color[2] = prevColor[2] + colorSteps[2] * t;
-                vertexBuffer[step + innerStep].Color[3] = prevColor[3] + colorSteps[3] * t;
-                
-                // premultiply alpha
-                vertexBuffer[step + innerStep].Color[0] *= (vertexBuffer[step].Color[3] / 255.0);
-                vertexBuffer[step + innerStep].Color[1] *= (vertexBuffer[step].Color[3] / 255.0);
-                vertexBuffer[step + innerStep].Color[2] *= (vertexBuffer[step].Color[3] / 255.0);
-            }
-//            
-//            // set vertex point size
-//            CGFloat steppedWidth = prevWidth + widthDiff * t;
-//            vertexBuffer[step].Size = steppedWidth*scaleOfVertexBuffer;
+            vertexBuffer[step + innerStep].Color[0] = calcColor[0];
+            vertexBuffer[step + innerStep].Color[1] = calcColor[1];
+            vertexBuffer[step + innerStep].Color[2] = calcColor[2];
+            vertexBuffer[step + innerStep].Color[3] = calcColor[3];
         }
 	}
     return vertexBuffer;
 }
+
+-(NSArray*) arrayOfPositionsForPoint:(CGPoint)point
+                            andWidth:(CGFloat)stepWidth
+                         andRotation:(CGFloat)stepRotation{
+    point.x = point.x * scaleOfVertexBuffer;
+    point.y = point.y * scaleOfVertexBuffer;
+    
+    CGRect rect = CGRectMake(point.x - stepWidth/2, point.y - stepWidth/2, stepWidth, stepWidth);
+    
+    CGPoint topLeft  = rect.origin;
+    CGPoint topRight = rect.origin; topRight.x += rect.size.width;
+    CGPoint botLeft  = rect.origin; botLeft.y += rect.size.width;
+    CGPoint botRight = rect.origin; botRight.y += rect.size.width; botRight.x += rect.size.width;
+
+    // TODO: rotation
+    // translate + rotate + translate each point to rotate it
+    
+    NSMutableArray* outArray = [NSMutableArray array];
+    [outArray addObject:[NSValue valueWithCGPoint:topLeft]];
+    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
+    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
+    [outArray addObject:[NSValue valueWithCGPoint:botRight]];
+    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
+    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
+
+    return outArray;
+}
+
 
 #pragma mark - For Subclasses
 

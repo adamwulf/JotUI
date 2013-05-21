@@ -32,7 +32,7 @@
  * only 1 step to show our single point
  */
 -(NSInteger) numberOfSteps{
-    return 3;
+    return 6;
 }
 
 

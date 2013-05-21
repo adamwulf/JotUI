@@ -654,13 +654,13 @@ typedef Vertex3D Vector3D;
     // fetch the vertex data from the element
     struct Vertex* vertexBuffer = [element generatedVertexArrayWithPreviousElement:previousElement forScale:scale];
     
+    glLineWidth(2);
+    
     // if the element has any data, then draw it
     if(vertexBuffer){
         glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Position[0]);
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(struct Vertex), &vertexBuffer[0].Color[0]);
         glTexCoordPointer(2, GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Texture[0]);
-//        glPointSizePointerOES(GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Size);
-//        glDrawArrays(GL_POINTS, 0, [element numberOfSteps]);
         glDrawArrays(GL_TRIANGLES, 0, [element numberOfSteps]);
     }
     
