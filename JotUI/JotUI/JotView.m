@@ -658,8 +658,10 @@ typedef Vertex3D Vector3D;
     if(vertexBuffer){
         glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Position[0]);
         glColorPointer(4, GL_UNSIGNED_BYTE, sizeof(struct Vertex), &vertexBuffer[0].Color[0]);
-        glPointSizePointerOES(GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Size);
-        glDrawArrays(GL_POINTS, 0, [element numberOfSteps]);
+        glTexCoordPointer(2, GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Texture[0]);
+//        glPointSizePointerOES(GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Size);
+//        glDrawArrays(GL_POINTS, 0, [element numberOfSteps]);
+        glDrawArrays(GL_TRIANGLES, 0, [element numberOfSteps]);
     }
     
     if(frameBuffer){
@@ -681,7 +683,8 @@ typedef Vertex3D Vector3D;
     // setup our state
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
 }
 
 /**

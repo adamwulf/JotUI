@@ -11,7 +11,8 @@
 struct Vertex{
     GLfloat Position[2];    // x,y position
     GLubyte Color [4];      // rgba color
-    GLfloat Size;           // pixel size
+    GLfloat Texture[2];    // x,y texture coord
+//    GLfloat Size;           // pixel size
 };
 
 
