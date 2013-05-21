@@ -36,7 +36,9 @@
 - (IBAction) redo;
 
 // export the drawn strokes to a uiimage, with optional background color and background image
-- (UIImage *) exportToImageWithBackgroundColor:(UIColor*)backgroundColor andBackgroundImage:(UIImage*)backgroundImage;
+-(void) exportToImageWithBackgroundColor:(UIColor*)backgroundColor
+                      andBackgroundImage:(UIImage*)backgroundImage
+                              onComplete:(void(^)(UIImage*) )exportFinishBlock;
 
 // imports an image
 -(void) loadImage:(UIImage*)backgroundImage;

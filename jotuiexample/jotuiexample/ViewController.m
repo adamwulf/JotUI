@@ -218,8 +218,9 @@
 
 
 -(IBAction) saveImage{
-    UIImage* image = [jotView exportToImageWithBackgroundColor:nil andBackgroundImage:nil];
-    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+    [jotView exportToImageWithBackgroundColor:nil andBackgroundImage:nil onComplete:^(UIImage* image){
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+    }];
 }
 
 -(IBAction) loadImageFromLibary:(UIButton*)sender{

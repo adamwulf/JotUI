@@ -298,7 +298,10 @@ typedef Vertex3D Vector3D;
  * and
  * http://stackoverflow.com/questions/1379274/uiimagewritetosavedphotosalbum-saves-to-wrong-size-and-quality
  */
--(UIImage *) exportToImageWithBackgroundColor:(UIColor*)backgroundColor andBackgroundImage:(UIImage*)backgroundImage{
+-(void) exportToImageWithBackgroundColor:(UIColor*)backgroundColor
+                           andBackgroundImage:(UIImage*)backgroundImage
+                                   onComplete:(void(^)(UIImage*) )exportFinishBlock{
+    
     // make sure everything is rendered to the buffer
     [self renderAllStrokes];
     
@@ -320,71 +323,79 @@ typedef Vertex3D Vector3D;
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
     glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
     
-    // Create a CGImage with the pixel data from OpenGL
-    // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
-    // otherwise, use kCGImageAlphaPremultipliedLast
-    CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    CGImageRef iref = CGImageCreate(width, height, 8, 32, width * 4, colorspace, kCGBitmapByteOrderDefault |
-                                    kCGImageAlphaPremultipliedLast,
-                                    ref, NULL, true, kCGRenderingIntentDefault);
-    
     //
-    // ok, now we have the pixel data from the OpenGL frame buffer.
-    // next we need to setup the image context to composite the background color, background image, and opengl image to
-    
-    // OpenGL ES measures data in PIXELS
-    // Create a graphics context with the target size measured in POINTS
-    CGContextRef bitmapContext = CGBitmapContextCreate(NULL, width, height, 8, width * 4, colorspace, kCGBitmapByteOrderDefault |
-                          kCGImageAlphaPremultipliedLast);
-
-    // fill background color, if any
-    if(backgroundColor){
-        CGContextSetFillColorWithColor(bitmapContext, backgroundColor.CGColor);
-        CGContextFillRect(bitmapContext, CGRectMake(0, 0, width, height));
-    }
-    
-    // fill background image, if any
-    // and use scale-to-fill, similar to a UIImageView
-    if(backgroundImage){
-        // find the right location and size to draw the background so that it aspect fills the export image
-        CGSize backgroundSize = CGSizeMake(CGImageGetWidth(backgroundImage.CGImage), CGImageGetHeight(backgroundImage.CGImage));
-        CGSize finalImageSize = CGSizeMake(width,height);
-        CGFloat horizontalRatio = finalImageSize.width / backgroundSize.width;
-        CGFloat verticalRatio = finalImageSize.height / backgroundSize.height;
-        CGFloat ratio = MAX(horizontalRatio, verticalRatio); //AspectFill
-        CGSize aspectFillSize = CGSizeMake(backgroundSize.width * ratio, backgroundSize.height * ratio);
+    // the rest can be done in Core Graphics in a background thread
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        // Create a CGImage with the pixel data from OpenGL
+        // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+        // otherwise, use kCGImageAlphaPremultipliedLast
+        CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
+        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+        CGImageRef iref = CGImageCreate(width, height, 8, 32, width * 4, colorspace, kCGBitmapByteOrderDefault |
+                                        kCGImageAlphaPremultipliedLast,
+                                        ref, NULL, true, kCGRenderingIntentDefault);
         
-        //Draw our image centered vertically and horizontally in our context.
-        CGContextDrawImage(bitmapContext,
-                           CGRectMake((finalImageSize.width-aspectFillSize.width)/2,
-                                      (finalImageSize.height-aspectFillSize.height)/2,
-                                      aspectFillSize.width,
-                                      aspectFillSize.height),
-                           backgroundImage.CGImage);
-    }
-    
-    // flip vertical for our drawn content, since OpenGL is opposite core graphics
-    CGContextTranslateCTM(bitmapContext, 0, height);
-    CGContextScaleCTM(bitmapContext, 1.0, -1.0);
-    
-    //
-    // ok, now render our actual content
-    CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, width, height), iref);
-    
-    // Retrieve the UIImage from the current context
-    CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
-    UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
-
-    
-    // Clean up
-    free(data);
-    CFRelease(ref);
-    CFRelease(colorspace);
-    CGImageRelease(iref);
-    CGContextRelease(bitmapContext);
-    
-    return image;
+        //
+        // ok, now we have the pixel data from the OpenGL frame buffer.
+        // next we need to setup the image context to composite the
+        // background color, background image, and opengl image
+        
+        // OpenGL ES measures data in PIXELS
+        // Create a graphics context with the target size measured in POINTS
+        CGContextRef bitmapContext = CGBitmapContextCreate(NULL, width, height, 8, width * 4, colorspace, kCGBitmapByteOrderDefault |
+                                                           kCGImageAlphaPremultipliedLast);
+        
+        // fill background color, if any
+        if(backgroundColor){
+            CGContextSetFillColorWithColor(bitmapContext, backgroundColor.CGColor);
+            CGContextFillRect(bitmapContext, CGRectMake(0, 0, width, height));
+        }
+        
+        // fill background image, if any
+        // and use scale-to-fill, similar to a UIImageView
+        if(backgroundImage){
+            // find the right location and size to draw the background so that it aspect fills the export image
+            CGSize backgroundSize = CGSizeMake(CGImageGetWidth(backgroundImage.CGImage), CGImageGetHeight(backgroundImage.CGImage));
+            CGSize finalImageSize = CGSizeMake(width,height);
+            CGFloat horizontalRatio = finalImageSize.width / backgroundSize.width;
+            CGFloat verticalRatio = finalImageSize.height / backgroundSize.height;
+            CGFloat ratio = MAX(horizontalRatio, verticalRatio); //AspectFill
+            CGSize aspectFillSize = CGSizeMake(backgroundSize.width * ratio, backgroundSize.height * ratio);
+            
+            //Draw our image centered vertically and horizontally in our context.
+            CGContextDrawImage(bitmapContext,
+                               CGRectMake((finalImageSize.width-aspectFillSize.width)/2,
+                                          (finalImageSize.height-aspectFillSize.height)/2,
+                                          aspectFillSize.width,
+                                          aspectFillSize.height),
+                               backgroundImage.CGImage);
+        }
+        
+        // flip vertical for our drawn content, since OpenGL is opposite core graphics
+        CGContextTranslateCTM(bitmapContext, 0, height);
+        CGContextScaleCTM(bitmapContext, 1.0, -1.0);
+        
+        //
+        // ok, now render our actual content
+        CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, width, height), iref);
+        
+        // Retrieve the UIImage from the current context
+        CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
+        UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
+        
+        // Clean up
+        free(data);
+        CFRelease(ref);
+        CFRelease(colorspace);
+        CGImageRelease(iref);
+        CGContextRelease(bitmapContext);
+        
+        if(exportFinishBlock){
+            // ok, we're done exporting and cleaning up
+            // so pass the newly generated image to the completion block
+            exportFinishBlock(image);
+        }
+    });
 }
 
 /**
