@@ -168,10 +168,10 @@
     
     CGRect rect = CGRectMake(point.x - stepWidth/2, point.y - stepWidth/2, stepWidth, stepWidth);
     
-    CGPoint topLeft  = rect.origin;
-    CGPoint topRight = rect.origin; topRight.x += rect.size.width;
-    CGPoint botLeft  = rect.origin; botLeft.y += rect.size.width;
-    CGPoint botRight = rect.origin; botRight.y += rect.size.width; botRight.x += rect.size.width;
+    CGPoint topLeft  = rect.origin; topLeft.y += rect.size.width;
+    CGPoint topRight = rect.origin; topRight.y += rect.size.width; topRight.x += rect.size.width;
+    CGPoint botLeft  = rect.origin;
+    CGPoint botRight = rect.origin; botRight.x += rect.size.width;
 
     // TODO: rotation
     // translate + rotate + translate each point to rotate it
