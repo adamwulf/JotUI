@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import "AbstractBezierPathElement.h"
-#import "LineToPathElement.h"
 
 /**
  * a moveto element represents the beginning of
@@ -19,7 +18,9 @@
  * it can piggy back on the generatedVertexArrayWithPreviousElement:forScale:
  * method of the LineToPathElement class
  */
-@interface MoveToPathElement : LineToPathElement
+@interface MoveToPathElement : AbstractBezierPathElement
+
+@property (nonatomic, assign) CGFloat  rotation;
 
 +(id) elementWithMoveTo:(CGPoint)point;
 

@@ -33,9 +33,12 @@
  * only 1 step to show our single point
  */
 -(NSInteger) numberOfSteps{
-    return 1;
+    return 0;
 }
 
+-(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
+    return NULL;
+}
 
 #pragma mark - LineToPathElement subclass
 
