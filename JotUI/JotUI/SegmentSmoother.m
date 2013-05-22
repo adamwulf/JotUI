@@ -6,8 +6,8 @@
 //  Copyright (c) 2012 Adonit. All rights reserved.
 //
 
-#import "AbstractBezierPathElement.h"
 #import "SegmentSmoother.h"
+#import "AbstractBezierPathElement.h"
 #import "LineToPathElement.h"
 #import "CurveToPathElement.h"
 #import "MoveToPathElement.h"

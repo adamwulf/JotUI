@@ -18,7 +18,7 @@
 		669B39C41692B46B00F12F42 /* JotUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39A91692B46A00F12F42 /* JotUI.framework */; };
 		669B39CA1692B46B00F12F42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 669B39C81692B46B00F12F42 /* InfoPlist.strings */; };
 		669B39CD1692B46B00F12F42 /* JotUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39CC1692B46B00F12F42 /* JotUITests.m */; };
-		669B39E31692B50500F12F42 /* AbstractBezierPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39D91692B50500F12F42 /* AbstractBezierPathElement.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		669B39E31692B50500F12F42 /* AbstractBezierPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39D91692B50500F12F42 /* AbstractBezierPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39E41692B50500F12F42 /* AbstractBezierPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39DA1692B50500F12F42 /* AbstractBezierPathElement.m */; };
 		669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DB1692B50500F12F42 /* CurveToPathElement.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		669B39E61692B50500F12F42 /* CurveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39DC1692B50500F12F42 /* CurveToPathElement.m */; };
@@ -243,8 +243,8 @@
 			files = (
 				669B3A981692BADA00F12F42 /* JotViewDelegate.h in Headers */,
 				669B39F31692B52800F12F42 /* JotUI.h in Headers */,
-				669B3A311692B68F00F12F42 /* JotView.h in Headers */,
 				669B39E31692B50500F12F42 /* AbstractBezierPathElement.h in Headers */,
+				669B3A311692B68F00F12F42 /* JotView.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				66AA5FB8169E77180046CA26 /* JotStroke.h in Headers */,
 				669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */,

@@ -7,7 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "AbstractBezierPathElement.h"
+
+@class AbstractBezierPathElement;
 
 @interface SegmentSmoother : NSObject{
     CGPoint point0;

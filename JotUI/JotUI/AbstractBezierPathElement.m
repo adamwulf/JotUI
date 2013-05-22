@@ -16,6 +16,7 @@
 @synthesize startPoint;
 @synthesize width;
 @synthesize color;
+@synthesize rotation;
 
 -(id) initWithStart:(CGPoint)point{
     if(self = [super init]){
@@ -80,6 +81,16 @@
     
     // TODO: rotation
     // translate + rotate + translate each point to rotate it
+    
+    CGAffineTransform translateTransform = CGAffineTransformMakeTranslation(point.x, point.y);
+    CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(stepRotation);
+    CGAffineTransform customRotation = CGAffineTransformConcat(CGAffineTransformConcat( CGAffineTransformInvert(translateTransform), rotationTransform), translateTransform);
+    
+    topLeft = CGPointApplyAffineTransform(topLeft, customRotation);
+    topRight = CGPointApplyAffineTransform(topRight, customRotation);
+    botLeft = CGPointApplyAffineTransform(botLeft, customRotation);
+    botRight = CGPointApplyAffineTransform(botRight, customRotation);
+    
     
     NSMutableArray* outArray = [NSMutableArray array];
     [outArray addObject:[NSValue valueWithCGPoint:topLeft]];

@@ -8,13 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
+#ifndef HEADER_H
+#define HEADER_H
+
 struct Vertex{
     GLfloat Position[2];    // x,y position
     GLubyte Color [4];      // rgba color
     GLfloat Texture[2];    // x,y texture coord
-//    GLfloat Size;           // pixel size
+    //    GLfloat Size;           // pixel size
 };
 
+#endif
 
 /**
  * This represents the number of points to move
@@ -33,6 +37,7 @@ struct Vertex{
     CGPoint startPoint;
     CGFloat width;
     UIColor* color;
+    CGFloat rotation;
     
     struct Vertex* vertexBuffer;
     CGFloat scaleOfVertexBuffer;
@@ -41,6 +46,7 @@ struct Vertex{
 @property (nonatomic) __strong UIColor* color;
 @property (nonatomic, assign) CGFloat width;
 @property (nonatomic, readonly) CGPoint startPoint;
+@property (nonatomic, assign) CGFloat  rotation;
 
 -(id) initWithStart:(CGPoint)point;
 

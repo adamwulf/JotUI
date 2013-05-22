@@ -8,7 +8,7 @@
 
 #import "JotStroke.h"
 #import "SegmentSmoother.h"
-
+#import "AbstractBezierPathElement.h"
 
 @implementation JotStroke
 

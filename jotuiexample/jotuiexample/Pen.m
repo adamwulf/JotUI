@@ -37,7 +37,7 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
 }
 
 -(id) init{
-    return [self initWithMinSize:60.0 andMaxSize:60.0 andMinAlpha:0.9 andMaxAlpha:0.9];
+    return [self initWithMinSize:60.0 andMaxSize:60.0 andMinAlpha:0.03 andMaxAlpha:0.03];
 }
 
 -(UIImage*) texture{
@@ -189,6 +189,10 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  */
 -(CGFloat) smoothnessForTouch:(JotTouch *)touch{
     return 0.75;
+}
+
+-(CGFloat) rotationForSegment:(AbstractBezierPathElement *)segment fromPreviousSegment:(AbstractBezierPathElement *)previousSegment{
+    return previousSegment.rotation + [segment lengthOfElement] / 100;
 }
 
 @end

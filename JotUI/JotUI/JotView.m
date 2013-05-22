@@ -614,10 +614,13 @@ typedef Vertex3D Vector3D;
     end.y = self.bounds.size.height - end.y;
     if(![currentStroke addPoint:end withWidth:width andColor:color andSmoothness:smoothFactor]) return;
     
+    AbstractBezierPathElement* addedElement = [currentStroke.segments lastObject];
+    addedElement.rotation = [self.delegate rotationForSegment:addedElement fromPreviousSegment:previousElement];
+
     //
     // ok, now we have the current + previous stroke segment
     // so let's set to drawing it!
-    [self renderElement:[currentStroke.segments lastObject] fromPreviousElement:previousElement includeOpenGLPrepForFBO:viewFramebuffer];
+    [self renderElement:addedElement fromPreviousElement:previousElement includeOpenGLPrepForFBO:viewFramebuffer];
     
     // Display the buffer
     [self presentRenderBuffer];

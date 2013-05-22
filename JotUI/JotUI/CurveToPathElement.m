@@ -160,7 +160,7 @@
         
         NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point
                                                           andWidth:(prevWidth + widthDiff * t) * scaleOfVertexBuffer
-                                                       andRotation:0];
+                                                       andRotation:self.rotation];
         
         for(int innerStep = 0;innerStep < [vertexPointArray count];innerStep++){
             CGPoint stepPoint = [[vertexPointArray objectAtIndex:innerStep] CGPointValue];

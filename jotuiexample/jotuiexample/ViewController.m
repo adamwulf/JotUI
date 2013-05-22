@@ -327,6 +327,10 @@
     return [[self activePen] smoothnessForTouch:touch];
 }
 
+-(CGFloat) rotationForSegment:(AbstractBezierPathElement *)segment fromPreviousSegment:(AbstractBezierPathElement *)previousSegment{
+    return [[self activePen] rotationForSegment:segment fromPreviousSegment:previousSegment];
+}
+
 #pragma mark - StylusConnectionDelegate
 
 -(void)connectionChange:(NSNotification *) note{
