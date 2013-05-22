@@ -52,4 +52,8 @@ struct Vertex{
 
 -(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
 
+-(NSArray*) arrayOfPositionsForPoint:(CGPoint)point
+                            andWidth:(CGFloat)stepWidth
+                         andRotation:(CGFloat)stepRotation;
+
 @end

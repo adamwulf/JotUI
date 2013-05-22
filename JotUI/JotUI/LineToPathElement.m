@@ -54,17 +54,17 @@
     if(vertexBuffer && scaleOfVertexBuffer == scale){
         return vertexBuffer;
     }
+    // Convert locations from Points to Pixels
+	// Add points to the buffer so there are drawing points every X pixels
+	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
+    
     // malloc the memory for our buffer, if needed
     if(!vertexBuffer){
-        vertexBuffer = (struct Vertex*) malloc([self numberOfSteps]*[self numberOfVerticesPerStep]*sizeof(struct Vertex));
+        vertexBuffer = (struct Vertex*) malloc(numberOfVertices*sizeof(struct Vertex));
     }
     
     // save our scale
     scaleOfVertexBuffer = scale;
-    
-    // Convert locations from Points to Pixels
-	// Add points to the buffer so there are drawing points every X pixels
-	int numberOfSteps = [self numberOfSteps] * [self numberOfVerticesPerStep];
     
     // now lets calculate the steps we need to adjust width
     CGFloat prevWidth =  [self widthOfPreviousElement:previousElement];
@@ -85,9 +85,9 @@
     
     // generate a single point vertex for each step
     // so that the stroke is essentially a series of dots
-	for(int step = 0; step < numberOfSteps; step+=[self numberOfVerticesPerStep]) {
+	for(int step = 0; step < numberOfVertices; step+=[self numberOfVerticesPerStep]) {
         // 0 <= t < 1
-        CGFloat t = (CGFloat)step / (CGFloat)numberOfSteps;
+        CGFloat t = (CGFloat)step / (CGFloat)numberOfVertices;
         
         // calculate the point along the line
         CGPoint point = CGPointMake(startPoint.x + (lineTo.x - startPoint.x) * t,
@@ -110,13 +110,13 @@
             calcColor[2] = prevColor[2] + colorSteps[2] * t;
             calcColor[3] = prevColor[3] + colorSteps[3] * t;
             // premultiply alpha
-            calcColor[0] *= (vertexBuffer[step].Color[3] / 255.0);
-            calcColor[1] *= (vertexBuffer[step].Color[3] / 255.0);
-            calcColor[2] *= (vertexBuffer[step].Color[3] / 255.0);
+            calcColor[0] *= (calcColor[3] / 255.0);
+            calcColor[1] *= (calcColor[3] / 255.0);
+            calcColor[2] *= (calcColor[3] / 255.0);
         }
         
         NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point
-                                                          andWidth:prevWidth + widthDiff * t
+                                                          andWidth:(prevWidth + widthDiff * t) * scaleOfVertexBuffer
                                                        andRotation:0];
         
         for(int innerStep = 0;innerStep < [vertexPointArray count];innerStep++){
@@ -152,34 +152,6 @@
 	}
     return vertexBuffer;
 }
-
--(NSArray*) arrayOfPositionsForPoint:(CGPoint)point
-                            andWidth:(CGFloat)stepWidth
-                         andRotation:(CGFloat)stepRotation{
-    point.x = point.x * scaleOfVertexBuffer;
-    point.y = point.y * scaleOfVertexBuffer;
-    
-    CGRect rect = CGRectMake(point.x - stepWidth/2, point.y - stepWidth/2, stepWidth, stepWidth);
-    
-    CGPoint topLeft  = rect.origin; topLeft.y += rect.size.width;
-    CGPoint topRight = rect.origin; topRight.y += rect.size.width; topRight.x += rect.size.width;
-    CGPoint botLeft  = rect.origin;
-    CGPoint botRight = rect.origin; botRight.x += rect.size.width;
-
-    // TODO: rotation
-    // translate + rotate + translate each point to rotate it
-    
-    NSMutableArray* outArray = [NSMutableArray array];
-    [outArray addObject:[NSValue valueWithCGPoint:topLeft]];
-    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
-    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
-    [outArray addObject:[NSValue valueWithCGPoint:botRight]];
-    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
-    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
-
-    return outArray;
-}
-
 
 #pragma mark - For Subclasses
 

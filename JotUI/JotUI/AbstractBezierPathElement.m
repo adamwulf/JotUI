@@ -64,6 +64,37 @@
     @throw kAbstractMethodException;
 }
 
+
+-(NSArray*) arrayOfPositionsForPoint:(CGPoint)point
+                            andWidth:(CGFloat)stepWidth
+                         andRotation:(CGFloat)stepRotation{
+    point.x = point.x * scaleOfVertexBuffer;
+    point.y = point.y * scaleOfVertexBuffer;
+    
+    CGRect rect = CGRectMake(point.x - stepWidth/2, point.y - stepWidth/2, stepWidth, stepWidth);
+    
+    CGPoint topLeft  = rect.origin; topLeft.y += rect.size.width;
+    CGPoint topRight = rect.origin; topRight.y += rect.size.width; topRight.x += rect.size.width;
+    CGPoint botLeft  = rect.origin;
+    CGPoint botRight = rect.origin; botRight.x += rect.size.width;
+    
+    // TODO: rotation
+    // translate + rotate + translate each point to rotate it
+    
+    NSMutableArray* outArray = [NSMutableArray array];
+    [outArray addObject:[NSValue valueWithCGPoint:topLeft]];
+    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
+    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
+    [outArray addObject:[NSValue valueWithCGPoint:botRight]];
+    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
+    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
+    
+    return outArray;
+}
+
+
+
+
 /**
  * make sure to free the generated vertex info
  */
