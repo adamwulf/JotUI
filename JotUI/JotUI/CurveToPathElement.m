@@ -8,6 +8,7 @@
 
 #import "CurveToPathElement.h"
 #import "UIColor+JotHelper.h"
+#import "AbstractBezierPathElement-Protected.h"
 
 @implementation CurveToPathElement
 
@@ -116,6 +117,10 @@
     colorSteps[2] = myColor[2] - prevColor[2];
     colorSteps[3] = myColor[3] - prevColor[3];
     
+    CGFloat rotationDiff = self.rotation - previousElement.rotation;
+    
+    CGFloat lastRotation;
+    
     //
     // calculate points along the curve that are realStepSize
     // length along the curve. since this is fairly intensive for
@@ -123,6 +128,10 @@
     for(int step = 0; step < numberOfVertices; step+=[self numberOfVerticesPerStep]) {
         // 0 <= t < 1 representing where we are in the stroke element
         CGFloat t = (CGFloat)step / (CGFloat)numberOfVertices;
+        
+        // current rotation
+        CGFloat stepRotation = previousElement.rotation + rotationDiff * t;
+        lastRotation = stepRotation;
         
         // calculate the point that is realStepSize distance
         // along the curve * which step we're on
@@ -160,7 +169,7 @@
         
         NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point
                                                           andWidth:(prevWidth + widthDiff * t) * scaleOfVertexBuffer
-                                                       andRotation:self.rotation];
+                                                       andRotation:stepRotation];
         
         for(int innerStep = 0;innerStep < [vertexPointArray count];innerStep++){
             CGPoint stepPoint = [[vertexPointArray objectAtIndex:innerStep] CGPointValue];
@@ -194,6 +203,8 @@
         }
     }
     
+    NSLog(@"start %f => %f", previousElement.rotation, lastRotation);
+
     return vertexBuffer;
 }
 

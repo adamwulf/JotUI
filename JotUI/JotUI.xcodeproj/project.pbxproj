@@ -60,6 +60,7 @@
 		662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoveToPathElement.m; sourceTree = "<group>"; };
 		66382CB116DD5DC40053C6E6 /* NSMutableSet+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableSet+Extras.h"; sourceTree = "<group>"; };
 		66382CB216DD5DC40053C6E6 /* NSMutableSet+Extras.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableSet+Extras.m"; sourceTree = "<group>"; };
+		6695B6D0174D497B0069E61F /* AbstractBezierPathElement-Protected.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AbstractBezierPathElement-Protected.h"; sourceTree = "<group>"; };
 		669B39A91692B46A00F12F42 /* JotUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = JotUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		669B39AC1692B46A00F12F42 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		669B39B01692B46A00F12F42 /* JotUI-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "JotUI-Info.plist"; sourceTree = "<group>"; };
@@ -191,6 +192,7 @@
 				669B39E11692B50500F12F42 /* SegmentSmoother.h */,
 				669B39E21692B50500F12F42 /* SegmentSmoother.m */,
 				669B39D91692B50500F12F42 /* AbstractBezierPathElement.h */,
+				6695B6D0174D497B0069E61F /* AbstractBezierPathElement-Protected.h */,
 				669B39DA1692B50500F12F42 /* AbstractBezierPathElement.m */,
 				662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */,
 				662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */,

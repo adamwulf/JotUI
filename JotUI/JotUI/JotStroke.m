@@ -9,6 +9,13 @@
 #import "JotStroke.h"
 #import "SegmentSmoother.h"
 #import "AbstractBezierPathElement.h"
+#import "AbstractBezierPathElement-Protected.h"
+
+@interface JotStroke (){
+    int steps;
+}
+
+@end
 
 @implementation JotStroke
 
@@ -22,6 +29,7 @@
         segments = [NSMutableArray array];
         segmentSmoother = [[SegmentSmoother alloc] init];
         texture = _texture;
+        steps = 0;
     }
     return self;
 }
@@ -40,6 +48,9 @@
     element.color = color;
     element.width = width;
     [segments addObject:element];
+    
+    steps += [element numberOfSteps];
+    NSLog(@"steps: %d", steps);
     return YES;
 }
 

@@ -8,6 +8,7 @@
 
 #import "LineToPathElement.h"
 #import "UIColor+JotHelper.h"
+#import "AbstractBezierPathElement-Protected.h"
 
 @implementation LineToPathElement
 
@@ -83,11 +84,16 @@
     colorSteps[2] = myColor[2] - prevColor[2];
     colorSteps[3] = myColor[3] - prevColor[3];
     
+    CGFloat rotationDiff = self.rotation - previousElement.rotation;
+
     // generate a single point vertex for each step
     // so that the stroke is essentially a series of dots
 	for(int step = 0; step < numberOfVertices; step+=[self numberOfVerticesPerStep]) {
         // 0 <= t < 1
         CGFloat t = (CGFloat)step / (CGFloat)numberOfVertices;
+        
+        // current rotation
+        CGFloat stepRotation = previousElement.rotation + rotationDiff * t;
         
         // calculate the point along the line
         CGPoint point = CGPointMake(startPoint.x + (lineTo.x - startPoint.x) * t,
@@ -117,7 +123,7 @@
         
         NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point
                                                           andWidth:(prevWidth + widthDiff * t) * scaleOfVertexBuffer
-                                                       andRotation:self.rotation];
+                                                       andRotation:stepRotation];
         
         for(int innerStep = 0;innerStep < [vertexPointArray count];innerStep++){
             CGPoint stepPoint = [[vertexPointArray objectAtIndex:innerStep] CGPointValue];

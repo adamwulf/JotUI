@@ -7,7 +7,7 @@
 //
 
 #import "AbstractBezierPathElement.h"
-
+#import "AbstractBezierPathElement-Protected.h"
 
 #define kAbstractMethodException [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil]
 

@@ -7,6 +7,7 @@
 //
 
 #import "MoveToPathElement.h"
+#import "AbstractBezierPathElement-Protected.h"
 
 @implementation MoveToPathElement
 

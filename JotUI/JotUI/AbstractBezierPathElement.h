@@ -8,8 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
-#ifndef HEADER_H
-#define HEADER_H
+#ifndef AbstractBezierPathElement_H
+#define AbstractBezierPathElement_H
 
 struct Vertex{
     GLfloat Position[2];    // x,y position
@@ -43,23 +43,11 @@ struct Vertex{
     CGFloat scaleOfVertexBuffer;
 }
 
-@property (nonatomic) __strong UIColor* color;
-@property (nonatomic, assign) CGFloat width;
+@property (nonatomic, readonly) UIColor* color;
+@property (nonatomic, readonly) CGFloat width;
 @property (nonatomic, readonly) CGPoint startPoint;
-@property (nonatomic, assign) CGFloat  rotation;
-
--(id) initWithStart:(CGPoint)point;
+@property (nonatomic, readonly) CGFloat  rotation;
 
 -(CGFloat) lengthOfElement;
-
--(NSInteger) numberOfVerticesPerStep;
-
--(NSInteger) numberOfSteps;
-
--(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
-
--(NSArray*) arrayOfPositionsForPoint:(CGPoint)point
-                            andWidth:(CGFloat)stepWidth
-                         andRotation:(CGFloat)stepRotation;
 
 @end

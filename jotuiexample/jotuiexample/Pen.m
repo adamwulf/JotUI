@@ -192,7 +192,7 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
 }
 
 -(CGFloat) rotationForSegment:(AbstractBezierPathElement *)segment fromPreviousSegment:(AbstractBezierPathElement *)previousSegment{
-    return previousSegment.rotation + [segment lengthOfElement] / 100;
+    return previousSegment.rotation + ([segment lengthOfElement] / 200) * M_PI;
 }
 
 @end

@@ -11,6 +11,7 @@
 
 #import "JotView.h"
 #import "AbstractBezierPathElement.h"
+#import "AbstractBezierPathElement-Protected.h"
 #import "LineToPathElement.h"
 #import "CurveToPathElement.h"
 #import "UIColor+JotHelper.h"
