@@ -227,8 +227,6 @@
         }
     }
     
-    NSLog(@"start %f => %f", previousElement.rotation, lastRotation);
-
     return vertexBuffer;
 }
 

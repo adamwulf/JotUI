@@ -26,4 +26,15 @@
 }
 
 
+-(CGFloat) rotationForSegment:(AbstractBezierPathElement *)segment fromPreviousSegment:(AbstractBezierPathElement *)previousSegment{
+    CGFloat superRet = [super rotationForSegment:segment fromPreviousSegment:previousSegment];
+    if(![previousSegment isKindOfClass:[MoveToPathElement class]]){
+        return superRet;
+    }
+    MoveToPathElement* moveTo = (MoveToPathElement*)previousSegment;
+    moveTo.rotation = [segment angleOfStart] + M_PI_2;
+    return superRet + M_PI_2;
+}
+
+
 @end
