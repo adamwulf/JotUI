@@ -26,14 +26,17 @@
 }
 
 
+/**
+ * this Marker will rotate so that
+ * it always faces the direction that
+ * the stroke is travelling
+ */
 -(CGFloat) rotationForSegment:(AbstractBezierPathElement *)segment fromPreviousSegment:(AbstractBezierPathElement *)previousSegment{
-    CGFloat superRet = [super rotationForSegment:segment fromPreviousSegment:previousSegment];
-    if(![previousSegment isKindOfClass:[MoveToPathElement class]]){
-        return superRet;
+    if([previousSegment isKindOfClass:[MoveToPathElement class]]){
+        MoveToPathElement* moveTo = (MoveToPathElement*)previousSegment;
+        moveTo.rotation = [segment angleOfStart] + M_PI_2;
     }
-    MoveToPathElement* moveTo = (MoveToPathElement*)previousSegment;
-    moveTo.rotation = [segment angleOfStart] + M_PI_2;
-    return superRet + M_PI_2;
+    return previousSegment.rotation + ([segment angleOfEnd] - [segment angleOfStart]);
 }
 
 

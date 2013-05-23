@@ -37,11 +37,11 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
 }
 
 -(id) init{
-    return [self initWithMinSize:60.0 andMaxSize:60.0 andMinAlpha:0.03 andMaxAlpha:0.03];
+    return [self initWithMinSize:6.0 andMaxSize:15.0 andMinAlpha:0.9 andMaxAlpha:0.9];
 }
 
 -(UIImage*) texture{
-    return [UIImage imageNamed:@"Filled.png"];
+    return [UIImage imageNamed:@"Circle.png"];
 }
 
 #pragma mark - Setters
@@ -191,12 +191,13 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
     return 0.75;
 }
 
+/**
+ * the pen is a circle, so rotation isn't very
+ * important for this pen. just return 0
+ * and don't have any rotation
+ */
 -(CGFloat) rotationForSegment:(AbstractBezierPathElement *)segment fromPreviousSegment:(AbstractBezierPathElement *)previousSegment{
-    if([previousSegment isKindOfClass:[MoveToPathElement class]]){
-        MoveToPathElement* moveTo = (MoveToPathElement*)previousSegment;
-        moveTo.rotation = [segment angleOfStart];
-    }
-    return previousSegment.rotation + ([segment angleOfEnd] - [segment angleOfStart]);
+    return 0;
 }
 
 @end
