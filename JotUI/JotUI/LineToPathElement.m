@@ -32,6 +32,16 @@
     return sqrtf((lineTo.x - startPoint.x) * (lineTo.x - startPoint.x) + (lineTo.y - startPoint.y) * (lineTo.y - startPoint.y));
 }
 
+
+-(CGFloat) angleOfStart{
+    return [self angleBetweenPoint:startPoint andPoint:lineTo];
+}
+
+-(CGFloat) angleOfEnd{
+    return [self angleBetweenPoint:startPoint andPoint:lineTo];
+}
+
+
 /**
  * generate a vertex buffer array for all of the points
  * along this curve for the input scale.

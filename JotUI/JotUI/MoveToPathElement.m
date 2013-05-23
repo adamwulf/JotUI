@@ -29,6 +29,15 @@
     return 0;
 }
 
+-(CGFloat) angleOfStart{
+    return 0;
+}
+
+-(CGFloat) angleOfEnd{
+    return 0;
+}
+
+
 /**
  * only 1 step to show our single point
  */

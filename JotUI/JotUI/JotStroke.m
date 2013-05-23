@@ -50,7 +50,6 @@
     [segments addObject:element];
     
     steps += [element numberOfSteps];
-    NSLog(@"steps: %d", steps);
     return YES;
 }
 

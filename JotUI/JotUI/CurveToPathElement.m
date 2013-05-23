@@ -55,6 +55,30 @@
     return length;
 }
 
+-(CGPoint) cgPointDiff:(CGPoint)point1 withPoint:(CGPoint)point2{
+    return CGPointMake(point1.x - point2.x, point1.y - point2.y);
+}
+
+-(CGFloat) angleOfStart{
+    return [self angleBetweenPoint:startPoint andPoint:ctrl1];
+}
+
+-(CGFloat) angleOfEnd{
+    CGFloat possibleRet = [self angleBetweenPoint:ctrl2 andPoint:curveTo];
+    CGFloat start = [self angleOfStart];
+    if(ABS(start - possibleRet) > M_PI){
+        CGFloat rotateRight = possibleRet + 2 * M_PI;
+        CGFloat rotateLeft = possibleRet - 2 * M_PI;
+        if(ABS(start - rotateRight) > M_PI){
+            return rotateLeft;
+        }else{
+            return rotateRight;
+        }
+    }
+    return possibleRet;
+}
+
+
 /**
  * generate a vertex buffer array for all of the points
  * along this curve for the input scale.

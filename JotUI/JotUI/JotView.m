@@ -933,6 +933,16 @@ typedef Vertex3D Vector3D;
                                    toColor:[self.delegate colorForTouch:jotTouch]
                                    andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
             
+            // make sure to add the dot if its just
+            // a single tap
+            if([currentStroke.segments count] == 1){
+                [self addLineToAndRenderStroke:currentStroke
+                                       toPoint:[touch locationInView:self]
+                                       toWidth:[self.delegate widthForTouch:jotTouch]
+                                       toColor:[self.delegate colorForTouch:jotTouch]
+                                 andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+            }
+            
             // this stroke is now finished, so add it to our completed strokes stack
             // and remove it from the current strokes, and reset our undo state if any
             [stackOfStrokes addObject:currentStroke];

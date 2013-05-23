@@ -27,6 +27,8 @@
                             andWidth:(CGFloat)stepWidth
                          andRotation:(CGFloat)stepRotation;
 
+-(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2;
+
 @end
 
 

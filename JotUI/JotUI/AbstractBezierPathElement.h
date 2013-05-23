@@ -49,5 +49,7 @@ struct Vertex{
 @property (nonatomic, readonly) CGFloat  rotation;
 
 -(CGFloat) lengthOfElement;
+-(CGFloat) angleOfStart;
+-(CGFloat) angleOfEnd;
 
 @end

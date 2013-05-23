@@ -35,6 +35,15 @@
     @throw kAbstractMethodException;
 }
 
+-(CGFloat) angleOfStart{
+    @throw kAbstractMethodException;
+}
+
+-(CGFloat) angleOfEnd{
+    @throw kAbstractMethodException;
+}
+
+
 /**
  * return the number of vertices to use per
  * step. this should be a multiple of 3,
@@ -103,7 +112,12 @@
     return outArray;
 }
 
-
+-(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2 {
+    // Provides a directional bearing from point2 to the given point.
+    // standard cartesian plain coords: Y goes up, X goes right
+    // result returns radians, -180 to 180 ish: 0 degrees = up, -90 = left, 90 = right
+    return atan2f(point1.y - point2.y, point1.x - point2.x) + M_PI_2;
+}
 
 
 /**
