@@ -10,23 +10,23 @@
 
 @implementation UIColor (JotHelper)
 
--(void) getRGBAComponents:(GLubyte[4])components{
+-(void) getRGBAComponents:(GLfloat[4])components{
     int numComponents = CGColorGetNumberOfComponents(self.CGColor);;
     const CGFloat *cmps = CGColorGetComponents(self.CGColor);
     
     if (numComponents == 4)
     {
         // rgb values + alpha
-        components[0] = (GLubyte)lroundf(cmps[0]*255);
-        components[1] = (GLubyte)lroundf(cmps[1]*255);
-        components[2] = (GLubyte)lroundf(cmps[2]*255);
-        components[3] = (GLubyte)lroundf(cmps[3]*255);
+        components[0] = cmps[0];
+        components[1] = cmps[1];
+        components[2] = cmps[2];
+        components[3] = cmps[3];
     }else if(numComponents == 2){
         // greyscale, set rgb to the same value + alpha
-        components[0] = (GLubyte)lroundf(cmps[0]*255);
-        components[1] = (GLubyte)lroundf(cmps[0]*255);
-        components[2] = (GLubyte)lroundf(cmps[0]*255);
-        components[3] = (GLubyte)lroundf(cmps[1]*255);
+        components[0] = cmps[0];
+        components[1] = cmps[0];
+        components[2] = cmps[0];
+        components[3] = cmps[1];
     }
 }
 

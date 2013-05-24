@@ -16,6 +16,6 @@
  * since the CG function may return a different number
  * of components for different colors
  */
--(void) getRGBAComponents:(GLubyte[4])components;
+-(void) getRGBAComponents:(GLfloat[4])components;
 
 @end

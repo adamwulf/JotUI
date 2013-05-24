@@ -82,8 +82,8 @@
     CGFloat widthDiff = self.width - prevWidth;
     
     // next is the steps to adjust color
-    GLubyte prevColor[4], myColor[4];
-    short colorSteps[4];
+    GLfloat prevColor[4], myColor[4];
+    GLfloat colorSteps[4];
     [[self colorOfPreviousElement:previousElement] getRGBAComponents:prevColor];
     [self.color getRGBAComponents:myColor];
     
@@ -126,9 +126,9 @@
             calcColor[2] = prevColor[2] + colorSteps[2] * t;
             calcColor[3] = prevColor[3] + colorSteps[3] * t;
             // premultiply alpha
-            calcColor[0] *= (calcColor[3] / 255.0);
-            calcColor[1] *= (calcColor[3] / 255.0);
-            calcColor[2] *= (calcColor[3] / 255.0);
+            calcColor[0] *= calcColor[3];
+            calcColor[1] *= calcColor[3];
+            calcColor[2] *= calcColor[3];
         }
         
         NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point

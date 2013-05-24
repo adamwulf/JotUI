@@ -132,8 +132,8 @@
     
     // now find the differences in color between
     // the previous stroke and this stroke
-    GLubyte prevColor[4], myColor[4];
-    short colorSteps[4];
+    GLfloat prevColor[4], myColor[4];
+    GLfloat colorSteps[4];
     [previousElement.color getRGBAComponents:prevColor];
     [self.color getRGBAComponents:myColor];
     colorSteps[0] = myColor[0] - prevColor[0];
@@ -162,7 +162,7 @@
         subdivideBezierAtLength(bez, leftBez, rightBez, realStepSize*step, .05);
         CGPoint point = rightBez[0];
         
-        GLubyte calcColor[4];
+        GLfloat calcColor[4];
         // set colors to the array
         if(!self.color){
             // eraser
@@ -179,9 +179,9 @@
             calcColor[3] = prevColor[3] + colorSteps[3] * t;
             
             // premultiply alpha
-            calcColor[0] *= (calcColor[3] / 255.0);
-            calcColor[1] *= (calcColor[3] / 255.0);
-            calcColor[2] *= (calcColor[3] / 255.0);
+            calcColor[0] *= calcColor[3];
+            calcColor[1] *= calcColor[3];
+            calcColor[2] *= calcColor[3];
         }
         
         
