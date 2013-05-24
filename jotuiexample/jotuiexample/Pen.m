@@ -143,17 +143,15 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  * is the look we're going for.
  */
 -(UIColor*) colorForTouch:(JotTouch*)touch{
-    CGFloat width = [self widthForTouch:touch];
     if(shouldUseVelocity){
         CGFloat segmentAlpha = (velocity - 1);
         if(segmentAlpha > 0) segmentAlpha = 0;
         segmentAlpha = minAlpha + ABS(segmentAlpha) * (maxAlpha - minAlpha);
-        return [color colorWithAlphaComponent:segmentAlpha/(width/5)];
+        return [color colorWithAlphaComponent:segmentAlpha];
     }else{
         CGFloat segmentAlpha = minAlpha + (maxAlpha-minAlpha) * touch.pressure / JOT_MAX_PRESSURE;
         if(segmentAlpha < minAlpha) segmentAlpha = minAlpha;
         return [color colorWithAlphaComponent:segmentAlpha];
-        return [color colorWithAlphaComponent:segmentAlpha/(width/5)];
     }
 }
 

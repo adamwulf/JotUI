@@ -156,6 +156,7 @@
         // current rotation
         CGFloat stepRotation = previousElement.rotation + rotationDiff * t;
         lastRotation = stepRotation;
+        CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
         
         // calculate the point that is realStepSize distance
         // along the curve * which step we're on
@@ -178,13 +179,13 @@
             calcColor[2] = prevColor[2] + colorSteps[2] * t;
             calcColor[3] = prevColor[3] + colorSteps[3] * t;
             
+            calcColor[3] = calcColor[3] / (stepWidth/20);
+
             // premultiply alpha
-            calcColor[0] *= calcColor[3];
-            calcColor[1] *= calcColor[3];
-            calcColor[2] *= calcColor[3];
+            calcColor[0] = calcColor[0] * calcColor[3];
+            calcColor[1] = calcColor[1] * calcColor[3];
+            calcColor[2] = calcColor[2] * calcColor[3];
         }
-        
-        
         
         // Convert locations from screen Points to GL points (screen pixels)
         vertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
@@ -192,7 +193,7 @@
         
         
         NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point
-                                                          andWidth:(prevWidth + widthDiff * t) * scaleOfVertexBuffer
+                                                          andWidth:stepWidth
                                                        andRotation:stepRotation];
         
         for(int innerStep = 0;innerStep < [vertexPointArray count];innerStep++){

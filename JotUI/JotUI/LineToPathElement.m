@@ -104,6 +104,7 @@
         
         // current rotation
         CGFloat stepRotation = previousElement.rotation + rotationDiff * t;
+        CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
         
         // calculate the point along the line
         CGPoint point = CGPointMake(startPoint.x + (lineTo.x - startPoint.x) * t,
@@ -126,13 +127,13 @@
             calcColor[2] = prevColor[2] + colorSteps[2] * t;
             calcColor[3] = prevColor[3] + colorSteps[3] * t;
             // premultiply alpha
-            calcColor[0] *= calcColor[3];
-            calcColor[1] *= calcColor[3];
-            calcColor[2] *= calcColor[3];
+            calcColor[0] = calcColor[0] * calcColor[3] / stepWidth;
+            calcColor[1] = calcColor[1] * calcColor[3] / stepWidth;
+            calcColor[2] = calcColor[2] * calcColor[3] / stepWidth;
         }
         
         NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point
-                                                          andWidth:(prevWidth + widthDiff * t) * scaleOfVertexBuffer
+                                                          andWidth:stepWidth
                                                        andRotation:stepRotation];
         
         for(int innerStep = 0;innerStep < [vertexPointArray count];innerStep++){

@@ -153,9 +153,6 @@ typedef Vertex3D Vector3D;
     // Set a blending function appropriate for premultiplied alpha pixel data
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     
-    glEnable(GL_POINT_SPRITE_OES);
-    glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
-    
     return self;
 }
 
@@ -688,7 +685,6 @@ typedef Vertex3D Vector3D;
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-//    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
 }
 
 /**
@@ -713,7 +709,7 @@ typedef Vertex3D Vector3D;
  */
 -(void) unprepOpenGLState{
     // Restore state
-    glDisableClientState(GL_POINT_SIZE_ARRAY_OES);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 }
