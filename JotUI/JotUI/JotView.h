@@ -23,7 +23,7 @@
     NSUInteger undoLimit;
 }
 
-@property (nonatomic) IBOutlet __weak NSObject<JotViewDelegate>* delegate;
+@property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
 @property (nonatomic) NSUInteger undoLimit;
 
 // erase the screen
@@ -34,6 +34,8 @@
 
 // redo the last undo, if any
 - (IBAction) redo;
+
+-(void) cancelStrokeForTouch:(UITouch*)touch;
 
 // export the drawn strokes to a uiimage, with optional background color and background image
 -(void) exportToImageWithBackgroundColor:(UIColor*)backgroundColor
