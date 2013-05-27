@@ -57,7 +57,7 @@
  * a notification that a new stroke is about to begin
  * with the input touch
  */
-- (void) willBeginStrokeWithTouch:(JotTouch*)touch;
+- (BOOL) willBeginStrokeWithTouch:(JotTouch*)touch;
 
 /**
  * a notification that the input is moving to the

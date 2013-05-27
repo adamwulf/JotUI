@@ -31,6 +31,8 @@
 // redo the last undo, if any
 - (IBAction) redo;
 
+-(void) cancelStrokeForTouch:(UITouch*)touch;
+
 // export the drawn strokes to a uiimage, with optional background color and background image
 - (void) exportToImageWithBackgroundColor:(UIColor*)backgroundColor
                       andBackgroundImage:(UIImage*)backgroundImage

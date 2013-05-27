@@ -776,15 +776,25 @@ typedef Vertex3D Vector3D;
  * this method will return the stroke for the given touch
  */
 -(JotStroke*) getStrokeForTouchHash:(NSUInteger)touchHash{
+    return [currentStrokes objectForKey:@(touchHash)];
+}
+
+-(void) makeStrokeForTouchHash:(NSUInteger)touchHash{
     JotStroke* ret = [currentStrokes objectForKey:@(touchHash)];
     if(!ret){
         ret = [[JotStroke alloc] initWithTexture:currentTexture];
         [currentStrokes setObject:ret forKey:@(touchHash)];
     }
-    return ret;
 }
 
-
+-(void) cancelStrokeForTouch:(UITouch*)touch{
+    JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+    JotStroke* stroke = [self getStrokeForTouchHash:jotTouch.hash];
+    if(stroke){
+        [currentStrokes removeObjectForKey:@(jotTouch.hash)];
+        [self renderAllStrokes];
+    }
+}
 
 #pragma mark - JotPalmRejectionDelegate
 
@@ -793,15 +803,15 @@ typedef Vertex3D Vector3D;
  */
 -(void)jotStylusTouchBegan:(NSSet *) touches{
     for(JotTouch* touch in touches){
-        [self.delegate willBeginStrokeWithTouch:touch];
-        
-        // find the stroke that we're modifying, and then add an element and render it
-        [self addLineToAndRenderStroke:[self getStrokeForTouchHash:touch.hash]
-                               toPoint:[touch locationInView:self]
-                               toWidth:[self.delegate widthForTouch:touch]
-                               toColor:[self.delegate colorForTouch:touch]
-                               andSmoothness:[self.delegate smoothnessForTouch:touch]];
-        
+        if([self.delegate willBeginStrokeWithTouch:touch]){
+            [self makeStrokeForTouchHash:touch.hash];
+            // find the stroke that we're modifying, and then add an element and render it
+            [self addLineToAndRenderStroke:[self getStrokeForTouchHash:touch.hash]
+                                   toPoint:[touch locationInView:self]
+                                   toWidth:[self.delegate widthForTouch:touch]
+                                   toColor:[self.delegate colorForTouch:touch]
+                             andSmoothness:[self.delegate smoothnessForTouch:touch]];
+        }
     }
 }
 
@@ -812,12 +822,14 @@ typedef Vertex3D Vector3D;
     for(JotTouch* touch in touches){
         [self.delegate willMoveStrokeWithTouch:touch];
         
-        // find the stroke that we're modifying, and then add an element and render it
-        [self addLineToAndRenderStroke:[self getStrokeForTouchHash:touch.hash]
-                               toPoint:[touch locationInView:self]
-                               toWidth:[self.delegate widthForTouch:touch]
-                               toColor:[self.delegate colorForTouch:touch]
-                               andSmoothness:[self.delegate smoothnessForTouch:touch]];
+        if([self getStrokeForTouchHash:touch.hash]){
+            // find the stroke that we're modifying, and then add an element and render it
+            [self addLineToAndRenderStroke:[self getStrokeForTouchHash:touch.hash]
+                                   toPoint:[touch locationInView:self]
+                                   toWidth:[self.delegate widthForTouch:touch]
+                                   toColor:[self.delegate colorForTouch:touch]
+                             andSmoothness:[self.delegate smoothnessForTouch:touch]];
+        }
     }
 }
 
@@ -827,24 +839,25 @@ typedef Vertex3D Vector3D;
 -(void)jotStylusTouchEnded:(NSSet *) touches{
     for(JotTouch* touch in touches){
         JotStroke* currentStroke = [self getStrokeForTouchHash:touch.hash];
-        
-        // move to this endpoint
-        [self jotStylusTouchMoved:touches];
-        // now line to the end of the stroke
-        [self addLineToAndRenderStroke:currentStroke
-                               toPoint:[touch locationInView:self]
-                               toWidth:[self.delegate widthForTouch:touch]
-                               toColor:[self.delegate colorForTouch:touch]
-                               andSmoothness:[self.delegate smoothnessForTouch:touch]];
-
-        [self.delegate didEndStrokeWithTouch:touch];
-        
-        // this stroke is now finished, so add it to our completed strokes stack
-        // and remove it from the current strokes, and reset our undo state if any
-        [stackOfStrokes addObject:currentStroke];
-        [currentStrokes removeObjectForKey:@(touch.hash)];
-        [stackOfUndoneStrokes removeAllObjects];
-        [self validateUndoState];
+        if(currentStroke){
+            // move to this endpoint
+            [self jotStylusTouchMoved:touches];
+            // now line to the end of the stroke
+            [self addLineToAndRenderStroke:currentStroke
+                                   toPoint:[touch locationInView:self]
+                                   toWidth:[self.delegate widthForTouch:touch]
+                                   toColor:[self.delegate colorForTouch:touch]
+                             andSmoothness:[self.delegate smoothnessForTouch:touch]];
+            
+            [self.delegate didEndStrokeWithTouch:touch];
+            
+            // this stroke is now finished, so add it to our completed strokes stack
+            // and remove it from the current strokes, and reset our undo state if any
+            [stackOfStrokes addObject:currentStroke];
+            [currentStrokes removeObjectForKey:@(touch.hash)];
+            [stackOfUndoneStrokes removeAllObjects];
+            [self validateUndoState];
+        }
     }
 }
 
@@ -855,8 +868,10 @@ typedef Vertex3D Vector3D;
     for(JotTouch* touch in touches){
         // If appropriate, add code necessary to save the state of the application.
         // This application is not saving state.
-        [self.delegate didCancelStrokeWithTouch:touch];
-        [currentStrokes removeObjectForKey:@(touch.hash)];
+        if([self getStrokeForTouchHash:touch.hash]){
+            [self.delegate didCancelStrokeWithTouch:touch];
+            [currentStrokes removeObjectForKey:@(touch.hash)];
+        }
     }
     // we need to erase the current stroke from the screen, so
     // clear the canvas and rerender all valid strokes
@@ -896,12 +911,13 @@ typedef Vertex3D Vector3D;
     if(![JotStylusManager sharedInstance].enabled){
         for (UITouch *touch in touches) {
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-            [self addLineToAndRenderStroke:[self getStrokeForTouchHash:touch.hash]
-                                   toPoint:[touch locationInView:self]
-                                   toWidth:[self.delegate widthForTouch:jotTouch]
-                                   toColor:[self.delegate colorForTouch:jotTouch]
-                                   andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-            
+            if([self.delegate willBeginStrokeWithTouch:jotTouch]){
+                [self addLineToAndRenderStroke:[self getStrokeForTouchHash:jotTouch.hash]
+                                       toPoint:[touch locationInView:self]
+                                       toWidth:[self.delegate widthForTouch:jotTouch]
+                                       toColor:[self.delegate colorForTouch:jotTouch]
+                                 andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+            }
         }
     }
 }
@@ -915,12 +931,14 @@ typedef Vertex3D Vector3D;
             // for this example, we'll simply draw every touch if
             // the jot sdk is not enabled
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-            [self addLineToAndRenderStroke:[self getStrokeForTouchHash:touch.hash]
-                                   toPoint:[touch locationInView:self]
-                                   toWidth:[self.delegate widthForTouch:jotTouch]
-                                   toColor:[self.delegate colorForTouch:jotTouch]
-                                   andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-            
+            if([self getStrokeForTouchHash:touch.hash]){
+                [self.delegate willMoveStrokeWithTouch:jotTouch];
+                [self addLineToAndRenderStroke:[self getStrokeForTouchHash:jotTouch.hash]
+                                       toPoint:[touch locationInView:self]
+                                       toWidth:[self.delegate widthForTouch:jotTouch]
+                                       toColor:[self.delegate colorForTouch:jotTouch]
+                                 andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+            }
         }
     }
 }
@@ -928,32 +946,36 @@ typedef Vertex3D Vector3D;
 -(void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
     if(![JotStylusManager sharedInstance].enabled){
         for(UITouch* touch in touches){
-            JotStroke* currentStroke = [self getStrokeForTouchHash:touch.hash];
             
             // now line to the end of the stroke
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-            [self addLineToAndRenderStroke:currentStroke
-                                   toPoint:[touch locationInView:self]
-                                   toWidth:[self.delegate widthForTouch:jotTouch]
-                                   toColor:[self.delegate colorForTouch:jotTouch]
-                                   andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-            
-            // make sure to add the dot if its just
-            // a single tap
-            if([currentStroke.segments count] == 1){
+            JotStroke* currentStroke = [self getStrokeForTouchHash:jotTouch.hash];
+            if(currentStroke){
                 [self addLineToAndRenderStroke:currentStroke
                                        toPoint:[touch locationInView:self]
                                        toWidth:[self.delegate widthForTouch:jotTouch]
                                        toColor:[self.delegate colorForTouch:jotTouch]
                                  andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                
+                // make sure to add the dot if its just
+                // a single tap
+                if([currentStroke.segments count] == 1){
+                    [self addLineToAndRenderStroke:currentStroke
+                                           toPoint:[touch locationInView:self]
+                                           toWidth:[self.delegate widthForTouch:jotTouch]
+                                           toColor:[self.delegate colorForTouch:jotTouch]
+                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                }
+                
+                [self.delegate didEndStrokeWithTouch:jotTouch];
+                
+                // this stroke is now finished, so add it to our completed strokes stack
+                // and remove it from the current strokes, and reset our undo state if any
+                [stackOfStrokes addObject:currentStroke];
+                [currentStrokes removeObjectForKey:@(jotTouch.hash)];
+                [stackOfUndoneStrokes removeAllObjects];
+                [self validateUndoState];
             }
-            
-            // this stroke is now finished, so add it to our completed strokes stack
-            // and remove it from the current strokes, and reset our undo state if any
-            [stackOfStrokes addObject:currentStroke];
-            [currentStrokes removeObjectForKey:@(touch.hash)];
-            [stackOfUndoneStrokes removeAllObjects];
-            [self validateUndoState];
         }
     }
 }
@@ -963,7 +985,11 @@ typedef Vertex3D Vector3D;
         for(UITouch* touch in touches){
             // If appropriate, add code necessary to save the state of the application.
             // This application is not saving state.
-            [currentStrokes removeObjectForKey:@(touch.hash)];
+            JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+            if([self getStrokeForTouchHash:jotTouch.hash]){
+                [self.delegate didCancelStrokeWithTouch:jotTouch];
+                [currentStrokes removeObjectForKey:@(jotTouch.hash)];
+            }
         }
         // we need to erase the current stroke from the screen, so
         // clear the canvas and rerender all valid strokes
