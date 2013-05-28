@@ -7,7 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SegmentSmoother.h"
+#import <UIKit/UIKit.h>
+
+@class SegmentSmoother;
 
 /**
  * a simple class to help us manage a single
