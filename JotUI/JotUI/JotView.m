@@ -768,6 +768,21 @@ typedef Vertex3D Vector3D;
 }
 
 
+#pragma mark - JotStrokeDelegate
+
+-(void) jotStrokeWasCancelled:(JotStroke*)stroke{
+    NSLog(@"should cancel: %@", stroke);
+    for(id key in [currentStrokes allKeys]){
+        JotStroke* aStroke = [currentStrokes objectForKey:key];
+        if(aStroke == stroke){
+            [currentStrokes removeObjectForKey:key];
+            [self renderAllStrokes];
+            return;
+        }
+    }
+}
+
+
 #pragma mark - JotPalmRejectionDelegate
 
 /**
@@ -777,6 +792,7 @@ typedef Vertex3D Vector3D;
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
             JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:currentTexture];
+            newStroke.delegate = self;
             [currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
             // find the stroke that we're modifying, and then add an element and render it
             [self addLineToAndRenderStroke:newStroke

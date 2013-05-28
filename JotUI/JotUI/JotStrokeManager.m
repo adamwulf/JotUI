@@ -74,6 +74,7 @@ static JotStrokeManager* _instance = nil;
     // that it should be cancelled?
     JotStroke* stroke = [self getStrokeForTouchHash:touch];
     if(stroke){
+        [stroke cancel];
         [strokeCache removeObjectForKey:@(touch.hash)];
     }
     return stroke != nil;

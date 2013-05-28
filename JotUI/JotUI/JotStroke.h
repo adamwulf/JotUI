@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "JotStrokeDelegate.h"
 
 @class SegmentSmoother;
 
@@ -24,11 +25,13 @@
     NSMutableArray* segments;
     // this is the texture to use when drawing the stroke
     UIImage* texture;
+    __weak NSObject<JotStrokeDelegate>* delegate;
 }
 
 @property (nonatomic, readonly) SegmentSmoother* segmentSmoother;
 @property (nonatomic, readonly) NSMutableArray* segments;
 @property (nonatomic, readonly) UIImage* texture;
+@property (nonatomic, weak) NSObject<JotStrokeDelegate>* delegate;
 
 /**
  * create an empty stroke with the input texture
@@ -49,5 +52,6 @@
 -(BOOL) addPoint:(CGPoint)point withWidth:(CGFloat)width andColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor;
 
 
+-(void) cancel;
 
 @end
