@@ -13,3 +13,4 @@
 #import "JotView.h"
 #import "JotViewDelegate.h"
 #import "MoveToPathElement.h"
+#import "JotStrokeManager.h"

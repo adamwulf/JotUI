@@ -11,7 +11,7 @@
 		662B55D116A9EAC30020CFC3 /* MoveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */; };
 		66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 66382CB116DD5DC40053C6E6 /* NSMutableSet+Extras.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		66382CB416DD5DC50053C6E6 /* NSMutableSet+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 66382CB216DD5DC40053C6E6 /* NSMutableSet+Extras.m */; };
-		663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 663C186F175467DB00706A05 /* JotStrokeManager.h */; };
+		663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 663C186F175467DB00706A05 /* JotStrokeManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		663C1872175467DB00706A05 /* JotStrokeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 663C1870175467DB00706A05 /* JotStrokeManager.m */; };
 		669B39AD1692B46A00F12F42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
 		669B39B31692B46A00F12F42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 669B39B11692B46A00F12F42 /* InfoPlist.strings */; };
@@ -36,7 +36,7 @@
 		66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A340251694FF5E0093E81A /* UIColor+JotHelper.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		66A340281694FF5E0093E81A /* UIColor+JotHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A340261694FF5E0093E81A /* UIColor+JotHelper.m */; };
 		66AA213616FCE26600E86922 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
-		66AA5FB8169E77180046CA26 /* JotStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA5FB6169E77180046CA26 /* JotStroke.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		66AA5FB8169E77180046CA26 /* JotStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA5FB6169E77180046CA26 /* JotStroke.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66AA5FB9169E77180046CA26 /* JotStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA5FB7169E77180046CA26 /* JotStroke.m */; };
 /* End PBXBuildFile section */
 
@@ -253,14 +253,14 @@
 				669B39F31692B52800F12F42 /* JotUI.h in Headers */,
 				669B39E31692B50500F12F42 /* AbstractBezierPathElement.h in Headers */,
 				662B55D016A9EAC30020CFC3 /* MoveToPathElement.h in Headers */,
-				669B3A311692B68F00F12F42 /* JotView.h in Headers */,
-				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				66AA5FB8169E77180046CA26 /* JotStroke.h in Headers */,
+				669B3A311692B68F00F12F42 /* JotView.h in Headers */,
+				663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */,
+				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */,
 				66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */,
 				66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */,
 				669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */,
-				663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
