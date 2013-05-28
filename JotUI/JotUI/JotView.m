@@ -766,7 +766,6 @@ typedef Vertex3D Vector3D;
 #pragma mark - JotStrokeDelegate
 
 -(void) jotStrokeWasCancelled:(JotStroke*)stroke{
-    NSLog(@"should cancel: %@", stroke);
     for(id key in [currentStrokes allKeys]){
         JotStroke* aStroke = [currentStrokes objectForKey:key];
         if(aStroke == stroke){
