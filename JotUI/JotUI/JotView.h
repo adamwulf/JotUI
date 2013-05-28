@@ -17,7 +17,7 @@
 
 @class SegmentSmoother, UIPalmView;
 
-@interface JotView : UIView<JotPalmRejectionDelegate>{
+@interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>{
     __weak NSObject<JotViewDelegate>* delegate;
     
     NSUInteger undoLimit;

@@ -11,17 +11,12 @@
 #import "AbstractBezierPathElement.h"
 #import "AbstractBezierPathElement-Protected.h"
 
-@interface JotStroke (){
-    int steps;
-}
-
-@end
-
 @implementation JotStroke
 
 @synthesize segments;
 @synthesize segmentSmoother;
 @synthesize texture;
+@synthesize delegate;
 
 
 -(id) initWithTexture:(UIImage*)_texture{
@@ -29,7 +24,6 @@
         segments = [NSMutableArray array];
         segmentSmoother = [[SegmentSmoother alloc] init];
         texture = _texture;
-        steps = 0;
     }
     return self;
 }
@@ -49,8 +43,11 @@
     element.width = width;
     [segments addObject:element];
     
-    steps += [element numberOfSteps];
     return YES;
+}
+
+-(void) cancel{
+    [self.delegate jotStrokeWasCancelled:self];
 }
 
 
