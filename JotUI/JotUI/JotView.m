@@ -1096,6 +1096,17 @@ typedef Vertex3D Vector3D;
 }
 
 
+-(NSUInteger) undoHash{
+    NSUInteger hashVal = 0;
+    for(JotStroke* stroke in stackOfStrokes){
+        hashVal += [stroke hash];
+    }
+    for(JotStroke* stroke in currentStrokes){
+        hashVal += [stroke hash];
+    }
+    return hashVal;
+}
+
 
 #pragma mark - dealloc
 
