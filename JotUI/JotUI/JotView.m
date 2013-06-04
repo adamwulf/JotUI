@@ -1096,6 +1096,16 @@ typedef Vertex3D Vector3D;
 }
 
 
+/**
+ * returns a single integer that represents the current state
+ * of the visible UI. This number will take into account the strokes
+ * that are in the undo stack, as well as any strokes that are
+ * currenlty being drawn to the UI.
+ *
+ * any strokes in the redo stack are ignored. in this way, if the user
+ * draws a stroke, then taps undo, the undoHash will be the same
+ * as if they had never drawn the stroke
+ */
 -(NSUInteger) undoHash{
     NSUInteger hashVal = 0;
     for(JotStroke* stroke in stackOfStrokes){
