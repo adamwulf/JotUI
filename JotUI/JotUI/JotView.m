@@ -158,6 +158,13 @@ typedef Vertex3D Vector3D;
     // Set a blending function appropriate for premultiplied alpha pixel data
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     
+    glEnable(GL_POINT_SPRITE_OES);
+    glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+    
+	[EAGLContext setCurrentContext:context];
+	[self destroyFramebuffer];
+	[self createFramebuffer];
+
     return self;
 }
 
@@ -198,29 +205,6 @@ typedef Vertex3D Vector3D;
 }
 
 
-
-/**
- * If our view is resized, we'll be asked to layout subviews.
- * This is the perfect opportunity to also update the framebuffer so that it is
- * the same size as our display area.
- */
--(void)layoutSubviews{
-    // check if we have a framebuffer at all
-    // if not, then we'll make sure to clear
-    // it when we first create it
-    BOOL needsErase = (BOOL) viewFramebuffer;
-    
-	[EAGLContext setCurrentContext:context];
-	[self destroyFramebuffer];
-	[self createFramebuffer];
-    [self loadImage:nil];
-    	
-	// Clear the framebuffer the first time it is allocated
-	if (needsErase) {
-		[self clear];
-		needsErase = NO;
-	}
-}
 
 /**
  * this will create the framebuffer and related
