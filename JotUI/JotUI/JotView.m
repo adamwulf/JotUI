@@ -17,6 +17,7 @@
 #import "CurveToPathElement.h"
 #import "UIColor+JotHelper.h"
 #import "JotGLTexture.h"
+#import "JotGLTextureBackedFrameBuffer.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -29,7 +30,7 @@
     
 @private
     JotGLTexture* backgroundTexture;
-    GLuint backgroundFramebuffer;
+    JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
     
 	// The pixel dimensions of the backbuffer
 	GLint backingWidth;
@@ -104,7 +105,6 @@
 
 
 -(id) finishInit{
-    
     //
     // this view should accept Jot stylus touch events
     [[JotStylusManager sharedInstance] registerView:self];
@@ -237,6 +237,8 @@
 		NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
 		return NO;
 	}
+    
+    [self clear];
 	
 	return YES;
 }
@@ -249,10 +251,7 @@
         glDeleteFramebuffersOES(1, &viewFramebuffer);
         viewFramebuffer = 0;
     }
-    if(backgroundFramebuffer){
-        glDeleteFramebuffersOES(1, &backgroundFramebuffer);
-        backgroundFramebuffer = 0;
-    }
+    backgroundFramebuffer = nil;
     if(viewRenderbuffer){
         glDeleteRenderbuffersOES(1, &viewRenderbuffer);
         viewRenderbuffer = 0;
@@ -390,44 +389,23 @@
  * use an image that is the same size as the view's frame.
  *
  * This method will also reset the undo state of the view.
+ *
+ * This method must be called at least one time after initialization
  */
 -(void) loadImage:(UIImage*)backgroundImage{
     CGFloat scale = [[UIScreen mainScreen] scale];
     CGSize fullPointSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
     
-    // unload old texture
-    backgroundTexture = nil;
-    
-    // regenerate FBO
-    if(backgroundFramebuffer){
-        glDeleteFramebuffersOES(1, &backgroundFramebuffer);
-        backgroundFramebuffer = 0;
-    }
-
-    // generate FBO
-    glGenFramebuffersOES(1, &backgroundFramebuffer);
-    
+    // load new texture
     backgroundTexture = [[JotGLTexture alloc] initForImage:backgroundImage withSize:fullPointSize];
     
-    if(backgroundFramebuffer){
-        // generate FBO
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, backgroundFramebuffer);
-        // associate texture with FBO
-        glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, backgroundTexture.textureID, 0);
-    }
-    // check if it worked (probably worth doing :) )
-    GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-    if (status != GL_FRAMEBUFFER_COMPLETE_OES)
-    {
-        // didn't work
-        NSLog(@"failed to create texture frame buffer");
-    }
+    // regenerate FBO
+    backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
+    
     if(!backgroundImage){
         // no image was given, so it should be a blank texture
         // lets erase it, since it defaults to uncleared memory
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, backgroundFramebuffer);
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        [backgroundFramebuffer clear];
     }
     
     //
@@ -658,9 +636,6 @@
  */
 -(void) validateUndoState{
     if([stackOfStrokes count] > self.undoLimit){
-        if(!backgroundFramebuffer){
-            [self loadImage:nil];
-        }
         UIImage* keepThisTexture = currentTexture;
         while([stackOfStrokes count] > self.undoLimit){
             // get the stroke that we need to make permanent
@@ -668,7 +643,7 @@
             [stackOfStrokes removeObject:strokeToWriteToTexture];
             
             // render it to the backing texture
-            [self prepOpenGLStateForFBO:backgroundFramebuffer];
+            [self prepOpenGLStateForFBO:backgroundFramebuffer.framebufferID];
             // reset the texture so that we load the brush texture next
             currentTexture = nil;
             // now draw the strokes
@@ -1011,9 +986,7 @@
 	glClear(GL_COLOR_BUFFER_BIT);
 
     // clear the background
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, backgroundFramebuffer);
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+    [backgroundFramebuffer clear];
 
 	// Display the buffer
     [self presentRenderBuffer];
