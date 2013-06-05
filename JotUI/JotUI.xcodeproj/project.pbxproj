@@ -16,6 +16,8 @@
 		663C18751755271B00706A05 /* JotStrokeDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 663C1874175524EF00706A05 /* JotStrokeDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66455F8C175FC47200C66DFA /* JotGLTexture.h */; };
 		66455F8F175FC47200C66DFA /* JotGLTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F8D175FC47200C66DFA /* JotGLTexture.m */; };
+		66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 66455F90175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h */; };
+		66455F93175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */; };
 		669B39AD1692B46A00F12F42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
 		669B39B31692B46A00F12F42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 669B39B11692B46A00F12F42 /* InfoPlist.strings */; };
 		669B39BC1692B46B00F12F42 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39BB1692B46B00F12F42 /* SenTestingKit.framework */; };
@@ -70,6 +72,8 @@
 		663C1874175524EF00706A05 /* JotStrokeDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JotStrokeDelegate.h; sourceTree = "<group>"; };
 		66455F8C175FC47200C66DFA /* JotGLTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLTexture.h; sourceTree = "<group>"; };
 		66455F8D175FC47200C66DFA /* JotGLTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLTexture.m; sourceTree = "<group>"; };
+		66455F90175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLTextureBackedFrameBuffer.h; sourceTree = "<group>"; };
+		66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLTextureBackedFrameBuffer.m; sourceTree = "<group>"; };
 		6695B6D0174D497B0069E61F /* AbstractBezierPathElement-Protected.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AbstractBezierPathElement-Protected.h"; sourceTree = "<group>"; };
 		669B39A91692B46A00F12F42 /* JotUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = JotUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		669B39AC1692B46A00F12F42 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -131,6 +135,8 @@
 			children = (
 				66455F8C175FC47200C66DFA /* JotGLTexture.h */,
 				66455F8D175FC47200C66DFA /* JotGLTexture.m */,
+				66455F90175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h */,
+				66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */,
 			);
 			name = OpenGL;
 			sourceTree = "<group>";
@@ -280,6 +286,7 @@
 				66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */,
 				669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */,
 				66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */,
+				66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -444,6 +451,7 @@
 				66382CB416DD5DC50053C6E6 /* NSMutableSet+Extras.m in Sources */,
 				663C1872175467DB00706A05 /* JotStrokeManager.m in Sources */,
 				66455F8F175FC47200C66DFA /* JotGLTexture.m in Sources */,
+				66455F93175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

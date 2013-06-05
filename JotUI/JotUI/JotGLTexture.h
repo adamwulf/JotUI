@@ -9,11 +9,13 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-@interface JotGLTexture : NSObject
+@interface JotGLTexture : NSObject{
+    GLuint textureID;
+}
 
--(id) initForSize:(CGSize)size;
+@property (readonly) GLuint textureID;
 
--(void) loadImage:(UIImage*)backgroundImage intoFBO:(GLuint)backgroundFramebuffer;
+-(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size;
 
 -(void) bind;
 

@@ -407,8 +407,21 @@
     // generate FBO
     glGenFramebuffersOES(1, &backgroundFramebuffer);
     
-    backgroundTexture = [[JotGLTexture alloc] initForSize:fullPointSize];
-    [backgroundTexture loadImage:backgroundImage intoFBO:backgroundFramebuffer];
+    backgroundTexture = [[JotGLTexture alloc] initForImage:backgroundImage withSize:fullPointSize];
+    
+    if(backgroundFramebuffer){
+        // generate FBO
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, backgroundFramebuffer);
+        // associate texture with FBO
+        glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, backgroundTexture.textureID, 0);
+    }
+    // check if it worked (probably worth doing :) )
+    GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+    if (status != GL_FRAMEBUFFER_COMPLETE_OES)
+    {
+        // didn't work
+        NSLog(@"failed to create texture frame buffer");
+    }
     if(!backgroundImage){
         // no image was given, so it should be a blank texture
         // lets erase it, since it defaults to uncleared memory
@@ -997,8 +1010,10 @@
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-    // unload the background texture
-    backgroundTexture = nil;
+    // clear the background
+	glBindFramebufferOES(GL_FRAMEBUFFER_OES, backgroundFramebuffer);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Display the buffer
     [self presentRenderBuffer];
