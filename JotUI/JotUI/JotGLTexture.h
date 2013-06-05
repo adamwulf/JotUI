@@ -11,8 +11,12 @@
 
 @interface JotGLTexture : NSObject
 
--(void) loadImage:(UIImage*)backgroundImage forSize:(CGSize)fullPointSize intoFBO:(GLuint)backgroundFramebuffer;
+-(id) initForSize:(CGSize)size;
+
+-(void) loadImage:(UIImage*)backgroundImage intoFBO:(GLuint)backgroundFramebuffer;
 
 -(void) bind;
+
+-(void) draw;
 
 @end

@@ -7,12 +7,21 @@
 //
 
 #import "JotGLTexture.h"
+#import "JotUI.h"
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 
 @implementation JotGLTexture{
     GLuint backgroundTexture;
+    CGSize fullPointSize;
+}
+
+-(id) initForSize:(CGSize)size{
+    if(self = [super init]){
+        fullPointSize = size;
+    }
+    return self;
 }
 
 -(void) unload{
@@ -22,7 +31,7 @@
     }
 }
 
--(void) loadImage:(UIImage*)backgroundImage forSize:(CGSize)fullPointSize intoFBO:(GLuint)backgroundFramebuffer{
+-(void) loadImage:(UIImage*)backgroundImage intoFBO:(GLuint)backgroundFramebuffer{
     
     // unload the old texture
     [self unload];
@@ -94,6 +103,33 @@
 
 -(void) bind{
     glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+}
+
+
+-(void) draw{
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    Vertex3D vertices[] = {
+        { 0.0, fullPointSize.height},
+        { fullPointSize.width, fullPointSize.height},
+        { 0.0, 0.0},
+        { fullPointSize.width, 0.0}
+    };
+    static const GLfloat texCoords[] = {
+        0.0, 1.0,
+        1.0, 1.0,
+        0.0, 0.0,
+        1.0, 0.0
+    };
+    
+    [self bind];
+    
+    glVertexPointer(2, GL_FLOAT, 0, vertices);
+    glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 

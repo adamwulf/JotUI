@@ -23,13 +23,6 @@
 
 #define kJotDefaultUndoLimit 10
 
-typedef struct {
-	GLfloat	x;
-	GLfloat y;
-} Vertex3D;
-
-typedef Vertex3D Vector3D;
-
 
 @interface JotView ()
 {
@@ -256,6 +249,10 @@ typedef Vertex3D Vector3D;
         glDeleteFramebuffersOES(1, &viewFramebuffer);
         viewFramebuffer = 0;
     }
+    if(backgroundFramebuffer){
+        glDeleteFramebuffersOES(1, &backgroundFramebuffer);
+        backgroundFramebuffer = 0;
+    }
     if(viewRenderbuffer){
         glDeleteRenderbuffersOES(1, &viewRenderbuffer);
         viewRenderbuffer = 0;
@@ -401,16 +398,24 @@ typedef Vertex3D Vector3D;
     // unload old texture
     backgroundTexture = nil;
     
+    // regenerate FBO
     if(backgroundFramebuffer){
         glDeleteFramebuffersOES(1, &backgroundFramebuffer);
         backgroundFramebuffer = 0;
     }
-    
+
     // generate FBO
     glGenFramebuffersOES(1, &backgroundFramebuffer);
     
-    backgroundTexture = [[JotGLTexture alloc] init];
-    [backgroundTexture loadImage:backgroundImage forSize:fullPointSize intoFBO:backgroundFramebuffer];
+    backgroundTexture = [[JotGLTexture alloc] initForSize:fullPointSize];
+    [backgroundTexture loadImage:backgroundImage intoFBO:backgroundFramebuffer];
+    if(!backgroundImage){
+        // no image was given, so it should be a blank texture
+        // lets erase it, since it defaults to uncleared memory
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, backgroundFramebuffer);
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
     
     //
     // reset our undo state
@@ -457,29 +462,8 @@ typedef Vertex3D Vector3D;
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    Vertex3D vertices[] = {
-        { 0.0, backingHeight},
-        { backingWidth, backingHeight},
-        { 0.0, 0.0},
-        { backingWidth, 0.0}
-    };
-    static const GLfloat texCoords[] = {
-        0.0, 1.0,
-        1.0, 1.0,
-        0.0, 0.0,
-        1.0, 0.0
-    };
+    [backgroundTexture draw];
     
-    [backgroundTexture bind];
-    
-    glVertexPointer(2, GL_FLOAT, 0, vertices);
-    glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     //
     // ok, we're done rendering the background texture to the quad
     //
@@ -661,6 +645,9 @@ typedef Vertex3D Vector3D;
  */
 -(void) validateUndoState{
     if([stackOfStrokes count] > self.undoLimit){
+        if(!backgroundFramebuffer){
+            [self loadImage:nil];
+        }
         UIImage* keepThisTexture = currentTexture;
         while([stackOfStrokes count] > self.undoLimit){
             // get the stroke that we need to make permanent
