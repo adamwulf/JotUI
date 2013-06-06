@@ -14,6 +14,7 @@
 }
 
 @property (readonly) GLuint textureID;
+@property (readonly) CGSize pixelSize;
 
 -(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size;
 

@@ -287,6 +287,11 @@
                            andBackgroundImage:(UIImage*)backgroundImage
                                    onComplete:(void(^)(UIImage*) )exportFinishBlock{
     
+    
+    
+    [backgroundFramebuffer exportTexture];
+    
+    
     // make sure everything is rendered to the buffer
     [self renderAllStrokes];
     
@@ -394,10 +399,10 @@
  */
 -(void) loadImage:(UIImage*)backgroundImage{
     CGFloat scale = [[UIScreen mainScreen] scale];
-    CGSize fullPointSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
+    CGSize fullPixelSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
     
     // load new texture
-    backgroundTexture = [[JotGLTexture alloc] initForImage:backgroundImage withSize:fullPointSize];
+    backgroundTexture = [[JotGLTexture alloc] initForImage:backgroundImage withSize:fullPixelSize];
     
     // regenerate FBO
     backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];

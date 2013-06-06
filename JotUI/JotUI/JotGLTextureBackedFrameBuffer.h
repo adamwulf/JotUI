@@ -23,4 +23,7 @@
 // to zero opacity
 -(void) clear;
 
+// export the buffered texture to disk
+-(void) exportTexture;
+
 @end

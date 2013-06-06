@@ -13,14 +13,14 @@
 #import <OpenGLES/ES1/glext.h>
 
 @implementation JotGLTexture{
-    CGSize fullPointSize;
+    CGSize fullPixelSize;
 }
 
 @synthesize textureID;
 
 -(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size{
     if(self = [super init]){
-        fullPointSize = size;
+        fullPixelSize = size;
         
         // unload the old texture
         [self unload];
@@ -46,38 +46,42 @@
             // then we can load those bytes into OpenGL directly.
             // after they're loaded, we can free the memory for our cgcontext.
             CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-            void *imageData = malloc( fullPointSize.height * fullPointSize.width * 4 );
-            CGContextRef cgContext = CGBitmapContextCreate( imageData, fullPointSize.width, fullPointSize.height, 8, 4 * fullPointSize.width, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big );
-            CGContextTranslateCTM (cgContext, 0, fullPointSize.height);
+            void *imageData = malloc( fullPixelSize.height * fullPixelSize.width * 4 );
+            CGContextRef cgContext = CGBitmapContextCreate( imageData, fullPixelSize.width, fullPixelSize.height, 8, 4 * fullPixelSize.width, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big );
+            CGContextTranslateCTM (cgContext, 0, fullPixelSize.height);
             CGContextScaleCTM (cgContext, 1.0, -1.0);
             CGColorSpaceRelease( colorSpace );
-            CGContextClearRect( cgContext, CGRectMake( 0, 0, fullPointSize.width, fullPointSize.height ) );
+            CGContextClearRect( cgContext, CGRectMake( 0, 0, fullPixelSize.width, fullPixelSize.height ) );
             
             // draw the new background in aspect-fill mode
             CGSize backgroundSize = CGSizeMake(CGImageGetWidth(imageToLoad.CGImage), CGImageGetHeight(imageToLoad.CGImage));
-            CGFloat horizontalRatio = fullPointSize.width / backgroundSize.width;
-            CGFloat verticalRatio = fullPointSize.height / backgroundSize.height;
+            CGFloat horizontalRatio = fullPixelSize.width / backgroundSize.width;
+            CGFloat verticalRatio = fullPixelSize.height / backgroundSize.height;
             CGFloat ratio = MAX(horizontalRatio, verticalRatio); //AspectFill
             CGSize aspectFillSize = CGSizeMake(backgroundSize.width * ratio, backgroundSize.height * ratio);
             
-            CGContextDrawImage( cgContext,  CGRectMake((fullPointSize.width-aspectFillSize.width)/2,
-                                                       (fullPointSize.height-aspectFillSize.height)/2,
+            CGContextDrawImage( cgContext,  CGRectMake((fullPixelSize.width-aspectFillSize.width)/2,
+                                                       (fullPixelSize.height-aspectFillSize.height)/2,
                                                        aspectFillSize.width,
                                                        aspectFillSize.height), imageToLoad.CGImage );
             // ok, initialize the data
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPointSize.width, fullPointSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
             
             // cleanup
             CGContextRelease(cgContext);
             free(imageData);
         }else{
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPointSize.width, fullPointSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         }
         // clear texture bind
         glBindTexture(GL_TEXTURE_2D,0);
     }
     
     return self;
+}
+
+-(CGSize) pixelSize{
+    return fullPixelSize;
 }
 
 -(void) unload{
@@ -99,10 +103,10 @@
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     Vertex3D vertices[] = {
-        { 0.0, fullPointSize.height},
-        { fullPointSize.width, fullPointSize.height},
+        { 0.0, fullPixelSize.height},
+        { fullPixelSize.width, fullPixelSize.height},
         { 0.0, 0.0},
-        { fullPointSize.width, 0.0}
+        { fullPixelSize.width, 0.0}
     };
     static const GLfloat texCoords[] = {
         0.0, 1.0,
