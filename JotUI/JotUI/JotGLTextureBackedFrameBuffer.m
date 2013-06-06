@@ -38,17 +38,16 @@
     return self;
 }
 
--(void) exportTexture{
+-(void) exportTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock{
+    if(!exportFinishBlock) return;
+    
     // the texture size has the screen scale baked into it,
     // so this is already in the proper pixel size
-    
-    
-    
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-
     CGSize frameSize = texture.pixelSize;
-//    glOrthof(0, frameSize.width, 0, frameSize.height, -1, 1);
-//    glViewport(0, 0, frameSize.width, frameSize.height);
+
+    // bind our framebuffer. the texture is the colorbuffer
+    // that we'll be exporting.
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
     
     GLint x = 0, y = 0;
     NSInteger dataLength = frameSize.width * frameSize.height * 4;
@@ -100,15 +99,8 @@
         CGImageRelease(iref);
         CGContextRelease(bitmapContext);
 
-        
-        
-        
-        NSString* inkPath = @"/Users/adam/Desktop/texture.png";
-        
-        [UIImagePNGRepresentation(image) writeToFile:inkPath atomically:YES];
-        NSLog(@"wrote ink to: %@", inkPath);
+        exportFinishBlock(image);
     });
-
 }
 
 -(void) clear{

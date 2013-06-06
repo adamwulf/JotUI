@@ -287,10 +287,15 @@
                            andBackgroundImage:(UIImage*)backgroundImage
                                    onComplete:(void(^)(UIImage*) )exportFinishBlock{
     
-    
-    
-    [backgroundFramebuffer exportTexture];
-    
+    [backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
+        NSString* inkPath = [NSString stringWithFormat:@"/Users/adam/Desktop/texture%d.png", rand()];
+        
+        [UIImagePNGRepresentation(image) writeToFile:inkPath atomically:YES];
+        NSLog(@"wrote ink to: %@", inkPath);
+        
+        
+        sleep(10);
+    }];
     
     // make sure everything is rendered to the buffer
     [self renderAllStrokes];
@@ -385,6 +390,7 @@
             // so pass the newly generated image to the completion block
             exportFinishBlock(image);
         }
+        sleep(10);
     });
 }
 

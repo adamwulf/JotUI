@@ -24,6 +24,6 @@
 -(void) clear;
 
 // export the buffered texture to disk
--(void) exportTexture;
+-(void) exportTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock;
 
 @end
