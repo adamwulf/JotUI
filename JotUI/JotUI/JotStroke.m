@@ -51,4 +51,22 @@
 }
 
 
+#pragma mark - NSCoder
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:segmentSmoother forKey:@"segmentSmoother"];
+    [coder encodeObject:segments forKey:@"segments"];
+    [coder encodeObject:texture forKey:@"texture"];
+}
+
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self) {
+        segmentSmoother = [coder decodeObjectForKey:@"segmentSmoother"];
+        segments = [coder decodeObjectForKey:@"segments"];
+        texture = [coder decodeObjectForKey:@"texture"];
+    }
+    return self;
+}
+
 @end

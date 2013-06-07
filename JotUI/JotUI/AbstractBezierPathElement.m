@@ -130,4 +130,30 @@
     }
 }
 
+
+
+#pragma mark - NSCoder
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:[NSValue valueWithCGPoint:startPoint] forKey:@"startPoint"];
+    [coder encodeObject:[NSNumber numberWithFloat:width] forKey:@"width"];
+    [coder encodeObject:color forKey:@"color"];
+    [coder encodeObject:[NSNumber numberWithFloat:rotation] forKey:@"rotation"];
+}
+
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self) {
+        startPoint = [[coder decodeObjectForKey:@"startPoint"] CGPointValue];
+        width = [[coder decodeObjectForKey:@"width"] floatValue];
+        color = [coder decodeObjectForKey:@"color"];
+        rotation = [[coder decodeObjectForKey:@"rotation"] floatValue];
+        
+        vertexBuffer = nil;
+        scaleOfVertexBuffer = 0;
+    }
+    return self;
+}
+
+
 @end

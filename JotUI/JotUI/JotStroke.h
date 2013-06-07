@@ -18,7 +18,7 @@
  * between points into a nice single curve, and also
  * interpolate width and color including alpha
  */
-@interface JotStroke : NSObject{
+@interface JotStroke : NSObject<NSCoding>{
     // this will interpolate between points into curved segments
     SegmentSmoother* segmentSmoother;
     // this will store all the segments in drawn order
@@ -51,7 +51,9 @@
  */
 -(BOOL) addPoint:(CGPoint)point withWidth:(CGFloat)width andColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor;
 
-
+/**
+ * cancel the stroke and notify the delegate
+ */
 -(void) cancel;
 
 @end

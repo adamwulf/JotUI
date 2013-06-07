@@ -63,11 +63,7 @@
 @end
 
 
-@implementation JotView{
-    __weak NSObject<JotViewDelegate>* delegate;
-    
-    NSUInteger undoLimit;
-}
+@implementation JotView
 
 @synthesize delegate;
 @synthesize undoLimit;
@@ -296,6 +292,13 @@
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
         dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
+        // i could notify about the thumbnail here
+        // which would let the UI swap to the cached thumbnail
+        // from the full JotUI if needed... (?)
+        // probably an over optimization at this point,
+        // but may be useful once multiple JotViews are
+        // on screen at a time + being exported simultaneously
+        
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
         
         
@@ -429,7 +432,7 @@
  *
  * This method must be called at least one time after initialization
  */
--(void) loadImage:(UIImage*)backgroundImage{
+-(void) loadImage:(UIImage*)backgroundImage andState:(NSDictionary*)stateInfo{
     CGFloat scale = [[UIScreen mainScreen] scale];
     CGSize fullPixelSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
     
@@ -450,6 +453,20 @@
     [stackOfUndoneStrokes removeAllObjects];
     [stackOfStrokes removeAllObjects];
     [currentStrokes removeAllObjects];
+
+    if(stateInfo){
+        NSLog(@"found state: %@", stateInfo);
+        //
+        // reset our undo state
+        [stackOfUndoneStrokes addObjectsFromArray:[stateInfo objectForKey:@"stackOfUndoneStrokes"]];
+        [stackOfStrokes addObjectsFromArray:[stateInfo objectForKey:@"stackOfStrokes"]];
+        
+        for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes]){
+            stroke.delegate = self;
+        }
+    }else{
+        NSLog(@"no state info loaded");
+    }
     
     //
     // ok, render the new content

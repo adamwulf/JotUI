@@ -44,7 +44,7 @@
 -(void) exportEverythingOnComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock;
 
 // imports an image
-- (void) loadImage:(UIImage*)backgroundImage;
+-(void) loadImage:(UIImage*)backgroundImage andState:(NSDictionary*)stateInfo;
 
 // set the image to use as the brush texture for the next strokes
 - (void) setBrushTexture:(UIImage*)brushImage;

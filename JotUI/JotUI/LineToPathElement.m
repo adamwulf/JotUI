@@ -191,5 +191,19 @@
     return [NSString stringWithFormat:@"[Line from: %f,%f  to: %f%f]", startPoint.x, startPoint.y, lineTo.x, lineTo.y];
 }
 
+#pragma mark - NSCoder
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [super encodeWithCoder:coder];
+    [coder encodeObject:[NSValue valueWithCGPoint:lineTo] forKey:@"lineTo"];
+}
+
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (self) {
+        lineTo = [[coder decodeObjectForKey:@"lineTo"] CGPointValue];
+    }
+    return self;
+}
 
 @end

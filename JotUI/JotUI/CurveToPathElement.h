@@ -16,9 +16,6 @@
     CGPoint ctrl2;
     
     CGFloat length;
-    
-    NSMutableArray* cachedPointSteps;
-    NSMutableArray* cachedColorSteps;
 }
 
 @property (nonatomic, readonly) CGPoint curveTo;

@@ -109,4 +109,27 @@
     
     return nil;
 }
+
+
+
+#pragma mark - NSCoder
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:[NSValue valueWithCGPoint:point0] forKey:@"point0"];
+    [coder encodeObject:[NSValue valueWithCGPoint:point1] forKey:@"point1"];
+    [coder encodeObject:[NSValue valueWithCGPoint:point2] forKey:@"point2"];
+    [coder encodeObject:[NSValue valueWithCGPoint:point3] forKey:@"point3"];
+}
+
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super init];
+    if (self) {
+        point0 = [[coder decodeObjectForKey:@"point0"] CGPointValue];
+        point1 = [[coder decodeObjectForKey:@"point1"] CGPointValue];
+        point2 = [[coder decodeObjectForKey:@"point2"] CGPointValue];
+        point3 = [[coder decodeObjectForKey:@"point3"] CGPointValue];
+    }
+    return self;
+}
+
 @end
