@@ -56,11 +56,11 @@
  * will generate a successful vertex array for us
  */
 -(CGFloat) widthOfPreviousElement:(AbstractBezierPathElement*)previousElement{
-    return width;
+    return self.width;
 }
 
 -(UIColor*) colorOfPreviousElement:(AbstractBezierPathElement*)previousElement{
-    return color;
+    return self.color;
 }
 
 

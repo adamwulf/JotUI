@@ -17,13 +17,9 @@
 
 @class SegmentSmoother, UIPalmView;
 
-@interface JotView : UIView<JotPalmRejectionDelegate>{
-    __weak NSObject<JotViewDelegate>* delegate;
-    
-    NSUInteger undoLimit;
-}
+@interface JotView : UIView<JotPalmRejectionDelegate>
 
-@property (nonatomic) IBOutlet __weak NSObject<JotViewDelegate>* delegate;
+@property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
 @property (nonatomic) NSUInteger undoLimit;
 
 // erase the screen
@@ -36,12 +32,12 @@
 - (IBAction) redo;
 
 // export the drawn strokes to a uiimage, with optional background color and background image
--(void) exportToImageWithBackgroundColor:(UIColor*)backgroundColor
+- (void) exportToImageWithBackgroundColor:(UIColor*)backgroundColor
                       andBackgroundImage:(UIImage*)backgroundImage
                               onComplete:(void(^)(UIImage*) )exportFinishBlock;
 
 // imports an image
--(void) loadImage:(UIImage*)backgroundImage;
+- (void) loadImage:(UIImage*)backgroundImage;
 
 // set the image to use as the brush texture for the next strokes
 - (void) setBrushTexture:(UIImage*)brushImage;

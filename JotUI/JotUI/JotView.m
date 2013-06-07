@@ -66,7 +66,11 @@ typedef Vertex3D Vector3D;
 @end
 
 
-@implementation JotView
+@implementation JotView{
+    __weak NSObject<JotViewDelegate>* delegate;
+    
+    NSUInteger undoLimit;
+}
 
 @synthesize delegate;
 @synthesize undoLimit;

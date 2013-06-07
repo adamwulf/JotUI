@@ -243,8 +243,8 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				669B3A981692BADA00F12F42 /* JotViewDelegate.h in Headers */,
 				669B39F31692B52800F12F42 /* JotUI.h in Headers */,
+				669B3A981692BADA00F12F42 /* JotViewDelegate.h in Headers */,
 				669B39E31692B50500F12F42 /* AbstractBezierPathElement.h in Headers */,
 				662B55D016A9EAC30020CFC3 /* MoveToPathElement.h in Headers */,
 				669B3A311692B68F00F12F42 /* JotView.h in Headers */,

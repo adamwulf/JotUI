@@ -14,14 +14,14 @@
 @protocol JotViewDelegate <NSObject>
 
 /**
- * for the input touch, what is the desired pixel
+ * for the input touch, what is the desired point
  * width that should show on screen?
  *
  * Note - this is point width, not pixel width,
  * so the value for low vs high resolution screens
  * should be the same
  */
--(CGFloat) widthForTouch:(JotTouch*)touch;
+- (CGFloat) widthForTouch:(JotTouch*)touch;
 
 /**
  * what is the desired color for the touch
@@ -31,7 +31,7 @@
  *
  * return nil to erase instead of apply a color
  */
--(UIColor*) colorForTouch:(JotTouch*)touch;
+- (UIColor*) colorForTouch:(JotTouch*)touch;
 
 /**
  * defines how smooth the transition should be to
@@ -41,7 +41,7 @@
  * a value of 1 will be very rounded at each touch point
  * values > 1 or < 0 will be knotted or loopy at each touch point
  */
--(CGFloat) smoothnessForTouch:(JotTouch*)touch;
+- (CGFloat) smoothnessForTouch:(JotTouch*)touch;
 
 /**
  * defines to what angle the stroke will rotate during
@@ -51,31 +51,31 @@
  * a value of 1 will be very rounded at each touch point
  * values > 1 or < 0 will be knotted or loopy at each touch point
  */
--(CGFloat) rotationForSegment:(AbstractBezierPathElement*)segment fromPreviousSegment:(AbstractBezierPathElement*)previousSegment;
+- (CGFloat) rotationForSegment:(AbstractBezierPathElement*)segment fromPreviousSegment:(AbstractBezierPathElement*)previousSegment;
 
 /**
  * a notification that a new stroke is about to begin
  * with the input touch
  */
--(void) willBeginStrokeWithTouch:(JotTouch*)touch;
+- (void) willBeginStrokeWithTouch:(JotTouch*)touch;
 
 /**
  * a notification that the input is moving to the
  * next touch
  */
--(void) willMoveStrokeWithTouch:(JotTouch*)touch;
+- (void) willMoveStrokeWithTouch:(JotTouch*)touch;
 
 /**
  * a notification that the touch has ended. For
  * any ending touch, a willMoveStrokeWithTouch:
  * will also be called before this ending call
  */
--(void) didEndStrokeWithTouch:(JotTouch*)touch;
+- (void) didEndStrokeWithTouch:(JotTouch*)touch;
 
 /**
  * the stroke for the input touch has been cancelled.
  */
--(void) didCancelStrokeWithTouch:(JotTouch*)touch;
+- (void) didCancelStrokeWithTouch:(JotTouch*)touch;
 
 @optional
 
@@ -91,8 +91,8 @@
  * additional gestures here will help reduce false
  * positives
  */
--(void)jotSuggestsToDisableGestures;
+- (void) jotSuggestsToDisableGestures;
 
--(void)jotSuggestsToEnableGestures;
+- (void) jotSuggestsToEnableGestures;
 
 @end
