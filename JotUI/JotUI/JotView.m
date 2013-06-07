@@ -461,6 +461,11 @@ typedef Vertex3D Vector3D;
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPointSize.width, fullPointSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     }
     
+    if(backgroundFramebuffer){
+        glDeleteFramebuffersOES(1, &backgroundFramebuffer);
+        backgroundFramebuffer = 0;
+    }
+    
     // generate FBO
     glGenFramebuffersOES(1, &backgroundFramebuffer);
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, backgroundFramebuffer);
@@ -1092,6 +1097,11 @@ typedef Vertex3D Vector3D;
 	if([EAGLContext currentContext] == context){
 		[EAGLContext setCurrentContext:nil];
 	}
+    
+    if(backgroundFramebuffer){
+        glDeleteFramebuffersOES(1, &backgroundFramebuffer);
+        backgroundFramebuffer = 0;
+    }
 }
 
 
