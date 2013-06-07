@@ -266,6 +266,43 @@
 
 #pragma mark - Export and Import
 
+
+-(void) exportEverythingOnComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock{
+    dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
+    dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
+    
+    __block UIImage* thumb = nil;
+    __block UIImage* ink = nil;
+    
+    NSMutableDictionary* state = [NSMutableDictionary dictionary];
+    [state setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
+    [state setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
+    
+    [self exportToImageWithBackgroundColor:nil andBackgroundImage:nil onComplete:^(UIImage* image){
+        thumb = image;
+        dispatch_semaphore_signal(sema1);
+    }];
+    
+    [backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
+        NSString* inkPath = [NSString stringWithFormat:@"/Users/adam/Desktop/texture%d.png", rand()];
+        
+        [UIImagePNGRepresentation(image) writeToFile:inkPath atomically:YES];
+        NSLog(@"wrote ink to: %@", inkPath);
+        
+        ink = image;
+        
+        dispatch_semaphore_signal(sema2);
+    }];
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+        dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
+        dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
+        
+        
+        exportFinishBlock(ink, thumb, state);
+    });
+}
+
 /**
  * export an image from the openGL render buffer to a UIImage
  * @param backgroundColor an optional background color for the image. pass nil for a transparent background.
@@ -287,15 +324,7 @@
                            andBackgroundImage:(UIImage*)backgroundImage
                                    onComplete:(void(^)(UIImage*) )exportFinishBlock{
     
-    [backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
-        NSString* inkPath = [NSString stringWithFormat:@"/Users/adam/Desktop/texture%d.png", rand()];
-        
-        [UIImagePNGRepresentation(image) writeToFile:inkPath atomically:YES];
-        NSLog(@"wrote ink to: %@", inkPath);
-        
-        
-        sleep(10);
-    }];
+    if(!exportFinishBlock) return;
     
     // make sure everything is rendered to the buffer
     [self renderAllStrokes];
@@ -385,12 +414,9 @@
         CGImageRelease(iref);
         CGContextRelease(bitmapContext);
         
-        if(exportFinishBlock){
-            // ok, we're done exporting and cleaning up
-            // so pass the newly generated image to the completion block
-            exportFinishBlock(image);
-        }
-        sleep(10);
+        // ok, we're done exporting and cleaning up
+        // so pass the newly generated image to the completion block
+        exportFinishBlock(image);
     });
 }
 

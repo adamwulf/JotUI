@@ -40,10 +40,8 @@
 // then nothing has changed that would affect the output image
 -(NSUInteger) undoHash;
 
-// export the drawn strokes to a uiimage, with optional background color and background image
-- (void) exportToImageWithBackgroundColor:(UIColor*)backgroundColor
-                      andBackgroundImage:(UIImage*)backgroundImage
-                              onComplete:(void(^)(UIImage*) )exportFinishBlock;
+// this will export both the ink and the thumbnail image
+-(void) exportEverythingOnComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock;
 
 // imports an image
 - (void) loadImage:(UIImage*)backgroundImage;
