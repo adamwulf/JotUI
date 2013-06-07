@@ -760,6 +760,7 @@
             [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
             [stackOfUndoneStrokes removeAllObjects];
             [self validateUndoState];
+            [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
         }
     }
 }
