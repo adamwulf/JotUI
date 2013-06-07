@@ -18,6 +18,7 @@
     // this dictionary will hold all of the
     // stroke objects
     __strong NSMutableDictionary* strokeCache;
+    __strong NSMutableDictionary* touchCache;
 }
 
 @end
@@ -35,6 +36,7 @@ static JotStrokeManager* _instance = nil;
     if((_instance = [super init])){
         // noop
         strokeCache = [NSMutableDictionary dictionary];
+        touchCache = [NSMutableDictionary dictionary];
     }
     return _instance;
 }
@@ -64,6 +66,7 @@ static JotStrokeManager* _instance = nil;
     if(!ret){
         ret = [[JotStroke alloc] initWithTexture:texture];
         [strokeCache setObject:ret forKey:@(touch.hash)];
+        [touchCache setObject:@(touch.hash) forKey:@(ret.hash)];
     }
     return ret;
 }
@@ -75,9 +78,13 @@ static JotStrokeManager* _instance = nil;
     JotStroke* stroke = [self getStrokeForTouchHash:touch];
     if(stroke){
         [stroke cancel];
-        [strokeCache removeObjectForKey:@(touch.hash)];
+        [self removeStrokeForTouch:touch];
     }
     return stroke != nil;
+}
+
+-(void) removeStrokeForTouch:(UITouch*)touch{
+    [strokeCache removeObjectForKey:@(touch.hash)];
 }
 
 @end

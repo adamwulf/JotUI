@@ -31,4 +31,11 @@
  */
 -(BOOL) cancelStrokeForTouch:(UITouch*)touch;
 
+
+/**
+ * returns true if a stroke exists and has
+ * been cancelled
+ */
+-(void) removeStrokeForTouch:(UITouch*)touch;
+
 @end

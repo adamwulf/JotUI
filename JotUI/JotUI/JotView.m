@@ -840,6 +840,7 @@ typedef Vertex3D Vector3D;
             [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
             [stackOfUndoneStrokes removeAllObjects];
             [self validateUndoState];
+            [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
         }
     }
 }
