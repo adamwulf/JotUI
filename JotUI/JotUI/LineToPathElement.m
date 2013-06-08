@@ -41,6 +41,11 @@
     return [self angleBetweenPoint:startPoint andPoint:lineTo];
 }
 
+-(int) numberOfBytes{
+	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
+    return numberOfVertices*sizeof(struct Vertex);
+}
+
 
 /**
  * generate a vertex buffer array for all of the points
@@ -71,7 +76,7 @@
     
     // malloc the memory for our buffer, if needed
     if(!vertexBuffer){
-        vertexBuffer = (struct Vertex*) malloc(numberOfVertices*sizeof(struct Vertex));
+        vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
     }
     
     // save our scale
@@ -196,12 +201,23 @@
 - (void)encodeWithCoder:(NSCoder *)coder {
     [super encodeWithCoder:coder];
     [coder encodeObject:[NSValue valueWithCGPoint:lineTo] forKey:@"lineTo"];
+    [coder encodeBytes:(void*)vertexBuffer length:[self numberOfBytes] forKey:@"vertexBuffer"];
 }
 
 - (id)initWithCoder:(NSCoder *)coder {
     self = [super initWithCoder:coder];
     if (self) {
         lineTo = [[coder decodeObjectForKey:@"lineTo"] CGPointValue];
+        
+        NSUInteger blockSize;
+        const void *bytes = [coder decodeBytesForKey:@"vertexBuffer" returnedLength:&blockSize];
+        if(blockSize){
+            vertexBuffer = malloc(blockSize);
+            memcpy(vertexBuffer, bytes, blockSize);
+        }else{
+            vertexBuffer = nil;
+            scaleOfVertexBuffer = 0;
+        }
     }
     return self;
 }

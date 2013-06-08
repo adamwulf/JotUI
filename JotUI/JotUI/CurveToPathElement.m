@@ -20,7 +20,7 @@
          andCurveTo:(CGPoint)_curveTo
         andControl1:(CGPoint)_ctrl1
         andControl2:(CGPoint)_ctrl2{
-    if(self = [super initWithStart:start andLineTo:_curveTo]){
+    if(self = [super initWithStart:start]){
         curveTo = _curveTo;
         ctrl1 = _ctrl1;
         ctrl2 = _ctrl2;
@@ -78,6 +78,10 @@
     return possibleRet;
 }
 
+-(int) numberOfBytes{
+	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
+    return numberOfVertices*sizeof(struct Vertex);
+}
 
 /**
  * generate a vertex buffer array for all of the points
@@ -367,6 +371,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
     [coder encodeObject:[NSValue valueWithCGPoint:curveTo] forKey:@"curveTo"];
     [coder encodeObject:[NSValue valueWithCGPoint:ctrl1] forKey:@"ctrl1"];
     [coder encodeObject:[NSValue valueWithCGPoint:ctrl2] forKey:@"ctrl2"];
+    [coder encodeBytes:(void*)vertexBuffer length:[self numberOfBytes] forKey:@"vertexBuffer"];
 }
 
 - (id)initWithCoder:(NSCoder *)coder {
@@ -375,6 +380,16 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         curveTo = [[coder decodeObjectForKey:@"curveTo"] CGPointValue];
         ctrl1 = [[coder decodeObjectForKey:@"ctrl1"] CGPointValue];
         ctrl2 = [[coder decodeObjectForKey:@"ctrl2"] CGPointValue];
+
+        NSUInteger blockSize;
+        const void *bytes = [coder decodeBytesForKey:@"vertexBuffer" returnedLength:&blockSize];
+        if(blockSize){
+            vertexBuffer = malloc(blockSize);
+            memcpy(vertexBuffer, bytes, blockSize);
+        }else{
+            vertexBuffer = nil;
+            scaleOfVertexBuffer = 0;
+        }
     }
     return self;
 }

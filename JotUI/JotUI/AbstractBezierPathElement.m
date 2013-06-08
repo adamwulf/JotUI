@@ -139,6 +139,7 @@
     [coder encodeObject:[NSNumber numberWithFloat:width] forKey:@"width"];
     [coder encodeObject:color forKey:@"color"];
     [coder encodeObject:[NSNumber numberWithFloat:rotation] forKey:@"rotation"];
+    [coder encodeObject:[NSNumber numberWithFloat:scaleOfVertexBuffer] forKey:@"scaleOfVertexBuffer"];
 }
 
 - (id)initWithCoder:(NSCoder *)coder {
@@ -148,9 +149,8 @@
         width = [[coder decodeObjectForKey:@"width"] floatValue];
         color = [coder decodeObjectForKey:@"color"];
         rotation = [[coder decodeObjectForKey:@"rotation"] floatValue];
-        
         vertexBuffer = nil;
-        scaleOfVertexBuffer = 0;
+        scaleOfVertexBuffer = [[coder decodeObjectForKey:@"scaleOfVertexBuffer"] floatValue];
     }
     return self;
 }

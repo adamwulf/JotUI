@@ -10,7 +10,7 @@
 #import <Foundation/Foundation.h>
 #import "LineToPathElement.h"
 
-@interface CurveToPathElement : LineToPathElement{
+@interface CurveToPathElement : AbstractBezierPathElement{
     CGPoint curveTo;
     CGPoint ctrl1;
     CGPoint ctrl2;
