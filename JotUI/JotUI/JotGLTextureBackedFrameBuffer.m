@@ -33,6 +33,7 @@
         {
             // didn't work
             NSLog(@"failed to create texture frame buffer");
+            return nil;
         }
     }
     return self;

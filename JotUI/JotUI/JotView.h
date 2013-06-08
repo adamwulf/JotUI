@@ -25,6 +25,7 @@
 
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
 @property (nonatomic) NSUInteger undoLimit;
+@property (nonatomic, strong) UIImage* brushTexture;
 
 // erase the screen
 - (IBAction) clear;
@@ -45,8 +46,5 @@
 
 // imports an image
 -(void) loadImage:(UIImage*)backgroundImage andState:(NSDictionary*)stateInfo;
-
-// set the image to use as the brush texture for the next strokes
-- (void) setBrushTexture:(UIImage*)brushImage;
 
 @end

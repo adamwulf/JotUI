@@ -45,7 +45,7 @@
 	GLuint depthRenderbuffer;
     
 	// OpenGL texure for the brush
-	GLuint	brushTexture;
+	GLuint	glBrushTextureID;
     
     // this dictionary will hold all of the in progress
     // stroke objects
@@ -56,8 +56,7 @@
     __strong NSMutableArray* stackOfUndoneStrokes;
     
     // a handle to the image used as the current brush texture
-    __strong UIImage* currentTexture;
-    
+    __strong UIImage* brushTexture;
 }
 
 @end
@@ -67,6 +66,7 @@
 
 @synthesize delegate;
 @synthesize undoLimit;
+@synthesize brushTexture;
 
 #pragma mark - Initialization
 
@@ -280,13 +280,7 @@
     }];
     
     [backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
-        NSString* inkPath = [NSString stringWithFormat:@"/Users/adam/Desktop/texture%d.png", rand()];
-        
-        [UIImagePNGRepresentation(image) writeToFile:inkPath atomically:YES];
-        NSLog(@"wrote ink to: %@", inkPath);
-        
         ink = image;
-        
         dispatch_semaphore_signal(sema2);
     }];
     
@@ -307,6 +301,56 @@
 }
 
 /**
+ * This method will load the input image into the drawable view
+ * and will stretch it as appropriate to fill the area. For best results,
+ * use an image that is the same size as the view's frame.
+ *
+ * This method will also reset the undo state of the view.
+ *
+ * This method must be called at least one time after initialization
+ */
+-(void) loadImage:(UIImage*)backgroundImage andState:(NSDictionary*)stateInfo{
+    CGFloat scale = [[UIScreen mainScreen] scale];
+    CGSize fullPixelSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
+    
+    // load new texture
+    backgroundTexture = [[JotGLTexture alloc] initForImage:backgroundImage withSize:fullPixelSize];
+    
+    // regenerate FBO
+    backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
+    
+    if(!backgroundImage){
+        // no image was given, so it should be a blank texture
+        // lets erase it, since it defaults to uncleared memory
+        [backgroundFramebuffer clear];
+    }
+    
+    //
+    // reset our undo state
+    [stackOfUndoneStrokes removeAllObjects];
+    [stackOfStrokes removeAllObjects];
+    [currentStrokes removeAllObjects];
+
+    if(stateInfo){
+        // load our undo state
+        [stackOfUndoneStrokes addObjectsFromArray:[stateInfo objectForKey:@"stackOfUndoneStrokes"]];
+        [stackOfStrokes addObjectsFromArray:[stateInfo objectForKey:@"stackOfStrokes"]];
+        
+        for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes]){
+            stroke.delegate = self;
+        }
+    }else{
+//        NSLog(@"no state info loaded");
+    }
+    
+    //
+    // ok, render the new content
+    [self renderAllStrokes];
+}
+
+#pragma mark Export Helpers
+
+/**
  * export an image from the openGL render buffer to a UIImage
  * @param backgroundColor an optional background color for the image. pass nil for a transparent background.
  * @param backgroundImage an optional image to use as the background behind this view's content
@@ -324,8 +368,8 @@
  * http://stackoverflow.com/questions/1379274/uiimagewritetosavedphotosalbum-saves-to-wrong-size-and-quality
  */
 -(void) exportToImageWithBackgroundColor:(UIColor*)backgroundColor
-                           andBackgroundImage:(UIImage*)backgroundImage
-                                   onComplete:(void(^)(UIImage*) )exportFinishBlock{
+                      andBackgroundImage:(UIImage*)backgroundImage
+                              onComplete:(void(^)(UIImage*) )exportFinishBlock{
     
     if(!exportFinishBlock) return;
     
@@ -423,56 +467,6 @@
     });
 }
 
-/**
- * This method will load the input image into the drawable view
- * and will stretch it as appropriate to fill the area. For best results,
- * use an image that is the same size as the view's frame.
- *
- * This method will also reset the undo state of the view.
- *
- * This method must be called at least one time after initialization
- */
--(void) loadImage:(UIImage*)backgroundImage andState:(NSDictionary*)stateInfo{
-    CGFloat scale = [[UIScreen mainScreen] scale];
-    CGSize fullPixelSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
-    
-    // load new texture
-    backgroundTexture = [[JotGLTexture alloc] initForImage:backgroundImage withSize:fullPixelSize];
-    
-    // regenerate FBO
-    backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
-    
-    if(!backgroundImage){
-        // no image was given, so it should be a blank texture
-        // lets erase it, since it defaults to uncleared memory
-        [backgroundFramebuffer clear];
-    }
-    
-    //
-    // reset our undo state
-    [stackOfUndoneStrokes removeAllObjects];
-    [stackOfStrokes removeAllObjects];
-    [currentStrokes removeAllObjects];
-
-    if(stateInfo){
-        NSLog(@"found state: %@", stateInfo);
-        //
-        // reset our undo state
-        [stackOfUndoneStrokes addObjectsFromArray:[stateInfo objectForKey:@"stackOfUndoneStrokes"]];
-        [stackOfStrokes addObjectsFromArray:[stateInfo objectForKey:@"stackOfStrokes"]];
-        
-        for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes]){
-            stroke.delegate = self;
-        }
-    }else{
-        NSLog(@"no state info loaded");
-    }
-    
-    //
-    // ok, render the new content
-    [self renderAllStrokes];
-}
-
 
 
 #pragma mark - Rendering
@@ -490,7 +484,7 @@
     // hang onto the current texture
     // so we can reset it after we draw
     // the strokes
-    UIImage* keepThisTexture = currentTexture;
+    UIImage* keepThisTexture = brushTexture;
     
     // set our current OpenGL context
     [EAGLContext setCurrentContext:context];
@@ -519,11 +513,11 @@
     // draw all the strokes that we have in our undo-able stack
     [self prepOpenGLStateForFBO:viewFramebuffer];
     // reset the texture so that we load the brush texture next
-    currentTexture = nil;
+    brushTexture = nil;
     // now draw the strokes
     for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]){
         // make sure our texture is the correct one for this stroke
-        if(stroke.texture != currentTexture){
+        if(stroke.texture != brushTexture){
             [self setBrushTexture:stroke.texture];
         }
         // setup our blend mode properly for color vs eraser
@@ -690,7 +684,7 @@
  */
 -(void) validateUndoState{
     if([stackOfStrokes count] > self.undoLimit){
-        UIImage* keepThisTexture = currentTexture;
+        UIImage* keepThisTexture = brushTexture;
         while([stackOfStrokes count] > self.undoLimit){
             // get the stroke that we need to make permanent
             JotStroke* strokeToWriteToTexture = [stackOfStrokes objectAtIndex:0];
@@ -699,11 +693,11 @@
             // render it to the backing texture
             [self prepOpenGLStateForFBO:backgroundFramebuffer.framebufferID];
             // reset the texture so that we load the brush texture next
-            currentTexture = nil;
+            brushTexture = nil;
             // now draw the strokes
             
             // make sure our texture is the correct one for this stroke
-            if(strokeToWriteToTexture.texture != currentTexture){
+            if(strokeToWriteToTexture.texture != brushTexture){
                 [self setBrushTexture:strokeToWriteToTexture.texture];
             }
             // setup our blend mode properly for color vs eraser
@@ -748,7 +742,7 @@
 -(void)jotStylusTouchBegan:(NSSet *) touches{
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-            JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:currentTexture];
+            JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
             newStroke.delegate = self;
             [currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
             // find the stroke that we're modifying, and then add an element and render it
@@ -859,7 +853,7 @@
         for (UITouch *touch in touches) {
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
             if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:currentTexture];
+                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
                 [currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
                 [self addLineToAndRenderStroke:newStroke
                                        toPoint:[touch locationInView:self]
@@ -956,12 +950,12 @@
  */
 -(void) setBrushTexture:(UIImage*)brushImage{
     // save our current texture.
-    currentTexture = brushImage;
+    brushTexture = brushImage;
     
     // first, delete the old texture if needed
-	if (brushTexture){
-		glDeleteTextures(1, &brushTexture);
-		brushTexture = 0;
+	if (glBrushTextureID){
+		glDeleteTextures(1, &glBrushTextureID);
+		glBrushTextureID = 0;
 	}
     
     // fetch the cgimage for us to draw into a texture
@@ -985,9 +979,9 @@
         // You don't need the context at this point, so you need to release it to avoid memory leaks.
         CGContextRelease(brushContext);
         // Use OpenGL ES to generate a name for the texture.
-        glGenTextures(1, &brushTexture);
+        glGenTextures(1, &glBrushTextureID);
         // Bind the texture name.
-        glBindTexture(GL_TEXTURE_2D, brushTexture);
+        glBindTexture(GL_TEXTURE_2D, glBrushTextureID);
         // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         // Specify a 2D texture image, providing the a pointer to the image data in memory
@@ -1085,9 +1079,9 @@
     [self destroyFramebuffer];
     [[JotStylusManager sharedInstance] unregisterView:self];
 
-	if (brushTexture){
-		glDeleteTextures(1, &brushTexture);
-		brushTexture = 0;
+	if (glBrushTextureID){
+		glDeleteTextures(1, &glBrushTextureID);
+		glBrushTextureID = 0;
 	}
 	if([EAGLContext currentContext] == context){
 		[EAGLContext setCurrentContext:nil];
