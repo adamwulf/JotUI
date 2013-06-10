@@ -49,6 +49,6 @@
 -(void) exportEverythingOnComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock;
 
 // imports an image
--(void) loadImage:(JotGLTextureBackedFrameBuffer*)backgroundTextureFramebuffer andState:(NSDictionary*)stateInfo;
+-(void) loadImage:(NSString*)inkImageFile andState:(NSString*)stateInfoFile;
 
 @end
