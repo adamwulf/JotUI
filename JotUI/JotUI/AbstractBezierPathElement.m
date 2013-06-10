@@ -8,6 +8,7 @@
 
 #import "AbstractBezierPathElement.h"
 #import "AbstractBezierPathElement-Protected.h"
+#import "UIColor+JotHelper.h"
 
 #define kAbstractMethodException [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil]
 
@@ -155,5 +156,28 @@
     return self;
 }
 
+#pragma mark - PlistSaving
+
+-(NSDictionary*) asDictionary{
+    return [NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([self class]), @"class",
+            NSStringFromCGPoint(startPoint), @"startPoint",
+            [NSNumber numberWithFloat:width], @"width",
+            [color asDictionary], @"color",
+            [NSNumber numberWithFloat:rotation], @"rotation",
+            [NSNumber numberWithFloat:scaleOfVertexBuffer], @"scaleOfVertexBuffer", nil];
+}
+
+-(id) initFromDictionary:(NSDictionary*)dictionary{
+    self = [super init];
+    if (self) {
+        startPoint = CGPointFromString([dictionary objectForKey:@"startPoint"]);
+        width = [[dictionary objectForKey:@"width"] floatValue];
+        color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
+        rotation = [[dictionary objectForKey:@"rotation"] floatValue];
+        vertexBuffer = nil;
+        scaleOfVertexBuffer = [[dictionary objectForKey:@"scaleOfVertexBuffer"] floatValue];
+    }
+    return self;
+}
 
 @end

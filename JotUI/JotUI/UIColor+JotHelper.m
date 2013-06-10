@@ -31,4 +31,23 @@
 }
 
 
++(id) colorWithDictionary:(NSDictionary*)components{
+    return [UIColor colorWithRed:[[components objectForKey:@"red"] floatValue]
+                           green:[[components objectForKey:@"green"] floatValue]
+                            blue:[[components objectForKey:@"blue"] floatValue]
+                           alpha:[[components objectForKey:@"alpha"] floatValue]];
+}
+
+-(NSDictionary*) asDictionary{
+    CGFloat red, blue, green, alpha;
+    red = blue = green = alpha = 0;
+    [self getRed:&red green:&green blue:&blue alpha:&alpha];
+    
+    NSDictionary *colorData = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:red], @"red",
+                               [NSNumber numberWithFloat:green], @"green",
+                               [NSNumber numberWithFloat:blue], @"blue",
+                               [NSNumber numberWithFloat:alpha], @"alpha", nil];
+    return colorData;
+}
+
 @end

@@ -8,10 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
+#import "PlistSaving.h"
 
 @class AbstractBezierPathElement;
 
-@interface SegmentSmoother : NSObject<NSCoding>{
+@interface SegmentSmoother : NSObject<NSCoding,PlistSaving>{
     CGPoint point0;
     CGPoint point1;
     CGPoint point2;

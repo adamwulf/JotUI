@@ -10,6 +10,8 @@
 #import "SegmentSmoother.h"
 #import "AbstractBezierPathElement.h"
 #import "AbstractBezierPathElement-Protected.h"
+#import "JotDefaultBrushTexture.h"
+#import "NSArray+JotMapReduce.h"
 
 @implementation JotStroke
 
@@ -19,7 +21,7 @@
 @synthesize delegate;
 
 
--(id) initWithTexture:(UIImage*)_texture{
+-(id) initWithTexture:(JotBrushTexture*)_texture{
     if(self = [super init]){
         segments = [NSMutableArray array];
         segmentSmoother = [[SegmentSmoother alloc] init];
@@ -69,6 +71,27 @@
     return self;
 }
 
+#pragma mark - PlistSaving
+
+-(NSDictionary*) asDictionary{
+    return [NSDictionary dictionaryWithObjectsAndKeys:@"JotStroke", @"class",
+            [segmentSmoother asDictionary], @"segmentSmoother",
+            [segments jotMapWithSelector:@selector(asDictionary)], @"segments",
+            [texture asDictionary], @"texture", nil];
+}
+
+-(id) initFromDictionary:(NSDictionary*)dictionary{
+    if(self = [super init]){
+        segmentSmoother = [[SegmentSmoother alloc] initFromDictionary:[dictionary objectForKey:@"segmentSmoother"]];
+        segments = [NSMutableArray arrayWithArray:[[dictionary objectForKey:@"segments"] jotMap:^id(id obj, NSUInteger index){
+            NSString* className = [obj objectForKey:@"class"];
+            Class class = NSClassFromString(className);
+            return [[class alloc] initFromDictionary:obj];
+        }]];
+        texture = [[JotBrushTexture alloc] initFromDictionary:[dictionary objectForKey:@"texture"]];
+    }
+    return self;
+}
 
 
 

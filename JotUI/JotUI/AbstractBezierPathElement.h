@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "PlistSaving.h"
 
 #ifndef AbstractBezierPathElement_H
 #define AbstractBezierPathElement_H
@@ -33,7 +34,7 @@ struct Vertex{
  */
 #define kBrushStepSize		1
 
-@interface AbstractBezierPathElement : NSObject<NSCoding>{
+@interface AbstractBezierPathElement : NSObject<NSCoding,PlistSaving>{
     CGPoint startPoint;
     CGFloat width;
     UIColor* color;

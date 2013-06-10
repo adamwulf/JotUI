@@ -18,4 +18,8 @@
  */
 -(void) getRGBAComponents:(GLfloat[4])components;
 
++(id) colorWithDictionary:(NSDictionary*)components;
+
+-(NSDictionary*) asDictionary;
+
 @end

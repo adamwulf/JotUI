@@ -61,7 +61,7 @@ static JotStrokeManager* _instance = nil;
     return [strokeCache objectForKey:@(touch.hash)];
 }
 
--(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(UIImage*)texture{
+-(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture{
     JotStroke* ret = [strokeCache objectForKey:@(touch.hash)];
     if(!ret){
         ret = [[JotStroke alloc] initWithTexture:texture];

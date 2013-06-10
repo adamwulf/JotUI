@@ -18,6 +18,8 @@
 #import "UIColor+JotHelper.h"
 #import "JotGLTexture.h"
 #import "JotGLTextureBackedFrameBuffer.h"
+#import "JotDefaultBrushTexture.h"
+#import "NSArray+JotMapReduce.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -54,7 +56,7 @@
     __strong NSMutableArray* stackOfUndoneStrokes;
     
     // a handle to the image used as the current brush texture
-    __strong UIImage* brushTexture;
+    __strong JotBrushTexture* brushTexture;
 }
 
 @end
@@ -168,30 +170,7 @@
  * 20px radius circle with a feathered edge
  */
 -(void) createDefaultBrushTexture{
-    UIGraphicsBeginImageContext(CGSizeMake(64, 64));
-    CGContextRef defBrushTextureContext = UIGraphicsGetCurrentContext();
-    UIGraphicsPushContext(defBrushTextureContext);
-    
-    size_t num_locations = 3;
-    CGFloat locations[3] = { 0.0, 0.8, 1.0 };
-    CGFloat components[12] = { 1.0,1.0,1.0, 1.0,
-        1.0,1.0,1.0, 1.0,
-        1.0,1.0,1.0, 0.0 };
-    CGColorSpaceRef myColorspace = CGColorSpaceCreateDeviceRGB();
-    CGGradientRef myGradient = CGGradientCreateWithColorComponents (myColorspace, components, locations, num_locations);
-    
-    CGPoint myCentrePoint = CGPointMake(32, 32);
-    float myRadius = 20;
-    
-    CGContextDrawRadialGradient (UIGraphicsGetCurrentContext(), myGradient, myCentrePoint,
-                                 0, myCentrePoint, myRadius,
-                                 kCGGradientDrawsAfterEndLocation);
-    
-    UIGraphicsPopContext();
-    
-    [self setBrushTexture:UIGraphicsGetImageFromCurrentImageContext()];
-    
-    UIGraphicsEndImageContext();
+    [self setBrushTexture:[[JotDefaultBrushTexture alloc] init]];
 }
 
 
@@ -270,8 +249,8 @@
     __block UIImage* ink = nil;
     
     NSMutableDictionary* state = [NSMutableDictionary dictionary];
-    [state setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
-    [state setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
+    [state setObject:[[stackOfStrokes copy] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
+    [state setObject:[[stackOfUndoneStrokes copy] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
     
     [self exportToImageWithBackgroundColor:nil andBackgroundImage:nil onComplete:^(UIImage* image){
         thumb = image;
@@ -356,7 +335,7 @@
             
             // load the file
             stateInfo = [NSKeyedUnarchiver unarchiveObjectWithFile:stateInfoFile];
-
+            
             //
             // reset our undo state
             [stackOfUndoneStrokes removeAllObjects];
@@ -365,12 +344,16 @@
             
             if(stateInfo){
                 // load our undo state
-                [stackOfUndoneStrokes addObjectsFromArray:[stateInfo objectForKey:@"stackOfUndoneStrokes"]];
-                [stackOfStrokes addObjectsFromArray:[stateInfo objectForKey:@"stackOfStrokes"]];
-                
-                for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes]){
+                id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
+                    NSString* className = [obj objectForKey:@"class"];
+                    Class class = NSClassFromString(className);
+                    JotStroke* stroke = [[class alloc] initFromDictionary:obj];
                     stroke.delegate = self;
-                }
+                    return stroke;
+                };
+                
+                [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
+                [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
             }else{
                 //        NSLog(@"no state info loaded");
             }
@@ -554,7 +537,7 @@
     // hang onto the current texture
     // so we can reset it after we draw
     // the strokes
-    UIImage* keepThisTexture = brushTexture;
+    JotBrushTexture* keepThisTexture = brushTexture;
     
     // set our current OpenGL context
     [EAGLContext setCurrentContext:context];
@@ -754,7 +737,7 @@
  */
 -(void) validateUndoState{
     if([stackOfStrokes count] > self.undoLimit){
-        UIImage* keepThisTexture = brushTexture;
+        JotBrushTexture* keepThisTexture = brushTexture;
         while([stackOfStrokes count] > self.undoLimit){
             // get the stroke that we need to make permanent
             JotStroke* strokeToWriteToTexture = [stackOfStrokes objectAtIndex:0];
@@ -1018,7 +1001,7 @@
 /**
  * setup the texture to use for the next brush stroke
  */
--(void) setBrushTexture:(UIImage*)brushImage{
+-(void) setBrushTexture:(JotBrushTexture*)brushImage{
     // save our current texture.
     brushTexture = brushImage;
     
@@ -1029,7 +1012,7 @@
 	}
     
     // fetch the cgimage for us to draw into a texture
-    CGImageRef brushCGImage = brushImage.CGImage;
+    CGImageRef brushCGImage = brushImage.texture.CGImage;
     
     // Make sure the image exists
     if(brushCGImage) {

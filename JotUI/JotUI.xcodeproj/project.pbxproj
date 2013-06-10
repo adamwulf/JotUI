@@ -43,6 +43,13 @@
 		66AA213616FCE26600E86922 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
 		66AA5FB8169E77180046CA26 /* JotStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA5FB6169E77180046CA26 /* JotStroke.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66AA5FB9169E77180046CA26 /* JotStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA5FB7169E77180046CA26 /* JotStroke.m */; };
+		66BF7F21176675E0003F4F67 /* JotBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		66BF7F22176675E0003F4F67 /* JotBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F20176675E0003F4F67 /* JotBrushTexture.m */; };
+		66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		66BF7F2617667663003F4F67 /* JotDefaultBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2417667663003F4F67 /* JotDefaultBrushTexture.m */; };
+		66BF7F29176679DB003F4F67 /* PlistSaving.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2817667951003F4F67 /* PlistSaving.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2A17667C19003F4F67 /* NSArray+JotMapReduce.h */; };
+		66BF7F2D17667C19003F4F67 /* NSArray+JotMapReduce.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2B17667C19003F4F67 /* NSArray+JotMapReduce.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,6 +111,13 @@
 		66AA213516FCE26600E86922 /* JotTouchSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotTouchSDK.framework; path = ../JotTouchSDK/JotTouchSDK.framework; sourceTree = "<group>"; };
 		66AA5FB6169E77180046CA26 /* JotStroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotStroke.h; sourceTree = "<group>"; };
 		66AA5FB7169E77180046CA26 /* JotStroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotStroke.m; sourceTree = "<group>"; };
+		66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBrushTexture.h; sourceTree = "<group>"; };
+		66BF7F20176675E0003F4F67 /* JotBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotBrushTexture.m; sourceTree = "<group>"; };
+		66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotDefaultBrushTexture.h; sourceTree = "<group>"; };
+		66BF7F2417667663003F4F67 /* JotDefaultBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotDefaultBrushTexture.m; sourceTree = "<group>"; };
+		66BF7F2817667951003F4F67 /* PlistSaving.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlistSaving.h; sourceTree = "<group>"; };
+		66BF7F2A17667C19003F4F67 /* NSArray+JotMapReduce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+JotMapReduce.h"; sourceTree = "<group>"; };
+		66BF7F2B17667C19003F4F67 /* NSArray+JotMapReduce.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+JotMapReduce.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -232,6 +246,8 @@
 		669B3A2E1692B66B00F12F42 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				66BF7F2717667940003F4F67 /* Plist */,
+				66BF7F1E176675CE003F4F67 /* Brush Texture */,
 				66455F8B175FC45600C66DFA /* OpenGL */,
 				66AA5FB4169E76FF0046CA26 /* Stroke */,
 				669B3A2D1692B65100F12F42 /* Smoothing Helpers */,
@@ -249,6 +265,8 @@
 				66382CB216DD5DC40053C6E6 /* NSMutableSet+Extras.m */,
 				66A340251694FF5E0093E81A /* UIColor+JotHelper.h */,
 				66A340261694FF5E0093E81A /* UIColor+JotHelper.m */,
+				66BF7F2A17667C19003F4F67 /* NSArray+JotMapReduce.h */,
+				66BF7F2B17667C19003F4F67 /* NSArray+JotMapReduce.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -265,6 +283,25 @@
 			name = Stroke;
 			sourceTree = "<group>";
 		};
+		66BF7F1E176675CE003F4F67 /* Brush Texture */ = {
+			isa = PBXGroup;
+			children = (
+				66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */,
+				66BF7F20176675E0003F4F67 /* JotBrushTexture.m */,
+				66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */,
+				66BF7F2417667663003F4F67 /* JotDefaultBrushTexture.m */,
+			);
+			name = "Brush Texture";
+			sourceTree = "<group>";
+		};
+		66BF7F2717667940003F4F67 /* Plist */ = {
+			isa = PBXGroup;
+			children = (
+				66BF7F2817667951003F4F67 /* PlistSaving.h */,
+			);
+			name = Plist;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -279,14 +316,18 @@
 				66AA5FB8169E77180046CA26 /* JotStroke.h in Headers */,
 				663C18751755271B00706A05 /* JotStrokeDelegate.h in Headers */,
 				669B3A311692B68F00F12F42 /* JotView.h in Headers */,
+				66BF7F21176675E0003F4F67 /* JotBrushTexture.h in Headers */,
 				66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */,
+				66BF7F29176679DB003F4F67 /* PlistSaving.h in Headers */,
 				66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */,
 				663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */,
 				66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */,
+				66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */,
 				66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */,
 				669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */,
+				66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -452,6 +493,9 @@
 				663C1872175467DB00706A05 /* JotStrokeManager.m in Sources */,
 				66455F8F175FC47200C66DFA /* JotGLTexture.m in Sources */,
 				66455F93175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m in Sources */,
+				66BF7F22176675E0003F4F67 /* JotBrushTexture.m in Sources */,
+				66BF7F2617667663003F4F67 /* JotDefaultBrushTexture.m in Sources */,
+				66BF7F2D17667C19003F4F67 /* NSArray+JotMapReduce.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
