@@ -16,6 +16,7 @@
 }
 
 @synthesize framebufferID;
+@synthesize texture;
 
 -(id) initForTexture:(JotGLTexture*)_texture{
     if(self = [super init]){

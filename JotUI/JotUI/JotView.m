@@ -36,8 +36,6 @@
 	GLint backingWidth;
 	GLint backingHeight;
 	
-	EAGLContext *context;
-	
 	// OpenGL names for the renderbuffer and framebuffers used to render to this view
 	GLuint viewRenderbuffer, viewFramebuffer;
 	
@@ -67,6 +65,7 @@
 @synthesize delegate;
 @synthesize undoLimit;
 @synthesize brushTexture;
+@synthesize context;
 
 #pragma mark - Initialization
 
@@ -309,21 +308,11 @@
  *
  * This method must be called at least one time after initialization
  */
--(void) loadImage:(UIImage*)backgroundImage andState:(NSDictionary*)stateInfo{
-    CGFloat scale = [[UIScreen mainScreen] scale];
-    CGSize fullPixelSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
-    
-    // load new texture
-    backgroundTexture = [[JotGLTexture alloc] initForImage:backgroundImage withSize:fullPixelSize];
-    
-    // regenerate FBO
-    backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
-    
-    if(!backgroundImage){
-        // no image was given, so it should be a blank texture
-        // lets erase it, since it defaults to uncleared memory
-        [backgroundFramebuffer clear];
-    }
+-(void) loadImage:(JotGLTextureBackedFrameBuffer*)textureFramebuffer andState:(NSDictionary*)stateInfo{
+    // the FBO for the backing texture
+    backgroundFramebuffer = textureFramebuffer;
+    // the texture itself
+    backgroundTexture = textureFramebuffer.texture;
     
     //
     // reset our undo state

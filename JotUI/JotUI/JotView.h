@@ -14,18 +14,22 @@
 #import "JotUI/JotUI.h"
 #import "JotUI/JotViewDelegate.h"
 #import "JotUI/JotStroke.h"
+#import "JotUI/JotGLTextureBackedFrameBuffer.h"
 
 @class SegmentSmoother, UIPalmView;
 
 @interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>{
     __weak NSObject<JotViewDelegate>* delegate;
     
+	EAGLContext *context;
+	
     NSUInteger undoLimit;
 }
 
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
 @property (nonatomic) NSUInteger undoLimit;
 @property (nonatomic, strong) UIImage* brushTexture;
+@property (readonly) EAGLContext *context;
 
 // erase the screen
 - (IBAction) clear;
@@ -45,6 +49,6 @@
 -(void) exportEverythingOnComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock;
 
 // imports an image
--(void) loadImage:(UIImage*)backgroundImage andState:(NSDictionary*)stateInfo;
+-(void) loadImage:(JotGLTextureBackedFrameBuffer*)backgroundTextureFramebuffer andState:(NSDictionary*)stateInfo;
 
 @end

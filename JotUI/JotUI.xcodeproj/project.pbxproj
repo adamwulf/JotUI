@@ -14,9 +14,9 @@
 		663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 663C186F175467DB00706A05 /* JotStrokeManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		663C1872175467DB00706A05 /* JotStrokeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 663C1870175467DB00706A05 /* JotStrokeManager.m */; };
 		663C18751755271B00706A05 /* JotStrokeDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 663C1874175524EF00706A05 /* JotStrokeDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66455F8C175FC47200C66DFA /* JotGLTexture.h */; };
+		66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66455F8C175FC47200C66DFA /* JotGLTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66455F8F175FC47200C66DFA /* JotGLTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F8D175FC47200C66DFA /* JotGLTexture.m */; };
-		66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 66455F90175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h */; };
+		66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 66455F90175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66455F93175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */; };
 		669B39AD1692B46A00F12F42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
 		669B39B31692B46A00F12F42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 669B39B11692B46A00F12F42 /* InfoPlist.strings */; };
@@ -279,14 +279,14 @@
 				66AA5FB8169E77180046CA26 /* JotStroke.h in Headers */,
 				663C18751755271B00706A05 /* JotStrokeDelegate.h in Headers */,
 				669B3A311692B68F00F12F42 /* JotView.h in Headers */,
+				66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */,
+				66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */,
 				663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */,
 				66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */,
 				66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */,
 				669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */,
-				66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */,
-				66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
