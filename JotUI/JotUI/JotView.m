@@ -449,6 +449,10 @@
     glReadPixels(x, y, exportSize.width, exportSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     
+    
+    glDeleteFramebuffersOES(1, &exportFramebuffer);
+    glDeleteTextures(1, &canvastexture);
+    
     glViewport(0, 0, initialViewport.width, initialViewport.height);
 
     

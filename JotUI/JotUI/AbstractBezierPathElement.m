@@ -138,7 +138,7 @@
     return [NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([self class]), @"class",
             NSStringFromCGPoint(startPoint), @"startPoint",
             [NSNumber numberWithFloat:width], @"width",
-            [color asDictionary], @"color",
+            (color ? [color asDictionary] : [NSDictionary dictionary]), @"color",
             [NSNumber numberWithFloat:rotation], @"rotation",
             [NSNumber numberWithFloat:scaleOfVertexBuffer], @"scaleOfVertexBuffer", nil];
 }

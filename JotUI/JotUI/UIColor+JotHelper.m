@@ -32,6 +32,9 @@
 
 
 +(id) colorWithDictionary:(NSDictionary*)components{
+    if(![components count]){
+        return nil;
+    }
     return [UIColor colorWithRed:[[components objectForKey:@"red"] floatValue]
                            green:[[components objectForKey:@"green"] floatValue]
                             blue:[[components objectForKey:@"blue"] floatValue]
