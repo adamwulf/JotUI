@@ -58,6 +58,10 @@
     
     // a handle to the image used as the current brush texture
     __strong JotBrushTexture* brushTexture;
+    
+    dispatch_queue_t importExportImageQueue;
+    dispatch_queue_t importExportStateQueue;
+
 }
 
 @end
@@ -102,6 +106,13 @@
 
 
 -(id) finishInit{
+
+    // a queue for import/export operations, to make sure that
+    // we always complete an export before we can attempt an import
+    importExportImageQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportImageQueue", DISPATCH_QUEUE_SERIAL);
+
+    importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportImageQueue", DISPATCH_QUEUE_SERIAL);
+    
     //
     // this view should accept Jot stylus touch events
     [[JotStylusManager sharedInstance] registerView:self];
@@ -257,7 +268,7 @@
         dispatch_semaphore_signal(sema2);
     }];
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(void) {
+    dispatch_async(importExportStateQueue, ^(void) {
         dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
         // i could notify about the thumbnail here
         // which would let the UI swap to the cached thumbnail
@@ -298,7 +309,7 @@
     
     // the first item is unserializing the plist
     // information for our page state
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_async(importExportStateQueue, ^{
         
         // load the file
         stateInfo = [NSKeyedUnarchiver unarchiveObjectWithFile:stateInfoFile];
@@ -321,14 +332,13 @@
         }else{
             //        NSLog(@"no state info loaded");
         }
-        
 
         dispatch_semaphore_signal(sema1);
     });
     
     // the second item is loading the ink texture
     // into Open GL
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_async(importExportImageQueue, ^{
         
         EAGLContext* secondContext = [[EAGLContext alloc] initWithAPI:context.API sharegroup:context.sharegroup];
         [EAGLContext setCurrentContext:secondContext];
@@ -411,7 +421,7 @@
     
     //
     // the rest can be done in Core Graphics in a background thread
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_async(importExportImageQueue, ^{
         // Create a CGImage with the pixel data from OpenGL
         // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
         // otherwise, use kCGImageAlphaPremultipliedLast
