@@ -262,7 +262,7 @@
     [state setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
 
     [self exportToImageOnComplete:^(UIImage* image){
-        thumb = [image resizedImage:CGSizeMake(image.size.width / 2 * image.scale, image.size.height / 2 * image.scale) interpolationQuality:kCGInterpolationHigh];
+        thumb = image;
         dispatch_semaphore_signal(sema1);
     }];
     
@@ -383,7 +383,7 @@
     
     //
     // ok, render the new content
-    [self renderAllStrokesToContext:context];
+    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
 }
 
 #pragma mark Export Helpers
@@ -409,25 +409,39 @@
     
     if(!exportFinishBlock) return;
 
-    
     CGSize exportSize = CGSizeMake(initialViewport.width / 2, initialViewport.height / 2);
     
+    
+
+    
+	GLuint exportFramebuffer;
+    
+	glGenFramebuffersOES(1, &exportFramebuffer);
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+    GLuint canvastexture;
+    
+    // create the texture
+    glGenTextures(1, &canvastexture);
+    glBindTexture(GL_TEXTURE_2D, canvastexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  exportSize.width, exportSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
+    
+    GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+    if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
+        NSLog(@"failed to make complete framebuffer object %x", status);
+    }
+    
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    
+    glClearColor(1.0, 1.0, 1.0, 1.0);
     glViewport(0, 0, exportSize.width, exportSize.height);
+    glClear(GL_COLOR_BUFFER_BIT);
     
-    [self renderAllStrokesToContext:context];
-    
-    GLint backingWidthForRenderBuffer, backingHeightForRenderBuffer;
-    //Bind the color renderbuffer used to render the OpenGL ES view
-    // If your application only creates a single color renderbuffer which is already bound at this point,
-    // this call is redundant, but it is needed if you're dealing with multiple renderbuffers.
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-    
-    // Get the size of the backing CAEAGLLayer
-    glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidthForRenderBuffer);
-    glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeightForRenderBuffer);
+    [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO];
     
     // read the image from OpenGL and push it into a data buffer
-    NSInteger x = 0, y = 0, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
+    NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
     NSInteger dataLength = exportSize.width * exportSize.height * 4;
     GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
     // Read pixel data from the framebuffer
@@ -436,7 +450,6 @@
 
     
     glViewport(0, 0, initialViewport.width, initialViewport.height);
-    [self renderAllStrokesToContext:context];
 
     
     //
@@ -498,7 +511,7 @@
  * a stroke. it will clear the screen and re-draw all
  * strokes except for that undone/cancelled stroke
  */
--(void) renderAllStrokesToContext:(EAGLContext*)renderContext{
+-(void) renderAllStrokesToContext:(EAGLContext*)renderContext inFramebuffer:(GLuint)theFramebuffer andPresentBuffer:(BOOL)shouldPresent{
     //
     // hang onto the current texture
     // so we can reset it after we draw
@@ -507,7 +520,7 @@
     
     // set our current OpenGL context
     [EAGLContext setCurrentContext:renderContext];
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+	glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
 
 	//
     // step 1:
@@ -530,7 +543,7 @@
     //
     // step 3:
     // draw all the strokes that we have in our undo-able stack
-    [self prepOpenGLStateForFBO:viewFramebuffer];
+    [self prepOpenGLStateForFBO:theFramebuffer];
     // reset the texture so that we load the brush texture next
     brushTexture = nil;
     // now draw the strokes
@@ -554,9 +567,11 @@
     }
     [self unprepOpenGLState];
     
-    // step 4:
-    // ok, show it!
-    [self presentRenderBuffer];
+    if(shouldPresent){
+        // step 4:
+        // ok, show it!
+        [self presentRenderBuffer];
+    }
     
     // now that we're done rendering strokes, reset the texture
     // to the current brush
@@ -746,7 +761,7 @@
         JotStroke* aStroke = [currentStrokes objectForKey:key];
         if(aStroke == stroke){
             [currentStrokes removeObjectForKey:key];
-            [self renderAllStrokesToContext:context];
+            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
             return;
         }
     }
@@ -835,7 +850,7 @@
     }
     // we need to erase the current stroke from the screen, so
     // clear the canvas and rerender all valid strokes
-    [self renderAllStrokesToContext:context];
+    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
 }
 
 
@@ -956,7 +971,7 @@
         }
         // we need to erase the current stroke from the screen, so
         // clear the canvas and rerender all valid strokes
-        [self renderAllStrokesToContext:context];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
     }
 }
 
@@ -1023,7 +1038,7 @@
     if([stackOfStrokes count]){
         [stackOfUndoneStrokes addObject:[stackOfStrokes lastObject]];
         [stackOfStrokes removeLastObject];
-        [self renderAllStrokesToContext:context];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
     }
 }
 
@@ -1035,7 +1050,7 @@
     if([stackOfUndoneStrokes count]){
         [stackOfStrokes addObject:[stackOfUndoneStrokes lastObject]];
         [stackOfUndoneStrokes removeLastObject];
-        [self renderAllStrokesToContext:context];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
     }
 }
 
