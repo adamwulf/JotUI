@@ -236,6 +236,7 @@
      andThumbnailTo:(NSString*)thumbnailPath
          andPlistTo:(NSString*)plistPath
          onComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock{
+
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
     dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
     
@@ -246,7 +247,7 @@
     [state2 setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
     [state2 setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
 
-    [self exportToImageWithBackgroundColor:nil andBackgroundImage:nil onComplete:^(UIImage* image){
+    [self exportToImageOnComplete:^(UIImage* image){
         thumb = [image resizedImage:CGSizeMake(image.size.width / 2 * image.scale, image.size.height / 2 * image.scale) interpolationQuality:kCGInterpolationHigh];
         dispatch_semaphore_signal(sema1);
     }];
@@ -383,9 +384,7 @@
  * and
  * http://stackoverflow.com/questions/1379274/uiimagewritetosavedphotosalbum-saves-to-wrong-size-and-quality
  */
--(void) exportToImageWithBackgroundColor:(UIColor*)backgroundColor
-                      andBackgroundImage:(UIImage*)backgroundImage
-                              onComplete:(void(^)(UIImage*) )exportFinishBlock{
+-(void) exportToImageOnComplete:(void(^)(UIImage*) )exportFinishBlock{
     
     if(!exportFinishBlock) return;
     
@@ -422,7 +421,6 @@
                                         kCGImageAlphaPremultipliedLast,
                                         ref, NULL, true, kCGRenderingIntentDefault);
         
-        //
         // ok, now we have the pixel data from the OpenGL frame buffer.
         // next we need to setup the image context to composite the
         // background color, background image, and opengl image
@@ -431,32 +429,6 @@
         // Create a graphics context with the target size measured in POINTS
         CGContextRef bitmapContext = CGBitmapContextCreate(NULL, width, height, 8, width * 4, colorspace, kCGBitmapByteOrderDefault |
                                                            kCGImageAlphaPremultipliedLast);
-        
-        // fill background color, if any
-        if(backgroundColor){
-            CGContextSetFillColorWithColor(bitmapContext, backgroundColor.CGColor);
-            CGContextFillRect(bitmapContext, CGRectMake(0, 0, width, height));
-        }
-        
-        // fill background image, if any
-        // and use scale-to-fill, similar to a UIImageView
-        if(backgroundImage){
-            // find the right location and size to draw the background so that it aspect fills the export image
-            CGSize backgroundSize = CGSizeMake(CGImageGetWidth(backgroundImage.CGImage), CGImageGetHeight(backgroundImage.CGImage));
-            CGSize finalImageSize = CGSizeMake(width,height);
-            CGFloat horizontalRatio = finalImageSize.width / backgroundSize.width;
-            CGFloat verticalRatio = finalImageSize.height / backgroundSize.height;
-            CGFloat ratio = MAX(horizontalRatio, verticalRatio); //AspectFill
-            CGSize aspectFillSize = CGSizeMake(backgroundSize.width * ratio, backgroundSize.height * ratio);
-            
-            //Draw our image centered vertically and horizontally in our context.
-            CGContextDrawImage(bitmapContext,
-                               CGRectMake((finalImageSize.width-aspectFillSize.width)/2,
-                                          (finalImageSize.height-aspectFillSize.height)/2,
-                                          aspectFillSize.width,
-                                          aspectFillSize.height),
-                               backgroundImage.CGImage);
-        }
         
         // flip vertical for our drawn content, since OpenGL is opposite core graphics
         CGContextTranslateCTM(bitmapContext, 0, height);
