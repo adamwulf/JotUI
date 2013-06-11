@@ -49,22 +49,6 @@
 
 
 
-#pragma mark - NSCoder
-
-- (void)encodeWithCoder:(NSCoder *)coder {
-    [coder encodeObject:@"JotDefaultBrushTexture" forKey:@"name"];
-    [coder encodeObject:self.texture forKey:@"texture"];
-}
-
-- (id)initWithCoder:(NSCoder *)coder {
-    self = [super init];
-    if (self) {
-        textureCache = [coder decodeObjectForKey:@"texture"];
-    }
-    return self;
-}
-
-
 #pragma mark - PlistSaving
 
 -(NSDictionary*) asDictionary{

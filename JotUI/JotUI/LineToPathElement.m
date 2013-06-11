@@ -196,32 +196,6 @@
     return [NSString stringWithFormat:@"[Line from: %f,%f  to: %f%f]", startPoint.x, startPoint.y, lineTo.x, lineTo.y];
 }
 
-#pragma mark - NSCoder
-
-- (void)encodeWithCoder:(NSCoder *)coder {
-    [super encodeWithCoder:coder];
-    [coder encodeObject:[NSValue valueWithCGPoint:lineTo] forKey:@"lineTo"];
-    [coder encodeBytes:(void*)vertexBuffer length:[self numberOfBytes] forKey:@"vertexBuffer"];
-}
-
-- (id)initWithCoder:(NSCoder *)coder {
-    self = [super initWithCoder:coder];
-    if (self) {
-        lineTo = [[coder decodeObjectForKey:@"lineTo"] CGPointValue];
-        
-        NSUInteger blockSize;
-        const void *bytes = [coder decodeBytesForKey:@"vertexBuffer" returnedLength:&blockSize];
-        if(blockSize){
-            vertexBuffer = malloc(blockSize);
-            memcpy(vertexBuffer, bytes, blockSize);
-        }else{
-            vertexBuffer = nil;
-            scaleOfVertexBuffer = 0;
-        }
-    }
-    return self;
-}
-
 
 #pragma mark - PlistSaving
 

@@ -22,16 +22,6 @@
 }
 
 
-#pragma mark - NSCoder
-
-- (void)encodeWithCoder:(NSCoder *)coder {
-    @throw kAbstractMethodException;
-}
-
-- (id)initWithCoder:(NSCoder *)coder {
-    @throw kAbstractMethodException;
-}
-
 #pragma mark - PlistSaving
 
 -(NSDictionary*) asDictionary{

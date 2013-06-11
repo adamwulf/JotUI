@@ -12,7 +12,7 @@
 
 @class AbstractBezierPathElement;
 
-@interface SegmentSmoother : NSObject<NSCoding,PlistSaving>{
+@interface SegmentSmoother : NSObject<PlistSaving>{
     CGPoint point0;
     CGPoint point1;
     CGPoint point2;

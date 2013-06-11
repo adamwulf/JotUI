@@ -364,37 +364,6 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
 
 
 
-#pragma mark - NSCoder
-
-- (void)encodeWithCoder:(NSCoder *)coder {
-    [super encodeWithCoder:coder];
-    [coder encodeObject:[NSValue valueWithCGPoint:curveTo] forKey:@"curveTo"];
-    [coder encodeObject:[NSValue valueWithCGPoint:ctrl1] forKey:@"ctrl1"];
-    [coder encodeObject:[NSValue valueWithCGPoint:ctrl2] forKey:@"ctrl2"];
-    [coder encodeBytes:(void*)vertexBuffer length:[self numberOfBytes] forKey:@"vertexBuffer"];
-}
-
-- (id)initWithCoder:(NSCoder *)coder {
-    self = [super initWithCoder:coder];
-    if (self) {
-        curveTo = [[coder decodeObjectForKey:@"curveTo"] CGPointValue];
-        ctrl1 = [[coder decodeObjectForKey:@"ctrl1"] CGPointValue];
-        ctrl2 = [[coder decodeObjectForKey:@"ctrl2"] CGPointValue];
-
-        NSUInteger blockSize;
-        const void *bytes = [coder decodeBytesForKey:@"vertexBuffer" returnedLength:&blockSize];
-        if(blockSize){
-            vertexBuffer = malloc(blockSize);
-            memcpy(vertexBuffer, bytes, blockSize);
-        }else{
-            vertexBuffer = nil;
-            scaleOfVertexBuffer = 0;
-        }
-    }
-    return self;
-}
-
-
 #pragma mark - PlistSaving
 
 -(NSDictionary*) asDictionary{

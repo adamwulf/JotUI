@@ -20,7 +20,7 @@
  * between points into a nice single curve, and also
  * interpolate width and color including alpha
  */
-@interface JotStroke : NSObject<NSCoding,PlistSaving>{
+@interface JotStroke : NSObject<PlistSaving>{
     // this will interpolate between points into curved segments
     SegmentSmoother* segmentSmoother;
     // this will store all the segments in drawn order

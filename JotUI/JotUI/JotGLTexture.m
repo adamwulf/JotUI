@@ -43,8 +43,7 @@
 //
 //
 // right now, unarchiving is taking longer than loading
-// the texture. so moving from NSCoding to plist will
-// probably make the texture loading take longer.
+// the texture.
 // if i can write the texture + load the archive
 // in parallel, then i should be able to get a texture
 // loaded in ~90ms hopefully.
