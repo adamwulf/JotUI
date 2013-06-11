@@ -223,26 +223,5 @@
 }
 
 
-#pragma mark - PlistSaving
-
--(NSDictionary*) asDictionary{
-    NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[super asDictionary]];
-    [dict setObject:NSStringFromCGPoint(lineTo) forKey:@"lineTo"];
-    [dict setObject:[NSData dataWithBytesNoCopy:vertexBuffer length:[self numberOfBytes] freeWhenDone:NO] forKey:@"vertexBuffer"];
-    return [NSDictionary dictionaryWithDictionary:dict];
-}
-
--(id) initFromDictionary:(NSDictionary*)dictionary{
-    self = [super initFromDictionary:dictionary];
-    if (self) {
-        lineTo = CGPointFromString([dictionary objectForKey:@"lineTo"]);
-        vertexBuffer = malloc([self numberOfBytes]);
-        NSData* data = [dictionary objectForKey:@"vertexBuffer"];
-        memcpy(vertexBuffer, data.bytes, [self numberOfBytes]);
-    }
-    return self;
-}
-
-
 
 @end

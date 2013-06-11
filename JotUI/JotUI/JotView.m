@@ -242,10 +242,6 @@
     __block UIImage* thumb = nil;
     __block UIImage* ink = nil;
     
-//    NSMutableDictionary* state = [NSMutableDictionary dictionary];
-//    [state setObject:[[stackOfStrokes copy] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
-//    [state setObject:[[stackOfUndoneStrokes copy] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
-
     NSMutableDictionary* state2 = [NSMutableDictionary dictionary];
     [state2 setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
     [state2 setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
@@ -277,11 +273,7 @@
         
         [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
         
-//        if(![state writeToFile:plistPath atomically:YES]){
-//            NSLog(@"couldn't write plist file");
-//        }
-        
-//        [NSKeyedArchiver archiveRootObject:state2 toFile:[plistPath stringByAppendingString:@"2"]];
+        [NSKeyedArchiver archiveRootObject:state2 toFile:plistPath];
 
     });
 }
@@ -309,34 +301,14 @@
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
             // load the file
-//            stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
-            stateInfo = [NSKeyedUnarchiver unarchiveObjectWithFile:[stateInfoFile stringByAppendingString:@"2"]];
+            stateInfo = [NSKeyedUnarchiver unarchiveObjectWithFile:stateInfoFile];
             
             //
             // reset our undo state
             [stackOfUndoneStrokes removeAllObjects];
             [stackOfStrokes removeAllObjects];
             [currentStrokes removeAllObjects];
-            
-//            if(stateInfo){
-//                // load our undo state
-//                id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
-//                    NSString* className = [obj objectForKey:@"class"];
-//                    Class class = NSClassFromString(className);
-//                    JotStroke* stroke = [[class alloc] initFromDictionary:obj];
-//                    stroke.delegate = self;
-//                    return stroke;
-//                };
-//                
-//                [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
-//                [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
-//            }else{
-//                //        NSLog(@"no state info loaded");
-//            }
-            
 
-            
-            
             if(stateInfo){
                 // load our undo state
                 id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){

@@ -133,23 +133,5 @@
 }
 
 
-#pragma mark - PlistSaving
-
--(NSDictionary*) asDictionary{
-    return [NSDictionary dictionaryWithObjectsAndKeys:NSStringFromCGPoint(point0), @"point0",
-            NSStringFromCGPoint(point1), @"point1",
-            NSStringFromCGPoint(point2), @"point2",
-            NSStringFromCGPoint(point3), @"point3", nil];
-}
-
--(id) initFromDictionary:(NSDictionary*)dictionary{
-    if(self = [super init]){
-        point0 = CGPointFromString([dictionary objectForKey:@"point0"]);
-        point1 = CGPointFromString([dictionary objectForKey:@"point1"]);
-        point2 = CGPointFromString([dictionary objectForKey:@"point2"]);
-        point3 = CGPointFromString([dictionary objectForKey:@"point3"]);
-    }
-    return self;
-}
 
 @end
