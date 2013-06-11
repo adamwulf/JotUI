@@ -8,8 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "PlistSaving.h"
 
-@interface JotBrushTexture : NSObject<NSCoding>
+@interface JotBrushTexture : NSObject<NSCoding,PlistSaving>
 
 @property (readonly) UIImage* texture;
 @property (readonly) NSString* name;

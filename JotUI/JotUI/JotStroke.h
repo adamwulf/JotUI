@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import "JotStrokeDelegate.h"
 #import "JotBrushTexture.h"
+#import "PlistSaving.h"
 
 @class SegmentSmoother;
 
@@ -19,7 +20,7 @@
  * between points into a nice single curve, and also
  * interpolate width and color including alpha
  */
-@interface JotStroke : NSObject<NSCoding>{
+@interface JotStroke : NSObject<NSCoding,PlistSaving>{
     // this will interpolate between points into curved segments
     SegmentSmoother* segmentSmoother;
     // this will store all the segments in drawn order

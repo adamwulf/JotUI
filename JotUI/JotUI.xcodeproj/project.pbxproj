@@ -47,6 +47,7 @@
 		66BF7F22176675E0003F4F67 /* JotBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F20176675E0003F4F67 /* JotBrushTexture.m */; };
 		66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		66BF7F2617667663003F4F67 /* JotDefaultBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2417667663003F4F67 /* JotDefaultBrushTexture.m */; };
+		66BF7F29176679DB003F4F67 /* PlistSaving.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2817667951003F4F67 /* PlistSaving.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2A17667C19003F4F67 /* NSArray+JotMapReduce.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		66BF7F2D17667C19003F4F67 /* NSArray+JotMapReduce.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2B17667C19003F4F67 /* NSArray+JotMapReduce.m */; };
 		66BF7F301766D133003F4F67 /* UIImage+Resize.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2E1766D133003F4F67 /* UIImage+Resize.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -120,6 +121,7 @@
 		66BF7F20176675E0003F4F67 /* JotBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotBrushTexture.m; sourceTree = "<group>"; };
 		66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotDefaultBrushTexture.h; sourceTree = "<group>"; };
 		66BF7F2417667663003F4F67 /* JotDefaultBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotDefaultBrushTexture.m; sourceTree = "<group>"; };
+		66BF7F2817667951003F4F67 /* PlistSaving.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlistSaving.h; sourceTree = "<group>"; };
 		66BF7F2A17667C19003F4F67 /* NSArray+JotMapReduce.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+JotMapReduce.h"; sourceTree = "<group>"; };
 		66BF7F2B17667C19003F4F67 /* NSArray+JotMapReduce.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+JotMapReduce.m"; sourceTree = "<group>"; };
 		66BF7F2E1766D133003F4F67 /* UIImage+Resize.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Resize.h"; sourceTree = "<group>"; };
@@ -256,6 +258,7 @@
 		669B3A2E1692B66B00F12F42 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				66BF7F2717667940003F4F67 /* Plist */,
 				66BF7F1E176675CE003F4F67 /* Brush Texture */,
 				66455F8B175FC45600C66DFA /* OpenGL */,
 				66AA5FB4169E76FF0046CA26 /* Stroke */,
@@ -309,6 +312,14 @@
 			name = "Brush Texture";
 			sourceTree = "<group>";
 		};
+		66BF7F2717667940003F4F67 /* Plist */ = {
+			isa = PBXGroup;
+			children = (
+				66BF7F2817667951003F4F67 /* PlistSaving.h */,
+			);
+			name = Plist;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -325,6 +336,7 @@
 				669B3A311692B68F00F12F42 /* JotView.h in Headers */,
 				66BF7F21176675E0003F4F67 /* JotBrushTexture.h in Headers */,
 				66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */,
+				66BF7F29176679DB003F4F67 /* PlistSaving.h in Headers */,
 				66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */,
 				663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */,
 				66BF7F301766D133003F4F67 /* UIImage+Resize.h in Headers */,

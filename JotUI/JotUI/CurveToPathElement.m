@@ -395,4 +395,29 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
 }
 
 
+#pragma mark - PlistSaving
+
+-(NSDictionary*) asDictionary{
+    NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[super asDictionary]];
+    [dict setObject:NSStringFromCGPoint(curveTo) forKey:@"curveTo"];
+    [dict setObject:NSStringFromCGPoint(ctrl1) forKey:@"ctrl1"];
+    [dict setObject:NSStringFromCGPoint(ctrl2) forKey:@"ctrl2"];
+    [dict setObject:[NSData dataWithBytesNoCopy:vertexBuffer length:[self numberOfBytes] freeWhenDone:NO] forKey:@"vertexBuffer"];
+    return [NSDictionary dictionaryWithDictionary:dict];
+}
+
+-(id) initFromDictionary:(NSDictionary*)dictionary{
+    self = [super initFromDictionary:dictionary];
+    if (self) {
+        curveTo = CGPointFromString([dictionary objectForKey:@"curveTo"]);
+        ctrl1 = CGPointFromString([dictionary objectForKey:@"ctrl1"]);
+        ctrl2 = CGPointFromString([dictionary objectForKey:@"ctrl2"]);
+        vertexBuffer = malloc([self numberOfBytes]);
+        NSData* data = [dictionary objectForKey:@"vertexBuffer"];
+        memcpy(vertexBuffer, data.bytes, [self numberOfBytes]);
+    }
+    return self;
+}
+
+
 @end

@@ -32,6 +32,18 @@
     @throw kAbstractMethodException;
 }
 
+#pragma mark - PlistSaving
+
+-(NSDictionary*) asDictionary{
+    return [NSDictionary dictionaryWithObject:NSStringFromClass([self class]) forKey:@"class"];
+}
+
+-(id) initFromDictionary:(NSDictionary*)dictionary{
+    NSString* className = [dictionary objectForKey:@"class"];
+    Class clz = NSClassFromString(className);
+    return [clz sharedInstace];
+}
+
 #pragma mark - Singleton
 
 +(JotBrushTexture*) sharedInstace{

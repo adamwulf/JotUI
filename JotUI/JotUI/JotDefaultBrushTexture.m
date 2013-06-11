@@ -65,6 +65,17 @@
 }
 
 
+#pragma mark - PlistSaving
+
+-(NSDictionary*) asDictionary{
+    return [NSDictionary dictionaryWithObject:@"JotDefaultBrushTexture" forKey:@"class"];
+}
+
+-(id) initFromDictionary:(NSDictionary*)dictionary{
+    return [super init];
+}
+
+
 #pragma mark - Singleton
 
 static JotDefaultBrushTexture* _instance = nil;
