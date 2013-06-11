@@ -290,76 +290,74 @@
 -(void) loadImage:(NSString*)inkImageFile andState:(NSString*)stateInfoFile{
     __block NSDictionary* stateInfo = nil;
     
-    {
-        // we're going to wait for two background operations to complete
-        // using these semaphores
-        dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
-        dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
+    // we're going to wait for two background operations to complete
+    // using these semaphores
+    dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
+    dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
+    
+    // the first item is unserializing the plist
+    // information for our page state
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        // the first item is unserializing the plist
-        // information for our page state
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
-            // load the file
-            stateInfo = [NSKeyedUnarchiver unarchiveObjectWithFile:stateInfoFile];
-            
-            //
-            // reset our undo state
-            [stackOfUndoneStrokes removeAllObjects];
-            [stackOfStrokes removeAllObjects];
-            [currentStrokes removeAllObjects];
+        // load the file
+        stateInfo = [NSKeyedUnarchiver unarchiveObjectWithFile:stateInfoFile];
+        
+        //
+        // reset our undo state
+        [stackOfUndoneStrokes removeAllObjects];
+        [stackOfStrokes removeAllObjects];
+        [currentStrokes removeAllObjects];
 
-            if(stateInfo){
-                // load our undo state
-                id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
-                    [obj setDelegate:self];
-                    return obj;
-                };
-                
-                [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
-                [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
-            }else{
-                //        NSLog(@"no state info loaded");
-            }
+        if(stateInfo){
+            // load our undo state
+            id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
+                [obj setDelegate:self];
+                return obj;
+            };
             
+            [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
+            [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+        }else{
+            //        NSLog(@"no state info loaded");
+        }
+        
 
-            dispatch_semaphore_signal(sema1);
-        });
+        dispatch_semaphore_signal(sema1);
+    });
+    
+    // the second item is loading the ink texture
+    // into Open GL
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        // the second item is loading the ink texture
-        // into Open GL
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            
-            EAGLContext* secondContext = [[EAGLContext alloc] initWithAPI:context.API sharegroup:context.sharegroup];
-            [EAGLContext setCurrentContext:secondContext];
-            
-            // load image from disk
-            UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
-            
-            // calc final size of the backing texture
-            CGFloat scale = [[UIScreen mainScreen] scale];
-            CGSize fullPixelSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
-            
-            // load new texture
-            backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
-            
-            // generate FBO for the texture
-            backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
-            
-            if(!savedInkImage){
-                // no image was given, so it should be a blank texture
-                // lets erase it, since it defaults to uncleared memory
-                [backgroundFramebuffer clear];
-            }
-            glFlush();
-            dispatch_semaphore_signal(sema2);
-        });
+        EAGLContext* secondContext = [[EAGLContext alloc] initWithAPI:context.API sharegroup:context.sharegroup];
+        [EAGLContext setCurrentContext:secondContext];
         
-        // wait here
-        // until both above items are complete
-        dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
-        dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
-    }
+        // load image from disk
+        UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
+        
+        // calc final size of the backing texture
+        CGFloat scale = [[UIScreen mainScreen] scale];
+        CGSize fullPixelSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
+        
+        // load new texture
+        backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
+        
+        // generate FBO for the texture
+        backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
+        
+        if(!savedInkImage){
+            // no image was given, so it should be a blank texture
+            // lets erase it, since it defaults to uncleared memory
+            [backgroundFramebuffer clear];
+        }
+        glFlush();
+        dispatch_semaphore_signal(sema2);
+    });
+    
+    // wait here
+    // until both above items are complete
+    dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
+    dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
     
     //
     // ok, render the new content
