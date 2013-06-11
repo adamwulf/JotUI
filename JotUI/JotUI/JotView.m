@@ -255,12 +255,8 @@
     __block UIImage* ink = nil;
     
     NSMutableDictionary* state = [NSMutableDictionary dictionary];
-    [state setObject:[[stackOfStrokes copy] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
-    [state setObject:[[stackOfUndoneStrokes copy] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
-
-//    NSMutableDictionary* state2 = [NSMutableDictionary dictionary];
-//    [state2 setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
-//    [state2 setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
+    [state setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
+    [state setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
 
     [self exportToImageOnComplete:^(UIImage* image){
         thumb = [image resizedImage:CGSizeMake(image.size.width / 2 * image.scale, image.size.height / 2 * image.scale) interpolationQuality:kCGInterpolationHigh];
@@ -289,11 +285,12 @@
         
         [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
         
+        [state setObject:[[state objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
+        [state setObject:[[state objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
+
         if(![state writeToFile:plistPath atomically:YES]){
             NSLog(@"couldn't write plist file");
         }
-        
-//        [NSKeyedArchiver archiveRootObject:state2 toFile:[plistPath stringByAppendingString:@"2"]];
 
     });
 }
@@ -321,7 +318,6 @@
             
             // load the file
             stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
-//            stateInfo = [NSKeyedUnarchiver unarchiveObjectWithFile:[stateInfoFile stringByAppendingString:@"2"]];
             
             //
             // reset our undo state
@@ -345,19 +341,6 @@
                 //        NSLog(@"no state info loaded");
             }
             
-//            if(stateInfo){
-//                // load our undo state
-//                id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
-//                    [obj setDelegate:self];
-//                    return obj;
-//                };
-//                
-//                [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
-//                [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
-//            }else{
-//                //        NSLog(@"no state info loaded");
-//            }
-
         dispatch_semaphore_signal(sema1);
     });
     
