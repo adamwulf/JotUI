@@ -1136,11 +1136,6 @@
 	if([EAGLContext currentContext] == context){
 		[EAGLContext setCurrentContext:nil];
 	}
-    
-    if(backgroundFramebuffer){
-        glDeleteFramebuffersOES(1, &backgroundFramebuffer);
-        backgroundFramebuffer = 0;
-    }
 }
 
 
