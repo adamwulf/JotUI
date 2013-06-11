@@ -20,6 +20,7 @@
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotDefaultBrushTexture.h"
 #import "NSArray+JotMapReduce.h"
+#import "UIImage+Resize.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -231,7 +232,10 @@
 #pragma mark - Export and Import
 
 
--(void) exportEverythingOnComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock{
+-(void) exportInkTo:(NSString*)inkPath
+     andThumbnailTo:(NSString*)thumbnailPath
+         andPlistTo:(NSString*)plistPath
+         onComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock{
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
     dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
     
@@ -243,7 +247,7 @@
     [state setObject:[[stackOfUndoneStrokes copy] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
     
     [self exportToImageWithBackgroundColor:nil andBackgroundImage:nil onComplete:^(UIImage* image){
-        thumb = image;
+        thumb = [image resizedImage:CGSizeMake(image.size.width / 2 * image.scale, image.size.height / 2 * image.scale) interpolationQuality:kCGInterpolationHigh];
         dispatch_semaphore_signal(sema1);
     }];
     
@@ -263,8 +267,15 @@
         
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
         
-        
         exportFinishBlock(ink, thumb, state);
+        
+        [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
+        
+        [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
+        
+        if(![state writeToFile:plistPath atomically:YES]){
+            NSLog(@"couldn't write plist file");
+        }
     });
 }
 

@@ -47,7 +47,10 @@
 -(NSUInteger) undoHash;
 
 // this will export both the ink and the thumbnail image
--(void) exportEverythingOnComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock;
+-(void) exportInkTo:(NSString*)inkPath
+     andThumbnailTo:(NSString*)thumbnailPath
+         andPlistTo:(NSString*)plistPath
+         onComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock;
 
 // imports an image
 -(void) loadImage:(NSString*)inkImageFile andState:(NSString*)stateInfoFile;
