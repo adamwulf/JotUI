@@ -40,7 +40,14 @@
 
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     NSString* className = [dictionary objectForKey:@"class"];
-    return [[NSClassFromString(className) alloc] init];
+    Class clz = NSClassFromString(className);
+    return [clz sharedInstace];
+}
+
+#pragma mark - Singleton
+
++(JotBrushTexture*) sharedInstace{
+    @throw kAbstractMethodException;
 }
 
 

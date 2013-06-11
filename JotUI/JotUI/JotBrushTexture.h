@@ -15,4 +15,6 @@
 @property (readonly) UIImage* texture;
 @property (readonly) NSString* name;
 
++(JotBrushTexture*) sharedInstace;
+
 @end

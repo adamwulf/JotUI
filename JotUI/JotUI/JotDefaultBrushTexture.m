@@ -76,4 +76,25 @@
 }
 
 
+#pragma mark - Singleton
+
+static JotDefaultBrushTexture* _instance = nil;
+
+-(id) init{
+    if(_instance) return _instance;
+    if((_instance = [super init])){
+        // noop
+    }
+    return _instance;
+}
+
++(JotBrushTexture*) sharedInstace{
+    if(!_instance){
+        _instance = [[JotDefaultBrushTexture alloc] init];
+    }
+    return _instance;
+}
+
+
+
 @end

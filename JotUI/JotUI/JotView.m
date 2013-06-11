@@ -66,7 +66,6 @@
 
 @synthesize delegate;
 @synthesize undoLimit;
-@synthesize brushTexture;
 @synthesize context;
 
 #pragma mark - Initialization
@@ -132,7 +131,7 @@
     }
     
     
-    [self createDefaultBrushTexture];
+    [self setBrushTexture:[JotDefaultBrushTexture sharedInstace]];
 
     // Set the view's scale factor
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
@@ -163,15 +162,6 @@
 
 
 #pragma mark - OpenGL Init
-
-/**
- * this will set the brush texture for this view
- * by generating a default UIImage. the image is a
- * 20px radius circle with a feathered edge
- */
--(void) createDefaultBrushTexture{
-    [self setBrushTexture:[[JotDefaultBrushTexture alloc] init]];
-}
 
 
 
@@ -334,7 +324,7 @@
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
             
             // load the file
-            stateInfo = [NSKeyedUnarchiver unarchiveObjectWithFile:stateInfoFile];
+            stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
             
             //
             // reset our undo state
@@ -997,6 +987,10 @@
 
 
 #pragma mark - Public Interface
+
+-(JotBrushTexture*)brushTexture{
+    return brushTexture;
+}
 
 /**
  * setup the texture to use for the next brush stroke
