@@ -205,8 +205,11 @@
 	
     CGRect frame = self.layer.bounds;
     CGFloat scale = self.contentScaleFactor;
+    
+    initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
+    
     glOrthof(0, frame.size.width * scale, 0, frame.size.height * scale, -1, 1);
-    glViewport(0, 0, frame.size.width * scale, frame.size.height * scale);
+    glViewport(0, 0, initialViewport.width, initialViewport.height);
 
 	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
@@ -369,8 +372,8 @@
             // lets erase it, since it defaults to uncleared memory
             [backgroundFramebuffer clear];
         }
-        glFlush();
         dispatch_semaphore_signal(sema2);
+        glFlush();
     });
     
     // wait here
@@ -380,7 +383,7 @@
     
     //
     // ok, render the new content
-    [self renderAllStrokes];
+    [self renderAllStrokesToContext:context];
 }
 
 #pragma mark Export Helpers
@@ -405,9 +408,13 @@
 -(void) exportToImageOnComplete:(void(^)(UIImage*) )exportFinishBlock{
     
     if(!exportFinishBlock) return;
+
     
-    // make sure everything is rendered to the buffer
-    [self renderAllStrokes];
+    CGSize exportSize = CGSizeMake(initialViewport.width / 2, initialViewport.height / 2);
+    
+    glViewport(0, 0, exportSize.width, exportSize.height);
+    
+    [self renderAllStrokesToContext:context];
     
     GLint backingWidthForRenderBuffer, backingHeightForRenderBuffer;
     //Bind the color renderbuffer used to render the OpenGL ES view
@@ -421,21 +428,27 @@
     
     // read the image from OpenGL and push it into a data buffer
     NSInteger x = 0, y = 0, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
-    NSInteger dataLength = width * height * 4;
+    NSInteger dataLength = exportSize.width * exportSize.height * 4;
     GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
     // Read pixel data from the framebuffer
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
-    glReadPixels(x, y, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glReadPixels(x, y, exportSize.width, exportSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    
+    glViewport(0, 0, initialViewport.width, initialViewport.height);
+    [self renderAllStrokesToContext:context];
+
     
     //
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
+        
         // Create a CGImage with the pixel data from OpenGL
         // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
         // otherwise, use kCGImageAlphaPremultipliedLast
         CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
         CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-        CGImageRef iref = CGImageCreate(width, height, 8, 32, width * 4, colorspace, kCGBitmapByteOrderDefault |
+        CGImageRef iref = CGImageCreate(exportSize.width, exportSize.height, 8, 32, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                         kCGImageAlphaPremultipliedLast,
                                         ref, NULL, true, kCGRenderingIntentDefault);
         
@@ -445,16 +458,16 @@
         
         // OpenGL ES measures data in PIXELS
         // Create a graphics context with the target size measured in POINTS
-        CGContextRef bitmapContext = CGBitmapContextCreate(NULL, width, height, 8, width * 4, colorspace, kCGBitmapByteOrderDefault |
+        CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                                            kCGImageAlphaPremultipliedLast);
         
         // flip vertical for our drawn content, since OpenGL is opposite core graphics
-        CGContextTranslateCTM(bitmapContext, 0, height);
+        CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
         CGContextScaleCTM(bitmapContext, 1.0, -1.0);
         
         //
         // ok, now render our actual content
-        CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, width, height), iref);
+        CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, exportSize.width, exportSize.height), iref);
         
         // Retrieve the UIImage from the current context
         CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
@@ -485,7 +498,7 @@
  * a stroke. it will clear the screen and re-draw all
  * strokes except for that undone/cancelled stroke
  */
--(void) renderAllStrokes{
+-(void) renderAllStrokesToContext:(EAGLContext*)renderContext{
     //
     // hang onto the current texture
     // so we can reset it after we draw
@@ -493,7 +506,7 @@
     JotBrushTexture* keepThisTexture = brushTexture;
     
     // set our current OpenGL context
-    [EAGLContext setCurrentContext:context];
+    [EAGLContext setCurrentContext:renderContext];
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 
 	//
@@ -733,7 +746,7 @@
         JotStroke* aStroke = [currentStrokes objectForKey:key];
         if(aStroke == stroke){
             [currentStrokes removeObjectForKey:key];
-            [self renderAllStrokes];
+            [self renderAllStrokesToContext:context];
             return;
         }
     }
@@ -822,7 +835,7 @@
     }
     // we need to erase the current stroke from the screen, so
     // clear the canvas and rerender all valid strokes
-    [self renderAllStrokes];
+    [self renderAllStrokesToContext:context];
 }
 
 
@@ -943,7 +956,7 @@
         }
         // we need to erase the current stroke from the screen, so
         // clear the canvas and rerender all valid strokes
-        [self renderAllStrokes];
+        [self renderAllStrokesToContext:context];
     }
 }
 
@@ -1010,7 +1023,7 @@
     if([stackOfStrokes count]){
         [stackOfUndoneStrokes addObject:[stackOfStrokes lastObject]];
         [stackOfStrokes removeLastObject];
-        [self renderAllStrokes];
+        [self renderAllStrokesToContext:context];
     }
 }
 
@@ -1022,7 +1035,7 @@
     if([stackOfUndoneStrokes count]){
         [stackOfStrokes addObject:[stackOfUndoneStrokes lastObject]];
         [stackOfUndoneStrokes removeLastObject];
-        [self renderAllStrokes];
+        [self renderAllStrokesToContext:context];
     }
 }
 

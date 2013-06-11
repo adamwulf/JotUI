@@ -25,6 +25,9 @@
 	EAGLContext *context;
 	
     NSUInteger undoLimit;
+    
+    
+    CGSize initialViewport;
 }
 
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
