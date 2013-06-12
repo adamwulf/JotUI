@@ -62,6 +62,9 @@
     dispatch_queue_t importExportImageQueue;
     dispatch_queue_t importExportStateQueue;
 
+    NSTimer* undoStateTimer;
+    NSMutableArray* strokesToKill;
+    AbstractBezierPathElement* prevElementForTextureWriting;
 }
 
 @end
@@ -112,6 +115,10 @@
     importExportImageQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportImageQueue", DISPATCH_QUEUE_SERIAL);
 
     importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportImageQueue", DISPATCH_QUEUE_SERIAL);
+    
+    undoStateTimer = [NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
+    strokesToKill = [NSMutableArray array];
+    prevElementForTextureWriting = nil;
     
     //
     // this view should accept Jot stylus touch events
@@ -718,37 +725,53 @@
  */
 -(void) validateUndoState{
     if([stackOfStrokes count] > self.undoLimit){
-        JotBrushTexture* keepThisTexture = brushTexture;
         while([stackOfStrokes count] > self.undoLimit){
-            // get the stroke that we need to make permanent
-            JotStroke* strokeToWriteToTexture = [stackOfStrokes objectAtIndex:0];
-            [stackOfStrokes removeObject:strokeToWriteToTexture];
-            
-            // render it to the backing texture
-            [self prepOpenGLStateForFBO:backgroundFramebuffer.framebufferID];
-            // reset the texture so that we load the brush texture next
-            brushTexture = nil;
-            // now draw the strokes
-            
-            // make sure our texture is the correct one for this stroke
-            if(strokeToWriteToTexture.texture != brushTexture){
-                [self setBrushTexture:strokeToWriteToTexture.texture];
-            }
-            // setup our blend mode properly for color vs eraser
-            if(strokeToWriteToTexture.segments){
-                AbstractBezierPathElement* firstElement = [strokeToWriteToTexture.segments objectAtIndex:0];
-                [self prepOpenGLBlendModeForColor:firstElement.color];
-            }
-            
-            // draw each stroke element
-            AbstractBezierPathElement* prevElement = nil;
-            for(AbstractBezierPathElement* element in strokeToWriteToTexture.segments){
-                [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil];
-                prevElement = element;
-            }
-            
-            [self unprepOpenGLState];
+            [strokesToKill addObject:[stackOfStrokes objectAtIndex:0]];
+            [stackOfStrokes removeObjectAtIndex:0];
         }
+    }
+    if([strokesToKill count]){
+        JotBrushTexture* keepThisTexture = brushTexture;
+        // get the stroke that we need to make permanent
+        JotStroke* strokeToWriteToTexture = [strokesToKill objectAtIndex:0];
+        
+        // render it to the backing texture
+        [self prepOpenGLStateForFBO:backgroundFramebuffer.framebufferID];
+        // reset the texture so that we load the brush texture next
+        brushTexture = nil;
+        // now draw the strokes
+        
+        // make sure our texture is the correct one for this stroke
+        if(strokeToWriteToTexture.texture != brushTexture){
+            [self setBrushTexture:strokeToWriteToTexture.texture];
+        }
+        // setup our blend mode properly for color vs eraser
+        if(strokeToWriteToTexture.segments){
+            AbstractBezierPathElement* firstElement = [strokeToWriteToTexture.segments objectAtIndex:0];
+            [self prepOpenGLBlendModeForColor:firstElement.color];
+        }
+        
+        // draw each stroke element
+        NSLog(@"texturing undo stroke: %d", [strokeToWriteToTexture.segments count]);
+        int count = 0;
+        while([strokeToWriteToTexture.segments count]){
+            AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
+            [strokeToWriteToTexture.segments removeObject:element];
+            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
+            prevElementForTextureWriting = element;
+            count++;
+            if(count >= 30){
+                break;
+            }
+        }
+        
+        if([strokeToWriteToTexture.segments count] == 0){
+            [strokesToKill removeObject:strokeToWriteToTexture];
+            prevElementForTextureWriting = nil;
+        }
+        
+        [self unprepOpenGLState];
+
         [self setBrushTexture:keepThisTexture];
     }
 }
@@ -830,7 +853,7 @@
             [stackOfStrokes addObject:currentStroke];
             [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
             [stackOfUndoneStrokes removeAllObjects];
-            [self validateUndoState];
+//            [self validateUndoState];
             [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
         }
     }
@@ -952,7 +975,7 @@
                 [stackOfStrokes addObject:currentStroke];
                 [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
                 [stackOfUndoneStrokes removeAllObjects];
-                [self validateUndoState];
+//                [self validateUndoState];
             }
         }
     }

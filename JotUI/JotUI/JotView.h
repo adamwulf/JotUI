@@ -26,7 +26,6 @@
 	
     NSUInteger undoLimit;
     
-    
     CGSize initialViewport;
 }
 
