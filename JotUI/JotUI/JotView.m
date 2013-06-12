@@ -62,9 +62,24 @@
     dispatch_queue_t importExportImageQueue;
     dispatch_queue_t importExportStateQueue;
 
-    NSTimer* undoStateTimer;
-    NSMutableArray* strokesToKill;
+    //
+    // these 4 properties help with our performance when writing
+    // large strokes to the backing texture. the timer will continually
+    // try to validate our undo state. if a stroke needs to be pushed
+    // off the undo stack, then it's added to the strokesBeingWrittenToBackingTexture
+    // array, and then progressively written to the backing texture over
+    // numerous calls by the Timer.
+    //
+    // this prevents an entire stroke from being written to the texture
+    // in just 1 go, and spreads that work out over time.
+    //
+    // if our export method gets called while we're writing to the texture,
+    // then we add that to a queue and will re-call that export method
+    // after all the strokes have been written to disk
+    NSTimer* validateUndoStateTimer;
+    NSMutableArray* strokesBeingWrittenToBackingTexture;
     AbstractBezierPathElement* prevElementForTextureWriting;
+    NSMutableArray* exportLaterInvocations;
 }
 
 @end
@@ -114,11 +129,12 @@
     // we always complete an export before we can attempt an import
     importExportImageQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportImageQueue", DISPATCH_QUEUE_SERIAL);
 
-    importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportImageQueue", DISPATCH_QUEUE_SERIAL);
+    importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
     
-    undoStateTimer = [NSTimer scheduledTimerWithTimeInterval:.1 target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
-    strokesToKill = [NSMutableArray array];
+    validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:.06 target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
+    strokesBeingWrittenToBackingTexture = [NSMutableArray array];
     prevElementForTextureWriting = nil;
+    exportLaterInvocations = [NSMutableArray array];
     
     //
     // this view should accept Jot stylus touch events
@@ -258,6 +274,23 @@
          andPlistTo:(NSString*)plistPath
          onComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock{
 
+    
+    if([strokesBeingWrittenToBackingTexture count] || [exportLaterInvocations count]){
+        // copy block to heap
+        void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = exportFinishBlock;        
+        NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:@selector(exportInkTo:andThumbnailTo:andPlistTo:onComplete:)];
+        NSInvocation* saveInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
+        [saveInvocation setTarget:self];
+        [saveInvocation setSelector:@selector(exportInkTo:andThumbnailTo:andPlistTo:onComplete:)];
+        [saveInvocation setArgument:&inkPath atIndex:2];
+        [saveInvocation setArgument:&thumbnailPath atIndex:3];
+        [saveInvocation setArgument:&plistPath atIndex:4];
+        [saveInvocation setArgument:&block atIndex:5];
+        [saveInvocation retainArguments];
+        [exportLaterInvocations addObject:saveInvocation];
+        return;
+    }
+    
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
     dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
     
@@ -417,9 +450,6 @@
     if(!exportFinishBlock) return;
 
     CGSize exportSize = CGSizeMake(initialViewport.width / 2, initialViewport.height / 2);
-    
-    
-
     
 	GLuint exportFramebuffer;
     
@@ -726,14 +756,14 @@
 -(void) validateUndoState{
     if([stackOfStrokes count] > self.undoLimit){
         while([stackOfStrokes count] > self.undoLimit){
-            [strokesToKill addObject:[stackOfStrokes objectAtIndex:0]];
+            [strokesBeingWrittenToBackingTexture addObject:[stackOfStrokes objectAtIndex:0]];
             [stackOfStrokes removeObjectAtIndex:0];
         }
     }
-    if([strokesToKill count]){
+    if([strokesBeingWrittenToBackingTexture count]){
         JotBrushTexture* keepThisTexture = brushTexture;
         // get the stroke that we need to make permanent
-        JotStroke* strokeToWriteToTexture = [strokesToKill objectAtIndex:0];
+        JotStroke* strokeToWriteToTexture = [strokesBeingWrittenToBackingTexture objectAtIndex:0];
         
         // render it to the backing texture
         [self prepOpenGLStateForFBO:backgroundFramebuffer.framebufferID];
@@ -752,7 +782,6 @@
         }
         
         // draw each stroke element
-        NSLog(@"texturing undo stroke: %d", [strokeToWriteToTexture.segments count]);
         int count = 0;
         while([strokeToWriteToTexture.segments count]){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
@@ -760,19 +789,36 @@
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
             prevElementForTextureWriting = element;
             count++;
-            if(count >= 30){
+            if(count >= 40){
                 break;
             }
         }
         
         if([strokeToWriteToTexture.segments count] == 0){
-            [strokesToKill removeObject:strokeToWriteToTexture];
+            [strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
             prevElementForTextureWriting = nil;
         }
         
         [self unprepOpenGLState];
 
         [self setBrushTexture:keepThisTexture];
+        
+        
+        //
+        // if the app tries to export while we're writing out
+        // strokes to a texture, then it adds an NSInvocation to
+        // this array. after we're done validating the undo state
+        // then we fire off the save command that has been waiting
+        // on us.
+        if([strokeToWriteToTexture.segments count] == 0 && [exportLaterInvocations count]){
+            NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
+            [exportLaterInvocations removeObject:invokation];
+            [invokation invoke];
+        }
+    }else if([exportLaterInvocations count]){
+        NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
+        [exportLaterInvocations removeObject:invokation];
+        [invokation invoke];
     }
 }
 
