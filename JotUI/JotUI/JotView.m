@@ -653,13 +653,10 @@
     CGFloat scale = self.contentScaleFactor;
         
     // fetch the vertex data from the element
-    struct Vertex* vertexBuffer = [element generatedVertexArrayWithPreviousElement:previousElement forScale:scale];
+    [element generatedVertexArrayWithPreviousElement:previousElement forScale:scale];
     
     if([element bind]){
         // VBO
-        glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
-        glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
-        glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
         glDrawArrays(GL_TRIANGLES, 0, [element numberOfSteps] * [element numberOfVerticesPerStep]);
         [element unbind];
     }

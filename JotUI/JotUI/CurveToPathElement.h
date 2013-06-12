@@ -16,7 +16,7 @@
     CGPoint ctrl2;
     
     CGFloat length;
-    GLuint handle;
+    GLuint vbo, vao;
 }
 
 @property (nonatomic, readonly) CGPoint curveTo;

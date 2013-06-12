@@ -9,6 +9,10 @@
 #import "CurveToPathElement.h"
 #import "UIColor+JotHelper.h"
 #import "AbstractBezierPathElement-Protected.h"
+#import <OpenGLES/EAGLDrawable.h>
+#import <OpenGLES/EAGL.h>
+#import <OpenGLES/ES1/gl.h>
+#import <OpenGLES/ES1/glext.h>
 
 @implementation CurveToPathElement
 
@@ -239,28 +243,39 @@
 
 
 -(BOOL) bind{
-    if(!handle && vertexBuffer){
+    if(!vbo && vertexBuffer){
         int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
         int mallocSize = numberOfVertices*sizeof(struct Vertex);
-        glGenBuffers(1,&handle);
-        glBindBuffer(GL_ARRAY_BUFFER,handle);
+        glGenVertexArraysOES(1, &vao);
+        glBindVertexArrayOES(vao);
+        glGenBuffers(1,&vbo);
+        glBindBuffer(GL_ARRAY_BUFFER,vbo);
         glBufferData(GL_ARRAY_BUFFER, mallocSize, vertexBuffer, GL_STATIC_DRAW);
+        glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
+        glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
+        glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER,0);
     }
-    if(handle){
-        glBindBuffer(GL_ARRAY_BUFFER,handle);
+    if(vbo){
+        glBindVertexArrayOES(vao);
+//        glBindBuffer(GL_ARRAY_BUFFER,vbo);
     }
     return YES;
 }
 
 -(void) unbind{
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+//    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindVertexArrayOES(0);
 }
 
 
 -(void) dealloc{
-    if(handle){
-        glDeleteBuffers(1,&handle);
+    if(vbo){
+        glDeleteVertexArraysOES(1, &vao);
+        glDeleteBuffers(1,&vbo);
     }
 }
 
