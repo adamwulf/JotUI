@@ -121,6 +121,14 @@
 }
 
 
+-(BOOL) bind{
+    return NO;
+}
+
+-(void) unbind{
+    @throw kAbstractMethodException;
+}
+
 /**
  * make sure to free the generated vertex info
  */

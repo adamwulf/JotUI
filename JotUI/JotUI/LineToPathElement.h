@@ -11,6 +11,7 @@
 
 @interface LineToPathElement : AbstractBezierPathElement{
     CGPoint lineTo;
+    GLuint handle;
 }
 
 @property (nonatomic, readonly) CGPoint lineTo;

@@ -655,14 +655,13 @@
     // fetch the vertex data from the element
     struct Vertex* vertexBuffer = [element generatedVertexArrayWithPreviousElement:previousElement forScale:scale];
     
-    glLineWidth(2);
-    
-    // if the element has any data, then draw it
-    if(vertexBuffer){
-        glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Position[0]);
-        glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Color[0]);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(struct Vertex), &vertexBuffer[0].Texture[0]);
+    if([element bind]){
+        // VBO
+        glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
+        glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
+        glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
         glDrawArrays(GL_TRIANGLES, 0, [element numberOfSteps] * [element numberOfVerticesPerStep]);
+        [element unbind];
     }
     
     if(frameBuffer){
@@ -1028,6 +1027,7 @@
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         // Specify a 2D texture image, providing the a pointer to the image data in memory
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
+        
         // Release  the image data; it's no longer needed
         free(brushData);
     }

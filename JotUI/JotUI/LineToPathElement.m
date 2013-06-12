@@ -175,6 +175,27 @@
     return vertexBuffer;
 }
 
+
+-(BOOL) bind{
+    if(!handle && vertexBuffer){
+        int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
+        int mallocSize = numberOfVertices*sizeof(struct Vertex);
+        glGenBuffers(1,&handle);
+        glBindBuffer(GL_ARRAY_BUFFER,handle);
+        glBufferData(GL_ARRAY_BUFFER, mallocSize, vertexBuffer, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+    }
+    if(handle){
+        glBindBuffer(GL_ARRAY_BUFFER,handle);
+    }
+    return YES;
+}
+
+-(void) unbind{
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+
 #pragma mark - For Subclasses
 
 /**

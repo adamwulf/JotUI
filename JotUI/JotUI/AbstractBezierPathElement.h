@@ -15,7 +15,7 @@
 struct Vertex{
     GLfloat Position[2];    // x,y position
     GLfloat Color [4];      // rgba color
-    GLfloat Texture[2];    // x,y texture coord
+    GLshort Texture[2];    // x,y texture coord
 };
 
 #endif

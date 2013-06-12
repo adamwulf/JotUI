@@ -100,9 +100,11 @@
     // find out how many steps we can put inside this segment length
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
     
+    int mallocSize = numberOfVertices*sizeof(struct Vertex);
+    
     // malloc the memory for our buffer, if needed
     if(!vertexBuffer){
-        vertexBuffer = (struct Vertex*) malloc(numberOfVertices*sizeof(struct Vertex));
+        vertexBuffer = (struct Vertex*) malloc(mallocSize);
     }
     
     // save our scale, we're only going to cache a vertex
@@ -233,6 +235,33 @@
     }
     
     return vertexBuffer;
+}
+
+
+-(BOOL) bind{
+    if(!handle && vertexBuffer){
+        int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
+        int mallocSize = numberOfVertices*sizeof(struct Vertex);
+        glGenBuffers(1,&handle);
+        glBindBuffer(GL_ARRAY_BUFFER,handle);
+        glBufferData(GL_ARRAY_BUFFER, mallocSize, vertexBuffer, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+    }
+    if(handle){
+        glBindBuffer(GL_ARRAY_BUFFER,handle);
+    }
+    return YES;
+}
+
+-(void) unbind{
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+
+-(void) dealloc{
+    if(handle){
+        glDeleteBuffers(1,&handle);
+    }
 }
 
 /**

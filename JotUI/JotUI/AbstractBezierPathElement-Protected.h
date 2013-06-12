@@ -29,6 +29,10 @@
 
 -(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2;
 
+-(BOOL) bind;
+
+-(void) unbind;
+
 @end
 
 
