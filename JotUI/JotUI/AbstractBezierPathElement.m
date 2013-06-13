@@ -62,6 +62,10 @@
     return MAX(floorf([self lengthOfElement] / kBrushStepSize), 1);
 }
 
+-(int) numberOfBytes{
+    @throw kAbstractMethodException;
+}
+
 /**
  * this will return an array of vertex structs
  * that we can send to OpenGL to draw. Ideally,

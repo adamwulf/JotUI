@@ -52,6 +52,18 @@
     [self.delegate jotStrokeWasCancelled:self];
 }
 
+-(void) mergeTheShit{
+    
+    int totalBytes = 0;
+    for(AbstractBezierPathElement* element in segments){
+        totalBytes += [element numberOfBytes];
+    }
+    
+    NSLog(@"total bytes: %d  in %d elements", totalBytes, [segments count]);
+    
+    
+}
+
 
 #pragma mark - PlistSaving
 

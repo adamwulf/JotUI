@@ -14,7 +14,7 @@
 
 -(UIImage*) texture{
     if(!textureCache){
-        UIGraphicsBeginImageContext(CGSizeMake(64, 64));
+        UIGraphicsBeginImageContext(CGSizeMake(32, 32));
         CGContextRef defBrushTextureContext = UIGraphicsGetCurrentContext();
         UIGraphicsPushContext(defBrushTextureContext);
         
@@ -26,8 +26,8 @@
         CGColorSpaceRef myColorspace = CGColorSpaceCreateDeviceRGB();
         CGGradientRef myGradient = CGGradientCreateWithColorComponents (myColorspace, components, locations, num_locations);
         
-        CGPoint myCentrePoint = CGPointMake(32, 32);
-        float myRadius = 20;
+        CGPoint myCentrePoint = CGPointMake(16, 16);
+        float myRadius = 10;
         
         CGContextDrawRadialGradient (UIGraphicsGetCurrentContext(), myGradient, myCentrePoint,
                                      0, myCentrePoint, myRadius,

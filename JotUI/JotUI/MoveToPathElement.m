@@ -45,6 +45,11 @@
     return 0;
 }
 
+-(int) numberOfBytes{
+    return 0;
+}
+
+
 -(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
     return NULL;
 }

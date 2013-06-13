@@ -40,6 +40,8 @@
  */
 -(id) initWithTexture:(JotBrushTexture*)_texture;
 
+-(void) mergeTheShit;
+
 /**
  * returns YES if the point modified the stroke by adding a new segment,
  * or NO if the segment is unmodified because there are still too few

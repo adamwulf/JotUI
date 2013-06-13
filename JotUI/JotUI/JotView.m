@@ -26,6 +26,7 @@
 
 
 #define kJotDefaultUndoLimit 10
+#define kJotValidateUndoTimer .06
 
 
 @interface JotView ()
@@ -131,7 +132,7 @@
 
     importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
     
-    validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:.06 target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
+    validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
     strokesBeingWrittenToBackingTexture = [NSMutableArray array];
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
@@ -589,6 +590,7 @@
     brushTexture = nil;
     // now draw the strokes
     for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]){
+        [stroke mergeTheShit];
         // make sure our texture is the correct one for this stroke
         if(stroke.texture != brushTexture){
             [self setBrushTexture:stroke.texture];
@@ -781,18 +783,19 @@
             [self prepOpenGLBlendModeForColor:firstElement.color];
         }
         
+        
+        NSDate *date = [NSDate date];
+        
         // draw each stroke element
         int count = 0;
-        while([strokeToWriteToTexture.segments count]){
+        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 4 / 5){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
             [strokeToWriteToTexture.segments removeObject:element];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
             prevElementForTextureWriting = element;
             count++;
-            if(count >= 40){
-                break;
-            }
         }
+        NSLog(@"could write %d segments in %f", count, [date timeIntervalSinceNow]);
         
         if([strokeToWriteToTexture.segments count] == 0){
             [strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];

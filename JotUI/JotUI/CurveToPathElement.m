@@ -104,11 +104,9 @@
     // find out how many steps we can put inside this segment length
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
     
-    int mallocSize = numberOfVertices*sizeof(struct Vertex);
-    
     // malloc the memory for our buffer, if needed
     if(!vertexBuffer){
-        vertexBuffer = (struct Vertex*) malloc(mallocSize);
+        vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
     }
     
     // save our scale, we're only going to cache a vertex
