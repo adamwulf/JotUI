@@ -590,7 +590,6 @@
     brushTexture = nil;
     // now draw the strokes
     for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]){
-        [stroke mergeTheShit];
         // make sure our texture is the correct one for this stroke
         if(stroke.texture != brushTexture){
             [self setBrushTexture:stroke.texture];
@@ -897,6 +896,8 @@
             
             [self.delegate didEndStrokeWithTouch:jotTouch];
             
+            [currentStroke mergeElementsIntoSingleVBO:self.contentScaleFactor];
+
             // this stroke is now finished, so add it to our completed strokes stack
             // and remove it from the current strokes, and reset our undo state if any
             [stackOfStrokes addObject:currentStroke];
@@ -1019,6 +1020,8 @@
                 
                 [self.delegate didEndStrokeWithTouch:jotTouch];
                 
+                [currentStroke mergeElementsIntoSingleVBO:self.contentScaleFactor];
+
                 // this stroke is now finished, so add it to our completed strokes stack
                 // and remove it from the current strokes, and reset our undo state if any
                 [stackOfStrokes addObject:currentStroke];

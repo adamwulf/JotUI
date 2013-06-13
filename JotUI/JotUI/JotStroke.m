@@ -12,6 +12,10 @@
 #import "AbstractBezierPathElement-Protected.h"
 #import "JotDefaultBrushTexture.h"
 #import "NSArray+JotMapReduce.h"
+#import <OpenGLES/EAGLDrawable.h>
+#import <OpenGLES/EAGL.h>
+#import <OpenGLES/ES1/gl.h>
+#import <OpenGLES/ES1/glext.h>
 
 @implementation JotStroke
 
@@ -52,16 +56,49 @@
     [self.delegate jotStrokeWasCancelled:self];
 }
 
--(void) mergeTheShit{
+-(void) mergeElementsIntoSingleVBO:(CGFloat)scale{
     
+    NSDate *date = [NSDate date];
+
     int totalBytes = 0;
+    int totalDots = 0;
     for(AbstractBezierPathElement* element in segments){
         totalBytes += [element numberOfBytes];
+        totalDots += [element numberOfSteps];
     }
     
-    NSLog(@"total bytes: %d  in %d elements", totalBytes, [segments count]);
+    if(totalBytes){
+        
+    }
+    int loc = 0;
+    void* vertexBuffer = malloc(totalBytes);
+    AbstractBezierPathElement* prev = nil;
+    for(AbstractBezierPathElement* element in segments){
+        if([element numberOfBytes]){
+            struct Vertex* data = [element generatedVertexArrayWithPreviousElement:prev forScale:scale];
+            prev = element;
+            memcpy(vertexBuffer + loc, data, [element numberOfBytes]);
+            loc += [element numberOfBytes];
+        }
+    }
     
-    
+    GLuint vbo,vao;
+    glGenVertexArraysOES(1, &vao);
+    glBindVertexArrayOES(vao);
+    glGenBuffers(1,&vbo);
+    glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    glBufferData(GL_ARRAY_BUFFER, totalBytes, vertexBuffer, GL_STATIC_DRAW);
+    glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
+    glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
+    glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindVertexArrayOES(0);
+
+    NSLog(@"total dots: %d in total bytes: %d  in %d elements in %f", totalDots, totalBytes, [segments count], [date timeIntervalSinceNow]);
+
 }
 
 

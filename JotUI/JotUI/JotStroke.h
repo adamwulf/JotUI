@@ -40,7 +40,7 @@
  */
 -(id) initWithTexture:(JotBrushTexture*)_texture;
 
--(void) mergeTheShit;
+-(void) mergeElementsIntoSingleVBO:(CGFloat)scale;
 
 /**
  * returns YES if the point modified the stroke by adding a new segment,
