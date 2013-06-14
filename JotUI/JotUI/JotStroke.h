@@ -41,6 +41,7 @@
 -(id) initWithTexture:(JotBrushTexture*)_texture;
 
 -(void) mergeElementsIntoSingleVBO:(CGFloat)scale;
+-(void) draw;
 
 /**
  * returns YES if the point modified the stroke by adding a new segment,

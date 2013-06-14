@@ -35,6 +35,8 @@
 
 -(void) unbind;
 
+-(void) draw;
+
 @end
 
 

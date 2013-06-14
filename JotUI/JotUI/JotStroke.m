@@ -17,7 +17,10 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 
-@implementation JotStroke
+@implementation JotStroke{
+    GLuint vbo,vao;
+    NSInteger numberOfVertices;
+}
 
 @synthesize segments;
 @synthesize segmentSmoother;
@@ -30,6 +33,7 @@
         segments = [NSMutableArray array];
         segmentSmoother = [[SegmentSmoother alloc] init];
         texture = _texture;
+        vbo = vao = numberOfVertices = 0;
     }
     return self;
 }
@@ -57,45 +61,53 @@
 }
 
 -(void) mergeElementsIntoSingleVBO:(CGFloat)scale{
-    
-    NSDate *date = [NSDate date];
-
-    int totalBytes = 0;
-    int totalDots = 0;
-    for(AbstractBezierPathElement* element in segments){
-        totalBytes += [element numberOfBytes];
-        totalDots += [element numberOfSteps];
-    }
-    
-    int loc = 0;
-    void* vertexBuffer = malloc(totalBytes);
-    AbstractBezierPathElement* prev = nil;
-    for(AbstractBezierPathElement* element in segments){
-        if([element numberOfBytes]){
-            struct Vertex* data = [element generatedVertexArrayWithPreviousElement:prev forScale:scale];
-            prev = element;
-            memcpy(vertexBuffer + loc, data, [element numberOfBytes]);
-            loc += [element numberOfBytes];
+    if(!vbo){
+        NSDate *date = [NSDate date];
+        numberOfVertices = 0;
+        int totalBytes = 0;
+        int totalDots = 0;
+        for(AbstractBezierPathElement* element in segments){
+            totalBytes += [element numberOfBytes];
+            totalDots += [element numberOfSteps];
+            numberOfVertices += [element numberOfSteps] * [element numberOfVerticesPerStep];
         }
+        
+        int loc = 0;
+        void* vertexBuffer = malloc(totalBytes);
+        AbstractBezierPathElement* prev = nil;
+        for(AbstractBezierPathElement* element in segments){
+            if([element numberOfBytes]){
+                struct Vertex* data = [element generatedVertexArrayWithPreviousElement:prev forScale:scale];
+                prev = element;
+                memcpy(vertexBuffer + loc, data, [element numberOfBytes]);
+                loc += [element numberOfBytes];
+            }
+        }
+        
+        glGenVertexArraysOES(1, &vao);
+        glBindVertexArrayOES(vao);
+        glGenBuffers(1,&vbo);
+        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        glBufferData(GL_ARRAY_BUFFER, totalBytes, vertexBuffer, GL_STATIC_DRAW);
+        glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
+        glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
+        glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+        glBindVertexArrayOES(0);
+        
+        NSLog(@"total dots: %d in total bytes: %d  in %d elements in %f", totalDots, totalBytes, [segments count], [date timeIntervalSinceNow]);
     }
-    
-    GLuint vbo,vao;
-    glGenVertexArraysOES(1, &vao);
-    glBindVertexArrayOES(vao);
-    glGenBuffers(1,&vbo);
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glBufferData(GL_ARRAY_BUFFER, totalBytes, vertexBuffer, GL_STATIC_DRAW);
-    glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
-    glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
-    glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glBindBuffer(GL_ARRAY_BUFFER,0);
-    glBindVertexArrayOES(0);
+}
 
-    NSLog(@"total dots: %d in total bytes: %d  in %d elements in %f", totalDots, totalBytes, [segments count], [date timeIntervalSinceNow]);
-
+-(void) draw{
+    if(vbo){
+        glBindVertexArrayOES(vao);
+        glDrawArrays(GL_TRIANGLES, 0, numberOfVertices);
+        glBindVertexArrayOES(0);
+    }
 }
 
 

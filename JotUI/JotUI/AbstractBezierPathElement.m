@@ -133,6 +133,14 @@
     @throw kAbstractMethodException;
 }
 
+-(void) draw{
+    if([self bind]){
+        // VBO
+        glDrawArrays(GL_TRIANGLES, 0, [self numberOfSteps] * [self numberOfVerticesPerStep]);
+        [self unbind];
+    }
+}
+
 /**
  * make sure to free the generated vertex info
  */

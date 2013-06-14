@@ -698,12 +698,9 @@
         
     // fetch the vertex data from the element
     [element generatedVertexArrayWithPreviousElement:previousElement forScale:scale];
-    
-    if([element bind]){
-        // VBO
-        glDrawArrays(GL_TRIANGLES, 0, [element numberOfSteps] * [element numberOfVerticesPerStep]);
-        [element unbind];
-    }
+
+    // now bind and draw the element
+    [element draw];
     
     if(frameBuffer){
         [self unprepOpenGLState];
@@ -793,7 +790,11 @@
         
         
         
-//        [strokeToWriteToTexture mergeElementsIntoSingleVBO:self.contentScaleFactor];
+        [strokeToWriteToTexture mergeElementsIntoSingleVBO:self.contentScaleFactor];
+        [strokeToWriteToTexture draw];
+        int count = [strokeToWriteToTexture.segments count];
+        [strokeToWriteToTexture.segments removeAllObjects];
+        
         //
         // should probably merge the [bind] and [unbind] calls in each element
         // to a single [draw] call that does everything.
@@ -807,15 +808,21 @@
         // would need to test and verify that that's true
         
         
+        
+        
+        //
+        // alternative
+        //
         // draw each stroke element
-        int count = 0;
-        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 3 / 5){
-            AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
-            [strokeToWriteToTexture.segments removeObject:element];
-            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
-            prevElementForTextureWriting = element;
-            count++;
-        }
+//        int count = 0;
+//        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 3 / 5){
+//            AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
+//            [strokeToWriteToTexture.segments removeObject:element];
+//            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
+//            prevElementForTextureWriting = element;
+//            count++;
+//        }
+
         NSLog(@"could write %d segments in %f", count, [date timeIntervalSinceNow]);
         
         if([strokeToWriteToTexture.segments count] == 0){
