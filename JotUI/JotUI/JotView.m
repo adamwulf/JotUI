@@ -589,7 +589,13 @@
     // reset the texture so that we load the brush texture next
     brushTexture = nil;
     // now draw the strokes
-    for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]){
+    
+    if([strokesBeingWrittenToBackingTexture count]){
+//        NSLog(@"lost content");
+    }
+    
+    for(JotStroke* stroke in [strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]]){
+//    for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]){
         // make sure our texture is the correct one for this stroke
         if(stroke.texture != brushTexture){
             [self setBrushTexture:stroke.texture];
@@ -787,7 +793,7 @@
         
         // draw each stroke element
         int count = 0;
-        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 4 / 5){
+        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 3 / 5){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
             [strokeToWriteToTexture.segments removeObject:element];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
