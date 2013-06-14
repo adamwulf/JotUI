@@ -791,6 +791,22 @@
         
         NSDate *date = [NSDate date];
         
+        
+        
+//        [strokeToWriteToTexture mergeElementsIntoSingleVBO:self.contentScaleFactor];
+        //
+        // should probably merge the [bind] and [unbind] calls in each element
+        // to a single [draw] call that does everything.
+        //
+        // in the stroke, need to record the [element numberOfSteps] * [element numberOfVerticesPerStep]
+        // for the total stroke when i'm building the merged VBO
+        //
+        // then need to add a [draw] on the stroke object too, which i'd call here
+        // and hopefully would be way faster than calling [draw] on each element.
+        //
+        // would need to test and verify that that's true
+        
+        
         // draw each stroke element
         int count = 0;
         while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 3 / 5){

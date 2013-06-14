@@ -67,9 +67,6 @@
         totalDots += [element numberOfSteps];
     }
     
-    if(totalBytes){
-        
-    }
     int loc = 0;
     void* vertexBuffer = malloc(totalBytes);
     AbstractBezierPathElement* prev = nil;
