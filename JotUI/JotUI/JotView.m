@@ -79,8 +79,8 @@
     // after all the strokes have been written to disk
     NSTimer* validateUndoStateTimer;
     NSMutableArray* strokesBeingWrittenToBackingTexture;
-    AbstractBezierPathElement* prevElementForTextureWriting;
     NSMutableArray* exportLaterInvocations;
+    NSMutableArray* strokesToDealloc;
 }
 
 @end
@@ -134,8 +134,8 @@
     
     validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
     strokesBeingWrittenToBackingTexture = [NSMutableArray array];
-    prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
+    strokesToDealloc = [NSMutableArray array];
     
     //
     // this view should accept Jot stylus touch events
@@ -187,6 +187,8 @@
     
     glEnable(GL_POINT_SPRITE_OES);
     glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+    
+    glDisable(GL_ALPHA_TEST);
     
 	[EAGLContext setCurrentContext:context];
 	[self destroyFramebuffer];
@@ -586,8 +588,7 @@
     // step 3:
     // draw all the strokes that we have in our undo-able stack
     [self prepOpenGLStateForFBO:theFramebuffer];
-    // reset the texture so that we load the brush texture next
-    brushTexture = nil;
+
     // now draw the strokes
     
     if([strokesBeingWrittenToBackingTexture count]){
@@ -597,9 +598,8 @@
     for(JotStroke* stroke in [strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]]){
 //    for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]){
         // make sure our texture is the correct one for this stroke
-        if(stroke.texture != brushTexture){
-            [self setBrushTexture:stroke.texture];
-        }
+        [self setBrushTexture:stroke.texture];
+
         // setup our blend mode properly for color vs eraser
         if(stroke.segments){
             AbstractBezierPathElement* firstElement = [stroke.segments objectAtIndex:0];
@@ -771,14 +771,11 @@
         
         // render it to the backing texture
         [self prepOpenGLStateForFBO:backgroundFramebuffer.framebufferID];
-        // reset the texture so that we load the brush texture next
-        brushTexture = nil;
+
         // now draw the strokes
         
         // make sure our texture is the correct one for this stroke
-        if(strokeToWriteToTexture.texture != brushTexture){
-            [self setBrushTexture:strokeToWriteToTexture.texture];
-        }
+        [self setBrushTexture:strokeToWriteToTexture.texture];
         // setup our blend mode properly for color vs eraser
         if(strokeToWriteToTexture.segments){
             AbstractBezierPathElement* firstElement = [strokeToWriteToTexture.segments objectAtIndex:0];
@@ -788,48 +785,15 @@
         
         NSDate *date = [NSDate date];
         
-        
-        
         [strokeToWriteToTexture mergeElementsIntoSingleVBO:self.contentScaleFactor];
         [strokeToWriteToTexture draw];
-        int count = [strokeToWriteToTexture.segments count];
-        [strokeToWriteToTexture.segments removeAllObjects];
-        
-        //
-        // should probably merge the [bind] and [unbind] calls in each element
-        // to a single [draw] call that does everything.
-        //
-        // in the stroke, need to record the [element numberOfSteps] * [element numberOfVerticesPerStep]
-        // for the total stroke when i'm building the merged VBO
-        //
-        // then need to add a [draw] on the stroke object too, which i'd call here
-        // and hopefully would be way faster than calling [draw] on each element.
-        //
-        // would need to test and verify that that's true
-        
-        
-        
-        
-        //
-        // alternative
-        //
-        // draw each stroke element
-//        int count = 0;
-//        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 3 / 5){
-//            AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
-//            [strokeToWriteToTexture.segments removeObject:element];
-//            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
-//            prevElementForTextureWriting = element;
-//            count++;
-//        }
 
-        NSLog(@"could write %d segments in %f", count, [date timeIntervalSinceNow]);
+
+        NSLog(@"could write %d segments in %f", [strokeToWriteToTexture.segments count], [date timeIntervalSinceNow]);
         
-        if([strokeToWriteToTexture.segments count] == 0){
-            [strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
-            prevElementForTextureWriting = nil;
-        }
-        
+        [strokesToDealloc addObject:strokeToWriteToTexture];
+        [strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
+
         [self unprepOpenGLState];
 
         [self setBrushTexture:keepThisTexture];
@@ -1091,6 +1055,13 @@
  * setup the texture to use for the next brush stroke
  */
 -(void) setBrushTexture:(JotBrushTexture*)brushImage{
+    // only change if we have to
+    if(brushTexture == brushImage){
+        glBindTexture(GL_TEXTURE_2D, glBrushTextureID);
+        return;
+    }
+    if(!brushImage) return;
+    
     // save our current texture.
     brushTexture = brushImage;
     
