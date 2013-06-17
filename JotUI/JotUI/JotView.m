@@ -79,8 +79,6 @@
     AbstractBezierPathElement* prevElementForTextureWriting;
     NSMutableArray* exportLaterInvocations;
     NSMutableArray* objsToDealloc;
-    
-    UIView* rectView;
 }
 
 @end
@@ -137,15 +135,6 @@
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
     objsToDealloc = [NSMutableArray array];
-    
-    
-    //
-    //
-    // debug of boudning box
-    rectView = [[UIView alloc] initWithFrame:self.bounds];
-    rectView.layer.borderColor = [UIColor redColor].CGColor;
-    rectView.layer.borderWidth = 1;
-    [self addSubview:rectView];
     
     
     //
@@ -784,12 +773,6 @@
  * our backing texture
  */
 -(void) validateUndoState{
-    
-    if([stackOfStrokes count]){
-        rectView.frame = [[stackOfStrokes lastObject] bounds];
-    }else{
-        rectView.frame = self.bounds;
-    }
     
     if([stackOfStrokes count] > self.undoLimit){
         while([stackOfStrokes count] > self.undoLimit){
