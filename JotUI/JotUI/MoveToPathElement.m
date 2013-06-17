@@ -37,6 +37,11 @@
     return 0;
 }
 
+-(CGRect) bounds{
+    return CGRectInset(CGRectMake(startPoint.x, startPoint.y, 0, 0), -width, -width);
+}
+
+
 
 /**
  * only 1 step to show our single point

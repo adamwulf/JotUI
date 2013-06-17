@@ -44,6 +44,10 @@
     @throw kAbstractMethodException;
 }
 
+-(CGRect) bounds{
+    @throw kAbstractMethodException;
+}
+
 
 /**
  * return the number of vertices to use per

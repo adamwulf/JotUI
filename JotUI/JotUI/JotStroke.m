@@ -111,6 +111,17 @@
 }
 
 
+-(CGRect) bounds{
+    if([self.segments count]){
+        CGRect bounds = [[self.segments objectAtIndex:0] bounds];
+        for(AbstractBezierPathElement* ele in self.segments){
+            bounds = CGRectUnion(bounds, ele.bounds);
+        }
+        return bounds;
+    }
+    return CGRectZero;
+}
+
 #pragma mark - PlistSaving
 
 -(NSDictionary*) asDictionary{

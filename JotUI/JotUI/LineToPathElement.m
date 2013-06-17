@@ -41,6 +41,14 @@
     return [self angleBetweenPoint:startPoint andPoint:lineTo];
 }
 
+-(CGRect) bounds{
+    return CGRectInset(CGRectMake(MIN(startPoint.x, lineTo.x),
+                                  MIN(startPoint.y, lineTo.y),
+                                  fabs(startPoint.x - lineTo.x),
+                                  fabs(startPoint.y - lineTo.y)), -width, -width);
+}
+
+
 -(int) numberOfBytes{
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
     return numberOfVertices*sizeof(struct Vertex);

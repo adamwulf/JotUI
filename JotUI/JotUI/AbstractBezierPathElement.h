@@ -46,7 +46,8 @@ struct Vertex{
 @property (nonatomic, readonly) UIColor* color;
 @property (nonatomic, readonly) CGFloat width;
 @property (nonatomic, readonly) CGPoint startPoint;
-@property (nonatomic, readonly) CGFloat  rotation;
+@property (nonatomic, readonly) CGFloat rotation;
+@property (nonatomic, readonly) CGRect bounds;
 
 -(CGFloat) lengthOfElement;
 -(CGFloat) angleOfStart;

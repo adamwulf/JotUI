@@ -14,7 +14,9 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 
-@implementation CurveToPathElement
+@implementation CurveToPathElement{
+    UIBezierPath* bezierCache;
+}
 
 @synthesize curveTo;
 @synthesize ctrl1;
@@ -81,6 +83,17 @@
     }
     return possibleRet;
 }
+
+-(CGRect) bounds{
+    if(bezierCache){
+        return CGRectInset(bezierCache.bounds, -width, -width);
+    }
+    bezierCache = [UIBezierPath bezierPath];
+    [bezierCache moveToPoint:self.startPoint];
+    [bezierCache addCurveToPoint:curveTo controlPoint1:ctrl1 controlPoint2:ctrl2];
+    return [self bounds];
+}
+
 
 -(int) numberOfBytes{
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
