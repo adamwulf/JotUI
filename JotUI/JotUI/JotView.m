@@ -445,7 +445,7 @@
     
     //
     // ok, render the new content
-    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
+    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
 }
 
 #pragma mark Export Helpers
@@ -497,7 +497,7 @@
     glViewport(0, 0, exportSize.width, exportSize.height);
     glClear(GL_COLOR_BUFFER_BIT);
     
-    [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO];
+    [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
     
     // read the image from OpenGL and push it into a data buffer
     NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
@@ -574,7 +574,15 @@
  * a stroke. it will clear the screen and re-draw all
  * strokes except for that undone/cancelled stroke
  */
--(void) renderAllStrokesToContext:(EAGLContext*)renderContext inFramebuffer:(GLuint)theFramebuffer andPresentBuffer:(BOOL)shouldPresent{
+-(void) renderAllStrokesToContext:(EAGLContext*)renderContext inFramebuffer:(GLuint)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect{
+    
+    if(!CGRectEqualToRect(scissorRect, CGRectZero)){
+        glEnable(GL_SCISSOR_TEST);
+        glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
+    }else{
+        // noop for scissors
+    }
+    
     //
     // hang onto the current texture
     // so we can reset it after we draw
@@ -591,7 +599,6 @@
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
     
-    
     //
     // step 2:
     // load a texture and draw it into a quad
@@ -602,7 +609,6 @@
     // ok, we're done rendering the background texture to the quad
     //
     
-    
     //
     // step 3:
     // draw all the strokes that we have in our undo-able stack
@@ -611,12 +617,7 @@
     brushTexture = nil;
     // now draw the strokes
     
-    if([strokesBeingWrittenToBackingTexture count]){
-//        NSLog(@"lost content");
-    }
-    
     for(JotStroke* stroke in [strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]]){
-//    for(JotStroke* stroke in [stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]){
         // make sure our texture is the correct one for this stroke
         if(stroke.texture != brushTexture){
             [self setBrushTexture:stroke.texture];
@@ -645,6 +646,10 @@
     // now that we're done rendering strokes, reset the texture
     // to the current brush
     [self setBrushTexture:keepThisTexture];
+    
+    if(!CGRectEqualToRect(scissorRect, CGRectZero)){
+        glDisable(GL_SCISSOR_TEST);
+    }
 }
 
 
@@ -875,7 +880,7 @@
         JotStroke* aStroke = [currentStrokes objectForKey:key];
         if(aStroke == stroke){
             [currentStrokes removeObjectForKey:key];
-            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
+            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:stroke.bounds];
             return;
         }
     }
@@ -966,7 +971,7 @@
     }
     // we need to erase the current stroke from the screen, so
     // clear the canvas and rerender all valid strokes
-    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
+    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
 }
 
 
@@ -1089,7 +1094,7 @@
         }
         // we need to erase the current stroke from the screen, so
         // clear the canvas and rerender all valid strokes
-        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     }
 }
 
@@ -1119,9 +1124,10 @@
  */
 -(IBAction) undo{
     if([stackOfStrokes count]){
+        CGRect bounds = [[stackOfStrokes lastObject] bounds];
         [stackOfUndoneStrokes addObject:[stackOfStrokes lastObject]];
         [stackOfStrokes removeLastObject];
-        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
 }
 
@@ -1131,9 +1137,10 @@
  */
 -(IBAction) redo{
     if([stackOfUndoneStrokes count]){
+        CGRect bounds = [[stackOfUndoneStrokes lastObject] bounds];
         [stackOfStrokes addObject:[stackOfUndoneStrokes lastObject]];
         [stackOfUndoneStrokes removeLastObject];
-        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
 }
 
