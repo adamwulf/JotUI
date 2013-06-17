@@ -40,7 +40,6 @@
  */
 -(id) initWithTexture:(JotBrushTexture*)_texture;
 
--(void) mergeElementsIntoSingleVBO:(CGFloat)scale;
 -(void) draw;
 
 -(CGRect) bounds;

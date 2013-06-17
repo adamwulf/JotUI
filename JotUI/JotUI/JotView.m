@@ -807,7 +807,7 @@
         //
         // draw each stroke element
         int count = 0;
-        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 5){
+        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 20){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
             [strokeToWriteToTexture.segments removeObject:element];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
@@ -816,7 +816,7 @@
             count++;
         }
 
-        NSLog(@"could write %d segments in %f", count, [date timeIntervalSinceNow]);
+//        NSLog(@"could write %d segments in %f", count, [date timeIntervalSinceNow]);
         
         if([strokeToWriteToTexture.segments count] == 0){
             [strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
@@ -846,12 +846,12 @@
     }else if([objsToDealloc count]){
         NSDate *date = [NSDate date];
         int count = 0;
-        while([objsToDealloc count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 10){
+        while([objsToDealloc count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 20){
             [objsToDealloc removeLastObject];
             count++;
         }
-
-        NSLog(@"dealloc %d", count);
+//
+//        NSLog(@"dealloc %d", count);
     }
 }
 
@@ -927,8 +927,6 @@
             
             [self.delegate didEndStrokeWithTouch:jotTouch];
             
-            [currentStroke mergeElementsIntoSingleVBO:self.contentScaleFactor];
-
             // this stroke is now finished, so add it to our completed strokes stack
             // and remove it from the current strokes, and reset our undo state if any
             [stackOfStrokes addObject:currentStroke];
@@ -1051,8 +1049,6 @@
                 
                 [self.delegate didEndStrokeWithTouch:jotTouch];
                 
-                [currentStroke mergeElementsIntoSingleVBO:self.contentScaleFactor];
-
                 // this stroke is now finished, so add it to our completed strokes stack
                 // and remove it from the current strokes, and reset our undo state if any
                 [stackOfStrokes addObject:currentStroke];
