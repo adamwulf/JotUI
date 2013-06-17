@@ -43,16 +43,10 @@
     return textureCache;
 }
 
--(NSString*) name{
-    return @"JotDefaultBrushTexture";
-}
-
-
-
 #pragma mark - PlistSaving
 
 -(NSDictionary*) asDictionary{
-    return [NSDictionary dictionaryWithObject:@"JotDefaultBrushTexture" forKey:@"class"];
+    return [NSDictionary dictionaryWithObject:self.name forKey:@"class"];
 }
 
 -(id) initFromDictionary:(NSDictionary*)dictionary{

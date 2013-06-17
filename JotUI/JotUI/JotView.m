@@ -46,9 +46,6 @@
 	// OpenGL name for the depth buffer that is attached to viewFramebuffer, if it exists (0 if it does not exist)
 	GLuint depthRenderbuffer;
     
-	// OpenGL texure for the brush
-	GLuint	glBrushTextureID;
-    
     // this dictionary will hold all of the in progress
     // stroke objects
     __strong NSMutableDictionary* currentStrokes;
@@ -279,8 +276,18 @@
 
     
     if([strokesBeingWrittenToBackingTexture count] || [exportLaterInvocations count]){
+        //
+        // the issue here is that we want to export the drawn image to a file, but we're
+        // also in the middle of writing all the strokes to the backing texture.
+        //
+        // instead of try to be super smart, and export while we draw (yikes!), we're going to
+        // wait for all of the strokes to be written to the texture that need to be.
+        //
+        // then, the [validateUndoState] will re-call this export method with the same parameters
+        // when it's done, and we'll bypass this block and finish the export.
+        //
         // copy block to heap
-        void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = exportFinishBlock;        
+        void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = [exportFinishBlock copy];
         NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:@selector(exportInkTo:andThumbnailTo:andPlistTo:onComplete:)];
         NSInvocation* saveInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
         [saveInvocation setTarget:self];
@@ -793,7 +800,7 @@
         //
         // draw each stroke element
         int count = 0;
-        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 3 / 5){
+        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 5){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
             [strokeToWriteToTexture.segments removeObject:element];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
@@ -832,7 +839,7 @@
     }else if([objsToDealloc count]){
         NSDate *date = [NSDate date];
         int count = 0;
-        while([objsToDealloc count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 5){
+        while([objsToDealloc count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 10){
             [objsToDealloc removeLastObject];
             count++;
         }
@@ -1079,46 +1086,10 @@
  * setup the texture to use for the next brush stroke
  */
 -(void) setBrushTexture:(JotBrushTexture*)brushImage{
-    // save our current texture.
-    brushTexture = brushImage;
-    
-    // first, delete the old texture if needed
-	if (glBrushTextureID){
-		glDeleteTextures(1, &glBrushTextureID);
-		glBrushTextureID = 0;
-	}
-    
-    // fetch the cgimage for us to draw into a texture
-    CGImageRef brushCGImage = brushImage.texture.CGImage;
-    
-    // Make sure the image exists
-    if(brushCGImage) {
-        // Get the width and height of the image
-        size_t width = CGImageGetWidth(brushCGImage);
-        size_t height = CGImageGetHeight(brushCGImage);
-        
-        // Texture dimensions must be a power of 2. If you write an application that allows users to supply an image,
-        // you'll want to add code that checks the dimensions and takes appropriate action if they are not a power of 2.
-        
-        // Allocate  memory needed for the bitmap context
-        GLubyte* brushData = (GLubyte *) calloc(width * height * 4, sizeof(GLubyte));
-        // Use  the bitmatp creation function provided by the Core Graphics framework.
-        CGContextRef brushContext = CGBitmapContextCreate(brushData, width, height, 8, width * 4, CGImageGetColorSpace(brushCGImage), kCGImageAlphaPremultipliedLast);
-        // After you create the context, you can draw the  image to the context.
-        CGContextDrawImage(brushContext, CGRectMake(0.0, 0.0, (CGFloat)width, (CGFloat)height), brushCGImage);
-        // You don't need the context at this point, so you need to release it to avoid memory leaks.
-        CGContextRelease(brushContext);
-        // Use OpenGL ES to generate a name for the texture.
-        glGenTextures(1, &glBrushTextureID);
-        // Bind the texture name.
-        glBindTexture(GL_TEXTURE_2D, glBrushTextureID);
-        // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        // Specify a 2D texture image, providing the a pointer to the image data in memory
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
-        
-        // Release  the image data; it's no longer needed
-        free(brushData);
+    if(brushTexture != brushImage){
+        [brushTexture unbind];
+        brushTexture = brushImage;
+        [brushTexture bind];
     }
 }
 
@@ -1210,10 +1181,6 @@
     [self destroyFramebuffer];
     [[JotStylusManager sharedInstance] unregisterView:self];
 
-	if (glBrushTextureID){
-		glDeleteTextures(1, &glBrushTextureID);
-		glBrushTextureID = 0;
-	}
 	if([EAGLContext currentContext] == context){
 		[EAGLContext setCurrentContext:nil];
 	}

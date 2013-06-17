@@ -17,4 +17,7 @@
 
 +(JotBrushTexture*) sharedInstace;
 
+-(BOOL) bind;
+-(void) unbind;
+
 @end
