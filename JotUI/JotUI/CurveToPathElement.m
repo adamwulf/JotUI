@@ -82,9 +82,14 @@
     return possibleRet;
 }
 
--(int) numberOfBytes{
+-(int) numberOfVerticesBytes{
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
     return numberOfVertices*sizeof(struct Vertex);
+}
+
+-(int) numberOfIndicesBytes{
+	int numberOfIndices = [self numberOfSteps] * [self numberOfIndicesPerStep];
+    return numberOfIndices*sizeof(GLushort);
 }
 
 /**
@@ -101,12 +106,39 @@
     if(vertexBuffer && scaleOfVertexBuffer == scale){
         return vertexBuffer;
     }
+    
+    
+    /*
+    GLushort* indices = malloc(sizeof(GLushort) * numberOfVertices);
+    for(GLushort i=0;i<numberOfVertices;i++){
+        indices[i] = i;
+    }
+
+     glGenBuffers(1, &ibo);
+     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * numberOfVertices, indices, GL_STATIC_DRAW);
+
+    
+     
+     glBindVertexArrayOES(vao);
+     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+     //        glDrawArrays(GL_TRIANGLES, 0, numberOfVertices);
+     glDrawElements(GL_TRIANGLES, numberOfVertices, GL_UNSIGNED_SHORT, NULL);
+     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+     glBindVertexArrayOES(0);
+
+    
+    */
+    
+    
+    
     // find out how many steps we can put inside this segment length
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
     
     // malloc the memory for our buffer, if needed
     if(!vertexBuffer){
-        vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
+        vertexBuffer = (struct Vertex*) malloc([self numberOfVerticesBytes]);
+        indexBuffer = (GLushort*) malloc([self numberOfIndicesBytes]);
     }
     
     // save our scale, we're only going to cache a vertex
@@ -153,6 +185,8 @@
     
     CGFloat lastRotation;
     
+    CGFloat lastT = 0;
+    int lastIndex = 0;
     //
     // calculate points along the curve that are realStepSize
     // length along the curve. since this is fairly intensive for
@@ -160,6 +194,7 @@
     for(int step = 0; step < numberOfVertices; step+=[self numberOfVerticesPerStep]) {
         // 0 <= t < 1 representing where we are in the stroke element
         CGFloat t = (CGFloat)step / (CGFloat)numberOfVertices;
+        lastT = t;
         
         // current rotation
         CGFloat stepRotation = previousElement.rotation + rotationDiff * t;
@@ -221,12 +256,6 @@
             }else if(innerStep == 3){
                 vertexBuffer[step + innerStep].Texture[0] = 1;
                 vertexBuffer[step + innerStep].Texture[1] = 1;
-            }else if(innerStep == 4){
-                vertexBuffer[step + innerStep].Texture[0] = 1;
-                vertexBuffer[step + innerStep].Texture[1] = 0;
-            }else if(innerStep == 5){
-                vertexBuffer[step + innerStep].Texture[0] = 0;
-                vertexBuffer[step + innerStep].Texture[1] = 1;
             }
             // set colors to the array
             vertexBuffer[step + innerStep].Color[0] = calcColor[0];
@@ -234,7 +263,24 @@
             vertexBuffer[step + innerStep].Color[2] = calcColor[2];
             vertexBuffer[step + innerStep].Color[3] = calcColor[3];
         }
+        
+        int beginningIndex = step / [self numberOfVerticesPerStep] * [self numberOfIndicesPerStep];
+        
+        indexBuffer[sizeof(GLushort) * (beginningIndex + 0)] = (GLushort) (step + 0);
+        indexBuffer[sizeof(GLushort) * (beginningIndex + 1)] = (GLushort) (step + 1);
+        indexBuffer[sizeof(GLushort) * (beginningIndex + 2)] = (GLushort) (step + 2);
+        indexBuffer[sizeof(GLushort) * (beginningIndex + 3)] = (GLushort) (step + 3);
+        indexBuffer[sizeof(GLushort) * (beginningIndex + 4)] = (GLushort) (step + 1);
+        indexBuffer[sizeof(GLushort) * (beginningIndex + 5)] = (GLushort) (step + 2);
+        
+        lastIndex = sizeof(GLushort) * (beginningIndex + 5);
+        
+        if(beginningIndex + 5 > [self numberOfIndicesBytes]){
+            NSLog(@"oh no");
+        }
     }
+    
+//    NSLog(@"last t: %f   last index: %d of %d", lastT, lastIndex, [self numberOfIndicesBytes]);
     
     return vertexBuffer;
 }
@@ -242,23 +288,26 @@
 
 -(BOOL) bind{
     if(!vbo && vertexBuffer){
-        int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
-        int mallocSize = numberOfVertices*sizeof(struct Vertex);
         glGenVertexArraysOES(1, &vao);
         glBindVertexArrayOES(vao);
+        glGenBuffers(1, &ibo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, [self numberOfIndicesBytes], indexBuffer, GL_STATIC_DRAW);
         glGenBuffers(1,&vbo);
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        glBufferData(GL_ARRAY_BUFFER, mallocSize, vertexBuffer, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, [self numberOfVerticesBytes], vertexBuffer, GL_STATIC_DRAW);
         glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
         glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
         glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableClientState(GL_COLOR_ARRAY);
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glBindBuffer(GL_ARRAY_BUFFER,0);
     }
     if(vbo){
         glBindVertexArrayOES(vao);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 //        glBindBuffer(GL_ARRAY_BUFFER,vbo);
     }
     return YES;
@@ -266,7 +315,20 @@
 
 -(void) unbind{
 //    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindVertexArrayOES(0);
+}
+
+-(void) draw{
+    if([self bind]){
+        // VBO
+        //
+        // the number i'm sending to elements is wrong. i need to send the # of triangles, i think (?)
+        // or the number of vertices? or the number of indices?
+        glDrawElements(GL_TRIANGLES, [self numberOfSteps] * [self numberOfIndicesPerStep], GL_UNSIGNED_SHORT, NULL);
+//        glDrawArrays(GL_TRIANGLES, 0, [self numberOfSteps] * [self numberOfVerticesPerStep]);
+        [self unbind];
+    }
 }
 
 
@@ -404,6 +466,11 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
     }
 }
 
+
+
+-(int) numberOfBytes{
+    return [self numberOfVerticesBytes];
+}
 
 
 #pragma mark - PlistSaving

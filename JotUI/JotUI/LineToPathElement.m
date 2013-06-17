@@ -41,6 +41,10 @@
     return [self angleBetweenPoint:startPoint andPoint:lineTo];
 }
 
+-(NSInteger) numberOfVerticesPerStep{
+    return 6;
+}
+
 -(int) numberOfBytes{
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
     return numberOfVertices*sizeof(struct Vertex);

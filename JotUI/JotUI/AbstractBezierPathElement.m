@@ -50,8 +50,11 @@
  * step. this should be a multiple of 3,
  * since rendering is using GL_TRIANGLES
  */
--(NSInteger) numberOfVerticesPerStep{
+-(NSInteger) numberOfIndicesPerStep{
     return 6;
+}
+-(NSInteger) numberOfVerticesPerStep{
+    return 4;
 }
 
 /**
@@ -111,8 +114,8 @@
     [outArray addObject:[NSValue valueWithCGPoint:topRight]];
     [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
     [outArray addObject:[NSValue valueWithCGPoint:botRight]];
-    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
-    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
+//    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
+//    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
     
     return outArray;
 }

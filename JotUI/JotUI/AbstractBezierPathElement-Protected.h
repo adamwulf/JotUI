@@ -19,6 +19,8 @@
 
 -(NSInteger) numberOfVerticesPerStep;
 
+-(NSInteger) numberOfIndicesPerStep;
+
 -(NSInteger) numberOfSteps;
 
 -(int) numberOfBytes;

@@ -785,7 +785,6 @@
         
         NSDate *date = [NSDate date];
         
-        [strokeToWriteToTexture mergeElementsIntoSingleVBO:self.contentScaleFactor];
         [strokeToWriteToTexture draw];
 
 
@@ -889,8 +888,6 @@
             
             [self.delegate didEndStrokeWithTouch:jotTouch];
             
-            [currentStroke mergeElementsIntoSingleVBO:self.contentScaleFactor];
-
             // this stroke is now finished, so add it to our completed strokes stack
             // and remove it from the current strokes, and reset our undo state if any
             [stackOfStrokes addObject:currentStroke];
@@ -1013,8 +1010,6 @@
                 
                 [self.delegate didEndStrokeWithTouch:jotTouch];
                 
-                [currentStroke mergeElementsIntoSingleVBO:self.contentScaleFactor];
-
                 // this stroke is now finished, so add it to our completed strokes stack
                 // and remove it from the current strokes, and reset our undo state if any
                 [stackOfStrokes addObject:currentStroke];

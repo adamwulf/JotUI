@@ -60,72 +60,12 @@
     [self.delegate jotStrokeWasCancelled:self];
 }
 
--(void) mergeElementsIntoSingleVBO:(CGFloat)scale{
-    if(!vbo){
-        NSDate *date = [NSDate date];
-        numberOfVertices = 0;
-        int totalBytes = 0;
-        int totalDots = 0;
-        for(AbstractBezierPathElement* element in segments){
-            totalBytes += [element numberOfBytes];
-            totalDots += [element numberOfSteps];
-            numberOfVertices += [element numberOfSteps] * [element numberOfVerticesPerStep];
-        }
-        
-        int loc = 0;
-        void* vertexBuffer = malloc(totalBytes);
-        AbstractBezierPathElement* prev = nil;
-        for(AbstractBezierPathElement* element in segments){
-            if([element numberOfBytes]){
-                struct Vertex* data = [element generatedVertexArrayWithPreviousElement:prev forScale:scale];
-                prev = element;
-                memcpy(vertexBuffer + loc, data, [element numberOfBytes]);
-                loc += [element numberOfBytes];
-            }
-        }
-        
-        if(numberOfVertices > pow(2, 16)){
-            NSLog(@"oh no");
-            numberOfVertices = pow(2, 16);
-        }else if(numberOfVertices == 0){
-            NSLog(@"oh no");
-        }
-        
-        GLushort* indices = malloc(sizeof(GLushort) * numberOfVertices);
-        for(GLushort i=0;i<numberOfVertices;i++){
-            indices[i] = i;
-        }
-
-        glGenVertexArraysOES(1, &vao);
-        glBindVertexArrayOES(vao);
-        glGenBuffers(1, &ibo);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * numberOfVertices, indices, GL_STATIC_DRAW);
-        glGenBuffers(1,&vbo);
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        glBufferData(GL_ARRAY_BUFFER, totalBytes, vertexBuffer, GL_STATIC_DRAW);
-        glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
-        glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
-        glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glBindVertexArrayOES(0);
-        
-        NSLog(@"total dots: %d in total bytes: %d  in %d elements in %f", totalDots, totalBytes, [segments count], [date timeIntervalSinceNow]);
-    }
-}
-
 -(void) draw{
-    if(vbo){
-        glBindVertexArrayOES(vao);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-//        glDrawArrays(GL_TRIANGLES, 0, numberOfVertices);
-        glDrawElements(GL_TRIANGLES, numberOfVertices, GL_UNSIGNED_SHORT, NULL);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        glBindVertexArrayOES(0);
+    for(AbstractBezierPathElement* element in segments){
+        if([element bind]){
+            [element draw];
+            [element unbind];
+        }
     }
 }
 
