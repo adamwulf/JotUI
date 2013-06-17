@@ -81,6 +81,7 @@
     NSMutableArray* strokesBeingWrittenToBackingTexture;
     AbstractBezierPathElement* prevElementForTextureWriting;
     NSMutableArray* exportLaterInvocations;
+    NSMutableArray* objsToDealloc;
 }
 
 @end
@@ -136,6 +137,7 @@
     strokesBeingWrittenToBackingTexture = [NSMutableArray array];
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
+    objsToDealloc = [NSMutableArray array];
     
     //
     // this view should accept Jot stylus touch events
@@ -787,41 +789,18 @@
         
         
         NSDate *date = [NSDate date];
-        
-        
-        
-        [strokeToWriteToTexture mergeElementsIntoSingleVBO:self.contentScaleFactor];
-        [strokeToWriteToTexture draw];
-        int count = [strokeToWriteToTexture.segments count];
-        [strokeToWriteToTexture.segments removeAllObjects];
-        
-        //
-        // should probably merge the [bind] and [unbind] calls in each element
-        // to a single [draw] call that does everything.
-        //
-        // in the stroke, need to record the [element numberOfSteps] * [element numberOfVerticesPerStep]
-        // for the total stroke when i'm building the merged VBO
-        //
-        // then need to add a [draw] on the stroke object too, which i'd call here
-        // and hopefully would be way faster than calling [draw] on each element.
-        //
-        // would need to test and verify that that's true
-        
-        
-        
-        
-        //
-        // alternative
+
         //
         // draw each stroke element
-//        int count = 0;
-//        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 3 / 5){
-//            AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
-//            [strokeToWriteToTexture.segments removeObject:element];
-//            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
-//            prevElementForTextureWriting = element;
-//            count++;
-//        }
+        int count = 0;
+        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 3 / 5){
+            AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
+            [strokeToWriteToTexture.segments removeObject:element];
+            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
+            prevElementForTextureWriting = element;
+            [objsToDealloc addObject:element];
+            count++;
+        }
 
         NSLog(@"could write %d segments in %f", count, [date timeIntervalSinceNow]);
         
@@ -850,6 +829,15 @@
         NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
         [exportLaterInvocations removeObject:invokation];
         [invokation invoke];
+    }else if([objsToDealloc count]){
+        NSDate *date = [NSDate date];
+        int count = 0;
+        while([objsToDealloc count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 5){
+            [objsToDealloc removeLastObject];
+            count++;
+        }
+
+        NSLog(@"dealloc %d", count);
     }
 }
 
