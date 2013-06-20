@@ -40,6 +40,8 @@
 		66A32027170242D200692C71 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A32026170242D200692C71 /* UIKit.framework */; };
 		66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A340251694FF5E0093E81A /* UIColor+JotHelper.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		66A340281694FF5E0093E81A /* UIColor+JotHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A340261694FF5E0093E81A /* UIColor+JotHelper.m */; };
+		66A79019177251960092A28A /* JotTrashManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A79017177251960092A28A /* JotTrashManager.h */; };
+		66A7901A177251960092A28A /* JotTrashManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A79018177251960092A28A /* JotTrashManager.m */; };
 		66AA213616FCE26600E86922 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
 		66AA5FB8169E77180046CA26 /* JotStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA5FB6169E77180046CA26 /* JotStroke.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66AA5FB9169E77180046CA26 /* JotStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA5FB7169E77180046CA26 /* JotStroke.m */; };
@@ -114,6 +116,8 @@
 		66A32026170242D200692C71 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		66A340251694FF5E0093E81A /* UIColor+JotHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+JotHelper.h"; sourceTree = "<group>"; };
 		66A340261694FF5E0093E81A /* UIColor+JotHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+JotHelper.m"; sourceTree = "<group>"; };
+		66A79017177251960092A28A /* JotTrashManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotTrashManager.h; sourceTree = "<group>"; };
+		66A79018177251960092A28A /* JotTrashManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotTrashManager.m; sourceTree = "<group>"; };
 		66AA213516FCE26600E86922 /* JotTouchSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotTouchSDK.framework; path = ../JotTouchSDK/JotTouchSDK.framework; sourceTree = "<group>"; };
 		66AA5FB6169E77180046CA26 /* JotStroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotStroke.h; sourceTree = "<group>"; };
 		66AA5FB7169E77180046CA26 /* JotStroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotStroke.m; sourceTree = "<group>"; };
@@ -258,6 +262,7 @@
 		669B3A2E1692B66B00F12F42 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				66A790161772516F0092A28A /* Managers */,
 				66BF7F2717667940003F4F67 /* Plist */,
 				66BF7F1E176675CE003F4F67 /* Brush Texture */,
 				66455F8B175FC45600C66DFA /* OpenGL */,
@@ -287,6 +292,15 @@
 				66BF7F2B17667C19003F4F67 /* NSArray+JotMapReduce.m */,
 			);
 			name = Categories;
+			sourceTree = "<group>";
+		};
+		66A790161772516F0092A28A /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				66A79017177251960092A28A /* JotTrashManager.h */,
+				66A79018177251960092A28A /* JotTrashManager.m */,
+			);
+			name = Managers;
 			sourceTree = "<group>";
 		};
 		66AA5FB4169E76FF0046CA26 /* Stroke */ = {
@@ -349,6 +363,7 @@
 				66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */,
 				669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */,
 				66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */,
+				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -520,6 +535,7 @@
 				66BF7F311766D133003F4F67 /* UIImage+Resize.m in Sources */,
 				66BF7F371766D221003F4F67 /* UIImage+RoundedCorner.m in Sources */,
 				66BF7F391766D221003F4F67 /* UIImage+Alpha.m in Sources */,
+				66A7901A177251960092A28A /* JotTrashManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

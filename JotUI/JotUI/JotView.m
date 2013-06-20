@@ -21,6 +21,7 @@
 #import "JotDefaultBrushTexture.h"
 #import "NSArray+JotMapReduce.h"
 #import "UIImage+Resize.h"
+#import "JotTrashManager.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -78,7 +79,6 @@
     NSMutableArray* strokesBeingWrittenToBackingTexture;
     AbstractBezierPathElement* prevElementForTextureWriting;
     NSMutableArray* exportLaterInvocations;
-    NSMutableArray* objsToDealloc;
 }
 
 @end
@@ -134,12 +134,12 @@
     strokesBeingWrittenToBackingTexture = [NSMutableArray array];
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
-    objsToDealloc = [NSMutableArray array];
-    
+
     
     //
     // this view should accept Jot stylus touch events
     [[JotStylusManager sharedInstance] registerView:self];
+    [[JotTrashManager sharedInstace] setMaxTickDuration:kJotValidateUndoTimer * 1 / 20];
     
     // set our default undo limit
     self.undoLimit = kJotDefaultUndoLimit;
@@ -812,12 +812,10 @@
             [strokeToWriteToTexture.segments removeObject:element];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
             prevElementForTextureWriting = element;
-            [objsToDealloc addObject:element];
+            [[JotTrashManager sharedInstace] addObjectToDealloc:element];
             count++;
         }
 
-//        NSLog(@"could write %d segments in %f", count, [date timeIntervalSinceNow]);
-        
         if([strokeToWriteToTexture.segments count] == 0){
             [strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
             prevElementForTextureWriting = nil;
@@ -843,15 +841,8 @@
         NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
         [exportLaterInvocations removeObject:invokation];
         [invokation invoke];
-    }else if([objsToDealloc count]){
-        NSDate *date = [NSDate date];
-        int count = 0;
-        while([objsToDealloc count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 20){
-            [objsToDealloc removeLastObject];
-            count++;
-        }
-//
-//        NSLog(@"dealloc %d", count);
+    }else{
+        [[JotTrashManager sharedInstace] tick];
     }
 }
 
