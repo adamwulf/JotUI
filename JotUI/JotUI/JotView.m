@@ -34,34 +34,15 @@
 {
     
 @private
-    JotGLTexture* backgroundTexture;
-    JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
-    
-	// The pixel dimensions of the backbuffer
-	GLint backingWidth;
-	GLint backingHeight;
-	
 	// OpenGL names for the renderbuffer and framebuffers used to render to this view
 	GLuint viewRenderbuffer, viewFramebuffer;
 	
 	// OpenGL name for the depth buffer that is attached to viewFramebuffer, if it exists (0 if it does not exist)
 	GLuint depthRenderbuffer;
-    
-    // this dictionary will hold all of the in progress
-    // stroke objects
-    __strong NSMutableDictionary* currentStrokes;
-    
-    // these arrays will act as stacks for our undo state
-    __strong NSMutableArray* stackOfStrokes;
-    __strong NSMutableArray* stackOfUndoneStrokes;
-    
-    // a handle to the image used as the current brush texture
-    __strong JotBrushTexture* brushTexture;
 
-    BOOL isCurrentlyExporting;
     dispatch_queue_t importExportImageQueue;
     dispatch_queue_t importExportStateQueue;
-
+    
     //
     // these 4 properties help with our performance when writing
     // large strokes to the backing texture. the timer will continually
@@ -77,9 +58,26 @@
     // then we add that to a queue and will re-call that export method
     // after all the strokes have been written to disk
     NSTimer* validateUndoStateTimer;
-    NSMutableArray* strokesBeingWrittenToBackingTexture;
     AbstractBezierPathElement* prevElementForTextureWriting;
     NSMutableArray* exportLaterInvocations;
+    BOOL isCurrentlyExporting;
+
+
+    
+    //
+    // begin possible state object
+    JotGLTexture* backgroundTexture;
+    JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
+    
+    // this dictionary will hold all of the in progress
+    // stroke objects
+    __strong NSMutableDictionary* currentStrokes;
+    // these arrays will act as stacks for our undo state
+    __strong NSMutableArray* stackOfStrokes;
+    __strong NSMutableArray* stackOfUndoneStrokes;
+    // a handle to the image used as the current brush texture
+    __strong JotBrushTexture* brushTexture;
+    NSMutableArray* strokesBeingWrittenToBackingTexture;
 }
 
 @end
@@ -208,6 +206,10 @@
  * drawing
  */
 - (BOOL)createFramebuffer{
+	// The pixel dimensions of the backbuffer
+	GLint backingWidth;
+	GLint backingHeight;
+	
 	// Generate IDs for a framebuffer object and a color renderbuffer
 	glGenFramebuffersOES(1, &viewFramebuffer);
 	glGenRenderbuffersOES(1, &viewRenderbuffer);
@@ -321,7 +323,7 @@
     @synchronized(self){
         isCurrentlyExporting = YES;
     }
-    
+
     NSLog(@"export begins");
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
