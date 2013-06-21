@@ -30,6 +30,65 @@
 #define kJotValidateUndoTimer .06
 
 
+
+
+@interface JotViewState : NSObject 
+
+//
+// begin possible state object
+@property (nonatomic, strong) JotGLTexture* backgroundTexture;
+@property (nonatomic, strong) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
+@property (nonatomic, readonly)  NSMutableDictionary* currentStrokes;
+@property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
+@property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
+@property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
+
+@end
+
+@implementation JotViewState{
+    // begin possible state object
+    JotGLTexture* backgroundTexture;
+    JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
+    
+    // this dictionary will hold all of the in progress
+    // stroke objects
+    __strong NSMutableDictionary* currentStrokes;
+    // these arrays will act as stacks for our undo state
+    __strong NSMutableArray* stackOfStrokes;
+    __strong NSMutableArray* stackOfUndoneStrokes;
+    NSMutableArray* strokesBeingWrittenToBackingTexture;
+}
+
+@synthesize backgroundTexture;
+@synthesize backgroundFramebuffer;
+@synthesize currentStrokes;
+@synthesize stackOfStrokes;
+@synthesize stackOfUndoneStrokes;
+@synthesize strokesBeingWrittenToBackingTexture;
+
+-(id) init{
+    if(self = [super init]){
+        // setup our storage for our undo/redo strokes
+        currentStrokes = [NSMutableDictionary dictionary];
+        stackOfStrokes = [NSMutableArray array];
+        stackOfUndoneStrokes = [NSMutableArray array];
+        strokesBeingWrittenToBackingTexture = [NSMutableArray array];
+    }
+    return self;
+}
+
+-(void)dealloc{
+    backgroundFramebuffer = nil;
+}
+
+@end
+
+
+
+
+
+
+
 @interface JotView ()
 {
     
@@ -62,22 +121,9 @@
     NSMutableArray* exportLaterInvocations;
     BOOL isCurrentlyExporting;
 
-
-    
-    //
-    // begin possible state object
-    JotGLTexture* backgroundTexture;
-    JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
-    
-    // this dictionary will hold all of the in progress
-    // stroke objects
-    __strong NSMutableDictionary* currentStrokes;
-    // these arrays will act as stacks for our undo state
-    __strong NSMutableArray* stackOfStrokes;
-    __strong NSMutableArray* stackOfUndoneStrokes;
     // a handle to the image used as the current brush texture
     __strong JotBrushTexture* brushTexture;
-    NSMutableArray* strokesBeingWrittenToBackingTexture;
+    JotViewState* state;
 }
 
 @end
@@ -130,7 +176,6 @@
     importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
     
     validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
-    strokesBeingWrittenToBackingTexture = [NSMutableArray array];
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
 
@@ -146,10 +191,7 @@
     // allow more than 1 finger/stylus to draw at a time
     self.multipleTouchEnabled = YES;
     
-    // setup our storage for our undo/redo strokes
-    currentStrokes = [NSMutableDictionary dictionary];
-    stackOfStrokes = [NSMutableArray array];
-    stackOfUndoneStrokes = [NSMutableArray array];
+    state = [[JotViewState alloc] init];
     
     //
     // the remainder is OpenGL initialization
@@ -164,7 +206,6 @@
     if (!context || ![EAGLContext setCurrentContext:context]) {
         return nil;
     }
-    
     
     [self setBrushTexture:[JotDefaultBrushTexture sharedInstace]];
 
@@ -257,7 +298,6 @@
         glDeleteFramebuffersOES(1, &viewFramebuffer);
         viewFramebuffer = 0;
     }
-    backgroundFramebuffer = nil;
     if(viewRenderbuffer){
         glDeleteRenderbuffersOES(1, &viewRenderbuffer);
         viewRenderbuffer = 0;
@@ -280,18 +320,18 @@
 
     CheckMainThread;
     
-    if([strokesBeingWrittenToBackingTexture count] ||
-       isCurrentlyExporting ||
-       [currentStrokes count] ||
-       [stackOfStrokes count] > undoLimit){
-        if([currentStrokes count]){
+    if([state.strokesBeingWrittenToBackingTexture count] ||
+       [state.currentStrokes count] ||
+       [state.stackOfStrokes count] > undoLimit ||
+       isCurrentlyExporting){
+        if([state.currentStrokes count]){
             NSLog(@"cant save, currently drawing");
+        }else if([state.strokesBeingWrittenToBackingTexture count]){
+            NSLog(@"can't save, writing to texture");
+        }else if([state.stackOfStrokes count] > undoLimit){
+            NSLog(@"can't save, more strokes than undo");
         }else if(isCurrentlyExporting){
             NSLog(@"cant save, currently exporting");
-        }else if([strokesBeingWrittenToBackingTexture count]){
-            NSLog(@"can't save, writing to texture");
-        }else if([stackOfStrokes count] > undoLimit){
-            NSLog(@"can't save, more strokes than undo");
         }
         //
         // the issue here is that we want to export the drawn image to a file, but we're
@@ -332,16 +372,19 @@
     __block UIImage* thumb = nil;
     __block UIImage* ink = nil;
     
-    NSMutableDictionary* state = [NSMutableDictionary dictionary];
-    [state setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
-    [state setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
+    //
+    // TODO
+    // create an immutable state object
+    NSMutableDictionary* stateDict = [NSMutableDictionary dictionary];
+    [stateDict setObject:[state.stackOfStrokes copy] forKey:@"stackOfStrokes"];
+    [stateDict setObject:[state.stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
 
     [self exportToImageOnComplete:^(UIImage* image){
         thumb = image;
         dispatch_semaphore_signal(sema1);
     }];
     
-    [backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
+    [state.backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
         ink = image;
         dispatch_semaphore_signal(sema2);
     }];
@@ -369,16 +412,16 @@
         
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
         
-        exportFinishBlock(ink, thumb, state);
+        exportFinishBlock(ink, thumb, stateDict);
         
         [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
         
         [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
         
-        [state setObject:[[state objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
-        [state setObject:[[state objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
+        [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
+        [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
 
-        if(![state writeToFile:plistPath atomically:YES]){
+        if(![stateDict writeToFile:plistPath atomically:YES]){
             NSLog(@"couldn't write plist file");
         }
         
@@ -419,10 +462,10 @@
             
             //
             // reset our undo state
-            [strokesBeingWrittenToBackingTexture removeAllObjects];
-            [stackOfUndoneStrokes removeAllObjects];
-            [stackOfStrokes removeAllObjects];
-            [currentStrokes removeAllObjects];
+            [state.strokesBeingWrittenToBackingTexture removeAllObjects];
+            [state.stackOfUndoneStrokes removeAllObjects];
+            [state.stackOfStrokes removeAllObjects];
+            [state.currentStrokes removeAllObjects];
             
             if(stateInfo){
                 // load our undo state
@@ -434,15 +477,15 @@
                     return stroke;
                 };
                 
-                [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
-                [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+                [state.stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
+                [state.stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
                 
                 //
                 // sanity check
-                for(JotStroke*stroke in [stackOfStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes]){
+                for(JotStroke*stroke in [state.stackOfStrokes arrayByAddingObjectsFromArray:state.stackOfUndoneStrokes]){
                     if([stroke.segments count] == 0){
-                        [stackOfStrokes removeObject:stroke];
-                        [stackOfUndoneStrokes removeObject:stroke];
+                        [state.stackOfStrokes removeObject:stroke];
+                        [state.stackOfUndoneStrokes removeObject:stroke];
                     }
                 }
             }else{
@@ -467,15 +510,15 @@
         CGSize fullPixelSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
         
         // load new texture
-        backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
+        state.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
         
         // generate FBO for the texture
-        backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
+        state.backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:state.backgroundTexture];
         
         if(!savedInkImage){
             // no image was given, so it should be a blank texture
             // lets erase it, since it defaults to uncleared memory
-            [backgroundFramebuffer clear];
+            [state.backgroundFramebuffer clear];
         }
         dispatch_semaphore_signal(sema2);
         glFlush();
@@ -650,7 +693,7 @@
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [backgroundTexture draw];
+    [state.backgroundTexture draw];
     
     //
     // ok, we're done rendering the background texture to the quad
@@ -664,7 +707,7 @@
     brushTexture = nil;
     // now draw the strokes
     
-    for(JotStroke* stroke in [strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[stackOfStrokes arrayByAddingObjectsFromArray:[currentStrokes allValues]]]){
+    for(JotStroke* stroke in [state.strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[state.stackOfStrokes arrayByAddingObjectsFromArray:[state.currentStrokes allValues]]]){
         // make sure our texture is the correct one for this stroke
         if(stroke.texture != brushTexture){
             [self setBrushTexture:stroke.texture];
@@ -838,21 +881,21 @@
     
     CheckMainThread;
     
-    if([stackOfStrokes count] > self.undoLimit){
-        while([stackOfStrokes count] > self.undoLimit){
+    if([state.stackOfStrokes count] > self.undoLimit){
+        while([state.stackOfStrokes count] > self.undoLimit){
             NSLog(@"== eating strokes");
             
-            [strokesBeingWrittenToBackingTexture addObject:[stackOfStrokes objectAtIndex:0]];
-            [stackOfStrokes removeObjectAtIndex:0];
+            [state.strokesBeingWrittenToBackingTexture addObject:[state.stackOfStrokes objectAtIndex:0]];
+            [state.stackOfStrokes removeObjectAtIndex:0];
         }
     }
-    if([strokesBeingWrittenToBackingTexture count]){
+    if([state.strokesBeingWrittenToBackingTexture count]){
         JotBrushTexture* keepThisTexture = brushTexture;
         // get the stroke that we need to make permanent
-        JotStroke* strokeToWriteToTexture = [strokesBeingWrittenToBackingTexture objectAtIndex:0];
+        JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
         
         // render it to the backing texture
-        [self prepOpenGLStateForFBO:backgroundFramebuffer.framebufferID];
+        [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID];
         // reset the texture so that we load the brush texture next
         brushTexture = nil;
         // now draw the strokes
@@ -883,7 +926,7 @@
         }
 
         if([strokeToWriteToTexture.segments count] == 0){
-            [strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
+            [state.strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
             prevElementForTextureWriting = nil;
         }
         
@@ -919,10 +962,10 @@
 
     CheckMainThread;
     
-    for(id key in [currentStrokes allKeys]){
-        JotStroke* aStroke = [currentStrokes objectForKey:key];
+    for(id key in [state.currentStrokes allKeys]){
+        JotStroke* aStroke = [state.currentStrokes objectForKey:key];
         if(aStroke == stroke){
-            [currentStrokes removeObjectForKey:key];
+            [state.currentStrokes removeObjectForKey:key];
             [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:stroke.bounds];
             return;
         }
@@ -943,7 +986,7 @@
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
             JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
             newStroke.delegate = self;
-            [currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+            [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
             // find the stroke that we're modifying, and then add an element and render it
             [self addLineToAndRenderStroke:newStroke
                                    toPoint:[jotTouch locationInView:self]
@@ -999,9 +1042,9 @@
             if([currentStroke.segments count] == 0){
                 NSLog(@"zero segments!");
             }
-            [stackOfStrokes addObject:currentStroke];
-            [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
-            [stackOfUndoneStrokes removeAllObjects];
+            [state.stackOfStrokes addObject:currentStroke];
+            [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+            [state.stackOfUndoneStrokes removeAllObjects];
 
             [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
             
@@ -1022,7 +1065,7 @@
         // This application is not saving state.
         if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
             [self.delegate didCancelStrokeWithTouch:jotTouch];
-            [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+            [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
         }
     }
     // we need to erase the current stroke from the screen, so
@@ -1071,7 +1114,7 @@
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
             if([self.delegate willBeginStrokeWithTouch:jotTouch]){
                 JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
-                [currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+                [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
                 [self addLineToAndRenderStroke:newStroke
                                        toPoint:[touch locationInView:self]
                                        toWidth:[self.delegate widthForTouch:jotTouch]
@@ -1135,9 +1178,9 @@
                 if([currentStroke.segments count] == 0){
                     NSLog(@"zero segments!");
                 }
-                [stackOfStrokes addObject:currentStroke];
-                [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
-                [stackOfUndoneStrokes removeAllObjects];
+                [state.stackOfStrokes addObject:currentStroke];
+                [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                [state.stackOfUndoneStrokes removeAllObjects];
             }
         }
     }
@@ -1151,7 +1194,7 @@
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
             if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
                 [self.delegate didCancelStrokeWithTouch:jotTouch];
-                [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
             }
         }
         // we need to erase the current stroke from the screen, so
@@ -1185,10 +1228,10 @@
  * stack, and then rerender all other completed strokes
  */
 -(IBAction) undo{
-    if([stackOfStrokes count]){
-        CGRect bounds = [[stackOfStrokes lastObject] bounds];
-        [stackOfUndoneStrokes addObject:[stackOfStrokes lastObject]];
-        [stackOfStrokes removeLastObject];
+    if([state.stackOfStrokes count]){
+        CGRect bounds = [[state.stackOfStrokes lastObject] bounds];
+        [state.stackOfUndoneStrokes addObject:[state.stackOfStrokes lastObject]];
+        [state.stackOfStrokes removeLastObject];
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
 }
@@ -1198,10 +1241,10 @@
  * undo back to the completed strokes list, then rerender
  */
 -(IBAction) redo{
-    if([stackOfUndoneStrokes count]){
-        CGRect bounds = [[stackOfUndoneStrokes lastObject] bounds];
-        [stackOfStrokes addObject:[stackOfUndoneStrokes lastObject]];
-        [stackOfUndoneStrokes removeLastObject];
+    if([state.stackOfUndoneStrokes count]){
+        CGRect bounds = [[state.stackOfUndoneStrokes lastObject] bounds];
+        [state.stackOfStrokes addObject:[state.stackOfUndoneStrokes lastObject]];
+        [state.stackOfUndoneStrokes removeLastObject];
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
 }
@@ -1225,15 +1268,15 @@
 	glClear(GL_COLOR_BUFFER_BIT);
 
     // clear the background
-    [backgroundFramebuffer clear];
+    [state.backgroundFramebuffer clear];
 
 	// Display the buffer
     [self presentRenderBuffer];
     
     // reset undo state
-    [stackOfUndoneStrokes removeAllObjects];
-    [stackOfStrokes removeAllObjects];
-    [currentStrokes removeAllObjects];
+    [state.stackOfUndoneStrokes removeAllObjects];
+    [state.stackOfStrokes removeAllObjects];
+    [state.currentStrokes removeAllObjects];
 }
 
 
@@ -1249,10 +1292,10 @@
  */
 -(NSUInteger) undoHash{
     NSUInteger hashVal = 0;
-    for(JotStroke* stroke in stackOfStrokes){
+    for(JotStroke* stroke in state.stackOfStrokes){
         hashVal += [stroke hash];
     }
-    for(JotStroke* stroke in currentStrokes){
+    for(JotStroke* stroke in state.currentStrokes){
         hashVal += [stroke hash];
     }
     return hashVal;
