@@ -57,7 +57,8 @@
     
     // a handle to the image used as the current brush texture
     __strong JotBrushTexture* brushTexture;
-    
+
+    BOOL isCurrentlyExporting;
     dispatch_queue_t importExportImageQueue;
     dispatch_queue_t importExportStateQueue;
 
@@ -275,8 +276,21 @@
          andPlistTo:(NSString*)plistPath
          onComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock{
 
+    CheckMainThread;
     
-    if([strokesBeingWrittenToBackingTexture count] || [exportLaterInvocations count]){
+    if([strokesBeingWrittenToBackingTexture count] ||
+       isCurrentlyExporting ||
+       [currentStrokes count] ||
+       [stackOfStrokes count] > undoLimit){
+        if([currentStrokes count]){
+            NSLog(@"cant save, currently drawing");
+        }else if(isCurrentlyExporting){
+            NSLog(@"cant save, currently exporting");
+        }else if([strokesBeingWrittenToBackingTexture count]){
+            NSLog(@"can't save, writing to texture");
+        }else if([stackOfStrokes count] > undoLimit){
+            NSLog(@"can't save, more strokes than undo");
+        }
         //
         // the issue here is that we want to export the drawn image to a file, but we're
         // also in the middle of writing all the strokes to the backing texture.
@@ -288,19 +302,27 @@
         // when it's done, and we'll bypass this block and finish the export.
         //
         // copy block to heap
-        void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = [exportFinishBlock copy];
-        NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:@selector(exportInkTo:andThumbnailTo:andPlistTo:onComplete:)];
-        NSInvocation* saveInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
-        [saveInvocation setTarget:self];
-        [saveInvocation setSelector:@selector(exportInkTo:andThumbnailTo:andPlistTo:onComplete:)];
-        [saveInvocation setArgument:&inkPath atIndex:2];
-        [saveInvocation setArgument:&thumbnailPath atIndex:3];
-        [saveInvocation setArgument:&plistPath atIndex:4];
-        [saveInvocation setArgument:&block atIndex:5];
-        [saveInvocation retainArguments];
-        [exportLaterInvocations addObject:saveInvocation];
+        if(![exportLaterInvocations count]){
+            void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = [exportFinishBlock copy];
+            NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:@selector(exportInkTo:andThumbnailTo:andPlistTo:onComplete:)];
+            NSInvocation* saveInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
+            [saveInvocation setTarget:self];
+            [saveInvocation setSelector:@selector(exportInkTo:andThumbnailTo:andPlistTo:onComplete:)];
+            [saveInvocation setArgument:&inkPath atIndex:2];
+            [saveInvocation setArgument:&thumbnailPath atIndex:3];
+            [saveInvocation setArgument:&plistPath atIndex:4];
+            [saveInvocation setArgument:&block atIndex:5];
+            [saveInvocation retainArguments];
+            [exportLaterInvocations addObject:saveInvocation];
+        }
         return;
     }
+    
+    @synchronized(self){
+        isCurrentlyExporting = YES;
+    }
+    
+    NSLog(@"export begins");
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
     dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
@@ -321,6 +343,18 @@
         ink = image;
         dispatch_semaphore_signal(sema2);
     }];
+    
+    NSLog(@"bg textures saved");
+
+    
+    //
+    // ok, here i walk off of the main thread,
+    // and my state arrays might get changed while
+    // i wait (yikes!).
+    //
+    // i need an immutable state that i can hold onto
+    // while i wait + write to disk in the background
+    //
     
     dispatch_async(importExportStateQueue, ^(void) {
         dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
@@ -345,6 +379,11 @@
         if(![state writeToFile:plistPath atomically:YES]){
             NSLog(@"couldn't write plist file");
         }
+        
+        NSLog(@"export complete");
+        @synchronized(self){
+            isCurrentlyExporting = NO;
+        }
 
     });
 }
@@ -359,6 +398,9 @@
  * This method must be called at least one time after initialization
  */
 -(void) loadImage:(NSString*)inkImageFile andState:(NSString*)stateInfoFile{
+
+    CheckMainThread;
+
     __block NSDictionary* stateInfo = nil;
     
     // we're going to wait for two background operations to complete
@@ -375,6 +417,7 @@
             
             //
             // reset our undo state
+            [strokesBeingWrittenToBackingTexture removeAllObjects];
             [stackOfUndoneStrokes removeAllObjects];
             [stackOfStrokes removeAllObjects];
             [currentStrokes removeAllObjects];
@@ -391,6 +434,15 @@
                 
                 [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
                 [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+                
+                //
+                // sanity check
+                for(JotStroke*stroke in [stackOfStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes]){
+                    if([stroke.segments count] == 0){
+                        [stackOfStrokes removeObject:stroke];
+                        [stackOfUndoneStrokes removeObject:stroke];
+                    }
+                }
             }else{
                 //        NSLog(@"no state info loaded");
             }
@@ -458,6 +510,8 @@
  */
 -(void) exportToImageOnComplete:(void(^)(UIImage*) )exportFinishBlock{
     
+    CheckMainThread;
+
     if(!exportFinishBlock) return;
 
     CGSize exportSize = CGSizeMake(initialViewport.width / 2, initialViewport.height / 2);
@@ -565,6 +619,8 @@
  */
 -(void) renderAllStrokesToContext:(EAGLContext*)renderContext inFramebuffer:(GLuint)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect{
     
+    CheckMainThread;
+
     if(!CGRectEqualToRect(scissorRect, CGRectZero)){
         glEnable(GL_SCISSOR_TEST);
         glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
@@ -612,7 +668,7 @@
             [self setBrushTexture:stroke.texture];
         }
         // setup our blend mode properly for color vs eraser
-        if(stroke.segments){
+        if([stroke.segments count]){
             AbstractBezierPathElement* firstElement = [stroke.segments objectAtIndex:0];
             [self prepOpenGLBlendModeForColor:firstElement.color];
         }
@@ -646,6 +702,8 @@
  * this is a simple method to display our renderbuffer
  */
 -(void) presentRenderBuffer{
+    CheckMainThread;
+    
 	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
 	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
 }
@@ -661,6 +719,8 @@
  * also smooth the width and color transition
  */
 - (void) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
+    
+    CheckMainThread;
     
     // fetch the current and previous elements
     // of the stroke. these will help us
@@ -774,8 +834,12 @@
  */
 -(void) validateUndoState{
     
+    CheckMainThread;
+    
     if([stackOfStrokes count] > self.undoLimit){
         while([stackOfStrokes count] > self.undoLimit){
+            NSLog(@"== eating strokes");
+            
             [strokesBeingWrittenToBackingTexture addObject:[stackOfStrokes objectAtIndex:0]];
             [stackOfStrokes removeObjectAtIndex:0];
         }
@@ -796,7 +860,7 @@
             [self setBrushTexture:strokeToWriteToTexture.texture];
         }
         // setup our blend mode properly for color vs eraser
-        if(strokeToWriteToTexture.segments){
+        if([strokeToWriteToTexture.segments count]){
             AbstractBezierPathElement* firstElement = [strokeToWriteToTexture.segments objectAtIndex:0];
             [self prepOpenGLBlendModeForColor:firstElement.color];
         }
@@ -850,6 +914,9 @@
 #pragma mark - JotStrokeDelegate
 
 -(void) jotStrokeWasCancelled:(JotStroke*)stroke{
+
+    CheckMainThread;
+    
     for(id key in [currentStrokes allKeys]){
         JotStroke* aStroke = [currentStrokes objectForKey:key];
         if(aStroke == stroke){
@@ -867,6 +934,9 @@
  * Handles the start of a touch
  */
 -(void)jotStylusTouchBegan:(NSSet *) touches{
+    
+    CheckMainThread;
+    
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
             JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
@@ -886,6 +956,9 @@
  * Handles the continuation of a touch.
  */
 -(void)jotStylusTouchMoved:(NSSet *) touches{
+    
+    CheckMainThread;
+    
     for(JotTouch* jotTouch in touches){
         [self.delegate willMoveStrokeWithTouch:jotTouch];
         JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
@@ -904,6 +977,9 @@
  * Handles the end of a touch event when the touch is a tap.
  */
 -(void)jotStylusTouchEnded:(NSSet *) touches{
+    
+    CheckMainThread;
+    
     for(JotTouch* jotTouch in touches){
         JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
         if(currentStroke){
@@ -916,15 +992,18 @@
                                    toColor:[self.delegate colorForTouch:jotTouch]
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
             
-            [self.delegate didEndStrokeWithTouch:jotTouch];
-            
             // this stroke is now finished, so add it to our completed strokes stack
             // and remove it from the current strokes, and reset our undo state if any
+            if([currentStroke.segments count] == 0){
+                NSLog(@"zero segments!");
+            }
             [stackOfStrokes addObject:currentStroke];
             [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
             [stackOfUndoneStrokes removeAllObjects];
-//            [self validateUndoState];
+
             [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
+            
+            [self.delegate didEndStrokeWithTouch:jotTouch];
         }
     }
 }
@@ -933,6 +1012,9 @@
  * Handles the end of a touch event.
  */
 -(void)jotStylusTouchCancelled:(NSSet *) touches{
+    
+    CheckMainThread;
+    
     for(JotTouch* jotTouch in touches){
         // If appropriate, add code necessary to save the state of the application.
         // This application is not saving state.
@@ -948,12 +1030,18 @@
 
 
 -(void)jotSuggestsToDisableGestures{
+    
+    CheckMainThread;
+    
     if([self.delegate respondsToSelector:@selector(jotSuggestsToDisableGestures)]){
         [self.delegate jotSuggestsToDisableGestures];
     }
     
 }
 -(void)jotSuggestsToEnableGestures{
+    
+    CheckMainThread;
+    
     if([self.delegate respondsToSelector:@selector(jotSuggestsToEnableGestures)]){
         [self.delegate jotSuggestsToEnableGestures];
     }
@@ -1042,10 +1130,12 @@
                 
                 // this stroke is now finished, so add it to our completed strokes stack
                 // and remove it from the current strokes, and reset our undo state if any
+                if([currentStroke.segments count] == 0){
+                    NSLog(@"zero segments!");
+                }
                 [stackOfStrokes addObject:currentStroke];
                 [currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
                 [stackOfUndoneStrokes removeAllObjects];
-//                [self validateUndoState];
             }
         }
     }

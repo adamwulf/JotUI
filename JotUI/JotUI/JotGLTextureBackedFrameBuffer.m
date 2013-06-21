@@ -7,6 +7,7 @@
 //
 
 #import "JotGLTextureBackedFrameBuffer.h"
+#import "JotUI.h"
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
@@ -41,6 +42,9 @@
 }
 
 -(void) exportTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock{
+    
+    CheckMainThread;
+    
     if(!exportFinishBlock) return;
     
     // the texture size has the screen scale baked into it,
