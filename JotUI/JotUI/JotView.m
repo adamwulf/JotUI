@@ -23,6 +23,7 @@
 #import "UIImage+Resize.h"
 #import "JotTrashManager.h"
 #import "JotViewState.h"
+#import "JotViewImmutableState.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -258,7 +259,7 @@
 -(void) exportInkTo:(NSString*)inkPath
      andThumbnailTo:(NSString*)thumbnailPath
          andPlistTo:(NSString*)plistPath
-         onComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock{
+         onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
 
     CheckMainThread;
     
@@ -309,7 +310,8 @@
     // contains immutable JotStrokes in the values
     // so that we can serialize and write to disk
     // on a background thread
-    NSMutableDictionary* stateDict = [NSMutableDictionary dictionaryWithDictionary:[state asDictionary]];
+    
+    JotViewImmutableState* immutableState = [state immutableState];
 
     [self exportToImageOnComplete:^(UIImage* image){
         thumb = image;
@@ -344,18 +346,13 @@
         
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
         
-        exportFinishBlock(ink, thumb, stateDict);
+        exportFinishBlock(ink, thumb, immutableState);
         
         [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
         
         [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
         
-        [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
-        [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
-
-        if(![stateDict writeToFile:plistPath atomically:YES]){
-            NSLog(@"couldn't write plist file");
-        }
+        [immutableState writeToDisk:plistPath];
         
         NSLog(@"export complete");
         @synchronized(self){

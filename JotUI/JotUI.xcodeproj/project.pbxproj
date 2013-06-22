@@ -49,6 +49,8 @@
 		66AA5FB9169E77180046CA26 /* JotStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA5FB7169E77180046CA26 /* JotStroke.m */; };
 		66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E1177611D800F26904 /* JotImmutableStroke.h */; };
 		66AA82E4177611D800F26904 /* JotImmutableStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA82E2177611D800F26904 /* JotImmutableStroke.m */; };
+		66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E617761C2300F26904 /* JotViewImmutableState.h */; };
+		66AA82E917761C2300F26904 /* JotViewImmutableState.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA82E717761C2300F26904 /* JotViewImmutableState.m */; };
 		66BF7F21176675E0003F4F67 /* JotBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66BF7F22176675E0003F4F67 /* JotBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F20176675E0003F4F67 /* JotBrushTexture.m */; };
 		66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -129,6 +131,8 @@
 		66AA5FB7169E77180046CA26 /* JotStroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotStroke.m; sourceTree = "<group>"; };
 		66AA82E1177611D800F26904 /* JotImmutableStroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotImmutableStroke.h; sourceTree = "<group>"; };
 		66AA82E2177611D800F26904 /* JotImmutableStroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotImmutableStroke.m; sourceTree = "<group>"; };
+		66AA82E617761C2300F26904 /* JotViewImmutableState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewImmutableState.h; sourceTree = "<group>"; };
+		66AA82E717761C2300F26904 /* JotViewImmutableState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewImmutableState.m; sourceTree = "<group>"; };
 		66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBrushTexture.h; sourceTree = "<group>"; };
 		66BF7F20176675E0003F4F67 /* JotBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotBrushTexture.m; sourceTree = "<group>"; };
 		66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotDefaultBrushTexture.h; sourceTree = "<group>"; };
@@ -276,8 +280,7 @@
 				66455F8B175FC45600C66DFA /* OpenGL */,
 				66AA5FB4169E76FF0046CA26 /* Stroke */,
 				669B3A2D1692B65100F12F42 /* Smoothing Helpers */,
-				6622F9D11774E72400C06825 /* JotViewState.h */,
-				6622F9D21774E72400C06825 /* JotViewState.m */,
+				66AA82E517761BBF00F26904 /* State */,
 				669B3A2F1692B68F00F12F42 /* JotView.h */,
 				669B3A301692B68F00F12F42 /* JotView.m */,
 				669B3A971692BADA00F12F42 /* JotViewDelegate.h */,
@@ -325,6 +328,17 @@
 				66AA82E2177611D800F26904 /* JotImmutableStroke.m */,
 			);
 			name = Stroke;
+			sourceTree = "<group>";
+		};
+		66AA82E517761BBF00F26904 /* State */ = {
+			isa = PBXGroup;
+			children = (
+				6622F9D11774E72400C06825 /* JotViewState.h */,
+				6622F9D21774E72400C06825 /* JotViewState.m */,
+				66AA82E617761C2300F26904 /* JotViewImmutableState.h */,
+				66AA82E717761C2300F26904 /* JotViewImmutableState.m */,
+			);
+			name = State;
 			sourceTree = "<group>";
 		};
 		66BF7F1E176675CE003F4F67 /* Brush Texture */ = {
@@ -378,6 +392,7 @@
 				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
 				6622F9D31774E72400C06825 /* JotViewState.h in Headers */,
 				66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */,
+				66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,6 +567,7 @@
 				66A7901A177251960092A28A /* JotTrashManager.m in Sources */,
 				6622F9D41774E72400C06825 /* JotViewState.m in Sources */,
 				66AA82E4177611D800F26904 /* JotImmutableStroke.m in Sources */,
+				66AA82E917761C2300F26904 /* JotViewImmutableState.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

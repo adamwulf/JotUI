@@ -68,21 +68,14 @@
 
 -(NSDictionary*) asDictionary{
     NSMutableDictionary* stateDict = [NSMutableDictionary dictionary];
-    NSMutableArray* stackOfImmutableStrokes = [NSMutableArray array];
-    NSMutableArray* stackOfImmutableUndoneStrokes = [NSMutableArray array];
-    for(JotStroke* stroke in self.stackOfStrokes){
-        [stackOfImmutableStrokes addObject:[[JotImmutableStroke alloc] initWithJotStroke:stroke]];
-    }
-    for(JotStroke* stroke in self.stackOfUndoneStrokes){
-        [stackOfImmutableUndoneStrokes addObject:[[JotImmutableStroke alloc] initWithJotStroke:stroke]];
-    }
-    
-//    stackOfImmutableStrokes = [stackOfStrokes copy];
-//    stackOfImmutableUndoneStrokes = [stackOfUndoneStrokes copy];
-    
-    [stateDict setObject:stackOfImmutableStrokes forKey:@"stackOfStrokes"];
-    [stateDict setObject:stackOfImmutableUndoneStrokes forKey:@"stackOfUndoneStrokes"];
+    [stateDict setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
+    [stateDict setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
     return stateDict;
+}
+
+
+-(JotViewImmutableState*) immutableState{
+    return [[JotViewImmutableState alloc] initWithDictionary:[self asDictionary]];
 }
 
 #pragma mark - Public Methods

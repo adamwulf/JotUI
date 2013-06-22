@@ -17,6 +17,8 @@
 #import "JotUI/JotGLTextureBackedFrameBuffer.h"
 #import "JotUI/JotBrushTexture.h"
 
+@class JotViewImmutableState;
+
 @class SegmentSmoother, UIPalmView;
 
 @interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>{
@@ -49,7 +51,7 @@
 -(void) exportInkTo:(NSString*)inkPath
      andThumbnailTo:(NSString*)thumbnailPath
          andPlistTo:(NSString*)plistPath
-         onComplete:(void(^)(UIImage* ink, UIImage* thumb, NSDictionary* state))exportFinishBlock;
+         onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock;
 
 // imports an image
 -(void) loadImage:(NSString*)inkImageFile andState:(NSString*)stateInfoFile;

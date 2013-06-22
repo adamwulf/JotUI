@@ -10,7 +10,7 @@
 #import "JotUI.h"
 #import "JotGLTexture.h"
 #import "JotGLTextureBackedFrameBuffer.h"
-
+#import "JotViewImmutableState.h"
 
 @interface JotViewState : NSObject
 
@@ -27,6 +27,7 @@
 -(BOOL) isReadyToExport;
 -(NSArray*) everyVisibleStroke;
 -(void) tick;
--(NSDictionary*) asDictionary;
+
+-(JotViewImmutableState*) immutableState;
 
 @end
