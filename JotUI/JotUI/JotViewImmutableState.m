@@ -15,7 +15,11 @@
     NSMutableDictionary* stateDict;
 }
 
-
+/**
+ * this immutable state is initialized from within
+ * the JotViewState. This method is only available
+ * from within the JotViewState class.
+ */
 -(id) initWithDictionary:(NSDictionary*)stateInfo{
     if(self = [super init]){
         stateDict = [NSMutableDictionary dictionary];
@@ -37,7 +41,10 @@
 }
 
 
-
+/**
+ * this will write out the state to the specified path.
+ * this file can be loaded into a JotViewState object
+ */
 -(void) writeToDisk:(NSString*)plistPath{
     [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
     [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];

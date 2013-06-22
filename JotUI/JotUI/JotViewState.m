@@ -9,6 +9,15 @@
 #import "JotViewState.h"
 #import "JotImmutableStroke.h"
 
+//
+// private intializer for the immutable state
+@interface JotViewImmutableState ()
+
+-(id) initWithDictionary:(NSDictionary*)stateInfo;
+
+@end
+
+
 @implementation JotViewState{
     // begin possible state object
     __strong JotGLTexture* backgroundTexture;
@@ -43,6 +52,9 @@
     return self;
 }
 
+#pragma mark - Public Methods
+
+
 -(NSArray*) everyVisibleStroke{
     return [self.strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[self.stackOfStrokes arrayByAddingObjectsFromArray:[self.currentStrokes allValues]]];
 }
@@ -66,19 +78,16 @@
 }
 
 
--(NSDictionary*) asDictionary{
+-(JotViewImmutableState*) immutableState{
+    if(![self isReadyToExport]){
+        @throw [NSException exceptionWithName:@"InvalidStateForExport" reason:@"the state is not ready to export, so it cannot generate an immutable state" userInfo:nil];
+    }
     NSMutableDictionary* stateDict = [NSMutableDictionary dictionary];
     [stateDict setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
     [stateDict setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
-    return stateDict;
+
+    return [[JotViewImmutableState alloc] initWithDictionary:stateDict];
 }
-
-
--(JotViewImmutableState*) immutableState{
-    return [[JotViewImmutableState alloc] initWithDictionary:[self asDictionary]];
-}
-
-#pragma mark - Public Methods
 
 -(BOOL) isReadyToExport{
     [self tick];

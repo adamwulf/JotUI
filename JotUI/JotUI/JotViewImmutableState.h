@@ -10,8 +10,6 @@
 
 @interface JotViewImmutableState : NSObject
 
--(id) initWithDictionary:(NSDictionary*)stateInfo;
-
 -(void) writeToDisk:(NSString*)plistPath;
 
 @end

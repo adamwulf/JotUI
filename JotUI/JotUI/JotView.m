@@ -306,13 +306,17 @@
     __block UIImage* ink = nil;
     
     //
-    // this dictionary isn't a JSON dictionary, it only
-    // contains immutable JotStrokes in the values
-    // so that we can serialize and write to disk
-    // on a background thread
-    
+    // we need to save a version of the state at this exact
+    // moment. after this method ends the state and/or strokes
+    // inside the state may change.
+    //
+    // this immutable state will ensure that we have a handle
+    // to the exact strokes that are visible + not yet written
+    // to the backing texture
     JotViewImmutableState* immutableState = [state immutableState];
 
+    // now grab the bits of the rendered thumbnail
+    // and backing texture
     [self exportToImageOnComplete:^(UIImage* image){
         thumb = image;
         dispatch_semaphore_signal(sema1);
@@ -323,6 +327,18 @@
         dispatch_semaphore_signal(sema2);
     }];
     
+    /////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
+    //
+    // ok, right here we're halfway done with the export.
+    // we have all of the information we need in memory,
+    // and our next step is to write it to disk.
+    //
+    // we'll do the disk writing on a background thread
+    // below. this will take the rendered items and
+    // generate PNGs, and it will take our state and
+    // serialize it out as a plist.
+    //
     NSLog(@"bg textures saved");
 
     
@@ -352,13 +368,18 @@
         
         [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
         
+        // this call will both serialize the state
+        // and write it to disk
         [immutableState writeToDisk:plistPath];
         
         NSLog(@"export complete");
         @synchronized(self){
+            // we only ever want to export one at a time.
+            // if anything has changed while we've been exporting
+            // then that'll be held in the exportLaterInvocations
+            // and will fire after we're done. (from validateUndoState).
             isCurrentlyExporting = NO;
         }
-
     });
 }
 
