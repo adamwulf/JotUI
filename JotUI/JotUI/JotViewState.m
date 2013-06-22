@@ -7,7 +7,7 @@
 //
 
 #import "JotViewState.h"
-
+#import "JotImmutableStroke.h"
 
 @implementation JotViewState{
     // begin possible state object
@@ -54,10 +54,41 @@
     backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
 }
 
+-(void) tick{
+    if([self.stackOfStrokes count] > self.undoLimit){
+        while([self.stackOfStrokes count] > self.undoLimit){
+            NSLog(@"== eating strokes");
+            
+            [self.strokesBeingWrittenToBackingTexture addObject:[self.stackOfStrokes objectAtIndex:0]];
+            [self.stackOfStrokes removeObjectAtIndex:0];
+        }
+    }
+}
+
+
+-(NSDictionary*) asDictionary{
+    NSMutableDictionary* stateDict = [NSMutableDictionary dictionary];
+    NSMutableArray* stackOfImmutableStrokes = [NSMutableArray array];
+    NSMutableArray* stackOfImmutableUndoneStrokes = [NSMutableArray array];
+    for(JotStroke* stroke in self.stackOfStrokes){
+        [stackOfImmutableStrokes addObject:[[JotImmutableStroke alloc] initWithJotStroke:stroke]];
+    }
+    for(JotStroke* stroke in self.stackOfUndoneStrokes){
+        [stackOfImmutableUndoneStrokes addObject:[[JotImmutableStroke alloc] initWithJotStroke:stroke]];
+    }
+    
+//    stackOfImmutableStrokes = [stackOfStrokes copy];
+//    stackOfImmutableUndoneStrokes = [stackOfUndoneStrokes copy];
+    
+    [stateDict setObject:stackOfImmutableStrokes forKey:@"stackOfStrokes"];
+    [stateDict setObject:stackOfImmutableUndoneStrokes forKey:@"stackOfUndoneStrokes"];
+    return stateDict;
+}
 
 #pragma mark - Public Methods
 
 -(BOOL) isReadyToExport{
+    [self tick];
     if([strokesBeingWrittenToBackingTexture count] ||
        [currentStrokes count] ||
        [stackOfStrokes count] > undoLimit){

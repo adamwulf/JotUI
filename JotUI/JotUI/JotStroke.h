@@ -20,15 +20,7 @@
  * between points into a nice single curve, and also
  * interpolate width and color including alpha
  */
-@interface JotStroke : NSObject<PlistSaving>{
-    // this will interpolate between points into curved segments
-    SegmentSmoother* segmentSmoother;
-    // this will store all the segments in drawn order
-    NSMutableArray* segments;
-    // this is the texture to use when drawing the stroke
-    JotBrushTexture* texture;
-    __weak NSObject<JotStrokeDelegate>* delegate;
-}
+@interface JotStroke : NSObject<PlistSaving>
 
 @property (nonatomic, readonly) SegmentSmoother* segmentSmoother;
 @property (nonatomic, readonly) NSMutableArray* segments;
@@ -39,8 +31,6 @@
  * create an empty stroke with the input texture
  */
 -(id) initWithTexture:(JotBrushTexture*)_texture;
-
--(void) draw;
 
 -(CGRect) bounds;
 

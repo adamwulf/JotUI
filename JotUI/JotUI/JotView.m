@@ -305,11 +305,11 @@
     __block UIImage* ink = nil;
     
     //
-    // TODO
-    // create an immutable state object
-    NSMutableDictionary* stateDict = [NSMutableDictionary dictionary];
-    [stateDict setObject:[state.stackOfStrokes copy] forKey:@"stackOfStrokes"];
-    [stateDict setObject:[state.stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
+    // this dictionary isn't a JSON dictionary, it only
+    // contains immutable JotStrokes in the values
+    // so that we can serialize and write to disk
+    // on a background thread
+    NSMutableDictionary* stateDict = [NSMutableDictionary dictionaryWithDictionary:[state asDictionary]];
 
     [self exportToImageOnComplete:^(UIImage* image){
         thumb = image;
@@ -810,15 +810,9 @@
 -(void) validateUndoState{
     
     CheckMainThread;
+
+    [state tick];
     
-    if([state.stackOfStrokes count] > state.undoLimit){
-        while([state.stackOfStrokes count] > state.undoLimit){
-            NSLog(@"== eating strokes");
-            
-            [state.strokesBeingWrittenToBackingTexture addObject:[state.stackOfStrokes objectAtIndex:0]];
-            [state.stackOfStrokes removeObjectAtIndex:0];
-        }
-    }
     if([state.strokesBeingWrittenToBackingTexture count]){
         JotBrushTexture* keepThisTexture = brushTexture;
         // get the stroke that we need to make permanent

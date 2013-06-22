@@ -26,5 +26,7 @@
 
 -(BOOL) isReadyToExport;
 -(NSArray*) everyVisibleStroke;
+-(void) tick;
+-(NSDictionary*) asDictionary;
 
 @end

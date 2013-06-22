@@ -18,8 +18,13 @@
 #import <OpenGLES/ES1/glext.h>
 
 @implementation JotStroke{
-    GLuint vbo,vao;
-    NSInteger numberOfVertices;
+    // this will interpolate between points into curved segments
+    SegmentSmoother* segmentSmoother;
+    // this will store all the segments in drawn order
+    NSMutableArray* segments;
+    // this is the texture to use when drawing the stroke
+    JotBrushTexture* texture;
+    __weak NSObject<JotStrokeDelegate>* delegate;
 }
 
 @synthesize segments;
@@ -33,7 +38,6 @@
         segments = [NSMutableArray array];
         segmentSmoother = [[SegmentSmoother alloc] init];
         texture = _texture;
-        vbo = vao = numberOfVertices = 0;
     }
     return self;
 }
@@ -61,15 +65,6 @@
 }
 
 
--(void) draw{
-    if(vbo){
-        glBindVertexArrayOES(vao);
-        glDrawArrays(GL_TRIANGLES, 0, numberOfVertices);
-        glBindVertexArrayOES(0);
-    }
-}
-
-
 -(CGRect) bounds{
     if([self.segments count]){
         CGRect bounds = [[self.segments objectAtIndex:0] bounds];
@@ -85,9 +80,9 @@
 
 -(NSDictionary*) asDictionary{
     return [NSDictionary dictionaryWithObjectsAndKeys:@"JotStroke", @"class",
-            [segmentSmoother asDictionary], @"segmentSmoother",
-            [segments jotMapWithSelector:@selector(asDictionary)], @"segments",
-            [texture asDictionary], @"texture", nil];
+            [self.segmentSmoother asDictionary], @"segmentSmoother",
+            [self.segments jotMapWithSelector:@selector(asDictionary)], @"segments",
+            [self.texture asDictionary], @"texture", nil];
 }
 
 -(id) initFromDictionary:(NSDictionary*)dictionary{
