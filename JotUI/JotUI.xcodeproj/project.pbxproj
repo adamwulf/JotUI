@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6622F9D31774E72400C06825 /* JotViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 6622F9D11774E72400C06825 /* JotViewState.h */; };
+		6622F9D41774E72400C06825 /* JotViewState.m in Sources */ = {isa = PBXBuildFile; fileRef = 6622F9D21774E72400C06825 /* JotViewState.m */; };
 		662B55D016A9EAC30020CFC3 /* MoveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		662B55D116A9EAC30020CFC3 /* MoveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */; };
 		66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 66382CB116DD5DC40053C6E6 /* NSMutableSet+Extras.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -78,6 +80,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		6622F9D11774E72400C06825 /* JotViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewState.h; sourceTree = "<group>"; };
+		6622F9D21774E72400C06825 /* JotViewState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewState.m; sourceTree = "<group>"; };
 		662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveToPathElement.h; sourceTree = "<group>"; };
 		662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoveToPathElement.m; sourceTree = "<group>"; };
 		66382CB116DD5DC40053C6E6 /* NSMutableSet+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableSet+Extras.h"; sourceTree = "<group>"; };
@@ -268,6 +272,8 @@
 				66455F8B175FC45600C66DFA /* OpenGL */,
 				66AA5FB4169E76FF0046CA26 /* Stroke */,
 				669B3A2D1692B65100F12F42 /* Smoothing Helpers */,
+				6622F9D11774E72400C06825 /* JotViewState.h */,
+				6622F9D21774E72400C06825 /* JotViewState.m */,
 				669B3A2F1692B68F00F12F42 /* JotView.h */,
 				669B3A301692B68F00F12F42 /* JotView.m */,
 				669B3A971692BADA00F12F42 /* JotViewDelegate.h */,
@@ -364,6 +370,7 @@
 				669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */,
 				66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */,
 				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
+				6622F9D31774E72400C06825 /* JotViewState.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -536,6 +543,7 @@
 				66BF7F371766D221003F4F67 /* UIImage+RoundedCorner.m in Sources */,
 				66BF7F391766D221003F4F67 /* UIImage+Alpha.m in Sources */,
 				66A7901A177251960092A28A /* JotTrashManager.m in Sources */,
+				6622F9D41774E72400C06825 /* JotViewState.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

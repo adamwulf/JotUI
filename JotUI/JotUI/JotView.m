@@ -22,6 +22,7 @@
 #import "NSArray+JotMapReduce.h"
 #import "UIImage+Resize.h"
 #import "JotTrashManager.h"
+#import "JotViewState.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -31,66 +32,7 @@
 
 
 
-
-@interface JotViewState : NSObject 
-
-//
-// begin possible state object
-@property (nonatomic, strong) JotGLTexture* backgroundTexture;
-@property (nonatomic, strong) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
-@property (nonatomic, readonly)  NSMutableDictionary* currentStrokes;
-@property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
-@property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
-@property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
-
-@end
-
-@implementation JotViewState{
-    // begin possible state object
-    JotGLTexture* backgroundTexture;
-    JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
-    
-    // this dictionary will hold all of the in progress
-    // stroke objects
-    __strong NSMutableDictionary* currentStrokes;
-    // these arrays will act as stacks for our undo state
-    __strong NSMutableArray* stackOfStrokes;
-    __strong NSMutableArray* stackOfUndoneStrokes;
-    NSMutableArray* strokesBeingWrittenToBackingTexture;
-}
-
-@synthesize backgroundTexture;
-@synthesize backgroundFramebuffer;
-@synthesize currentStrokes;
-@synthesize stackOfStrokes;
-@synthesize stackOfUndoneStrokes;
-@synthesize strokesBeingWrittenToBackingTexture;
-
--(id) init{
-    if(self = [super init]){
-        // setup our storage for our undo/redo strokes
-        currentStrokes = [NSMutableDictionary dictionary];
-        stackOfStrokes = [NSMutableArray array];
-        stackOfUndoneStrokes = [NSMutableArray array];
-        strokesBeingWrittenToBackingTexture = [NSMutableArray array];
-    }
-    return self;
-}
-
--(void)dealloc{
-    backgroundFramebuffer = nil;
-}
-
-@end
-
-
-
-
-
-
-
-@interface JotView ()
-{
+@interface JotView (){
     
 @private
 	// OpenGL names for the renderbuffer and framebuffers used to render to this view
@@ -132,7 +74,6 @@
 @implementation JotView
 
 @synthesize delegate;
-@synthesize undoLimit;
 @synthesize context;
 
 #pragma mark - Initialization
@@ -184,14 +125,15 @@
     // this view should accept Jot stylus touch events
     [[JotStylusManager sharedInstance] registerView:self];
     [[JotTrashManager sharedInstace] setMaxTickDuration:kJotValidateUndoTimer * 1 / 20];
+
+    // create a default empty state
+    state = [[JotViewState alloc] init];
     
     // set our default undo limit
-    self.undoLimit = kJotDefaultUndoLimit;
+    state.undoLimit = kJotDefaultUndoLimit;
     
     // allow more than 1 finger/stylus to draw at a time
     self.multipleTouchEnabled = YES;
-    
-    state = [[JotViewState alloc] init];
     
     //
     // the remainder is OpenGL initialization
@@ -320,17 +262,8 @@
 
     CheckMainThread;
     
-    if([state.strokesBeingWrittenToBackingTexture count] ||
-       [state.currentStrokes count] ||
-       [state.stackOfStrokes count] > undoLimit ||
-       isCurrentlyExporting){
-        if([state.currentStrokes count]){
-            NSLog(@"cant save, currently drawing");
-        }else if([state.strokesBeingWrittenToBackingTexture count]){
-            NSLog(@"can't save, writing to texture");
-        }else if([state.stackOfStrokes count] > undoLimit){
-            NSLog(@"can't save, more strokes than undo");
-        }else if(isCurrentlyExporting){
+    if(![state isReadyToExport] || isCurrentlyExporting){
+        if(isCurrentlyExporting){
             NSLog(@"cant save, currently exporting");
         }
         //
@@ -362,9 +295,8 @@
     
     @synchronized(self){
         isCurrentlyExporting = YES;
+        NSLog(@"export begins");
     }
-
-    NSLog(@"export begins");
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
     dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
@@ -486,6 +418,7 @@
                     if([stroke.segments count] == 0){
                         [state.stackOfStrokes removeObject:stroke];
                         [state.stackOfUndoneStrokes removeObject:stroke];
+                        NSLog(@"oh no!");
                     }
                 }
             }else{
@@ -499,8 +432,8 @@
     // into Open GL
     dispatch_async(importExportImageQueue, ^{
         
-        EAGLContext* secondContext = [[EAGLContext alloc] initWithAPI:context.API sharegroup:context.sharegroup];
-        [EAGLContext setCurrentContext:secondContext];
+        EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:context.API sharegroup:context.sharegroup];
+        [EAGLContext setCurrentContext:backgroundThreadContext];
         
         // load image from disk
         UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
@@ -511,9 +444,6 @@
         
         // load new texture
         state.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
-        
-        // generate FBO for the texture
-        state.backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:state.backgroundTexture];
         
         if(!savedInkImage){
             // no image was given, so it should be a blank texture
@@ -707,7 +637,7 @@
     brushTexture = nil;
     // now draw the strokes
     
-    for(JotStroke* stroke in [state.strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[state.stackOfStrokes arrayByAddingObjectsFromArray:[state.currentStrokes allValues]]]){
+    for(JotStroke* stroke in [state everyVisibleStroke]){
         // make sure our texture is the correct one for this stroke
         if(stroke.texture != brushTexture){
             [self setBrushTexture:stroke.texture];
@@ -881,8 +811,8 @@
     
     CheckMainThread;
     
-    if([state.stackOfStrokes count] > self.undoLimit){
-        while([state.stackOfStrokes count] > self.undoLimit){
+    if([state.stackOfStrokes count] > state.undoLimit){
+        while([state.stackOfStrokes count] > state.undoLimit){
             NSLog(@"== eating strokes");
             
             [state.strokesBeingWrittenToBackingTexture addObject:[state.stackOfStrokes objectAtIndex:0]];

@@ -23,14 +23,11 @@
     __weak NSObject<JotViewDelegate>* delegate;
     
 	EAGLContext *context;
-	
-    NSUInteger undoLimit;
     
     CGSize initialViewport;
 }
 
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
-@property (nonatomic) NSUInteger undoLimit;
 @property (nonatomic, strong) JotBrushTexture* brushTexture;
 @property (readonly) EAGLContext *context;
 
