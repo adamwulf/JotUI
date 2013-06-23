@@ -21,6 +21,7 @@
 #import "MoveToPathElement.h"
 #import "JotStrokeManager.h"
 #import "JotGLTextureBackedFrameBuffer.h"
+#import "JotViewImmutableState.h"
 
 typedef struct {
 	GLfloat	x;

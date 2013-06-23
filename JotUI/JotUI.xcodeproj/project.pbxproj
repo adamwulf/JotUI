@@ -49,7 +49,7 @@
 		66AA5FB9169E77180046CA26 /* JotStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA5FB7169E77180046CA26 /* JotStroke.m */; };
 		66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E1177611D800F26904 /* JotImmutableStroke.h */; };
 		66AA82E4177611D800F26904 /* JotImmutableStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA82E2177611D800F26904 /* JotImmutableStroke.m */; };
-		66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E617761C2300F26904 /* JotViewImmutableState.h */; };
+		66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E617761C2300F26904 /* JotViewImmutableState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66AA82E917761C2300F26904 /* JotViewImmutableState.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA82E717761C2300F26904 /* JotViewImmutableState.m */; };
 		66BF7F21176675E0003F4F67 /* JotBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66BF7F22176675E0003F4F67 /* JotBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F20176675E0003F4F67 /* JotBrushTexture.m */; };
@@ -382,6 +382,7 @@
 				66BF7F301766D133003F4F67 /* UIImage+Resize.h in Headers */,
 				66BF7F361766D221003F4F67 /* UIImage+RoundedCorner.h in Headers */,
 				66BF7F381766D221003F4F67 /* UIImage+Alpha.h in Headers */,
+				66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */,
 				66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */,
@@ -392,7 +393,6 @@
 				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
 				6622F9D31774E72400C06825 /* JotViewState.h in Headers */,
 				66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */,
-				66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

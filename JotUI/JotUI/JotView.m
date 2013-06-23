@@ -319,6 +319,8 @@
     // to the exact strokes that are visible + not yet written
     // to the backing texture
     JotViewImmutableState* immutableState = [state immutableState];
+    
+    NSLog(@"saving begins with hash: %u vs %u", [immutableState undoHash], [self undoHash]);
 
     // now grab the bits of the rendered thumbnail
     // and backing texture
@@ -344,8 +346,6 @@
     // generate PNGs, and it will take our state and
     // serialize it out as a plist.
     //
-    NSLog(@"bg textures saved");
-
     
     //
     // ok, here i walk off of the main thread,
@@ -366,8 +366,6 @@
         // on screen at a time + being exported simultaneously
         
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
-        
-        NSLog(@"calling export block: %@", exportFinishBlock);
         
         exportFinishBlock(ink, thumb, immutableState);
         

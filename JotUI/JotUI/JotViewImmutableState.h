@@ -12,4 +12,6 @@
 
 -(void) writeToDisk:(NSString*)plistPath;
 
+-(NSUInteger) undoHash;
+
 @end

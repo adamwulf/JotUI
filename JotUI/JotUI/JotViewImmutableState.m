@@ -35,6 +35,7 @@
         
         [stateDict setObject:stackOfImmutableStrokes forKey:@"stackOfStrokes"];
         [stateDict setObject:stackOfImmutableUndoneStrokes forKey:@"stackOfUndoneStrokes"];
+        [stateDict setObject:[stateInfo objectForKey:@"undoHash"] forKey:@"undoHash"];
 
     }
     return self;
@@ -52,6 +53,28 @@
     if(![stateDict writeToFile:plistPath atomically:YES]){
         NSLog(@"couldn't write plist file");
     }
+}
+
+/**
+ * This hash isn't calculated here, because the objects in the
+ * stackOfStrokes array are JotImmutableStrokes instead of
+ * JotStrokes, so their hash value will be different, which
+ * causes the calculated hash to be different.
+ *
+ * instead, we import the hash value from the state dictionary.
+ *
+ * returns a single integer that represents the current state
+ * of the visible UI. This number will take into account the strokes
+ * that are in the undo stack, as well as any strokes that are
+ * currenlty being drawn to the UI.
+ *
+ * any strokes in the redo stack are ignored. in this way, if the user
+ * draws a stroke, then taps undo, the undoHash will be the same
+ * as if they had never drawn the stroke
+ */
+-(NSUInteger) undoHash{
+    NSUInteger hashVal = [[stateDict objectForKey:@"undoHash"] unsignedIntegerValue];
+    return hashVal;
 }
 
 @end

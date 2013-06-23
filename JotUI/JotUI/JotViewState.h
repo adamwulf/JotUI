@@ -57,4 +57,7 @@
  */
 -(JotViewImmutableState*) immutableState;
 
+
+-(NSUInteger) undoHash;
+
 @end
