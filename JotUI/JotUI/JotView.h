@@ -21,13 +21,7 @@
 
 @class SegmentSmoother, UIPalmView;
 
-@interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>{
-    __weak NSObject<JotViewDelegate>* delegate;
-    
-	EAGLContext *context;
-    
-    CGSize initialViewport;
-}
+@interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>
 
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
 @property (nonatomic, strong) JotBrushTexture* brushTexture;
@@ -48,9 +42,9 @@
 -(NSUInteger) undoHash;
 
 // this will export both the ink and the thumbnail image
--(void) exportInkTo:(NSString*)inkPath
+-(void) exportImageTo:(NSString*)inkPath
      andThumbnailTo:(NSString*)thumbnailPath
-         andPlistTo:(NSString*)plistPath
+         andStateTo:(NSString*)plistPath
          onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock;
 
 // imports an image

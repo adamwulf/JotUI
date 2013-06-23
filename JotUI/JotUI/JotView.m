@@ -34,6 +34,11 @@
 
 
 @interface JotView (){
+    __weak NSObject<JotViewDelegate>* delegate;
+    
+	EAGLContext *context;
+    
+    CGSize initialViewport;
     
 @private
 	// OpenGL names for the renderbuffer and framebuffers used to render to this view
@@ -256,9 +261,9 @@
 #pragma mark - Export and Import
 
 
--(void) exportInkTo:(NSString*)inkPath
+-(void) exportImageTo:(NSString*)inkPath
      andThumbnailTo:(NSString*)thumbnailPath
-         andPlistTo:(NSString*)plistPath
+         andStateTo:(NSString*)plistPath
          onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
 
     CheckMainThread;
@@ -280,10 +285,10 @@
         // copy block to heap
         if(![exportLaterInvocations count]){
             void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = [exportFinishBlock copy];
-            NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:@selector(exportInkTo:andThumbnailTo:andPlistTo:onComplete:)];
+            NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:@selector(exportImageTo:andThumbnailTo:andStateTo:onComplete:)];
             NSInvocation* saveInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
             [saveInvocation setTarget:self];
-            [saveInvocation setSelector:@selector(exportInkTo:andThumbnailTo:andPlistTo:onComplete:)];
+            [saveInvocation setSelector:@selector(exportImageTo:andThumbnailTo:andStateTo:onComplete:)];
             [saveInvocation setArgument:&inkPath atIndex:2];
             [saveInvocation setArgument:&thumbnailPath atIndex:3];
             [saveInvocation setArgument:&plistPath atIndex:4];
@@ -361,6 +366,8 @@
         // on screen at a time + being exported simultaneously
         
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
+        
+        NSLog(@"calling export block: %@", exportFinishBlock);
         
         exportFinishBlock(ink, thumb, immutableState);
         
