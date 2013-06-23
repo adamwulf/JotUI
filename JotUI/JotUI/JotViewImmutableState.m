@@ -47,8 +47,13 @@
  * this file can be loaded into a JotViewState object
  */
 -(void) writeToDisk:(NSString*)plistPath{
-    [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
-    [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
+    if(![[stateDict objectForKey:@"hasConverted"] boolValue]){
+        // only convert the state one time when needed. otherwise
+        // skip this step and write straight to disk
+        [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
+        [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
+        [stateDict setObject:[NSNumber numberWithBool:YES] forKey:@"hasConverted"];
+    }
     
     if(![stateDict writeToFile:plistPath atomically:YES]){
         NSLog(@"couldn't write plist file");
@@ -62,15 +67,6 @@
  * causes the calculated hash to be different.
  *
  * instead, we import the hash value from the state dictionary.
- *
- * returns a single integer that represents the current state
- * of the visible UI. This number will take into account the strokes
- * that are in the undo stack, as well as any strokes that are
- * currenlty being drawn to the UI.
- *
- * any strokes in the redo stack are ignored. in this way, if the user
- * draws a stroke, then taps undo, the undoHash will be the same
- * as if they had never drawn the stroke
  */
 -(NSUInteger) undoHash{
     NSUInteger hashVal = [[stateDict objectForKey:@"undoHash"] unsignedIntegerValue];

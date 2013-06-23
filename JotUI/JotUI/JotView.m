@@ -1169,13 +1169,20 @@
     }
 }
 
+-(BOOL) canUndo{
+    return [state.stackOfStrokes count] > 0;
+}
+
+-(BOOL) canRedo{
+    return [state.stackOfUndoneStrokes count] > 0;
+}
 
 /**
  * this will move one of the completed strokes to the undo
  * stack, and then rerender all other completed strokes
  */
 -(IBAction) undo{
-    if([state.stackOfStrokes count]){
+    if([self canUndo]){
         CGRect bounds = [[state.stackOfStrokes lastObject] bounds];
         [state.stackOfUndoneStrokes addObject:[state.stackOfStrokes lastObject]];
         [state.stackOfStrokes removeLastObject];
@@ -1188,7 +1195,7 @@
  * undo back to the completed strokes list, then rerender
  */
 -(IBAction) redo{
-    if([state.stackOfUndoneStrokes count]){
+    if([self canRedo]){
         CGRect bounds = [[state.stackOfUndoneStrokes lastObject] bounds];
         [state.stackOfStrokes addObject:[state.stackOfUndoneStrokes lastObject]];
         [state.stackOfUndoneStrokes removeLastObject];

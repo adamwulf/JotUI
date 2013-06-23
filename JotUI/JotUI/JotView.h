@@ -30,6 +30,9 @@
 // erase the screen
 - (IBAction) clear;
 
+-(BOOL) canUndo;
+-(BOOL) canRedo;
+
 // undo the last stroke, if possible
 - (IBAction) undo;
 

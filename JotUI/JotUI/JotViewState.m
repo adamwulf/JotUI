@@ -66,6 +66,7 @@
     backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
 }
 
+
 -(void) tick{
     if([self.stackOfStrokes count] > self.undoLimit){
         while([self.stackOfStrokes count] > self.undoLimit){
@@ -85,6 +86,9 @@
     NSMutableDictionary* stateDict = [NSMutableDictionary dictionary];
     [stateDict setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
     [stateDict setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
+    // we need to also send in the hash value for our current undo state.
+    // the ImmutableState object won't be able to calculate it, so we need to
+    // send it in for it
     [stateDict setObject:[NSNumber numberWithUnsignedInteger:[self undoHash]] forKey:@"undoHash"];
 
     return [[JotViewImmutableState alloc] initWithDictionary:stateDict];

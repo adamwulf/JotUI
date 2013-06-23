@@ -57,7 +57,11 @@
  */
 -(JotViewImmutableState*) immutableState;
 
-
+/**
+ * a unique value that defines the current undo state.
+ * if this value is the same as when this view was exported,
+ * then nothing has changed that would affect the output image
+ */
 -(NSUInteger) undoHash;
 
 @end
