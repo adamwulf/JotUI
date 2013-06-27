@@ -57,6 +57,8 @@
     
     if(![stateDict writeToFile:plistPath atomically:YES]){
         NSLog(@"couldn't write plist file");
+    }else{
+        NSLog(@"wrote to disk: %u", [self undoHash]);
     }
 }
 

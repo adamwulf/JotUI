@@ -16,6 +16,8 @@
 
 @implementation CurveToPathElement{
     UIBezierPath* bezierCache;
+    // cache the hash, since it's expenseive to calculate
+    NSUInteger hashCache;
 }
 
 @synthesize curveTo;
@@ -30,6 +32,17 @@
         curveTo = _curveTo;
         ctrl1 = _ctrl1;
         ctrl2 = _ctrl2;
+
+        NSUInteger prime = 31;
+        hashCache = 1;
+        hashCache = prime * hashCache + startPoint.x;
+        hashCache = prime * hashCache + startPoint.y;
+        hashCache = prime * hashCache + curveTo.x;
+        hashCache = prime * hashCache + curveTo.y;
+        hashCache = prime * hashCache + ctrl1.x;
+        hashCache = prime * hashCache + ctrl1.y;
+        hashCache = prime * hashCache + ctrl2.x;
+        hashCache = prime * hashCache + ctrl2.y;
     }
     return self;
 }
@@ -439,9 +452,29 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         vertexBuffer = malloc([self numberOfBytes]);
         NSData* data = [dictionary objectForKey:@"vertexBuffer"];
         memcpy(vertexBuffer, data.bytes, [self numberOfBytes]);
+
+        NSUInteger prime = 31;
+        hashCache = 1;
+        hashCache = prime * hashCache + startPoint.x;
+        hashCache = prime * hashCache + startPoint.y;
+        hashCache = prime * hashCache + curveTo.x;
+        hashCache = prime * hashCache + curveTo.y;
+        hashCache = prime * hashCache + ctrl1.x;
+        hashCache = prime * hashCache + ctrl1.y;
+        hashCache = prime * hashCache + ctrl2.x;
+        hashCache = prime * hashCache + ctrl2.y;
     }
     return self;
 }
 
+#pragma mark - hashing and equality
+
+-(NSUInteger) hash{
+    return hashCache;
+}
+
+-(BOOL) isEqual:(id)object{
+    return self == object || [self hash] == [object hash];
+}
 
 @end

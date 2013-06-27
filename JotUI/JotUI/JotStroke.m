@@ -25,6 +25,8 @@
     // this is the texture to use when drawing the stroke
     JotBrushTexture* texture;
     __weak NSObject<JotStrokeDelegate>* delegate;
+    // cache the hash, since it's expenseive to calculate
+    NSUInteger hashCache;
 }
 
 @synthesize segments;
@@ -38,6 +40,7 @@
         segments = [NSMutableArray array];
         segmentSmoother = [[SegmentSmoother alloc] init];
         texture = _texture;
+        hashCache = 1;
     }
     return self;
 }
@@ -56,8 +59,21 @@
     element.color = color;
     element.width = width;
     [segments addObject:element];
-    
+    [self updateHashWithObject:element];
+
     return YES;
+}
+
+/**
+ * removes an element from this stroke,
+ * and updates our hash appropriately
+ */
+-(void) removeElement:(AbstractBezierPathElement*)element{
+    [segments removeObject:element];
+    [self updateHashWithObject:texture];
+    for(AbstractBezierPathElement*segment in segments){
+        [self updateHashWithObject:segment];
+    }
 }
 
 -(void) cancel{
@@ -87,11 +103,14 @@
 
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     if(self = [super init]){
+        hashCache = 1;
         segmentSmoother = [[SegmentSmoother alloc] initFromDictionary:[dictionary objectForKey:@"segmentSmoother"]];
         segments = [NSMutableArray arrayWithArray:[[dictionary objectForKey:@"segments"] jotMap:^id(id obj, NSUInteger index){
             NSString* className = [obj objectForKey:@"class"];
             Class class = NSClassFromString(className);
-            return [[class alloc] initFromDictionary:obj];
+            AbstractBezierPathElement* segment =  [[class alloc] initFromDictionary:obj];
+            [self updateHashWithObject:segment];
+            return segment;
         }]];
         texture = [[JotBrushTexture alloc] initFromDictionary:[dictionary objectForKey:@"texture"]];
     }
@@ -99,6 +118,20 @@
 }
 
 
+#pragma mark - hashing and equality
+
+-(void) updateHashWithObject:(NSObject*)obj{
+    NSUInteger prime = 31;
+    hashCache = prime * hashCache + [obj hash];
+}
+
+-(NSUInteger) hash{
+    return hashCache;
+}
+
+-(BOOL) isEqual:(id)object{
+    return self == object || [self hash] == [object hash];
+}
 
 
 @end

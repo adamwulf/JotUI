@@ -12,7 +12,7 @@
 #import "JotBrushTexture.h"
 #import "PlistSaving.h"
 
-@class SegmentSmoother;
+@class SegmentSmoother, AbstractBezierPathElement;
 
 /**
  * a simple class to help us manage a single
@@ -23,7 +23,7 @@
 @interface JotStroke : NSObject<PlistSaving>
 
 @property (nonatomic, readonly) SegmentSmoother* segmentSmoother;
-@property (nonatomic, readonly) NSMutableArray* segments;
+@property (nonatomic, readonly) NSArray* segments;
 @property (nonatomic, readonly) JotBrushTexture* texture;
 @property (nonatomic, weak) NSObject<JotStrokeDelegate>* delegate;
 
@@ -46,6 +46,12 @@
  *        0 is straight, 1 is curvy, > 1 and < 0 is loopy or bouncy
  */
 -(BOOL) addPoint:(CGPoint)point withWidth:(CGFloat)width andColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor;
+
+/**
+ * remove a segment from the stroke
+ */
+-(void) removeElement:(AbstractBezierPathElement*)element;
+
 
 /**
  * cancel the stroke and notify the delegate

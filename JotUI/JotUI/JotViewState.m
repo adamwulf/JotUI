@@ -123,12 +123,13 @@
  * as if they had never drawn the stroke
  */
 -(NSUInteger) undoHash{
-    NSUInteger hashVal = 0;
+    NSUInteger prime = 31;
+    NSUInteger hashVal = 1;
     for(JotStroke* stroke in self.stackOfStrokes){
-        hashVal += [stroke hash];
+        hashVal = prime * hashVal + [stroke hash];
     }
     for(JotStroke* stroke in self.currentStrokes){
-        hashVal += [stroke hash];
+        hashVal = prime * hashVal + [stroke hash];
     }
     return hashVal;
 }

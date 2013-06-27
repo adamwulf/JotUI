@@ -10,13 +10,22 @@
 #import "UIColor+JotHelper.h"
 #import "AbstractBezierPathElement-Protected.h"
 
-@implementation LineToPathElement
+@implementation LineToPathElement{
+    // cache the hash, since it's expenseive to calculate
+    NSUInteger hashCache;
+}
 
 @synthesize lineTo;
 
 -(id) initWithStart:(CGPoint)start andLineTo:(CGPoint)_point{
     if(self = [super initWithStart:start]){
         lineTo = _point;
+        NSUInteger prime = 31;
+        hashCache = 1;
+        hashCache = prime * hashCache + startPoint.x;
+        hashCache = prime * hashCache + startPoint.y;
+        hashCache = prime * hashCache + lineTo.x;
+        hashCache = prime * hashCache + lineTo.y;
     }
     return self;
 }
@@ -242,10 +251,26 @@
         vertexBuffer = malloc([self numberOfBytes]);
         NSData* data = [dictionary objectForKey:@"vertexBuffer"];
         memcpy(vertexBuffer, data.bytes, [self numberOfBytes]);
+
+        NSUInteger prime = 31;
+        hashCache = 1;
+        hashCache = prime * hashCache + startPoint.x;
+        hashCache = prime * hashCache + startPoint.y;
+        hashCache = prime * hashCache + lineTo.x;
+        hashCache = prime * hashCache + lineTo.y;
     }
     return self;
 }
 
+#pragma mark - hashing and equality
+
+-(NSUInteger) hash{
+    return hashCache;
+}
+
+-(BOOL) isEqual:(id)object{
+    return self == object || [self hash] == [object hash];
+}
 
 
 @end

@@ -9,11 +9,17 @@
 #import "MoveToPathElement.h"
 #import "AbstractBezierPathElement-Protected.h"
 
-@implementation MoveToPathElement
+@implementation MoveToPathElement{
+    // cache the hash, since it's expenseive to calculate
+    NSUInteger hashCache;
+}
 
 -(id) initWithMoveTo:(CGPoint)_point{
     if(self = [super initWithStart:_point]){
-        // noop
+        NSUInteger prime = 31;
+        hashCache = 1;
+        hashCache = prime * hashCache + startPoint.x;
+        hashCache = prime * hashCache + startPoint.y;
     }
     return self;
 }
@@ -73,5 +79,26 @@
     return self.color;
 }
 
+#pragma mark - PlistSaving
+
+-(id) initFromDictionary:(NSDictionary*)dictionary{
+    if (self = [super initFromDictionary:dictionary]) {
+        NSUInteger prime = 31;
+        hashCache = 1;
+        hashCache = prime * hashCache + startPoint.x;
+        hashCache = prime * hashCache + startPoint.y;
+    }
+    return self;
+}
+
+#pragma mark - hashing and equality
+
+-(NSUInteger) hash{
+    return hashCache;
+}
+
+-(BOOL) isEqual:(id)object{
+    return self == object || [self hash] == [object hash];
+}
 
 @end

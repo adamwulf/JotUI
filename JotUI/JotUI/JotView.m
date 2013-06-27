@@ -295,7 +295,7 @@
             [state.currentStrokes removeAllObjects];
             
             if(stateInfo){
-                // load our undo state
+                // load our undo state if we have it
                 id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
                     NSString* className = [obj objectForKey:@"class"];
                     Class class = NSClassFromString(className);
@@ -316,8 +316,6 @@
                         NSLog(@"oh no!");
                     }
                 }
-            }else{
-                //        NSLog(@"no state info loaded");
             }
             
         dispatch_semaphore_signal(sema1);
@@ -866,7 +864,7 @@
         int count = 0;
         while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 20){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
-            [strokeToWriteToTexture.segments removeObject:element];
+            [strokeToWriteToTexture removeElement:element];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
             prevElementForTextureWriting = element;
             [[JotTrashManager sharedInstace] addObjectToDealloc:element];
@@ -1246,14 +1244,7 @@
  * as if they had never drawn the stroke
  */
 -(NSUInteger) undoHash{
-    NSUInteger hashVal = 0;
-    for(JotStroke* stroke in state.stackOfStrokes){
-        hashVal += [stroke hash];
-    }
-    for(JotStroke* stroke in state.currentStrokes){
-        hashVal += [stroke hash];
-    }
-    return hashVal;
+    return [state undoHash];
 }
 
 
