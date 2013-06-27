@@ -26,7 +26,6 @@
 #import <JotTouchSDK/JotStylusManager.h>
 
 
-#define kJotDefaultUndoLimit 10
 #define kJotValidateUndoTimer .06
 
 
@@ -70,6 +69,8 @@ dispatch_queue_t importExportStateQueue;
     // a handle to the image used as the current brush texture
     __strong JotBrushTexture* brushTexture;
     JotViewState* state;
+    
+    CGSize initialFrameSize;
 }
 
 @end
@@ -113,11 +114,12 @@ dispatch_queue_t importExportStateQueue;
 
 -(id) finishInit{
     
+    initialFrameSize = self.bounds.size;
+    
     validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
 
-    
     //
     // this view should accept Jot stylus touch events
     [[JotStylusManager sharedInstance] registerView:self];
@@ -125,9 +127,6 @@ dispatch_queue_t importExportStateQueue;
 
     // create a default empty state
     state = [[JotViewState alloc] init];
-    
-    // set our default undo limit
-    state.undoLimit = kJotDefaultUndoLimit;
     
     // allow more than 1 finger/stylus to draw at a time
     self.multipleTouchEnabled = YES;
@@ -1178,7 +1177,10 @@ dispatch_queue_t importExportStateQueue;
 -(CGSize) pagePixelSize{
     // calc final size of the backing texture
     CGFloat scale = [[UIScreen mainScreen] scale];
-    return CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
+    if(self.frame.size.width < initialFrameSize.width){
+        NSLog(@"gotcha! %f vs %f", self.frame.size.width, initialFrameSize.width);
+    }
+    return CGSizeMake(initialFrameSize.width * scale, initialFrameSize.height * scale);
 }
 
 

@@ -17,6 +17,9 @@
 #import <OpenGLES/ES1/glext.h>
 #import "JotView.h"
 
+
+#define kJotDefaultUndoLimit 10
+
 //
 // private intializer for the immutable state
 @interface JotViewImmutableState ()
@@ -58,6 +61,7 @@
         stackOfStrokes = [NSMutableArray array];
         stackOfUndoneStrokes = [NSMutableArray array];
         strokesBeingWrittenToBackingTexture = [NSMutableArray array];
+        undoLimit = kJotDefaultUndoLimit;
     }
     return self;
 }
