@@ -258,135 +258,7 @@
 
 
 
-#pragma mark - Export and Import
-
-
--(void) exportImageTo:(NSString*)inkPath
-     andThumbnailTo:(NSString*)thumbnailPath
-         andStateTo:(NSString*)plistPath
-         onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
-
-    CheckMainThread;
-    
-    if(![state isReadyToExport] || isCurrentlyExporting){
-        if(isCurrentlyExporting){
-            NSLog(@"cant save, currently exporting");
-        }
-        //
-        // the issue here is that we want to export the drawn image to a file, but we're
-        // also in the middle of writing all the strokes to the backing texture.
-        //
-        // instead of try to be super smart, and export while we draw (yikes!), we're going to
-        // wait for all of the strokes to be written to the texture that need to be.
-        //
-        // then, the [validateUndoState] will re-call this export method with the same parameters
-        // when it's done, and we'll bypass this block and finish the export.
-        //
-        // copy block to heap
-        if(![exportLaterInvocations count]){
-            void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = [exportFinishBlock copy];
-            NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:@selector(exportImageTo:andThumbnailTo:andStateTo:onComplete:)];
-            NSInvocation* saveInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
-            [saveInvocation setTarget:self];
-            [saveInvocation setSelector:@selector(exportImageTo:andThumbnailTo:andStateTo:onComplete:)];
-            [saveInvocation setArgument:&inkPath atIndex:2];
-            [saveInvocation setArgument:&thumbnailPath atIndex:3];
-            [saveInvocation setArgument:&plistPath atIndex:4];
-            [saveInvocation setArgument:&block atIndex:5];
-            [saveInvocation retainArguments];
-            [exportLaterInvocations addObject:saveInvocation];
-        }
-        return;
-    }
-    
-    @synchronized(self){
-        isCurrentlyExporting = YES;
-        NSLog(@"export begins");
-    }
-    
-    dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
-    dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
-    
-    __block UIImage* thumb = nil;
-    __block UIImage* ink = nil;
-    
-    //
-    // we need to save a version of the state at this exact
-    // moment. after this method ends the state and/or strokes
-    // inside the state may change.
-    //
-    // this immutable state will ensure that we have a handle
-    // to the exact strokes that are visible + not yet written
-    // to the backing texture
-    JotViewImmutableState* immutableState = [state immutableState];
-    
-    NSLog(@"saving begins with hash: %u vs %u", [immutableState undoHash], [self undoHash]);
-
-    // now grab the bits of the rendered thumbnail
-    // and backing texture
-    [self exportToImageOnComplete:^(UIImage* image){
-        thumb = image;
-        dispatch_semaphore_signal(sema1);
-    }];
-    
-    [state.backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
-        ink = image;
-        dispatch_semaphore_signal(sema2);
-    }];
-    
-    /////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////
-    //
-    // ok, right here we're halfway done with the export.
-    // we have all of the information we need in memory,
-    // and our next step is to write it to disk.
-    //
-    // we'll do the disk writing on a background thread
-    // below. this will take the rendered items and
-    // generate PNGs, and it will take our state and
-    // serialize it out as a plist.
-    //
-    
-    //
-    // ok, here i walk off of the main thread,
-    // and my state arrays might get changed while
-    // i wait (yikes!).
-    //
-    // i need an immutable state that i can hold onto
-    // while i wait + write to disk in the background
-    //
-    
-    dispatch_async(importExportStateQueue, ^(void) {
-        dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
-        // i could notify about the thumbnail here
-        // which would let the UI swap to the cached thumbnail
-        // from the full JotUI if needed... (?)
-        // probably an over optimization at this point,
-        // but may be useful once multiple JotViews are
-        // on screen at a time + being exported simultaneously
-        
-        dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
-        
-        exportFinishBlock(ink, thumb, immutableState);
-        
-        [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
-        
-        [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
-        
-        // this call will both serialize the state
-        // and write it to disk
-        [immutableState writeToDisk:plistPath];
-        
-        NSLog(@"export complete");
-        @synchronized(self){
-            // we only ever want to export one at a time.
-            // if anything has changed while we've been exporting
-            // then that'll be held in the exportLaterInvocations
-            // and will fire after we're done. (from validateUndoState).
-            isCurrentlyExporting = NO;
-        }
-    });
-}
+#pragma mark - Import and Export
 
 /**
  * This method will load the input image into the drawable view
@@ -486,6 +358,135 @@
     // ok, render the new content
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
 }
+
+
+-(void) exportImageTo:(NSString*)inkPath
+       andThumbnailTo:(NSString*)thumbnailPath
+           andStateTo:(NSString*)plistPath
+           onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
+    
+    CheckMainThread;
+    
+    if(![state isReadyToExport] || isCurrentlyExporting){
+        if(isCurrentlyExporting){
+            NSLog(@"cant save, currently exporting");
+        }
+        //
+        // the issue here is that we want to export the drawn image to a file, but we're
+        // also in the middle of writing all the strokes to the backing texture.
+        //
+        // instead of try to be super smart, and export while we draw (yikes!), we're going to
+        // wait for all of the strokes to be written to the texture that need to be.
+        //
+        // then, the [validateUndoState] will re-call this export method with the same parameters
+        // when it's done, and we'll bypass this block and finish the export.
+        //
+        // copy block to heap
+        if(![exportLaterInvocations count]){
+            void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = [exportFinishBlock copy];
+            NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:@selector(exportImageTo:andThumbnailTo:andStateTo:onComplete:)];
+            NSInvocation* saveInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
+            [saveInvocation setTarget:self];
+            [saveInvocation setSelector:@selector(exportImageTo:andThumbnailTo:andStateTo:onComplete:)];
+            [saveInvocation setArgument:&inkPath atIndex:2];
+            [saveInvocation setArgument:&thumbnailPath atIndex:3];
+            [saveInvocation setArgument:&plistPath atIndex:4];
+            [saveInvocation setArgument:&block atIndex:5];
+            [saveInvocation retainArguments];
+            [exportLaterInvocations addObject:saveInvocation];
+        }
+        return;
+    }
+    
+    @synchronized(self){
+        isCurrentlyExporting = YES;
+        NSLog(@"export begins");
+    }
+    
+    dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
+    dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
+    
+    __block UIImage* thumb = nil;
+    __block UIImage* ink = nil;
+    
+    //
+    // we need to save a version of the state at this exact
+    // moment. after this method ends the state and/or strokes
+    // inside the state may change.
+    //
+    // this immutable state will ensure that we have a handle
+    // to the exact strokes that are visible + not yet written
+    // to the backing texture
+    JotViewImmutableState* immutableState = [state immutableState];
+    
+    NSLog(@"saving begins with hash: %u vs %u", [immutableState undoHash], [self undoHash]);
+    
+    // now grab the bits of the rendered thumbnail
+    // and backing texture
+    [self exportToImageOnComplete:^(UIImage* image){
+        thumb = image;
+        dispatch_semaphore_signal(sema1);
+    }];
+    
+    [state.backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
+        ink = image;
+        dispatch_semaphore_signal(sema2);
+    }];
+    
+    /////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////
+    //
+    // ok, right here we're halfway done with the export.
+    // we have all of the information we need in memory,
+    // and our next step is to write it to disk.
+    //
+    // we'll do the disk writing on a background thread
+    // below. this will take the rendered items and
+    // generate PNGs, and it will take our state and
+    // serialize it out as a plist.
+    //
+    
+    //
+    // ok, here i walk off of the main thread,
+    // and my state arrays might get changed while
+    // i wait (yikes!).
+    //
+    // i need an immutable state that i can hold onto
+    // while i wait + write to disk in the background
+    //
+    
+    dispatch_async(importExportStateQueue, ^(void) {
+        dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
+        // i could notify about the thumbnail here
+        // which would let the UI swap to the cached thumbnail
+        // from the full JotUI if needed... (?)
+        // probably an over optimization at this point,
+        // but may be useful once multiple JotViews are
+        // on screen at a time + being exported simultaneously
+        
+        dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
+        
+        exportFinishBlock(ink, thumb, immutableState);
+        
+        [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
+        
+        [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
+        
+        // this call will both serialize the state
+        // and write it to disk
+        [immutableState writeToDisk:plistPath];
+        
+        NSLog(@"export complete");
+        @synchronized(self){
+            // we only ever want to export one at a time.
+            // if anything has changed while we've been exporting
+            // then that'll be held in the exportLaterInvocations
+            // and will fire after we're done. (from validateUndoState).
+            isCurrentlyExporting = NO;
+        }
+    });
+}
+
 
 #pragma mark Export Helpers
 
