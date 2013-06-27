@@ -1177,9 +1177,6 @@ dispatch_queue_t importExportStateQueue;
 -(CGSize) pagePixelSize{
     // calc final size of the backing texture
     CGFloat scale = [[UIScreen mainScreen] scale];
-    if(self.frame.size.width < initialFrameSize.width){
-        NSLog(@"gotcha! %f vs %f", self.frame.size.width, initialFrameSize.width);
-    }
     return CGSizeMake(initialFrameSize.width * scale, initialFrameSize.height * scale);
 }
 
