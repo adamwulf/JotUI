@@ -16,6 +16,7 @@
 #import "JotUI/JotStroke.h"
 #import "JotUI/JotGLTextureBackedFrameBuffer.h"
 #import "JotUI/JotBrushTexture.h"
+#import "JotUI/JotViewState.h"
 
 @class JotViewImmutableState;
 
@@ -44,6 +45,9 @@
 // then nothing has changed that would affect the output image
 -(NSUInteger) undoHash;
 
+// the pixel size of a page
+-(CGSize) pagePixelSize;
+
 // this will export both the ink and the thumbnail image
 -(void) exportImageTo:(NSString*)inkPath
      andThumbnailTo:(NSString*)thumbnailPath
@@ -51,6 +55,10 @@
          onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock;
 
 // imports an image
--(void) loadImage:(NSString*)inkImageFile andState:(NSString*)stateInfoFile;
+-(void) loadState:(JotViewState*)newState;
+
++(dispatch_queue_t) importExportImageQueue;
+
++(dispatch_queue_t) importExportStateQueue;
 
 @end

@@ -7,22 +7,29 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "JotUI.h"
 #import "JotGLTexture.h"
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotViewImmutableState.h"
+#import "JotStrokeDelegate.h"
 
-@interface JotViewState : NSObject
+@interface JotViewState : NSObject<JotStrokeDelegate>
 
 //
 // begin possible state object
 @property (nonatomic, strong) JotGLTexture* backgroundTexture;
+@property (nonatomic, weak) NSObject<JotStrokeDelegate>* delegate;
 @property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
 @property (nonatomic, readonly)  NSMutableDictionary* currentStrokes;
 @property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
 @property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
 @property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
 @property (nonatomic) NSUInteger undoLimit;
+
+
+-(id) initWithImageFile:(NSString*)inkImageFile
+           andStateFile:(NSString*)stateInfoFile
+            andPageSize:(CGSize)fullPixelSize
+           andGLContext:(EAGLContext*)glContext;
 
 /**
  * this will return YES only

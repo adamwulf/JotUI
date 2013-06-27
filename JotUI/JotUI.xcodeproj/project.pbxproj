@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6622F9D31774E72400C06825 /* JotViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 6622F9D11774E72400C06825 /* JotViewState.h */; };
+		6622F9D31774E72400C06825 /* JotViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 6622F9D11774E72400C06825 /* JotViewState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6622F9D41774E72400C06825 /* JotViewState.m in Sources */ = {isa = PBXBuildFile; fileRef = 6622F9D21774E72400C06825 /* JotViewState.m */; };
 		662B55D016A9EAC30020CFC3 /* MoveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		662B55D116A9EAC30020CFC3 /* MoveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */; };
@@ -382,6 +382,7 @@
 				66BF7F301766D133003F4F67 /* UIImage+Resize.h in Headers */,
 				66BF7F361766D221003F4F67 /* UIImage+RoundedCorner.h in Headers */,
 				66BF7F381766D221003F4F67 /* UIImage+Alpha.h in Headers */,
+				6622F9D31774E72400C06825 /* JotViewState.h in Headers */,
 				66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */,
@@ -391,7 +392,6 @@
 				669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */,
 				66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */,
 				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
-				6622F9D31774E72400C06825 /* JotViewState.h in Headers */,
 				66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

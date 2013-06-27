@@ -57,8 +57,6 @@
     
     if(![stateDict writeToFile:plistPath atomically:YES]){
         NSLog(@"couldn't write plist file");
-    }else{
-        NSLog(@"wrote to disk: %u", [self undoHash]);
     }
 }
 
@@ -71,8 +69,7 @@
  * instead, we import the hash value from the state dictionary.
  */
 -(NSUInteger) undoHash{
-    NSUInteger hashVal = [[stateDict objectForKey:@"undoHash"] unsignedIntegerValue];
-    return hashVal;
+    return [[stateDict objectForKey:@"undoHash"] unsignedIntegerValue];
 }
 
 @end

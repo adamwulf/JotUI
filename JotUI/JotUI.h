@@ -22,6 +22,7 @@
 #import "JotStrokeManager.h"
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotViewImmutableState.h"
+#import "JotViewState.h"
 
 typedef struct {
 	GLfloat	x;

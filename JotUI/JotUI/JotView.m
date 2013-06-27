@@ -19,8 +19,6 @@
 #import "JotGLTexture.h"
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotDefaultBrushTexture.h"
-#import "NSArray+JotMapReduce.h"
-#import "UIImage+Resize.h"
 #import "JotTrashManager.h"
 #import "JotViewState.h"
 #import "JotViewImmutableState.h"
@@ -31,6 +29,9 @@
 #define kJotDefaultUndoLimit 10
 #define kJotValidateUndoTimer .06
 
+
+dispatch_queue_t importExportImageQueue;
+dispatch_queue_t importExportStateQueue;
 
 
 @interface JotView (){
@@ -47,9 +48,6 @@
 	// OpenGL name for the depth buffer that is attached to viewFramebuffer, if it exists (0 if it does not exist)
 	GLuint depthRenderbuffer;
 
-    dispatch_queue_t importExportImageQueue;
-    dispatch_queue_t importExportStateQueue;
-    
     //
     // these 4 properties help with our performance when writing
     // large strokes to the backing texture. the timer will continually
@@ -113,14 +111,7 @@
     return self;
 }
 
-
 -(id) finishInit{
-
-    // a queue for import/export operations, to make sure that
-    // we always complete an export before we can attempt an import
-    importExportImageQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportImageQueue", DISPATCH_QUEUE_SERIAL);
-
-    importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
     
     validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
     prevElementForTextureWriting = nil;
@@ -181,6 +172,22 @@
 	[self createFramebuffer];
 
     return self;
+}
+
+#pragma mark - Dispatch Queues
+
++(dispatch_queue_t) importExportImageQueue{
+    if(!importExportImageQueue){
+        importExportImageQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportImageQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    return importExportImageQueue;
+}
+
++(dispatch_queue_t) importExportStateQueue{
+    if(!importExportStateQueue){
+        importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    return importExportStateQueue;
 }
 
 
@@ -269,94 +276,15 @@
  *
  * This method must be called at least one time after initialization
  */
--(void) loadImage:(NSString*)inkImageFile andState:(NSString*)stateInfoFile{
-
+-(void) loadState:(JotViewState*)newState{
     CheckMainThread;
-
-    __block NSDictionary* stateInfo = nil;
-    
-    // we're going to wait for two background operations to complete
-    // using these semaphores
-    dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
-    dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
-    
-        // the first item is unserializing the plist
-        // information for our page state
-        dispatch_async(importExportStateQueue, ^{
-            
-            // load the file
-            stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
-            
-            //
-            // reset our undo state
-            [state.strokesBeingWrittenToBackingTexture removeAllObjects];
-            [state.stackOfUndoneStrokes removeAllObjects];
-            [state.stackOfStrokes removeAllObjects];
-            [state.currentStrokes removeAllObjects];
-            
-            if(stateInfo){
-                // load our undo state if we have it
-                id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
-                    NSString* className = [obj objectForKey:@"class"];
-                    Class class = NSClassFromString(className);
-                    JotStroke* stroke = [[class alloc] initFromDictionary:obj];
-                    stroke.delegate = self;
-                    return stroke;
-                };
-                
-                [state.stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
-                [state.stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
-                
-                //
-                // sanity check
-                for(JotStroke*stroke in [state.stackOfStrokes arrayByAddingObjectsFromArray:state.stackOfUndoneStrokes]){
-                    if([stroke.segments count] == 0){
-                        [state.stackOfStrokes removeObject:stroke];
-                        [state.stackOfUndoneStrokes removeObject:stroke];
-                        NSLog(@"oh no!");
-                    }
-                }
-            }
-            
-        dispatch_semaphore_signal(sema1);
-    });
-    
-    // the second item is loading the ink texture
-    // into Open GL
-    dispatch_async(importExportImageQueue, ^{
-        
-        EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:context.API sharegroup:context.sharegroup];
-        [EAGLContext setCurrentContext:backgroundThreadContext];
-        
-        // load image from disk
-        UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
-        
-        // calc final size of the backing texture
-        CGFloat scale = [[UIScreen mainScreen] scale];
-        CGSize fullPixelSize = CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
-        
-        // load new texture
-        state.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
-        
-        if(!savedInkImage){
-            // no image was given, so it should be a blank texture
-            // lets erase it, since it defaults to uncleared memory
-            [state.backgroundFramebuffer clear];
-        }
-        dispatch_semaphore_signal(sema2);
-        glFlush();
-    });
-    
-    // wait here
-    // until both above items are complete
-    dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
-    dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
-    
-    //
-    // ok, render the new content
-    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+    if(state != newState){
+        state.delegate = nil;
+        newState.delegate = self;
+        state = newState;
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+    }
 }
-
 
 -(void) exportImageTo:(NSString*)inkPath
        andThumbnailTo:(NSString*)thumbnailPath
@@ -1245,6 +1173,12 @@
  */
 -(NSUInteger) undoHash{
     return [state undoHash];
+}
+
+-(CGSize) pagePixelSize{
+    // calc final size of the backing texture
+    CGFloat scale = [[UIScreen mainScreen] scale];
+    return CGSizeMake(self.frame.size.width * scale, self.frame.size.height * scale);
 }
 
 
