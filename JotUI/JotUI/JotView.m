@@ -526,6 +526,7 @@ dispatch_queue_t importExportStateQueue;
         // ok, we're done exporting and cleaning up
         // so pass the newly generated image to the completion block
         exportFinishBlock(image);
+        CGImageRelease(cgImage);
     });
 }
 

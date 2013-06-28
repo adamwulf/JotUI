@@ -106,7 +106,9 @@
         CGContextRelease(bitmapContext);
 
         exportFinishBlock(image);
-    });
+
+        CGImageRelease(cgImage);
+});
 }
 
 -(void) clear{
