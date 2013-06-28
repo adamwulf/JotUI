@@ -272,11 +272,34 @@
 }
 
 
+/**
+ * this method has become quite a bit more complex
+ * than it was originally.
+ *
+ * when this method is called from a background thread,
+ * it will generate and bind the VBO only. it won't create
+ * a VAO
+ *
+ * when this method is called on the main thread, it will
+ * create the VAO, and will also create the VBO to go with
+ * it if needed. otherwise it'll bind the VBO from the
+ * background thread into the VAO
+ *
+ * the [unbind] method will unbind either the VAO or VBO
+ * depending on which was created/bound in this method+thread
+ */
 -(BOOL) bind{
+    // we're only allowed to create vao
+    // on the main thread.
+    // if we need a vao, then create it
     if([NSThread isMainThread] && !vao){
         glGenVertexArraysOES(1, &vao);
         glBindVertexArrayOES(vao);
         if(vbo){
+            // it's possible that we created a vbo
+            // on a background thread. if so
+            // then bind it now so our vao knows
+            // about it
             glBindBuffer(GL_ARRAY_BUFFER,vbo);
             glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
             glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
