@@ -110,6 +110,9 @@
             Class class = NSClassFromString(className);
             AbstractBezierPathElement* segment =  [[class alloc] initFromDictionary:obj];
             [self updateHashWithObject:segment];
+            if([segment bind]){
+                [segment unbind];
+            }
             return segment;
         }]];
         texture = [[JotBrushTexture alloc] initFromDictionary:[dictionary objectForKey:@"texture"]];

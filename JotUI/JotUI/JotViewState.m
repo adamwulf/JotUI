@@ -80,7 +80,10 @@
         // the first item is unserializing the plist
         // information for our page state
         dispatch_async([JotView importExportStateQueue], ^{
-            
+            NSDate* date = [NSDate date];
+            EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+            [EAGLContext setCurrentContext:backgroundThreadContext];
+
             // load the file
             stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
             
@@ -108,13 +111,17 @@
                 }
             }
             
+            glFlush();
+            CGFloat duration = [[NSDate date] timeIntervalSinceDate:date];
+            NSLog(@"state load: %f", duration);
             dispatch_semaphore_signal(sema1);
         });
         
         // the second item is loading the ink texture
         // into Open GL
         dispatch_async([JotView importExportImageQueue], ^{
-            
+            NSDate* date = [NSDate date];
+
             EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
             [EAGLContext setCurrentContext:backgroundThreadContext];
             
@@ -129,8 +136,10 @@
                 // lets erase it, since it defaults to uncleared memory
                 [self.backgroundFramebuffer clear];
             }
-            dispatch_semaphore_signal(sema2);
             glFlush();
+            CGFloat duration = [[NSDate date] timeIntervalSinceDate:date];
+            NSLog(@"bg load: %f", duration);
+            dispatch_semaphore_signal(sema2);
         });
         
         // wait here

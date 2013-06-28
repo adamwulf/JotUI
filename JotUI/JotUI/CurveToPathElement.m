@@ -267,11 +267,25 @@
 
 
 -(BOOL) bind{
+    if([NSThread isMainThread] && !vao){
+        glGenVertexArraysOES(1, &vao);
+        glBindVertexArrayOES(vao);
+        if(vbo){
+            glBindBuffer(GL_ARRAY_BUFFER,vbo);
+            glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
+            glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
+            glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glEnableClientState(GL_COLOR_ARRAY);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glBindBuffer(GL_ARRAY_BUFFER,0);
+        }
+    }else if([NSThread isMainThread] && vao){
+        glBindVertexArrayOES(vao);
+    }
     if(!vbo && vertexBuffer){
         int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
         int mallocSize = numberOfVertices*sizeof(struct Vertex);
-        glGenVertexArraysOES(1, &vao);
-        glBindVertexArrayOES(vao);
         glGenBuffers(1,&vbo);
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
         glBufferData(GL_ARRAY_BUFFER, mallocSize, vertexBuffer, GL_STATIC_DRAW);
@@ -283,16 +297,18 @@
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         glBindBuffer(GL_ARRAY_BUFFER,0);
     }
-    if(vbo){
-        glBindVertexArrayOES(vao);
-//        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    if(![NSThread isMainThread]){
+        glBindBuffer(GL_ARRAY_BUFFER,vbo);
     }
     return YES;
 }
 
 -(void) unbind{
-//    glBindBuffer(GL_ARRAY_BUFFER,0);
-    glBindVertexArrayOES(0);
+    if([NSThread isMainThread]){
+        glBindVertexArrayOES(0);
+    }else{
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+    }
 }
 
 

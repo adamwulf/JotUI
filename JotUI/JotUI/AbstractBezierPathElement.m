@@ -160,7 +160,8 @@
 
 -(NSDictionary*) asDictionary{
     return [NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([self class]), @"class",
-            NSStringFromCGPoint(startPoint), @"startPoint",
+            [NSNumber numberWithFloat:startPoint.x], @"startPoint.x",
+            [NSNumber numberWithFloat:startPoint.y], @"startPoint.y",
             [NSNumber numberWithFloat:width], @"width",
             (color ? [color asDictionary] : [NSDictionary dictionary]), @"color",
             [NSNumber numberWithFloat:rotation], @"rotation",
@@ -170,7 +171,11 @@
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     self = [super init];
     if (self) {
-        startPoint = CGPointFromString([dictionary objectForKey:@"startPoint"]);
+        if([dictionary objectForKey:@"startPoint"]){
+            startPoint = CGPointFromString([dictionary objectForKey:@"startPoint"]);
+        }else{
+            startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
+        }
         width = [[dictionary objectForKey:@"width"] floatValue];
         color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
         rotation = [[dictionary objectForKey:@"rotation"] floatValue];
