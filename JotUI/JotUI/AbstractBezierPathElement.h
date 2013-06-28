@@ -40,6 +40,7 @@ struct Vertex{
     CGFloat rotation;
     
     struct Vertex* vertexBuffer;
+    NSData* dataVertexBuffer;
     CGFloat scaleOfVertexBuffer;
 }
 

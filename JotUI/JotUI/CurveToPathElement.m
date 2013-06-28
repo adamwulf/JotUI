@@ -127,10 +127,14 @@
     if(vertexBuffer && scaleOfVertexBuffer == scale){
         return vertexBuffer;
     }
+    if(dataVertexBuffer && scaleOfVertexBuffer == scale){
+        return (struct Vertex*) dataVertexBuffer.bytes;
+    }
     // find out how many steps we can put inside this segment length
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
     
     // malloc the memory for our buffer, if needed
+    dataVertexBuffer = nil;
     if(!vertexBuffer){
         vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
     }
@@ -262,7 +266,9 @@
         }
     }
     
-    return vertexBuffer;
+    dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:[self numberOfBytes]];
+    
+    return (struct Vertex*) dataVertexBuffer.bytes;
 }
 
 
@@ -283,12 +289,12 @@
     }else if([NSThread isMainThread] && vao){
         glBindVertexArrayOES(vao);
     }
-    if(!vbo && vertexBuffer){
+    if(!vbo && dataVertexBuffer){
         int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
         int mallocSize = numberOfVertices*sizeof(struct Vertex);
         glGenBuffers(1,&vbo);
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        glBufferData(GL_ARRAY_BUFFER, mallocSize, vertexBuffer, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, mallocSize, dataVertexBuffer.bytes, GL_STATIC_DRAW);
         glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
         glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
         glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
@@ -452,22 +458,23 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
 
 -(NSDictionary*) asDictionary{
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[super asDictionary]];
-    [dict setObject:NSStringFromCGPoint(curveTo) forKey:@"curveTo"];
-    [dict setObject:NSStringFromCGPoint(ctrl1) forKey:@"ctrl1"];
-    [dict setObject:NSStringFromCGPoint(ctrl2) forKey:@"ctrl2"];
-    [dict setObject:[NSData dataWithBytesNoCopy:vertexBuffer length:[self numberOfBytes] freeWhenDone:NO] forKey:@"vertexBuffer"];
+    [dict setObject:[NSNumber numberWithFloat:curveTo.x] forKey:@"curveTo.x"];
+    [dict setObject:[NSNumber numberWithFloat:curveTo.y] forKey:@"curveTo.y"];
+    [dict setObject:[NSNumber numberWithFloat:ctrl1.x] forKey:@"ctrl1.x"];
+    [dict setObject:[NSNumber numberWithFloat:ctrl1.y] forKey:@"ctrl1.y"];
+    [dict setObject:[NSNumber numberWithFloat:ctrl2.x] forKey:@"ctrl2.x"];
+    [dict setObject:[NSNumber numberWithFloat:ctrl2.y] forKey:@"ctrl2.y"];
+    [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
     return [NSDictionary dictionaryWithDictionary:dict];
 }
 
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     self = [super initFromDictionary:dictionary];
     if (self) {
-        curveTo = CGPointFromString([dictionary objectForKey:@"curveTo"]);
-        ctrl1 = CGPointFromString([dictionary objectForKey:@"ctrl1"]);
-        ctrl2 = CGPointFromString([dictionary objectForKey:@"ctrl2"]);
-        vertexBuffer = malloc([self numberOfBytes]);
-        NSData* data = [dictionary objectForKey:@"vertexBuffer"];
-        memcpy(vertexBuffer, data.bytes, [self numberOfBytes]);
+        curveTo = CGPointMake([[dictionary objectForKey:@"curveTo.x"] floatValue], [[dictionary objectForKey:@"curveTo.y"] floatValue]);
+        ctrl1 = CGPointMake([[dictionary objectForKey:@"ctrl1.x"] floatValue], [[dictionary objectForKey:@"ctrl1.y"] floatValue]);
+        ctrl2 = CGPointMake([[dictionary objectForKey:@"ctrl2.x"] floatValue], [[dictionary objectForKey:@"ctrl2.y"] floatValue]);
+        dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
 
         NSUInteger prime = 31;
         hashCache = 1;

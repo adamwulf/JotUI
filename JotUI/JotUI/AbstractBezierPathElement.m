@@ -150,7 +150,7 @@
  */
 -(void) dealloc{
     if(vertexBuffer){
-        free(vertexBuffer);
+        dataVertexBuffer = nil;
         vertexBuffer = nil;
     }
 }
@@ -171,11 +171,7 @@
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     self = [super init];
     if (self) {
-        if([dictionary objectForKey:@"startPoint"]){
-            startPoint = CGPointFromString([dictionary objectForKey:@"startPoint"]);
-        }else{
-            startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
-        }
+        startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
         width = [[dictionary objectForKey:@"width"] floatValue];
         color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
         rotation = [[dictionary objectForKey:@"rotation"] floatValue];

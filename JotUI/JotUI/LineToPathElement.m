@@ -87,11 +87,15 @@
     if(vertexBuffer && scaleOfVertexBuffer == scale){
         return vertexBuffer;
     }
+    if(dataVertexBuffer && scaleOfVertexBuffer == scale){
+        return (struct Vertex*) dataVertexBuffer.bytes;
+    }
     // Convert locations from Points to Pixels
 	// Add points to the buffer so there are drawing points every X pixels
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
     
     // malloc the memory for our buffer, if needed
+    dataVertexBuffer = nil;
     if(!vertexBuffer){
         vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
     }
@@ -189,17 +193,19 @@
             vertexBuffer[step + innerStep].Color[3] = calcColor[3];
         }
 	}
-    return vertexBuffer;
+    dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:[self numberOfBytes]];
+    
+    return (struct Vertex*) dataVertexBuffer.bytes;
 }
 
 
 -(BOOL) bind{
-    if(!handle && vertexBuffer){
+    if(!handle && dataVertexBuffer){
         int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
         int mallocSize = numberOfVertices*sizeof(struct Vertex);
         glGenBuffers(1,&handle);
         glBindBuffer(GL_ARRAY_BUFFER,handle);
-        glBufferData(GL_ARRAY_BUFFER, mallocSize, vertexBuffer, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, mallocSize, dataVertexBuffer.bytes, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER,0);
     }
     if(handle){
@@ -239,18 +245,17 @@
 
 -(NSDictionary*) asDictionary{
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[super asDictionary]];
-    [dict setObject:NSStringFromCGPoint(lineTo) forKey:@"lineTo"];
-    [dict setObject:[NSData dataWithBytesNoCopy:vertexBuffer length:[self numberOfBytes] freeWhenDone:NO] forKey:@"vertexBuffer"];
+    [dict setObject:[NSNumber numberWithFloat:lineTo.x] forKey:@"lineTo.x"];
+    [dict setObject:[NSNumber numberWithFloat:lineTo.y] forKey:@"lineTo.y"];
+    [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
     return [NSDictionary dictionaryWithDictionary:dict];
 }
 
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     self = [super initFromDictionary:dictionary];
     if (self) {
-        lineTo = CGPointFromString([dictionary objectForKey:@"lineTo"]);
-        vertexBuffer = malloc([self numberOfBytes]);
-        NSData* data = [dictionary objectForKey:@"vertexBuffer"];
-        memcpy(vertexBuffer, data.bytes, [self numberOfBytes]);
+        lineTo = CGPointMake([[dictionary objectForKey:@"lineTo.x"] floatValue], [[dictionary objectForKey:@"lineTo.y"] floatValue]);
+        dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
 
         NSUInteger prime = 31;
         hashCache = 1;
