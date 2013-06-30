@@ -25,9 +25,10 @@
 
 -(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
 
--(NSArray*) arrayOfPositionsForPoint:(CGPoint)point
+-(void) arrayOfPositionsForPoint:(CGPoint)point
                             andWidth:(CGFloat)stepWidth
-                         andRotation:(CGFloat)stepRotation;
+                     andRotation:(CGFloat)stepRotation
+                        outArray:(CGPoint*)pointArr;
 
 -(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2;
 

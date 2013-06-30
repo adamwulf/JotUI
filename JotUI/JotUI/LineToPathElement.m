@@ -115,6 +115,8 @@
     
     CGFloat rotationDiff = self.rotation - previousElement.rotation;
 
+    CGPoint* pointArr = (CGPoint*) malloc(sizeof(CGPoint)*6);
+
     // generate a single point vertex for each step
     // so that the stroke is essentially a series of dots
 	for(int step = 0; step < numberOfVertices; step+=[self numberOfVerticesPerStep]) {
@@ -151,12 +153,13 @@
             calcColor[2] = calcColor[2] * calcColor[3] / stepWidth;
         }
         
-        NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point
+        [self arrayOfPositionsForPoint:point
                                                           andWidth:stepWidth
-                                                       andRotation:stepRotation];
+                                                       andRotation:stepRotation
+                                                          outArray:pointArr];
         
-        for(int innerStep = 0;innerStep < [vertexPointArray count];innerStep++){
-            CGPoint stepPoint = [[vertexPointArray objectAtIndex:innerStep] CGPointValue];
+        for(int innerStep = 0;innerStep < 6;innerStep++){
+            CGPoint stepPoint = pointArr[innerStep];
             // Convert locations from Points to Pixels
             vertexBuffer[step + innerStep].Position[0] = stepPoint.x;
             vertexBuffer[step + innerStep].Position[1] = stepPoint.y;
@@ -186,6 +189,9 @@
             vertexBuffer[step + innerStep].Color[3] = calcColor[3];
         }
 	}
+    
+    free(pointArr);
+    
     dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:[self numberOfBytes]];
     
     return (struct Vertex*) dataVertexBuffer.bytes;

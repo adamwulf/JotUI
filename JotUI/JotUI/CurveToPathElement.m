@@ -178,6 +178,8 @@
     
     CGFloat lastRotation;
     
+    CGPoint* pointArr = (CGPoint*) malloc(sizeof(CGPoint)*6);
+    
     //
     // calculate points along the curve that are realStepSize
     // length along the curve. since this is fairly intensive for
@@ -225,12 +227,13 @@
 		vertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
         
         
-        NSArray* vertexPointArray = [self arrayOfPositionsForPoint:point
+        [self arrayOfPositionsForPoint:point
                                                           andWidth:stepWidth
-                                                       andRotation:stepRotation];
+                                                       andRotation:stepRotation
+                                                          outArray:pointArr];
         
-        for(int innerStep = 0;innerStep < [vertexPointArray count];innerStep++){
-            CGPoint stepPoint = [[vertexPointArray objectAtIndex:innerStep] CGPointValue];
+        for(int innerStep = 0;innerStep < 6;innerStep++){
+            CGPoint stepPoint = pointArr[innerStep];
             // Convert locations from Points to Pixels
             vertexBuffer[step + innerStep].Position[0] = stepPoint.x;
             vertexBuffer[step + innerStep].Position[1] = stepPoint.y;
@@ -260,6 +263,8 @@
             vertexBuffer[step + innerStep].Color[3] = calcColor[3];
         }
     }
+    
+    free(pointArr);
     
     dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:[self numberOfBytes]];
     

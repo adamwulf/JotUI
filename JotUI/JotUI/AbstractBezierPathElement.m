@@ -84,9 +84,10 @@
 }
 
 
--(NSArray*) arrayOfPositionsForPoint:(CGPoint)point
+-(void) arrayOfPositionsForPoint:(CGPoint)point
                             andWidth:(CGFloat)stepWidth
-                         andRotation:(CGFloat)stepRotation{
+                         andRotation:(CGFloat)stepRotation
+                            outArray:(CGPoint*)pointArr{
     point.x = point.x * scaleOfVertexBuffer;
     point.y = point.y * scaleOfVertexBuffer;
     
@@ -109,16 +110,12 @@
     botLeft = CGPointApplyAffineTransform(botLeft, customRotation);
     botRight = CGPointApplyAffineTransform(botRight, customRotation);
     
-    
-    NSMutableArray* outArray = [NSMutableArray array];
-    [outArray addObject:[NSValue valueWithCGPoint:topLeft]];
-    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
-    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
-    [outArray addObject:[NSValue valueWithCGPoint:botRight]];
-    [outArray addObject:[NSValue valueWithCGPoint:topRight]];
-    [outArray addObject:[NSValue valueWithCGPoint:botLeft]];
-    
-    return outArray;
+    pointArr[0] = topLeft;
+    pointArr[1] = topRight;
+    pointArr[2] = botLeft;
+    pointArr[3] = botRight;
+    pointArr[4] = topRight;
+    pointArr[5] = botLeft;
 }
 
 -(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2 {

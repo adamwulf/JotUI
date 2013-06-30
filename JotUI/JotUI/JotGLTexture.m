@@ -139,17 +139,17 @@
         { 0.0, 0.0},
         { fullPixelSize.width, 0.0}
     };
-    static const GLfloat texCoords[] = {
-        0.0, 1.0,
-        1.0, 1.0,
-        0.0, 0.0,
-        1.0, 0.0
+    static const GLshort texCoords[] = {
+        0, 1,
+        1, 1,
+        0, 0,
+        1, 0
     };
     
     [self bind];
     
     glVertexPointer(2, GL_FLOAT, 0, vertices);
-    glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
+    glTexCoordPointer(2, GL_SHORT, 0, texCoords);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
