@@ -82,11 +82,6 @@
  * resolution content, even though its drawn with the same number of points
  */
 -(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
-    // if we have a buffer generated and cached,
-    // then just return that
-    if(vertexBuffer && scaleOfVertexBuffer == scale){
-        return vertexBuffer;
-    }
     if(dataVertexBuffer && scaleOfVertexBuffer == scale){
         return (struct Vertex*) dataVertexBuffer.bytes;
     }
@@ -96,9 +91,7 @@
     
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;
-    if(!vertexBuffer){
-        vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
-    }
+    struct Vertex* vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
     
     // save our scale
     scaleOfVertexBuffer = scale;
@@ -256,7 +249,6 @@
     if (self) {
         lineTo = CGPointMake([[dictionary objectForKey:@"lineTo.x"] floatValue], [[dictionary objectForKey:@"lineTo.y"] floatValue]);
         dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
-
         NSUInteger prime = 31;
         hashCache = 1;
         hashCache = prime * hashCache + startPoint.x;

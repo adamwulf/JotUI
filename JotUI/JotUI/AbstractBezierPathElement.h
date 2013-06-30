@@ -39,7 +39,6 @@ struct Vertex{
     UIColor* color;
     CGFloat rotation;
     
-    struct Vertex* vertexBuffer;
     NSData* dataVertexBuffer;
     CGFloat scaleOfVertexBuffer;
 }

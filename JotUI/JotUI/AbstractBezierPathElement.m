@@ -145,15 +145,6 @@
     }
 }
 
-/**
- * make sure to free the generated vertex info
- */
--(void) dealloc{
-    if(vertexBuffer){
-        dataVertexBuffer = nil;
-        vertexBuffer = nil;
-    }
-}
 
 
 #pragma mark - PlistSaving
@@ -175,7 +166,6 @@
         width = [[dictionary objectForKey:@"width"] floatValue];
         color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
         rotation = [[dictionary objectForKey:@"rotation"] floatValue];
-        vertexBuffer = nil;
         scaleOfVertexBuffer = [[dictionary objectForKey:@"scaleOfVertexBuffer"] floatValue];
     }
     return self;

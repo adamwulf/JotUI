@@ -124,9 +124,6 @@
 -(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
     // if we have a buffer generated and cached,
     // then just return that
-    if(vertexBuffer && scaleOfVertexBuffer == scale){
-        return vertexBuffer;
-    }
     if(dataVertexBuffer && scaleOfVertexBuffer == scale){
         return (struct Vertex*) dataVertexBuffer.bytes;
     }
@@ -135,9 +132,7 @@
     
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;
-    if(!vertexBuffer){
-        vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
-    }
+    struct Vertex* vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
     
     // save our scale, we're only going to cache a vertex
     // buffer for 1 scale at a time
