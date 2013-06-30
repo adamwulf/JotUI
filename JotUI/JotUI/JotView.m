@@ -393,9 +393,6 @@ dispatch_queue_t importExportStateQueue;
         
         exportFinishBlock(ink, thumb, immutableState);
         
-        // TODO:
-        // do i need to put these disk writes to a disk queue?
-        
         [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
         
         [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
