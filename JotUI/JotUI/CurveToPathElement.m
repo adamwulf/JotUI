@@ -292,58 +292,31 @@
     // we're only allowed to create vao
     // on the main thread.
     // if we need a vao, then create it
-    if([NSThread isMainThread] && !vao){
-        glGenVertexArraysOES(1, &vao);
-        glBindVertexArrayOES(vao);
-        if(vbo){
-            // it's possible that we created a vbo
-            // on a background thread. if so
-            // then bind it now so our vao knows
-            // about it
-            glBindBuffer(GL_ARRAY_BUFFER,vbo);
-            glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
-            glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
-            glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glEnableClientState(GL_COLOR_ARRAY);
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-            glBindBuffer(GL_ARRAY_BUFFER,0);
-        }
-    }else if([NSThread isMainThread] && vao){
-        glBindVertexArrayOES(vao);
-    }
     if(!vbo && dataVertexBuffer){
         int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
         int mallocSize = numberOfVertices*sizeof(struct Vertex);
         glGenBuffers(1,&vbo);
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
         glBufferData(GL_ARRAY_BUFFER, mallocSize, dataVertexBuffer.bytes, GL_STATIC_DRAW);
-        glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
-        glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
-        glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_COLOR_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-    }
-    if(![NSThread isMainThread]){
+    }else{
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
     }
+    glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
+    glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
+    glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_COLOR_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     return YES;
 }
 
 -(void) unbind{
-    if([NSThread isMainThread]){
-        glBindVertexArrayOES(0);
-    }else{
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-    }
+    glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 
 
 -(void) dealloc{
     if(vbo){
-        glDeleteVertexArraysOES(1, &vao);
         glDeleteBuffers(1,&vbo);
     }
 }

@@ -30,6 +30,13 @@
     return self;
 }
 
+-(void) dealloc{
+    if(handle){
+        glDeleteBuffers(1,&handle);
+    }
+}
+
+
 +(id) elementWithStart:(CGPoint)start andLineTo:(CGPoint)point{
     return [[LineToPathElement alloc] initWithStart:start andLineTo:point];
 }
