@@ -47,17 +47,30 @@
  * this file can be loaded into a JotViewState object
  */
 -(void) writeToDisk:(NSString*)plistPath{
+    NSDate* now = [NSDate date];
+    
     if(![[stateDict objectForKey:@"hasConverted"] boolValue]){
         // only convert the state one time when needed. otherwise
         // skip this step and write straight to disk
-        [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfStrokes"];
-        [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(asDictionary)] forKey:@"stackOfUndoneStrokes"];
+        [[[stateDict objectForKey:@"stackOfStrokes"] arrayByAddingObjectsFromArray:[stateDict objectForKey:@"stackOfUndoneStrokes"]] jotMap:^id(id obj, NSUInteger index){
+            NSString* filename = [plistPath stringByAppendingString:[obj uuid]];
+            NSFileManager* manager = [NSFileManager defaultManager];
+            if(![manager fileExistsAtPath:filename]){
+                [[obj asDictionary] writeToFile:filename atomically:NO];
+            }
+            return obj;
+        }];
+        
+        [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfStrokes"];
+        [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfUndoneStrokes"];
         [stateDict setObject:[NSNumber numberWithBool:YES] forKey:@"hasConverted"];
     }
     
     if(![stateDict writeToFile:plistPath atomically:YES]){
         NSLog(@"couldn't write plist file");
     }
+    unsigned long long size = [[[NSFileManager defaultManager] attributesOfItemAtPath:plistPath error:nil] fileSize];
+    NSLog(@"file size: %llu in %f", size, -[now timeIntervalSinceNow]);
 }
 
 /**

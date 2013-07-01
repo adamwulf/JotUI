@@ -68,12 +68,8 @@
  * removes an element from this stroke,
  * and updates our hash appropriately
  */
--(void) removeElement:(AbstractBezierPathElement*)element{
-    [segments removeObject:element];
-    [self updateHashWithObject:texture];
-    for(AbstractBezierPathElement*segment in segments){
-        [self updateHashWithObject:segment];
-    }
+-(void) removeElementAtIndex:(NSInteger)index{
+    [segments removeObjectAtIndex:index];
 }
 
 -(void) cancel{
@@ -130,6 +126,10 @@
 
 -(NSUInteger) hash{
     return hashCache;
+}
+
+-(NSString*) uuid{
+    return [NSString stringWithFormat:@"%u", [self hash]];
 }
 
 -(BOOL) isEqual:(id)object{

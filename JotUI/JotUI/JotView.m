@@ -40,6 +40,8 @@ dispatch_queue_t importExportStateQueue;
     
     CGSize initialViewport;
     
+    NSInteger fingerDown;
+    
 @private
 	// OpenGL names for the renderbuffer and framebuffers used to render to this view
 	GLuint viewRenderbuffer, viewFramebuffer;
@@ -112,13 +114,25 @@ dispatch_queue_t importExportStateQueue;
     return self;
 }
 
+-(void) resetTimer{
+    if(!fingerDown){
+        validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer
+                                                                  target:self
+                                                                selector:@selector(validateUndoState)
+                                                                userInfo:nil
+                                                                 repeats:YES];
+    }
+}
+
+
 -(id) finishInit{
     
     initialFrameSize = self.bounds.size;
     
-    validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer target:self selector:@selector(validateUndoState) userInfo:nil repeats:YES];
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
+    
+    [self resetTimer];
 
     //
     // this view should accept Jot stylus touch events
@@ -294,7 +308,7 @@ dispatch_queue_t importExportStateQueue;
     
     if(![state isReadyToExport] || isCurrentlyExporting){
         if(isCurrentlyExporting){
-            NSLog(@"cant save, currently exporting");
+//            NSLog(@"cant save, currently exporting");
         }
         //
         // the issue here is that we want to export the drawn image to a file, but we're
@@ -792,7 +806,7 @@ dispatch_queue_t importExportStateQueue;
         int count = 0;
         while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 20){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
-            [strokeToWriteToTexture removeElement:element];
+            [strokeToWriteToTexture removeElementAtIndex:0];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
             prevElementForTextureWriting = element;
             [[JotTrashManager sharedInstace] addObjectToDealloc:element];
@@ -807,25 +821,14 @@ dispatch_queue_t importExportStateQueue;
         [self unprepOpenGLState];
 
         [self setBrushTexture:keepThisTexture];
-        
-        
-        //
-        // if the app tries to export while we're writing out
-        // strokes to a texture, then it adds an NSInvocation to
-        // this array. after we're done validating the undo state
-        // then we fire off the save command that has been waiting
-        // on us.
-        if([strokeToWriteToTexture.segments count] == 0 && [exportLaterInvocations count]){
+    }else if([state isReadyToExport]){
+        if([exportLaterInvocations count]){
             NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
             [exportLaterInvocations removeObject:invokation];
             [invokation invoke];
+        }else{
+            [[JotTrashManager sharedInstace] tick];
         }
-    }else if([exportLaterInvocations count]){
-        NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
-        [exportLaterInvocations removeObject:invokation];
-        [invokation invoke];
-    }else{
-        [[JotTrashManager sharedInstace] tick];
     }
 }
 
@@ -983,6 +986,8 @@ dispatch_queue_t importExportStateQueue;
  * the jot sdk is not enabled.
  */
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    [validateUndoStateTimer invalidate];
+    fingerDown++;
     if(![JotStylusManager sharedInstance].enabled){
         for (UITouch *touch in touches) {
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
@@ -1058,6 +1063,8 @@ dispatch_queue_t importExportStateQueue;
             }
         }
     }
+    fingerDown--;
+    [self performSelector:@selector(resetTimer) withObject:nil afterDelay:1];
 }
 
 -(void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -1075,6 +1082,8 @@ dispatch_queue_t importExportStateQueue;
         // clear the canvas and rerender all valid strokes
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     }
+    fingerDown--;
+    [self performSelector:@selector(resetTimer) withObject:nil afterDelay:1];
 }
 
 

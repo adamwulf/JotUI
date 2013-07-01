@@ -116,6 +116,9 @@
             if(stateInfo){
                 // load our undo state if we have it
                 id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
+                    if(![obj isKindOfClass:[NSDictionary class]]){
+                        obj = [NSDictionary dictionaryWithContentsOfFile:[stateInfoFile stringByAppendingString:obj]];
+                    }
                     NSString* className = [obj objectForKey:@"class"];
                     Class class = NSClassFromString(className);
                     JotStroke* stroke = [[class alloc] initFromDictionary:obj];
@@ -189,11 +192,11 @@
        [currentStrokes count] ||
        [stackOfStrokes count] > undoLimit){
         if([currentStrokes count]){
-            NSLog(@"cant save, currently drawing");
+//            NSLog(@"cant save, currently drawing");
         }else if([strokesBeingWrittenToBackingTexture count]){
-            NSLog(@"can't save, writing to texture");
+//            NSLog(@"can't save, writing to texture");
         }else if([stackOfStrokes count] > undoLimit){
-            NSLog(@"can't save, more strokes than undo");
+//            NSLog(@"can't save, more strokes than undo");
         }
         return NO;
     }

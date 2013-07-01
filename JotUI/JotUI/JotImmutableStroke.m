@@ -14,6 +14,7 @@
     NSArray* segments;
     // this is the texture to use when drawing the stroke
     JotBrushTexture* texture;
+    NSString* uuid;
 }
 
 -(id) initWithJotStroke:(JotStroke*)stroke{
@@ -21,6 +22,7 @@
         segmentSmoother = stroke.segmentSmoother;
         segments = [NSArray arrayWithArray:stroke.segments];
         texture = stroke.texture;
+        uuid = [stroke uuid];
     }
     return self;
 }
@@ -35,6 +37,10 @@
 
 -(JotBrushTexture*) texture{
     return texture;
+}
+
+-(NSString*) uuid{
+    return uuid;
 }
 
 

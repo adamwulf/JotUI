@@ -50,12 +50,13 @@
 /**
  * remove a segment from the stroke
  */
--(void) removeElement:(AbstractBezierPathElement*)element;
-
+-(void) removeElementAtIndex:(NSInteger)index;
 
 /**
  * cancel the stroke and notify the delegate
  */
 -(void) cancel;
+
+-(NSString*) uuid;
 
 @end
