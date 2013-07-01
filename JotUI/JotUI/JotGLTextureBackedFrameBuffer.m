@@ -12,6 +12,9 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 
+
+dispatch_queue_t importExportTextureQueue;
+
 @implementation JotGLTextureBackedFrameBuffer{
     __strong JotGLTexture* texture;
 }
@@ -41,6 +44,16 @@
     return self;
 }
 
+#pragma mark - Dispatch Queues
+
++(dispatch_queue_t) importExportTextureQueue{
+    if(!importExportTextureQueue){
+        importExportTextureQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportTextureQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    return importExportTextureQueue;
+}
+
+
 -(void) exportTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock{
     
     CheckMainThread;
@@ -64,7 +77,7 @@
     
     //
     // the rest can be done in Core Graphics in a background thread
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_async([JotGLTextureBackedFrameBuffer importExportTextureQueue], ^{
         // Create a CGImage with the pixel data from OpenGL
         // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
         // otherwise, use kCGImageAlphaPremultipliedLast

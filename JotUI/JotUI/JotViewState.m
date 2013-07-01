@@ -77,6 +77,32 @@
         dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
         dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
         
+        
+        // the second item is loading the ink texture
+        // into Open GL
+        dispatch_async([JotView importExportImageQueue], ^{
+            NSDate* date = [NSDate date];
+            
+            EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+            [EAGLContext setCurrentContext:backgroundThreadContext];
+            
+            // load image from disk
+            UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
+            
+            // load new texture
+            self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
+            
+            if(!savedInkImage){
+                // no image was given, so it should be a blank texture
+                // lets erase it, since it defaults to uncleared memory
+                [self.backgroundFramebuffer clear];
+            }
+            glFlush();
+            CGFloat duration = [[NSDate date] timeIntervalSinceDate:date];
+            NSLog(@"bg load: %f", duration);
+            dispatch_semaphore_signal(sema1);
+        });
+        
         // the first item is unserializing the plist
         // information for our page state
         dispatch_async([JotView importExportStateQueue], ^{
@@ -114,37 +140,11 @@
             glFlush();
             CGFloat duration = [[NSDate date] timeIntervalSinceDate:date];
             NSLog(@"state load: %f", duration);
-            dispatch_semaphore_signal(sema1);
-        });
-        
-        // the second item is loading the ink texture
-        // into Open GL
-        dispatch_async([JotView importExportImageQueue], ^{
-            NSDate* date = [NSDate date];
-
-            EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-            [EAGLContext setCurrentContext:backgroundThreadContext];
-            
-            // load image from disk
-            UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
-            
-            // load new texture
-            self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
-            
-            if(!savedInkImage){
-                // no image was given, so it should be a blank texture
-                // lets erase it, since it defaults to uncleared memory
-                [self.backgroundFramebuffer clear];
-            }
-            glFlush();
-            CGFloat duration = [[NSDate date] timeIntervalSinceDate:date];
-            NSLog(@"bg load: %f", duration);
+            dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
             dispatch_semaphore_signal(sema2);
         });
-        
         // wait here
         // until both above items are complete
-        dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
         
     }
