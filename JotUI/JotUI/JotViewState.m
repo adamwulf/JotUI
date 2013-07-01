@@ -125,16 +125,6 @@
                 
                 [self.stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
                 [self.stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
-                
-                //
-                // sanity check
-                for(JotStroke*stroke in [self.stackOfStrokes arrayByAddingObjectsFromArray:self.stackOfUndoneStrokes]){
-                    if([stroke.segments count] == 0){
-                        [self.stackOfStrokes removeObject:stroke];
-                        [self.stackOfUndoneStrokes removeObject:stroke];
-                        NSLog(@"oh no!");
-                    }
-                }
             }
             
             glFlush();
