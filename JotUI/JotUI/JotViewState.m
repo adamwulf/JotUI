@@ -110,9 +110,11 @@
             
             if(stateInfo){
                 // load our undo state if we have it
+                NSString* stateDirectory = [stateInfoFile stringByDeletingLastPathComponent];
                 id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
                     if(![obj isKindOfClass:[NSDictionary class]]){
-                        obj = [NSDictionary dictionaryWithContentsOfFile:[stateInfoFile stringByAppendingString:obj]];
+                        NSString* filename = [[stateDirectory stringByAppendingPathComponent:obj] stringByAppendingPathExtension:@"data"];
+                        obj = [NSDictionary dictionaryWithContentsOfFile:filename];
                     }
                     NSString* className = [obj objectForKey:@"class"];
                     Class class = NSClassFromString(className);

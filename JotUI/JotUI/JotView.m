@@ -776,6 +776,9 @@ dispatch_queue_t importExportStateQueue;
     
     CheckMainThread;
 
+    // ticking the state will make sure that the state is valid,
+    // containing only the correct number of undoable items in its
+    // arrays, and putting all excess strokes into strokesBeingWrittenToBackingTexture
     [state tick];
     
     if([state.strokesBeingWrittenToBackingTexture count]){
@@ -785,21 +788,16 @@ dispatch_queue_t importExportStateQueue;
         
         // render it to the backing texture
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID];
-        // reset the texture so that we load the brush texture next
-        brushTexture = nil;
-        // now draw the strokes
-        
-        // make sure our texture is the correct one for this stroke
-        if(strokeToWriteToTexture.texture != brushTexture){
-            [self setBrushTexture:strokeToWriteToTexture.texture];
-        }
+
+        // set our brush texture if needed
+        [self setBrushTexture:strokeToWriteToTexture.texture];
+
         // setup our blend mode properly for color vs eraser
         if([strokeToWriteToTexture.segments count]){
             AbstractBezierPathElement* firstElement = [strokeToWriteToTexture.segments objectAtIndex:0];
             [self prepOpenGLBlendModeForColor:firstElement.color];
         }
         
-        //
         // draw each stroke element. for performance reasons, we'll only
         // draw ~ 300 pixels of segments at a time.
         NSInteger distance = 0;
@@ -812,8 +810,11 @@ dispatch_queue_t importExportStateQueue;
             distance += [element lengthOfElement];
         }
 
+        // now that we're done with the stroke,
+        // let's throw it in the trash
         if([strokeToWriteToTexture.segments count] == 0){
             [state.strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
+            [[JotTrashManager sharedInstace] addObjectToDealloc:strokeToWriteToTexture];
             prevElementForTextureWriting = nil;
         }
         
@@ -824,10 +825,13 @@ dispatch_queue_t importExportStateQueue;
         // only export if the trash manager is empty
         // that way we're exporting w/ low memory instead
         // of unknown memory
-        if(![[JotTrashManager sharedInstace] tick] && [exportLaterInvocations count]){
-            NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
-            [exportLaterInvocations removeObject:invokation];
-            [invokation invoke];
+        if(![[JotTrashManager sharedInstace] tick]){
+            // ok, the trash is empty, so now see if we need to export
+            if([exportLaterInvocations count]){
+                NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
+                [exportLaterInvocations removeObject:invokation];
+                [invokation invoke];
+            }
         }
     }
 }

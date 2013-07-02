@@ -47,19 +47,34 @@
  * this file can be loaded into a JotViewState object
  */
 -(void) writeToDisk:(NSString*)plistPath{
-//    NSDate* now = [NSDate date];
-    
     if(![[stateDict objectForKey:@"hasConverted"] boolValue]){
-        // only convert the state one time when needed. otherwise
-        // skip this step and write straight to disk
+        // write each stroke to disk to its own file. this is because the
+        // vertex buffer for each stroke can be fairly large. writing it
+        // out will let us write each stroke once instead of every time the
+        // state is saved
+        NSString* stateDirectory = [plistPath stringByDeletingLastPathComponent];
+        NSMutableArray* fileNamesOfStrokes = [NSMutableArray array];
         [[[stateDict objectForKey:@"stackOfStrokes"] arrayByAddingObjectsFromArray:[stateDict objectForKey:@"stackOfUndoneStrokes"]] jotMap:^id(id obj, NSUInteger index){
-            NSString* filename = [plistPath stringByAppendingString:[obj uuid]];
+            NSString* filename = [[stateDirectory stringByAppendingPathComponent:[obj uuid]] stringByAppendingPathExtension:@"data"];
             NSFileManager* manager = [NSFileManager defaultManager];
             if(![manager fileExistsAtPath:filename]){
                 [[obj asDictionary] writeToFile:filename atomically:YES];
             }
+            [fileNamesOfStrokes addObject:filename];
             return obj;
         }];
+
+        // now that we've saved all of our strokes,
+        // we need to delete the files of any strokes that were
+        // written to the texture and aren't in our state dictionary any more.
+        // to do that, loop over the directory and compare to the files we just wrote.
+        NSArray* contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:stateDirectory error:nil];
+        for(NSString* item in contents){
+            NSString* fileInDir = [stateDirectory stringByAppendingPathComponent:item];
+            if(![fileNamesOfStrokes containsObject:fileInDir] && [[fileInDir pathExtension] isEqualToString:@"data"]){
+                [[NSFileManager defaultManager] removeItemAtPath:fileInDir error:nil];
+            }
+        }
         
         [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfStrokes"];
         [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfUndoneStrokes"];
