@@ -47,7 +47,7 @@
  * this file can be loaded into a JotViewState object
  */
 -(void) writeToDisk:(NSString*)plistPath{
-    NSDate* now = [NSDate date];
+//    NSDate* now = [NSDate date];
     
     if(![[stateDict objectForKey:@"hasConverted"] boolValue]){
         // only convert the state one time when needed. otherwise
@@ -56,7 +56,7 @@
             NSString* filename = [plistPath stringByAppendingString:[obj uuid]];
             NSFileManager* manager = [NSFileManager defaultManager];
             if(![manager fileExistsAtPath:filename]){
-                [[obj asDictionary] writeToFile:filename atomically:NO];
+                [[obj asDictionary] writeToFile:filename atomically:YES];
             }
             return obj;
         }];
@@ -69,7 +69,7 @@
     if(![stateDict writeToFile:plistPath atomically:YES]){
         NSLog(@"couldn't write plist file");
     }
-    unsigned long long size = [[[NSFileManager defaultManager] attributesOfItemAtPath:plistPath error:nil] fileSize];
+//    unsigned long long size = [[[NSFileManager defaultManager] attributesOfItemAtPath:plistPath error:nil] fileSize];
 //    NSLog(@"file size: %llu in %f", size, -[now timeIntervalSinceNow]);
 }
 

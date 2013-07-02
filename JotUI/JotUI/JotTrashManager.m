@@ -38,13 +38,14 @@ static JotTrashManager* _instance = nil;
     maxTickDuration = _tickSize;
 }
 
--(void) tick{
+-(BOOL) tick{
     NSDate *date = [NSDate date];
     int count = 0;
     while([objectsToDealloc count] && ABS([date timeIntervalSinceNow]) < maxTickDuration){
         [objectsToDealloc removeLastObject];
         count++;
     }
+    return count > 0;
 }
 
 -(void) addObjectToDealloc:(NSObject*)obj{

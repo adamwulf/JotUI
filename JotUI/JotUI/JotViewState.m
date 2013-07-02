@@ -81,8 +81,6 @@
         // the second item is loading the ink texture
         // into Open GL
         dispatch_async([JotView importExportImageQueue], ^{
-            NSDate* date = [NSDate date];
-            
             EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
             [EAGLContext setCurrentContext:backgroundThreadContext];
             
@@ -98,15 +96,12 @@
                 [self.backgroundFramebuffer clear];
             }
             glFlush();
-            CGFloat duration = [[NSDate date] timeIntervalSinceDate:date];
-//            NSLog(@"bg load: %f", duration);
             dispatch_semaphore_signal(sema1);
         });
         
         // the first item is unserializing the plist
         // information for our page state
         dispatch_async([JotView importExportStateQueue], ^{
-            NSDate* date = [NSDate date];
             EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
             [EAGLContext setCurrentContext:backgroundThreadContext];
 
@@ -131,8 +126,6 @@
             }
             
             glFlush();
-            CGFloat duration = [[NSDate date] timeIntervalSinceDate:date];
-//            NSLog(@"state load: %f", duration);
             dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
             dispatch_semaphore_signal(sema2);
         });

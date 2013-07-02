@@ -395,7 +395,7 @@ dispatch_queue_t importExportStateQueue;
     // while i wait + write to disk in the background
     //
     
-    dispatch_async(importExportStateQueue, ^(void) {
+    dispatch_async([JotView importExportStateQueue], ^(void) {
         dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
         // i could notify about the thumbnail here
         // which would let the UI swap to the cached thumbnail
@@ -821,12 +821,13 @@ dispatch_queue_t importExportStateQueue;
 
         [self setBrushTexture:keepThisTexture];
     }else if([state isReadyToExport]){
-        if([exportLaterInvocations count]){
+        // only export if the trash manager is empty
+        // that way we're exporting w/ low memory instead
+        // of unknown memory
+        if(![[JotTrashManager sharedInstace] tick] && [exportLaterInvocations count]){
             NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
             [exportLaterInvocations removeObject:invokation];
             [invokation invoke];
-        }else{
-            [[JotTrashManager sharedInstace] tick];
         }
     }
 }

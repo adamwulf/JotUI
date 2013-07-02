@@ -14,7 +14,7 @@
 
 -(void) setMaxTickDuration:(NSTimeInterval)tickSize;
 
--(void) tick;
+-(BOOL) tick;
 
 -(void) addObjectToDealloc:(NSObject*)obj;
 
