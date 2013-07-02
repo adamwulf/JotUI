@@ -16,6 +16,7 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 #import "JotView.h"
+#import "JotTrashManager.h"
 
 
 #define kJotDefaultUndoLimit 10
@@ -233,7 +234,12 @@
 #pragma mark - dealloc
 
 -(void)dealloc{
-    backgroundFramebuffer = nil;
+    if(backgroundFramebuffer){
+        [[JotTrashManager sharedInstace] addObjectToDealloc:backgroundFramebuffer];
+    }
+    if(backgroundTexture){
+        [[JotTrashManager sharedInstace] addObjectToDealloc:backgroundTexture];
+    }
 }
 
 @end
