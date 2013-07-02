@@ -70,7 +70,7 @@
         NSLog(@"couldn't write plist file");
     }
     unsigned long long size = [[[NSFileManager defaultManager] attributesOfItemAtPath:plistPath error:nil] fileSize];
-    NSLog(@"file size: %llu in %f", size, -[now timeIntervalSinceNow]);
+//    NSLog(@"file size: %llu in %f", size, -[now timeIntervalSinceNow]);
 }
 
 /**

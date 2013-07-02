@@ -99,7 +99,7 @@
             }
             glFlush();
             CGFloat duration = [[NSDate date] timeIntervalSinceDate:date];
-            NSLog(@"bg load: %f", duration);
+//            NSLog(@"bg load: %f", duration);
             dispatch_semaphore_signal(sema1);
         });
         
@@ -132,7 +132,7 @@
             
             glFlush();
             CGFloat duration = [[NSDate date] timeIntervalSinceDate:date];
-            NSLog(@"state load: %f", duration);
+//            NSLog(@"state load: %f", duration);
             dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
             dispatch_semaphore_signal(sema2);
         });
@@ -162,7 +162,7 @@
 -(void) tick{
     if([self.stackOfStrokes count] > self.undoLimit){
         while([self.stackOfStrokes count] > self.undoLimit){
-            NSLog(@"== eating strokes");
+//            NSLog(@"== eating strokes");
             
             [self.strokesBeingWrittenToBackingTexture addObject:[self.stackOfStrokes objectAtIndex:0]];
             [self.stackOfStrokes removeObjectAtIndex:0];

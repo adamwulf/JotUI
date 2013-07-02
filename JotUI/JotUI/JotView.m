@@ -198,7 +198,8 @@ dispatch_queue_t importExportStateQueue;
 
 +(dispatch_queue_t) importExportStateQueue{
     if(!importExportStateQueue){
-        importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
+        importExportStateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,NULL);
+//        dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
     }
     return importExportStateQueue;
 }
@@ -339,7 +340,7 @@ dispatch_queue_t importExportStateQueue;
     
     @synchronized(self){
         isCurrentlyExporting = YES;
-        NSLog(@"export begins");
+//        NSLog(@"export begins");
     }
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -358,7 +359,7 @@ dispatch_queue_t importExportStateQueue;
     // to the backing texture
     JotViewImmutableState* immutableState = [state immutableState];
     
-    NSLog(@"saving begins with hash: %u vs %u", [immutableState undoHash], [self undoHash]);
+//    NSLog(@"saving begins with hash: %u vs %u", [immutableState undoHash], [self undoHash]);
     
     // now grab the bits of the rendered thumbnail
     // and backing texture
@@ -415,7 +416,7 @@ dispatch_queue_t importExportStateQueue;
         // and write it to disk
         [immutableState writeToDisk:plistPath];
         
-        NSLog(@"export complete");
+//        NSLog(@"export complete");
         @synchronized(self){
             // we only ever want to export one at a time.
             // if anything has changed while we've been exporting
@@ -798,19 +799,17 @@ dispatch_queue_t importExportStateQueue;
             [self prepOpenGLBlendModeForColor:firstElement.color];
         }
         
-        
-        NSDate *date = [NSDate date];
-
         //
-        // draw each stroke element
-        int count = 0;
-        while([strokeToWriteToTexture.segments count] && ABS([date timeIntervalSinceNow]) < kJotValidateUndoTimer * 1 / 20){
+        // draw each stroke element. for performance reasons, we'll only
+        // draw ~ 300 pixels of segments at a time.
+        NSInteger distance = 0;
+        while([strokeToWriteToTexture.segments count] && distance < 300){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
             [strokeToWriteToTexture removeElementAtIndex:0];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
             prevElementForTextureWriting = element;
             [[JotTrashManager sharedInstace] addObjectToDealloc:element];
-            count++;
+            distance += [element lengthOfElement];
         }
 
         if([strokeToWriteToTexture.segments count] == 0){
