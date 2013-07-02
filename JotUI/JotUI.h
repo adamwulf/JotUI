@@ -16,13 +16,14 @@
 
 #import <JotTouchSDK/JotStylusManager.h>
 
-#import "JotView.h"
-#import "JotViewDelegate.h"
-#import "MoveToPathElement.h"
-#import "JotStrokeManager.h"
-#import "JotGLTextureBackedFrameBuffer.h"
-#import "JotViewImmutableState.h"
-#import "JotViewState.h"
+#import <JotUI/JotView.h>
+#import <JotUI/JotViewDelegate.h>
+#import <JotUI/MoveToPathElement.h>
+#import <JotUI/JotStrokeManager.h>
+#import <JotUI/JotGLTextureBackedFrameBuffer.h>
+#import <JotUI/JotViewImmutableState.h>
+#import <JotUI/JotViewState.h>
+
 
 typedef struct {
 	GLfloat	x;

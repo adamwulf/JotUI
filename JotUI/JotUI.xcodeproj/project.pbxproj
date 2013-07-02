@@ -11,7 +11,7 @@
 		6622F9D41774E72400C06825 /* JotViewState.m in Sources */ = {isa = PBXBuildFile; fileRef = 6622F9D21774E72400C06825 /* JotViewState.m */; };
 		662B55D016A9EAC30020CFC3 /* MoveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		662B55D116A9EAC30020CFC3 /* MoveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */; };
-		66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 66382CB116DD5DC40053C6E6 /* NSMutableSet+Extras.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 66382CB116DD5DC40053C6E6 /* NSMutableSet+Extras.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66382CB416DD5DC50053C6E6 /* NSMutableSet+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 66382CB216DD5DC40053C6E6 /* NSMutableSet+Extras.m */; };
 		663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 663C186F175467DB00706A05 /* JotStrokeManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		663C1872175467DB00706A05 /* JotStrokeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 663C1870175467DB00706A05 /* JotStrokeManager.m */; };
@@ -29,34 +29,34 @@
 		669B39CD1692B46B00F12F42 /* JotUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39CC1692B46B00F12F42 /* JotUITests.m */; };
 		669B39E31692B50500F12F42 /* AbstractBezierPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39D91692B50500F12F42 /* AbstractBezierPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39E41692B50500F12F42 /* AbstractBezierPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39DA1692B50500F12F42 /* AbstractBezierPathElement.m */; };
-		669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DB1692B50500F12F42 /* CurveToPathElement.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DB1692B50500F12F42 /* CurveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39E61692B50500F12F42 /* CurveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39DC1692B50500F12F42 /* CurveToPathElement.m */; };
-		669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DF1692B50500F12F42 /* LineToPathElement.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DF1692B50500F12F42 /* LineToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39EA1692B50500F12F42 /* LineToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39E01692B50500F12F42 /* LineToPathElement.m */; };
-		669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39E11692B50500F12F42 /* SegmentSmoother.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39E11692B50500F12F42 /* SegmentSmoother.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39EC1692B50500F12F42 /* SegmentSmoother.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39E21692B50500F12F42 /* SegmentSmoother.m */; };
 		669B39F31692B52800F12F42 /* JotUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39F21692B52800F12F42 /* JotUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B3A311692B68F00F12F42 /* JotView.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B3A2F1692B68F00F12F42 /* JotView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B3A321692B68F00F12F42 /* JotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B3A301692B68F00F12F42 /* JotView.m */; };
 		669B3A981692BADA00F12F42 /* JotViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B3A971692BADA00F12F42 /* JotViewDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66A32027170242D200692C71 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A32026170242D200692C71 /* UIKit.framework */; };
-		66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A340251694FF5E0093E81A /* UIColor+JotHelper.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A340251694FF5E0093E81A /* UIColor+JotHelper.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66A340281694FF5E0093E81A /* UIColor+JotHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A340261694FF5E0093E81A /* UIColor+JotHelper.m */; };
-		66A79019177251960092A28A /* JotTrashManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A79017177251960092A28A /* JotTrashManager.h */; };
+		66A79019177251960092A28A /* JotTrashManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A79017177251960092A28A /* JotTrashManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66A7901A177251960092A28A /* JotTrashManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A79018177251960092A28A /* JotTrashManager.m */; };
 		66AA213616FCE26600E86922 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
 		66AA5FB8169E77180046CA26 /* JotStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA5FB6169E77180046CA26 /* JotStroke.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66AA5FB9169E77180046CA26 /* JotStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA5FB7169E77180046CA26 /* JotStroke.m */; };
-		66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E1177611D800F26904 /* JotImmutableStroke.h */; };
+		66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E1177611D800F26904 /* JotImmutableStroke.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66AA82E4177611D800F26904 /* JotImmutableStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA82E2177611D800F26904 /* JotImmutableStroke.m */; };
 		66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E617761C2300F26904 /* JotViewImmutableState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66AA82E917761C2300F26904 /* JotViewImmutableState.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA82E717761C2300F26904 /* JotViewImmutableState.m */; };
 		66BF7F21176675E0003F4F67 /* JotBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66BF7F22176675E0003F4F67 /* JotBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F20176675E0003F4F67 /* JotBrushTexture.m */; };
-		66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66BF7F2617667663003F4F67 /* JotDefaultBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2417667663003F4F67 /* JotDefaultBrushTexture.m */; };
 		66BF7F29176679DB003F4F67 /* PlistSaving.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2817667951003F4F67 /* PlistSaving.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2A17667C19003F4F67 /* NSArray+JotMapReduce.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2A17667C19003F4F67 /* NSArray+JotMapReduce.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66BF7F2D17667C19003F4F67 /* NSArray+JotMapReduce.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2B17667C19003F4F67 /* NSArray+JotMapReduce.m */; };
 		66BF7F301766D133003F4F67 /* UIImage+Resize.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2E1766D133003F4F67 /* UIImage+Resize.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66BF7F311766D133003F4F67 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2F1766D133003F4F67 /* UIImage+Resize.m */; };
@@ -384,15 +384,15 @@
 				66BF7F381766D221003F4F67 /* UIImage+Alpha.h in Headers */,
 				6622F9D31774E72400C06825 /* JotViewState.h in Headers */,
 				66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */,
+				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */,
 				66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */,
+				66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */,
 				66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */,
 				66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */,
 				669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */,
 				66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */,
-				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
-				66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -664,10 +664,6 @@
 		669B39D11692B46B00F12F42 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					"$(ARCHS_STANDARD_32_BIT)",
-				);
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -679,6 +675,7 @@
 				GCC_PREFIX_HEADER = "JotUI/JotUI-Prefix.pch";
 				GCC_THUMB_SUPPORT = NO;
 				INFOPLIST_FILE = "JotUI/JotUI-Info.plist";
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;
@@ -688,10 +685,6 @@
 		669B39D21692B46B00F12F42 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					armv6,
-					"$(ARCHS_STANDARD_32_BIT)",
-				);
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
