@@ -40,8 +40,6 @@ dispatch_queue_t importExportStateQueue;
     
     CGSize initialViewport;
     
-    NSInteger fingerDown;
-    
 @private
 	// OpenGL names for the renderbuffer and framebuffers used to render to this view
 	GLuint viewRenderbuffer, viewFramebuffer;
@@ -114,16 +112,6 @@ dispatch_queue_t importExportStateQueue;
     return self;
 }
 
--(void) resetTimer{
-    if(!fingerDown){
-        validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer
-                                                                  target:self
-                                                                selector:@selector(validateUndoState)
-                                                                userInfo:nil
-                                                                 repeats:YES];
-    }
-}
-
 
 -(id) finishInit{
     
@@ -132,7 +120,11 @@ dispatch_queue_t importExportStateQueue;
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
     
-    [self resetTimer];
+    validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer
+                                                              target:self
+                                                            selector:@selector(validateUndoState)
+                                                            userInfo:nil
+                                                             repeats:YES];
 
     //
     // this view should accept Jot stylus touch events
@@ -990,8 +982,6 @@ dispatch_queue_t importExportStateQueue;
  * the jot sdk is not enabled.
  */
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-    [validateUndoStateTimer invalidate];
-    fingerDown++;
     if(![JotStylusManager sharedInstance].enabled){
         for (UITouch *touch in touches) {
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
@@ -1067,8 +1057,6 @@ dispatch_queue_t importExportStateQueue;
             }
         }
     }
-    fingerDown--;
-    [self performSelector:@selector(resetTimer) withObject:nil afterDelay:1];
 }
 
 -(void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -1086,8 +1074,6 @@ dispatch_queue_t importExportStateQueue;
         // clear the canvas and rerender all valid strokes
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     }
-    fingerDown--;
-    [self performSelector:@selector(resetTimer) withObject:nil afterDelay:1];
 }
 
 
