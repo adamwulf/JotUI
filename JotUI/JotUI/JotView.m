@@ -1109,7 +1109,9 @@ dispatch_queue_t importExportStateQueue;
  */
 -(IBAction) undo{
     if([self canUndo]){
+        CGFloat scale = [[UIScreen mainScreen] scale];
         CGRect bounds = [[state.stackOfStrokes lastObject] bounds];
+        bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
         [state.stackOfUndoneStrokes addObject:[state.stackOfStrokes lastObject]];
         [state.stackOfStrokes removeLastObject];
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
@@ -1122,7 +1124,9 @@ dispatch_queue_t importExportStateQueue;
  */
 -(IBAction) redo{
     if([self canRedo]){
+        CGFloat scale = [[UIScreen mainScreen] scale];
         CGRect bounds = [[state.stackOfUndoneStrokes lastObject] bounds];
+        bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
         [state.stackOfStrokes addObject:[state.stackOfUndoneStrokes lastObject]];
         [state.stackOfUndoneStrokes removeLastObject];
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
