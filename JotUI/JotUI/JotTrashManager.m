@@ -17,9 +17,10 @@ static JotTrashManager* _instance = nil;
 
 -(id) init{
     if(_instance) return _instance;
-    if((_instance = [super init])){
+    if((self = [super init])){
         objectsToDealloc = [[NSMutableArray alloc] init];
         maxTickDuration = 1;
+        _instance = self;
     }
     return _instance;
 }

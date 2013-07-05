@@ -33,10 +33,11 @@ static JotStrokeManager* _instance = nil;
 
 -(id) init{
     if(_instance) return _instance;
-    if((_instance = [super init])){
+    if((self = [super init])){
         // noop
         strokeCache = [NSMutableDictionary dictionary];
         touchCache = [NSMutableDictionary dictionary];
+        _instance = self;
     }
     return _instance;
 }

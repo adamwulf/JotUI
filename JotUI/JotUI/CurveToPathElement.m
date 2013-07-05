@@ -176,8 +176,6 @@
     
     CGFloat rotationDiff = self.rotation - previousElement.rotation;
     
-    CGFloat lastRotation;
-    
     CGPoint* pointArr = (CGPoint*) malloc(sizeof(CGPoint)*6);
     
     //
@@ -190,7 +188,6 @@
         
         // current rotation
         CGFloat stepRotation = previousElement.rotation + rotationDiff * t;
-        lastRotation = stepRotation;
         CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
         
         // calculate the point that is realStepSize distance

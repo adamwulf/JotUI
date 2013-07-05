@@ -33,6 +33,9 @@
                                      0, myCentrePoint, myRadius,
                                      kCGGradientDrawsAfterEndLocation);
         
+        CGGradientRelease(myGradient);
+        CGColorSpaceRelease(myColorspace);
+        
         UIGraphicsPopContext();
         
         textureCache = UIGraphicsGetImageFromCurrentImageContext();
