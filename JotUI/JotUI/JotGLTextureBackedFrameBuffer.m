@@ -17,6 +17,7 @@ dispatch_queue_t importExportTextureQueue;
 
 @implementation JotGLTextureBackedFrameBuffer{
     __strong JotGLTexture* texture;
+    BOOL hasBeenModifiedSinceLoading;
 }
 
 @synthesize framebufferID;
@@ -40,6 +41,7 @@ dispatch_queue_t importExportTextureQueue;
             NSLog(@"failed to create texture frame buffer");
             return nil;
         }
+        hasBeenModifiedSinceLoading = NO;
     }
     return self;
 }
@@ -59,6 +61,12 @@ dispatch_queue_t importExportTextureQueue;
     CheckMainThread;
     
     if(!exportFinishBlock) return;
+    
+    if(!hasBeenModifiedSinceLoading){
+        dispatch_async([JotGLTextureBackedFrameBuffer importExportTextureQueue], ^{
+            exportFinishBlock(nil);
+        });
+    }
     
     // the texture size has the screen scale baked into it,
     // so this is already in the proper pixel size
@@ -119,9 +127,10 @@ dispatch_queue_t importExportTextureQueue;
         CGContextRelease(bitmapContext);
 
         exportFinishBlock(image);
+        hasBeenModifiedSinceLoading = NO;
 
         CGImageRelease(cgImage);
-});
+    });
 }
 
 -(void) clear{
@@ -130,6 +139,9 @@ dispatch_queue_t importExportTextureQueue;
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
+-(void) willRenderToFrameBuffer{
+    hasBeenModifiedSinceLoading = YES;
+}
 
 -(void) unload{
     glDeleteFramebuffersOES(1, &framebufferID);

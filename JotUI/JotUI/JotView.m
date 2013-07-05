@@ -400,7 +400,17 @@ dispatch_queue_t importExportStateQueue;
         
         exportFinishBlock(ink, thumb, immutableState);
         
-        [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
+        if(ink){
+            // we have the backing ink texture to save
+            // so write it to disk
+            [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
+//            NSLog(@"writing ink to disk");
+        }else{
+            // the backing texture either hasn't changed, or
+            // doesn't have anything written to it at all
+            // so skip writing a blank PNG to disk
+//            NSLog(@"skipping writing ink, nothing changed");
+        }
         
         [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
         
@@ -780,6 +790,7 @@ dispatch_queue_t importExportStateQueue;
         
         // render it to the backing texture
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID];
+        [state.backgroundFramebuffer willRenderToFrameBuffer];
 
         // set our brush texture if needed
         [self setBrushTexture:strokeToWriteToTexture.texture];
