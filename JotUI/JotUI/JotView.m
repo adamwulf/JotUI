@@ -814,7 +814,7 @@ dispatch_queue_t importExportStateQueue;
         // draw each stroke element. for performance reasons, we'll only
         // draw ~ 300 pixels of segments at a time.
         NSInteger distance = 0;
-        while([strokeToWriteToTexture.segments count] && distance < 300){
+        while([strokeToWriteToTexture.segments count] && distance < 100){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
             [strokeToWriteToTexture removeElementAtIndex:0];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
