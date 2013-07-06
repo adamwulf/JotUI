@@ -459,13 +459,23 @@ dispatch_queue_t importExportStateQueue;
     
 	GLuint exportFramebuffer;
     
-	glGenFramebuffersOES(1, &exportFramebuffer);
+    glGenFramebuffersOES(1, &exportFramebuffer);
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
     GLuint canvastexture;
     
     // create the texture
     glGenTextures(1, &canvastexture);
     glBindTexture(GL_TEXTURE_2D, canvastexture);
+    
+    //
+    // http://stackoverflow.com/questions/5835656/glframebuffertexture2d-fails-on-iphone-for-certain-texture-sizes
+    // these are required for non power of 2 textures on iPad 1 version of OpenGL1.1
+    // otherwise, the glCheckFramebufferStatusOES will be GL_FRAMEBUFFER_UNSUPPORTED_OES
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  exportSize.width, exportSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
     
