@@ -29,7 +29,7 @@
 @property (readonly) EAGLContext *context;
 
 // erase the screen
-- (IBAction) clear;
+- (IBAction) clear:(BOOL)shouldPresent;
 
 -(BOOL) canUndo;
 -(BOOL) canRedo;

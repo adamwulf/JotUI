@@ -246,7 +246,7 @@ dispatch_queue_t importExportStateQueue;
 		return NO;
 	}
     
-    [self clear];
+    [self clear:NO];
 	
 	return YES;
 }
@@ -397,6 +397,9 @@ dispatch_queue_t importExportStateQueue;
         // on screen at a time + being exported simultaneously
         
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
+        
+        dispatch_release(sema1);
+        dispatch_release(sema2);
         
         exportFinishBlock(ink, thumb, immutableState);
         
@@ -1158,8 +1161,7 @@ dispatch_queue_t importExportStateQueue;
 /**
  * erase the screen
  */
-- (IBAction) clear
-{
+- (IBAction) clear:(BOOL)shouldPresent{
     // set our context
 	[EAGLContext setCurrentContext:context];
 	
@@ -1175,8 +1177,10 @@ dispatch_queue_t importExportStateQueue;
     // clear the background
     [state.backgroundFramebuffer clear];
 
-	// Display the buffer
-    [self presentRenderBuffer];
+    if(shouldPresent){
+        // Display the buffer
+        [self presentRenderBuffer];
+    }
     
     // reset undo state
     [state.stackOfUndoneStrokes removeAllObjects];
