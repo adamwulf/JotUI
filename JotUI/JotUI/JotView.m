@@ -1011,6 +1011,7 @@ dispatch_queue_t importExportStateQueue;
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
             if([self.delegate willBeginStrokeWithTouch:jotTouch]){
                 JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
+                newStroke.delegate = self;
                 [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
                 [self addLineToAndRenderStroke:newStroke
                                        toPoint:[touch locationInView:self]
