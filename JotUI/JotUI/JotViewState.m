@@ -135,9 +135,6 @@
         // wait here
         // until both above items are complete
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
-
-        dispatch_release(sema1);
-        dispatch_release(sema2);
     }
     return self;
 }

@@ -398,9 +398,6 @@ dispatch_queue_t importExportStateQueue;
         
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
         
-        dispatch_release(sema1);
-        dispatch_release(sema2);
-        
         exportFinishBlock(ink, thumb, immutableState);
         
         if(ink){
