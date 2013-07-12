@@ -22,6 +22,7 @@
 #import "JotTrashManager.h"
 #import "JotViewState.h"
 #import "JotViewImmutableState.h"
+#import "SegmentSmoother.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -681,15 +682,30 @@ dispatch_queue_t importExportStateQueue;
     
     // Convert touch point from UIView referential to OpenGL one (upside-down flip)
     end.y = self.bounds.size.height - end.y;
-    if(![currentStroke addPoint:end withWidth:width andColor:color andSmoothness:smoothFactor]) return;
     
-    AbstractBezierPathElement* addedElement = [currentStroke.segments lastObject];
-    addedElement.rotation = [self.delegate rotationForSegment:addedElement fromPreviousSegment:previousElement];
 
-    //
-    // ok, now we have the current + previous stroke segment
-    // so let's set to drawing it!
-    [self renderElement:addedElement fromPreviousElement:previousElement includeOpenGLPrepForFBO:viewFramebuffer];
+    // add the segment to the stroke if we can
+    AbstractBezierPathElement* addedElement = [currentStroke.segmentSmoother addPoint:end andSmoothness:smoothFactor];
+    // a new element wasn't possible, so just bail here.
+    if(!addedElement) return;
+    // ok, we have the new element, set its color/width/rotation
+    addedElement.color = color;
+    addedElement.width = width;
+    addedElement.rotation = [self.delegate rotationForSegment:addedElement fromPreviousSegment:previousElement];
+    // now tell the stroke that it's added
+    [currentStroke addElement:addedElement];
+
+    // let our delegate have an opportunity to modify the element array
+    NSArray* elements = [self.delegate willAddElementsToStroke:[NSArray arrayWithObject:addedElement]];
+
+    // prepend the previous element, so that each of our new elements has a previous element to
+    // render with
+    elements = [[NSArray arrayWithObject:(previousElement ? previousElement : [NSNull null])] arrayByAddingObjectsFromArray:elements];
+    for(int i=1;i<[elements count];i++){
+        // ok, now we have the current + previous stroke segment
+        // so let's set to drawing it!
+        [self renderElement:[elements objectAtIndex:i] fromPreviousElement:[elements objectAtIndex:i-1] includeOpenGLPrepForFBO:viewFramebuffer];
+    }
     
     // Display the buffer
     [self presentRenderBuffer];
@@ -717,6 +733,10 @@ dispatch_queue_t importExportStateQueue;
         // draw the stroke element
         [self prepOpenGLStateForFBO:frameBuffer];
         [self prepOpenGLBlendModeForColor:element.color];
+    }
+    
+    if([[NSNull null] isEqual:previousElement]){
+        previousElement = nil;
     }
     
     // find our screen scale so that we can convert from

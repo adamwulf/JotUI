@@ -46,22 +46,10 @@
 }
 
 
-/**
- * returns YES if the point modified the stroke by adding a new segment,
- * or NO if the segment is unmodified because there are still too few
- * points to interpolate
- */
--(BOOL) addPoint:(CGPoint)point withWidth:(CGFloat)width andColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
-    AbstractBezierPathElement* element = [segmentSmoother addPoint:point andSmoothness:smoothFactor];
-    
-    if(!element) return NO;
-    
-    element.color = color;
-    element.width = width;
+
+-(void) addElement:(AbstractBezierPathElement*)element{
     [segments addObject:element];
     [self updateHashWithObject:element];
-
-    return YES;
 }
 
 /**

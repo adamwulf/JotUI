@@ -54,6 +54,13 @@
 - (CGFloat) rotationForSegment:(AbstractBezierPathElement*)segment fromPreviousSegment:(AbstractBezierPathElement*)previousSegment;
 
 /**
+ * notifies the delegate that the input segments will be added to the stroke,
+ * and allows the delegate to return a modified array of elements
+ * to add instead
+ */
+-(NSArray*) willAddElementsToStroke:(NSArray*)elements;
+
+/**
  * a notification that a new stroke is about to begin
  * with the input touch
  */

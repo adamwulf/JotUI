@@ -35,17 +35,9 @@
 -(CGRect) bounds;
 
 /**
- * returns YES if the point modified the stroke by adding a new segment,
- * or NO if the segment is unmodified because there are still too few
- * points to interpolate
- *
- * @param point the point to add to the stroke
- * @param width the width of stroke at the input point
- * @param color the color of the stroke at the input point
- * @param smoothFactor the smoothness between the previous point and the input point.
- *        0 is straight, 1 is curvy, > 1 and < 0 is loopy or bouncy
+ * will add the input bezier element to the end of the stroke
  */
--(BOOL) addPoint:(CGPoint)point withWidth:(CGFloat)width andColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor;
+-(void) addElement:(AbstractBezierPathElement*)element;
 
 /**
  * remove a segment from the stroke
