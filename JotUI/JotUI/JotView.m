@@ -693,15 +693,15 @@ dispatch_queue_t importExportStateQueue;
     addedElement.width = width;
     addedElement.rotation = [self.delegate rotationForSegment:addedElement fromPreviousSegment:previousElement];
     // now tell the stroke that it's added
-    [currentStroke addElement:addedElement];
 
     // let our delegate have an opportunity to modify the element array
     NSArray* elements = [self.delegate willAddElementsToStroke:[NSArray arrayWithObject:addedElement]];
-
+    
     // prepend the previous element, so that each of our new elements has a previous element to
     // render with
     elements = [[NSArray arrayWithObject:(previousElement ? previousElement : [NSNull null])] arrayByAddingObjectsFromArray:elements];
     for(int i=1;i<[elements count];i++){
+        [currentStroke addElement:[elements objectAtIndex:i]];
         // ok, now we have the current + previous stroke segment
         // so let's set to drawing it!
         [self renderElement:[elements objectAtIndex:i] fromPreviousElement:[elements objectAtIndex:i-1] includeOpenGLPrepForFBO:viewFramebuffer];
