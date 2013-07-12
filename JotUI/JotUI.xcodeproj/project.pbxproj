@@ -29,9 +29,9 @@
 		669B39CD1692B46B00F12F42 /* JotUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39CC1692B46B00F12F42 /* JotUITests.m */; };
 		669B39E31692B50500F12F42 /* AbstractBezierPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39D91692B50500F12F42 /* AbstractBezierPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39E41692B50500F12F42 /* AbstractBezierPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39DA1692B50500F12F42 /* AbstractBezierPathElement.m */; };
-		669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DB1692B50500F12F42 /* CurveToPathElement.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DB1692B50500F12F42 /* CurveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39E61692B50500F12F42 /* CurveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39DC1692B50500F12F42 /* CurveToPathElement.m */; };
-		669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DF1692B50500F12F42 /* LineToPathElement.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DF1692B50500F12F42 /* LineToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39EA1692B50500F12F42 /* LineToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39E01692B50500F12F42 /* LineToPathElement.m */; };
 		669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39E11692B50500F12F42 /* SegmentSmoother.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		669B39EC1692B50500F12F42 /* SegmentSmoother.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39E21692B50500F12F42 /* SegmentSmoother.m */; };
@@ -64,6 +64,7 @@
 		66BF7F371766D221003F4F67 /* UIImage+RoundedCorner.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F331766D220003F4F67 /* UIImage+RoundedCorner.m */; };
 		66BF7F381766D221003F4F67 /* UIImage+Alpha.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F341766D220003F4F67 /* UIImage+Alpha.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66BF7F391766D221003F4F67 /* UIImage+Alpha.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F351766D220003F4F67 /* UIImage+Alpha.m */; };
+		66EBD103179069D2005AA6A2 /* AbstractBezierPathElement-Protected.h in Headers */ = {isa = PBXBuildFile; fileRef = 6695B6D0174D497B0069E61F /* AbstractBezierPathElement-Protected.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -384,9 +385,10 @@
 				66BF7F381766D221003F4F67 /* UIImage+Alpha.h in Headers */,
 				6622F9D31774E72400C06825 /* JotViewState.h in Headers */,
 				66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */,
-				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
+				66EBD103179069D2005AA6A2 /* AbstractBezierPathElement-Protected.h in Headers */,
 				669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */,
+				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
 				66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */,
 				66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */,
 				66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */,

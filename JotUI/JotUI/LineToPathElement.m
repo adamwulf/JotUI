@@ -9,6 +9,8 @@
 #import "LineToPathElement.h"
 #import "UIColor+JotHelper.h"
 #import "AbstractBezierPathElement-Protected.h"
+#import "CurveToPathElement.h"
+
 
 @implementation LineToPathElement{
     // cache the hash, since it's expenseive to calculate
@@ -38,7 +40,8 @@
 
 
 +(id) elementWithStart:(CGPoint)start andLineTo:(CGPoint)point{
-    return [[LineToPathElement alloc] initWithStart:start andLineTo:point];
+    return [CurveToPathElement elementWithStart:start andCurveTo:point andControl1:start andControl2:point];
+//    return [[LineToPathElement alloc] initWithStart:start andLineTo:point];
 }
 
 /**
@@ -243,7 +246,7 @@
  * helpful description when debugging
  */
 -(NSString*)description{
-    return [NSString stringWithFormat:@"[Line from: %f,%f  to: %f%f]", startPoint.x, startPoint.y, lineTo.x, lineTo.y];
+    return [NSString stringWithFormat:@"[Line from: %f,%f  to: %f,%f]", startPoint.x, startPoint.y, lineTo.x, lineTo.y];
 }
 
 
@@ -261,6 +264,7 @@
     self = [super initFromDictionary:dictionary];
     if (self) {
         lineTo = CGPointMake([[dictionary objectForKey:@"lineTo.x"] floatValue], [[dictionary objectForKey:@"lineTo.y"] floatValue]);
+        return [CurveToPathElement elementWithStart:self.startPoint andCurveTo:lineTo andControl1:self.startPoint andControl2:self.lineTo];
         dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
         NSUInteger prime = 31;
         hashCache = 1;
