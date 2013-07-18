@@ -72,6 +72,14 @@ dispatch_queue_t importExportStateQueue;
     JotViewState* state;
     
     CGSize initialFrameSize;
+    
+    // YES if we need to present our renderbuffer on the
+    // next display link
+    BOOL needsPresentRenderBuffer;
+    // YES if we should limit to 30fps, NO otherwise
+    BOOL shouldslow;
+    // helper var to toggle between frames for 30fps limit
+    BOOL slowtoggle;
 }
 
 @end
@@ -116,6 +124,10 @@ dispatch_queue_t importExportStateQueue;
 
 -(id) finishInit{
     
+    
+    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(presentRenderBuffer)];
+    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+
     initialFrameSize = self.bounds.size;
     
     prevElementForTextureWriting = nil;
@@ -638,7 +650,7 @@ dispatch_queue_t importExportStateQueue;
     if(shouldPresent){
         // step 4:
         // ok, show it!
-        [self presentRenderBuffer];
+        [self setNeedsPresentRenderBuffer];
     }
     
     // now that we're done rendering strokes, reset the texture
@@ -652,13 +664,34 @@ dispatch_queue_t importExportStateQueue;
 
 
 /**
+ * cut our framerate by half
+ */
+-(void) slowDownFPS{
+    shouldslow = YES;
+}
+/**
+ * call this to unlimit our FPS back to
+ * the full hardware limit
+ */
+-(void) speedUpFPS{
+    shouldslow = NO;
+}
+
+/**
  * this is a simple method to display our renderbuffer
  */
 -(void) presentRenderBuffer{
     CheckMainThread;
-    
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-	[context presentRenderbuffer:GL_RENDERBUFFER_OES];
+    if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+        [context presentRenderbuffer:GL_RENDERBUFFER_OES];
+        needsPresentRenderBuffer = NO;
+    }
+    slowtoggle = !slowtoggle;
+}
+
+-(void) setNeedsPresentRenderBuffer{
+    needsPresentRenderBuffer = YES;
 }
 
 
@@ -708,7 +741,7 @@ dispatch_queue_t importExportStateQueue;
     }
     
     // Display the buffer
-    [self presentRenderBuffer];
+    [self setNeedsPresentRenderBuffer];
 }
 
 
@@ -1197,7 +1230,7 @@ dispatch_queue_t importExportStateQueue;
 
     if(shouldPresent){
         // Display the buffer
-        [self presentRenderBuffer];
+        [self setNeedsPresentRenderBuffer];
     }
     
     // reset undo state

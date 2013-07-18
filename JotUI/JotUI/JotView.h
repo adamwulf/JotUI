@@ -61,4 +61,6 @@
 
 +(dispatch_queue_t) importExportStateQueue;
 
+-(void) slowDownFPS;
+-(void) speedUpFPS;
 @end
