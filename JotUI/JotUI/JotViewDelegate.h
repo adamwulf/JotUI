@@ -58,7 +58,7 @@
  * and allows the delegate to return a modified array of elements
  * to add instead
  */
--(NSArray*) willAddElementsToStroke:(NSArray*)elements;
+-(NSArray*) willAddElementsToStroke:(NSArray*)elements fromPreviousElement:(AbstractBezierPathElement*)previousElement;
 
 /**
  * a notification that a new stroke is about to begin

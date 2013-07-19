@@ -67,6 +67,14 @@
                                   fabs(startPoint.y - lineTo.y)), -width, -width);
 }
 
+-(CGPoint) endPoint{
+    return self.lineTo;
+}
+
+-(void) adjustStartBy:(CGPoint)adjustment{
+    startPoint = CGPointMake(startPoint.x + adjustment.x, startPoint.y + adjustment.y);
+}
+
 
 -(int) numberOfBytes{
 	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];

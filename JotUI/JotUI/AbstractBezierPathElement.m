@@ -48,6 +48,13 @@
     @throw kAbstractMethodException;
 }
 
+-(CGPoint) endPoint{
+    @throw kAbstractMethodException;
+}
+
+-(void) adjustStartBy:(CGPoint)adjustment{
+    @throw kAbstractMethodException;
+}
 
 /**
  * return the number of vertices to use per

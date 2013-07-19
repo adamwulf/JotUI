@@ -728,7 +728,7 @@ dispatch_queue_t importExportStateQueue;
     // now tell the stroke that it's added
 
     // let our delegate have an opportunity to modify the element array
-    NSArray* elements = [self.delegate willAddElementsToStroke:[NSArray arrayWithObject:addedElement]];
+    NSArray* elements = [self.delegate willAddElementsToStroke:[NSArray arrayWithObject:addedElement] fromPreviousElement:previousElement];
     
     // prepend the previous element, so that each of our new elements has a previous element to
     // render with

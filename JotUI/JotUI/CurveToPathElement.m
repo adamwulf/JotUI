@@ -97,6 +97,16 @@
     return possibleRet;
 }
 
+-(CGPoint) endPoint{
+    return self.curveTo;
+}
+-(void) adjustStartBy:(CGPoint)adjustment{
+    startPoint = CGPointMake(startPoint.x + adjustment.x, startPoint.y + adjustment.y);
+    ctrl1 = CGPointMake(ctrl1.x + adjustment.x, ctrl1.y + adjustment.y);
+}
+
+
+
 -(CGRect) bounds{
     if(bezierCache){
         return CGRectInset(bezierCache.bounds, -width, -width);

@@ -47,6 +47,13 @@
     return CGRectInset(CGRectMake(startPoint.x, startPoint.y, 0, 0), -width, -width);
 }
 
+-(CGPoint) endPoint{
+    return self.startPoint;
+}
+
+-(void) adjustStartBy:(CGPoint)adjustment{
+    startPoint = CGPointMake(startPoint.x + adjustment.x, startPoint.y + adjustment.y);
+}
 
 
 /**
