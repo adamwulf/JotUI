@@ -202,7 +202,7 @@
         
         // calculate the point that is realStepSize distance
         // along the curve * which step we're on
-        subdivideBezierAtLength(bez, leftBez, rightBez, realStepSize*step, .05);
+        subdivideBezierAtLength(bez, leftBez, rightBez, realStepSize*step, .1);
         CGPoint point = rightBez[0];
         
         GLfloat calcColor[4];
