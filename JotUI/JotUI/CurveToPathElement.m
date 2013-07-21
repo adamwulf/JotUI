@@ -510,12 +510,6 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
         vertexBufferShouldContainColor = [[dictionary objectForKey:@"vertexBufferShouldContainColor"] boolValue];
         
-        if(vertexBufferShouldContainColor){
-            NSLog(@"yep!");
-        }else{
-            NSLog(@"nope!");
-        }
-
         NSUInteger prime = 31;
         hashCache = 1;
         hashCache = prime * hashCache + startPoint.x;
