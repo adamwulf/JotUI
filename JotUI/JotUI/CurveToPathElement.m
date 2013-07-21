@@ -21,6 +21,8 @@
     NSUInteger hashCache;
     // the VBO
     JotBufferVBO* vbo;
+    // a boolean for if color information is encoded in the VBO
+    BOOL vertexBufferShouldContainColor;
 }
 
 @synthesize curveTo;
@@ -58,6 +60,9 @@
     return [[CurveToPathElement alloc] initWithStart:start andCurveTo:curveTo andControl1:ctrl1 andControl2:ctrl2];
 }
 
++(id) elementWithStart:(CGPoint)start andLineTo:(CGPoint)point{
+    return [CurveToPathElement elementWithStart:start andCurveTo:point andControl1:start andControl2:point];
+}
 
 /**
  * the length along the curve of this element.
@@ -121,11 +126,6 @@
 }
 
 
--(int) numberOfBytes{
-	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
-    return numberOfVertices*sizeof(struct Vertex);
-}
-
 /**
  * generate a vertex buffer array for all of the points
  * along this curve for the input scale.
@@ -134,18 +134,47 @@
  * a new scale is sent in later, then the cache will be rebuilt
  * for the new scale.
  */
--(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
+-(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
     // if we have a buffer generated and cached,
     // then just return that
     if(dataVertexBuffer && scaleOfVertexBuffer == scale){
-        return (struct Vertex*) dataVertexBuffer.bytes;
+        return (struct ColorfulVertex*) dataVertexBuffer.bytes;
     }
+    
+    
+    // now find the differences in color between
+    // the previous stroke and this stroke
+    GLfloat prevColor[4], myColor[4];
+    GLfloat colorSteps[4];
+    [previousElement.color getRGBAComponents:prevColor];
+    [self.color getRGBAComponents:myColor];
+    colorSteps[0] = myColor[0] - prevColor[0];
+    colorSteps[1] = myColor[1] - prevColor[1];
+    colorSteps[2] = myColor[2] - prevColor[2];
+    colorSteps[3] = myColor[3] - prevColor[3];
+    
+    
+    vertexBufferShouldContainColor = YES;
+    if(!self.color ||
+       (colorSteps[0] == 0 &&
+        colorSteps[1] == 0 &&
+        colorSteps[2] == 0 &&
+        colorSteps[3] == 0)){
+           vertexBufferShouldContainColor = NO;
+       }
+    
     // find out how many steps we can put inside this segment length
-	int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
+    int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
+    int numberOfBytes;
+    if(vertexBufferShouldContainColor){
+        numberOfBytes = numberOfVertices*sizeof(struct ColorfulVertex);
+    }else{
+        numberOfBytes = numberOfVertices*sizeof(struct ColorlessVertex);
+    }
     
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;
-    struct Vertex* vertexBuffer = (struct Vertex*) malloc([self numberOfBytes]);
+    void* vertexBuffer = malloc(numberOfBytes);
     
     // save our scale, we're only going to cache a vertex
     // buffer for 1 scale at a time
@@ -176,17 +205,6 @@
     bez[2] = ctrl2;
     bez[3] = curveTo;
     
-    // now find the differences in color between
-    // the previous stroke and this stroke
-    GLfloat prevColor[4], myColor[4];
-    GLfloat colorSteps[4];
-    [previousElement.color getRGBAComponents:prevColor];
-    [self.color getRGBAComponents:myColor];
-    colorSteps[0] = myColor[0] - prevColor[0];
-    colorSteps[1] = myColor[1] - prevColor[1];
-    colorSteps[2] = myColor[2] - prevColor[2];
-    colorSteps[3] = myColor[3] - prevColor[3];
-    
     CGFloat rotationDiff = self.rotation - previousElement.rotation;
     
     CGPoint* pointArr = (CGPoint*) malloc(sizeof(CGPoint)*6);
@@ -215,7 +233,7 @@
             calcColor[0] = 0;
             calcColor[1] = 0;
             calcColor[2] = 0;
-            calcColor[3] = 255;
+            calcColor[3] = 1.0;
         }else{
             // normal brush
             // interpolate between starting and ending color
@@ -232,53 +250,67 @@
             calcColor[2] = calcColor[2] * calcColor[3];
         }
         
-        // Convert locations from screen Points to GL points (screen pixels)
-        vertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
-		vertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
-        
-        
+        // Find points for the quad we're drawing
+        // Also converts locations from Points to Pixels
         [self arrayOfPositionsForPoint:point
-                                                          andWidth:stepWidth
-                                                       andRotation:stepRotation
-                                                          outArray:pointArr];
+                              andWidth:stepWidth
+                           andRotation:stepRotation
+                              outArray:pointArr];
         
         for(int innerStep = 0;innerStep < 6;innerStep++){
             CGPoint stepPoint = pointArr[innerStep];
-            // Convert locations from Points to Pixels
-            vertexBuffer[step + innerStep].Position[0] = stepPoint.x;
-            vertexBuffer[step + innerStep].Position[1] = stepPoint.y;
+            GLfloat posX = stepPoint.x;
+            GLfloat posY = stepPoint.y;
+            GLshort tex0 = 0;
+            GLshort tex1 = 0;
+            
             if(innerStep == 0){
-                vertexBuffer[step + innerStep].Texture[0] = 0;
-                vertexBuffer[step + innerStep].Texture[1] = 0;
+                tex0 = 0;
+                tex1 = 0;
             }else if(innerStep == 1){
-                vertexBuffer[step + innerStep].Texture[0] = 1;
-                vertexBuffer[step + innerStep].Texture[1] = 0;
+                tex0 = 1;
+                tex1 = 0;
             }else if(innerStep == 2){
-                vertexBuffer[step + innerStep].Texture[0] = 0;
-                vertexBuffer[step + innerStep].Texture[1] = 1;
+                tex0 = 0;
+                tex1 = 1;
             }else if(innerStep == 3){
-                vertexBuffer[step + innerStep].Texture[0] = 1;
-                vertexBuffer[step + innerStep].Texture[1] = 1;
+                tex0 = 1;
+                tex1 = 1;
             }else if(innerStep == 4){
-                vertexBuffer[step + innerStep].Texture[0] = 1;
-                vertexBuffer[step + innerStep].Texture[1] = 0;
+                tex0 = 1;
+                tex1 = 0;
             }else if(innerStep == 5){
-                vertexBuffer[step + innerStep].Texture[0] = 0;
-                vertexBuffer[step + innerStep].Texture[1] = 1;
+                tex0 = 0;
+                tex1 = 1;
             }
-            // set colors to the array
-            vertexBuffer[step + innerStep].Color[0] = calcColor[0];
-            vertexBuffer[step + innerStep].Color[1] = calcColor[1];
-            vertexBuffer[step + innerStep].Color[2] = calcColor[2];
-            vertexBuffer[step + innerStep].Color[3] = calcColor[3];
+            
+            if(vertexBufferShouldContainColor){
+                struct ColorfulVertex* coloredVertexBuffer = (struct ColorfulVertex*)vertexBuffer;
+                // set colors to the array
+                coloredVertexBuffer[step + innerStep].Color[0] = calcColor[0];
+                coloredVertexBuffer[step + innerStep].Color[1] = calcColor[1];
+                coloredVertexBuffer[step + innerStep].Color[2] = calcColor[2];
+                coloredVertexBuffer[step + innerStep].Color[3] = calcColor[3];
+                coloredVertexBuffer[step + innerStep].Texture[0] = tex0;
+                coloredVertexBuffer[step + innerStep].Texture[1] = tex1;
+                coloredVertexBuffer[step + innerStep].Position[0] = posX;
+                coloredVertexBuffer[step + innerStep].Position[1] = posY;
+            }else{
+                struct ColorlessVertex* colorlessVertexBuffer = (struct ColorlessVertex*)vertexBuffer;
+                // set colors to the array
+                colorlessVertexBuffer[step + innerStep].Texture[0] = tex0;
+                colorlessVertexBuffer[step + innerStep].Texture[1] = tex1;
+                colorlessVertexBuffer[step + innerStep].Position[0] = posX;
+                colorlessVertexBuffer[step + innerStep].Position[1] = posY;
+            }
         }
     }
     
     free(pointArr);
     
-    dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:[self numberOfBytes]];
+    dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytes];
     
-    return (struct Vertex*) dataVertexBuffer.bytes;
+    return (struct ColorfulVertex*) dataVertexBuffer.bytes;
 }
 
 
@@ -305,7 +337,11 @@
     if(!vbo && dataVertexBuffer){
         vbo = [[JotBufferManager sharedInstace] bufferWithData:dataVertexBuffer];
     }
-    [vbo bind];
+    if(vertexBufferShouldContainColor){
+        [vbo bind];
+    }else{
+        [vbo bindForColor:self.color];
+    }
     return YES;
 }
 
@@ -460,6 +496,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
     [dict setObject:[NSNumber numberWithFloat:ctrl1.y] forKey:@"ctrl1.y"];
     [dict setObject:[NSNumber numberWithFloat:ctrl2.x] forKey:@"ctrl2.x"];
     [dict setObject:[NSNumber numberWithFloat:ctrl2.y] forKey:@"ctrl2.y"];
+    [dict setObject:[NSNumber numberWithBool:vertexBufferShouldContainColor] forKey:@"vertexBufferShouldContainColor"];
     [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
     return [NSDictionary dictionaryWithDictionary:dict];
 }
@@ -471,6 +508,13 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         ctrl1 = CGPointMake([[dictionary objectForKey:@"ctrl1.x"] floatValue], [[dictionary objectForKey:@"ctrl1.y"] floatValue]);
         ctrl2 = CGPointMake([[dictionary objectForKey:@"ctrl2.x"] floatValue], [[dictionary objectForKey:@"ctrl2.y"] floatValue]);
         dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
+        vertexBufferShouldContainColor = [[dictionary objectForKey:@"vertexBufferShouldContainColor"] boolValue];
+        
+        if(vertexBufferShouldContainColor){
+            NSLog(@"yep!");
+        }else{
+            NSLog(@"nope!");
+        }
 
         NSUInteger prime = 31;
         hashCache = 1;

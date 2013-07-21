@@ -8,7 +8,6 @@
 
 #import "SegmentSmoother.h"
 #import "AbstractBezierPathElement.h"
-#import "LineToPathElement.h"
 #import "CurveToPathElement.h"
 #import "MoveToPathElement.h"
 

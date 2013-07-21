@@ -8,6 +8,7 @@
 
 #import "JotBufferManager.h"
 #import "JotTrashManager.h"
+#import "NSArray+JotMapReduce.h"
 
 @implementation JotBufferManager{
     NSMutableDictionary* cacheOfVBOs;
@@ -62,11 +63,16 @@ static JotBufferManager* _instance = nil;
         [stats setObject:@(miss + 1) forKey:@"miss"];
     }
     [self updateCacheStats];
+    int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
+    mem += buffer.cacheNumber * 2;
+    [cacheStats setObject:@(mem) forKey:@"totalMem"];
     return buffer;
 }
 
 -(void) resetCacheStats{
+    int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
     [cacheStats removeAllObjects];
+    [cacheStats setObject:@(mem) forKey:@"totalMem"];
     NSLog(@"RESET!!!");
 }
 
@@ -96,6 +102,9 @@ static JotBufferManager* _instance = nil;
     NSMutableArray* vboCache = [self arrayOfVBOsForCacheNumber:buffer.cacheNumber];
     if([vboCache count] >= [self maxCacheSizeFor:buffer.cacheNumber]){
         [[JotTrashManager sharedInstace] addObjectToDealloc:buffer];
+        int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
+        mem -= buffer.cacheNumber * 2;
+        [cacheStats setObject:@(mem) forKey:@"totalMem"];
     }else{
         [vboCache addObject:buffer];
     }
@@ -118,7 +127,6 @@ static JotBufferManager* _instance = nil;
         [stats setObject:@(MAX(max, [vbos count])) forKey:@"max"];
     }
 }
-
 
 
 #pragma mark - Private

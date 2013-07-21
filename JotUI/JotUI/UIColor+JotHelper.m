@@ -42,14 +42,13 @@
 }
 
 -(NSDictionary*) asDictionary{
-    CGFloat red, blue, green, alpha;
-    red = blue = green = alpha = 0;
-    [self getRed:&red green:&green blue:&blue alpha:&alpha];
+    GLfloat cmps[4];
+    [self getRGBAComponents:cmps];
     
-    NSDictionary *colorData = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:red], @"red",
-                               [NSNumber numberWithFloat:green], @"green",
-                               [NSNumber numberWithFloat:blue], @"blue",
-                               [NSNumber numberWithFloat:alpha], @"alpha", nil];
+    NSDictionary *colorData = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithFloat:cmps[0]], @"red",
+                               [NSNumber numberWithFloat:cmps[1]], @"green",
+                               [NSNumber numberWithFloat:cmps[2]], @"blue",
+                               [NSNumber numberWithFloat:cmps[3]], @"alpha", nil];
     return colorData;
 }
 

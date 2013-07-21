@@ -73,10 +73,6 @@
     return MAX(floorf([self lengthOfElement] / kBrushStepSize), 1);
 }
 
--(int) numberOfBytes{
-    @throw kAbstractMethodException;
-}
-
 /**
  * this will return an array of vertex structs
  * that we can send to OpenGL to draw. Ideally,
@@ -86,11 +82,16 @@
  * the generated vertex array should be stored in
  * vertexBuffer ivar
  */
--(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
+-(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
     @throw kAbstractMethodException;
 }
 
 
+/**
+ * will calculate a square of coordinates that can
+ * be filled with the texture of the brush.
+ * results are returned through pointArr
+ */
 -(void) arrayOfPositionsForPoint:(CGPoint)point
                             andWidth:(CGFloat)stepWidth
                          andRotation:(CGFloat)stepRotation

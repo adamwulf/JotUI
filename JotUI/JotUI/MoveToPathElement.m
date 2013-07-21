@@ -63,27 +63,9 @@
     return 0;
 }
 
--(int) numberOfBytes{
-    return 0;
-}
 
-
--(struct Vertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
+-(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
     return NULL;
-}
-
-#pragma mark - LineToPathElement subclass
-
-/**
- * return meaningful values so that the LineToPathElement class
- * will generate a successful vertex array for us
- */
--(CGFloat) widthOfPreviousElement:(AbstractBezierPathElement*)previousElement{
-    return self.width;
-}
-
--(UIColor*) colorOfPreviousElement:(AbstractBezierPathElement*)previousElement{
-    return self.color;
 }
 
 #pragma mark - PlistSaving

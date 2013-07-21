@@ -12,9 +12,14 @@
 #ifndef AbstractBezierPathElement_H
 #define AbstractBezierPathElement_H
 
-struct Vertex{
+struct ColorfulVertex{
     GLfloat Position[2];    // x,y position
     GLfloat Color [4];      // rgba color
+    GLshort Texture[2];    // x,y texture coord
+};
+
+struct ColorlessVertex{
+    GLfloat Position[2];    // x,y position
     GLshort Texture[2];    // x,y texture coord
 };
 

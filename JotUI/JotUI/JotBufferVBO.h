@@ -10,6 +10,7 @@
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
+#import "UIColor+JotHelper.h"
 
 @interface JotBufferVBO : NSObject
 
@@ -20,6 +21,8 @@
 -(void) updateBufferWithData:(NSData*)vertexData;
 
 -(void) bind;
+
+-(void) bindForColor:(UIColor*)color;
 
 -(void) unbind;
 

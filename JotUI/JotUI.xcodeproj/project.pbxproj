@@ -35,8 +35,6 @@
 		669B39E41692B50500F12F42 /* AbstractBezierPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39DA1692B50500F12F42 /* AbstractBezierPathElement.m */; };
 		669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DB1692B50500F12F42 /* CurveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39E61692B50500F12F42 /* CurveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39DC1692B50500F12F42 /* CurveToPathElement.m */; };
-		669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DF1692B50500F12F42 /* LineToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		669B39EA1692B50500F12F42 /* LineToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39E01692B50500F12F42 /* LineToPathElement.m */; };
 		669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39E11692B50500F12F42 /* SegmentSmoother.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		669B39EC1692B50500F12F42 /* SegmentSmoother.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39E21692B50500F12F42 /* SegmentSmoother.m */; };
 		669B39F31692B52800F12F42 /* JotUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39F21692B52800F12F42 /* JotUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -122,8 +120,6 @@
 		669B39DA1692B50500F12F42 /* AbstractBezierPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AbstractBezierPathElement.m; sourceTree = "<group>"; };
 		669B39DB1692B50500F12F42 /* CurveToPathElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurveToPathElement.h; sourceTree = "<group>"; };
 		669B39DC1692B50500F12F42 /* CurveToPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CurveToPathElement.m; sourceTree = "<group>"; };
-		669B39DF1692B50500F12F42 /* LineToPathElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineToPathElement.h; sourceTree = "<group>"; };
-		669B39E01692B50500F12F42 /* LineToPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LineToPathElement.m; sourceTree = "<group>"; };
 		669B39E11692B50500F12F42 /* SegmentSmoother.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SegmentSmoother.h; sourceTree = "<group>"; };
 		669B39E21692B50500F12F42 /* SegmentSmoother.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SegmentSmoother.m; sourceTree = "<group>"; };
 		669B39F21692B52800F12F42 /* JotUI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotUI.h; sourceTree = "<group>"; };
@@ -272,8 +268,6 @@
 				669B39DA1692B50500F12F42 /* AbstractBezierPathElement.m */,
 				662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */,
 				662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */,
-				669B39DF1692B50500F12F42 /* LineToPathElement.h */,
-				669B39E01692B50500F12F42 /* LineToPathElement.m */,
 				669B39DB1692B50500F12F42 /* CurveToPathElement.h */,
 				669B39DC1692B50500F12F42 /* CurveToPathElement.m */,
 			);
@@ -400,7 +394,6 @@
 				66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				66EBD103179069D2005AA6A2 /* AbstractBezierPathElement-Protected.h in Headers */,
-				669B39E91692B50500F12F42 /* LineToPathElement.h in Headers */,
 				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
 				66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */,
 				66AA82E3177611D800F26904 /* JotImmutableStroke.h in Headers */,
@@ -564,7 +557,6 @@
 			files = (
 				669B39E41692B50500F12F42 /* AbstractBezierPathElement.m in Sources */,
 				669B39E61692B50500F12F42 /* CurveToPathElement.m in Sources */,
-				669B39EA1692B50500F12F42 /* LineToPathElement.m in Sources */,
 				669B39EC1692B50500F12F42 /* SegmentSmoother.m in Sources */,
 				669B3A321692B68F00F12F42 /* JotView.m in Sources */,
 				66A340281694FF5E0093E81A /* UIColor+JotHelper.m in Sources */,

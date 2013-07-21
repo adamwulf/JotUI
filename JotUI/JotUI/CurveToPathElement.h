@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
-#import "LineToPathElement.h"
+#import "AbstractBezierPathElement.h"
 
 @interface CurveToPathElement : AbstractBezierPathElement{
     CGPoint curveTo;
@@ -28,5 +28,6 @@
            andControl1:(CGPoint)ctrl1
            andControl2:(CGPoint)ctrl2;
 
++(id) elementWithStart:(CGPoint)start andLineTo:(CGPoint)point;
 
 @end
