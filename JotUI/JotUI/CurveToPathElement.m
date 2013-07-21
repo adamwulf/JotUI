@@ -340,7 +340,9 @@
     if(vertexBufferShouldContainColor){
         [vbo bind];
     }else{
-        [vbo bindForColor:self.color];
+        GLfloat colors[4];
+        [self.color getRGBAComponents:colors];
+        [vbo bindForColor:[self.color colorWithAlphaComponent:colors[3] / (self.width/20)]];
     }
     return YES;
 }

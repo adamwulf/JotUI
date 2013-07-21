@@ -47,21 +47,22 @@ static JotBufferManager* _instance = nil;
 -(JotBufferVBO*) bufferWithData:(NSData*)vertexData{
     NSMutableArray* arr = [self arrayOfVBOsForCacheNumber:[JotBufferManager cacheNumberForData:vertexData]];
     JotBufferVBO* buffer = [arr firstObject];
+    NSMutableDictionary* stats = [cacheStats objectForKey:@(buffer.cacheNumber)];
     if(buffer){
         [arr removeObjectAtIndex:0];
         [buffer updateBufferWithData:vertexData];
         
         // update used stat
-        NSMutableDictionary* stats = [cacheStats objectForKey:@(buffer.cacheNumber)];
         int used = [[stats objectForKey:@"used"] intValue];
         [stats setObject:@(used + 1) forKey:@"used"];
     }else{
         buffer = [[JotBufferVBO alloc] initWithData:vertexData];
         // count miss
-        NSMutableDictionary* stats = [cacheStats objectForKey:@(buffer.cacheNumber)];
         int miss = [[stats objectForKey:@"miss"] intValue];
         [stats setObject:@(miss + 1) forKey:@"miss"];
     }
+    int active = [[stats objectForKey:@"active"] intValue];
+    [stats setObject:@(active + 1) forKey:@"active"];
     [self updateCacheStats];
     int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
     mem += buffer.cacheNumber * 2;
@@ -77,18 +78,20 @@ static JotBufferManager* _instance = nil;
 }
 
 -(NSInteger) maxCacheSizeFor:(int)cacheNumber{
-    if(cacheNumber <= 1){           // (2k) * 300 = 0.6Mb
-        return 300;
-    }else if(cacheNumber <= 2){     // (4k) * 250 = 2Mb
-        return 250;
-    }else if(cacheNumber <= 5){     // (6k + 8k + 10k) * 200 = 4.8Mb
+    if(cacheNumber <= 1){           // (2k) * 1000 = 4Mb
+        return 2000;
+    }else if(cacheNumber <= 2){     // (4k) * 500 = 4Mb
+        return 1000;
+    }else if(cacheNumber <= 3){     // (6k) * 500 = 3Mb
+        return 500;
+    }else if(cacheNumber <= 5){     // (8k + 10k) * 200 = 3.6Mb
         return 200;
-    }else if(cacheNumber <= 7){     // (12k 14k) * 150 = 3.9Mb
-        return 150;
-    }else if(cacheNumber <= 9){     // (16k + 18k) * 50 = 1.7Mb
+    }else if(cacheNumber <= 7){     // (12k 14k) * 50 = 1.3Mb
         return 50;
-    }else if(cacheNumber <= 12){    // (20k + 22k + 24k) * 20 = 1.3Mb
-        return 20;
+    }else if(cacheNumber <= 9){     // (16k + 18k) * 10 = 0.3Mb
+        return 10;
+    }else if(cacheNumber <= 12){    // (20k + 22k + 24k) * 5 = 0.3Mb
+        return 5;
     }else if(cacheNumber <= 15){    // (26k + 28k + 30k) * 5 = .5Mb
         return 5;
     }else{
@@ -105,6 +108,10 @@ static JotBufferManager* _instance = nil;
         int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
         mem -= buffer.cacheNumber * 2;
         [cacheStats setObject:@(mem) forKey:@"totalMem"];
+        
+        NSMutableDictionary* stats = [cacheStats objectForKey:@(buffer.cacheNumber)];
+        int active = [[stats objectForKey:@"active"] intValue];
+        [stats setObject:@(active - 1) forKey:@"active"];
     }else{
         [vboCache addObject:buffer];
     }

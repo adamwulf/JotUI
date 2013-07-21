@@ -133,6 +133,8 @@
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
+    glColor4f(1, 1, 1, 1);
     Vertex3D vertices[] = {
         { 0.0, fullPixelSize.height},
         { fullPixelSize.width, fullPixelSize.height},

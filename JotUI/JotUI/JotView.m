@@ -124,8 +124,8 @@ dispatch_queue_t importExportStateQueue;
 -(id) finishInit{
     
     
-    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(presentRenderBuffer)];
-    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+//    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(presentRenderBuffer)];
+//    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
     initialFrameSize = self.bounds.size;
     
@@ -695,6 +695,7 @@ dispatch_queue_t importExportStateQueue;
 
 -(void) setNeedsPresentRenderBuffer{
     needsPresentRenderBuffer = YES;
+    [self presentRenderBuffer];
 }
 
 

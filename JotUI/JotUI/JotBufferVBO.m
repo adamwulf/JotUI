@@ -56,8 +56,8 @@
     glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), offsetof(struct ColorlessVertex, Position));
     glTexCoordPointer(2, GL_SHORT, sizeof(struct ColorlessVertex), offsetof(struct ColorlessVertex, Texture));
     glEnableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glDisableClientState(GL_COLOR_ARRAY);
     
     if(!color){
         glColor4f(0, 0, 0, 1);
