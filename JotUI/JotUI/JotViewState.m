@@ -82,55 +82,59 @@
         // the second item is loading the ink texture
         // into Open GL
         dispatch_async([JotView importExportImageQueue], ^{
-            EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-            [EAGLContext setCurrentContext:backgroundThreadContext];
-            
-            // load image from disk
-            UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
-            
-            // load new texture
-            self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
-            
-            if(!savedInkImage){
-                // no image was given, so it should be a blank texture
-                // lets erase it, since it defaults to uncleared memory
-                [self.backgroundFramebuffer clear];
+            @autoreleasepool {
+                EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+                [EAGLContext setCurrentContext:backgroundThreadContext];
+                
+                // load image from disk
+                UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
+                
+                // load new texture
+                self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
+                
+                if(!savedInkImage){
+                    // no image was given, so it should be a blank texture
+                    // lets erase it, since it defaults to uncleared memory
+                    [self.backgroundFramebuffer clear];
+                }
+                glFlush();
+                dispatch_semaphore_signal(sema1);
             }
-            glFlush();
-            dispatch_semaphore_signal(sema1);
         });
         
         // the first item is unserializing the plist
         // information for our page state
         dispatch_async([JotView importExportStateQueue], ^{
-            EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-            [EAGLContext setCurrentContext:backgroundThreadContext];
-
-            // load the file
-            stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
-            
-            if(stateInfo){
-                // load our undo state if we have it
-                NSString* stateDirectory = [stateInfoFile stringByDeletingLastPathComponent];
-                id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
-                    if(![obj isKindOfClass:[NSDictionary class]]){
-                        NSString* filename = [[stateDirectory stringByAppendingPathComponent:obj] stringByAppendingPathExtension:@"data"];
-                        obj = [NSDictionary dictionaryWithContentsOfFile:filename];
-                    }
-                    NSString* className = [obj objectForKey:@"class"];
-                    Class class = NSClassFromString(className);
-                    JotStroke* stroke = [[class alloc] initFromDictionary:obj];
-                    stroke.delegate = self;
-                    return stroke;
-                };
+            @autoreleasepool {
+                EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+                [EAGLContext setCurrentContext:backgroundThreadContext];
                 
-                [self.stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
-                [self.stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+                // load the file
+                stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
+                
+                if(stateInfo){
+                    // load our undo state if we have it
+                    NSString* stateDirectory = [stateInfoFile stringByDeletingLastPathComponent];
+                    id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
+                        if(![obj isKindOfClass:[NSDictionary class]]){
+                            NSString* filename = [[stateDirectory stringByAppendingPathComponent:obj] stringByAppendingPathExtension:@"data"];
+                            obj = [NSDictionary dictionaryWithContentsOfFile:filename];
+                        }
+                        NSString* className = [obj objectForKey:@"class"];
+                        Class class = NSClassFromString(className);
+                        JotStroke* stroke = [[class alloc] initFromDictionary:obj];
+                        stroke.delegate = self;
+                        return stroke;
+                    };
+                    
+                    [self.stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
+                    [self.stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+                }
+                
+                glFlush();
+                dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
+                dispatch_semaphore_signal(sema2);
             }
-            
-            glFlush();
-            dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
-            dispatch_semaphore_signal(sema2);
         });
         // wait here
         // until both above items are complete

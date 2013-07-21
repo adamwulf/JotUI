@@ -345,7 +345,7 @@ dispatch_queue_t importExportStateQueue;
     
     @synchronized(self){
         isCurrentlyExporting = YES;
-//        NSLog(@"export begins");
+        NSLog(@"export begins: %@", [NSDate date]);
     }
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -401,43 +401,46 @@ dispatch_queue_t importExportStateQueue;
     //
     
     dispatch_async([JotView importExportStateQueue], ^(void) {
-        dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
-        // i could notify about the thumbnail here
-        // which would let the UI swap to the cached thumbnail
-        // from the full JotUI if needed... (?)
-        // probably an over optimization at this point,
-        // but may be useful once multiple JotViews are
-        // on screen at a time + being exported simultaneously
-        
-        dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
-        
-        exportFinishBlock(ink, thumb, immutableState);
-        
-        if(ink){
-            // we have the backing ink texture to save
-            // so write it to disk
-            [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
-//            NSLog(@"writing ink to disk");
-        }else{
-            // the backing texture either hasn't changed, or
-            // doesn't have anything written to it at all
-            // so skip writing a blank PNG to disk
-//            NSLog(@"skipping writing ink, nothing changed");
-        }
-        
-        [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
-        
-        // this call will both serialize the state
-        // and write it to disk
-        [immutableState writeToDisk:plistPath];
-        
-//        NSLog(@"export complete");
-        @synchronized(self){
-            // we only ever want to export one at a time.
-            // if anything has changed while we've been exporting
-            // then that'll be held in the exportLaterInvocations
-            // and will fire after we're done. (from validateUndoState).
-            isCurrentlyExporting = NO;
+        @autoreleasepool {
+            dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
+            // i could notify about the thumbnail here
+            // which would let the UI swap to the cached thumbnail
+            // from the full JotUI if needed... (?)
+            // probably an over optimization at this point,
+            // but may be useful once multiple JotViews are
+            // on screen at a time + being exported simultaneously
+            
+            dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
+            
+            exportFinishBlock(ink, thumb, immutableState);
+            
+            if(ink){
+                // we have the backing ink texture to save
+                // so write it to disk
+                [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
+                //            NSLog(@"writing ink to disk");
+            }else{
+                // the backing texture either hasn't changed, or
+                // doesn't have anything written to it at all
+                // so skip writing a blank PNG to disk
+                //            NSLog(@"skipping writing ink, nothing changed");
+            }
+            
+            [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
+            
+            // this call will both serialize the state
+            // and write it to disk
+            [immutableState writeToDisk:plistPath];
+            
+            //        NSLog(@"export complete");
+            @synchronized(self){
+                // we only ever want to export one at a time.
+                // if anything has changed while we've been exporting
+                // then that'll be held in the exportLaterInvocations
+                // and will fire after we're done. (from validateUndoState).
+                isCurrentlyExporting = NO;
+            }
+            NSLog(@"export ends: %@", [NSDate date]);
         }
     });
 }
@@ -525,48 +528,49 @@ dispatch_queue_t importExportStateQueue;
     //
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
-        
-        // Create a CGImage with the pixel data from OpenGL
-        // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
-        // otherwise, use kCGImageAlphaPremultipliedLast
-        CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
-        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-        CGImageRef iref = CGImageCreate(exportSize.width, exportSize.height, 8, 32, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
-                                        kCGImageAlphaPremultipliedLast,
-                                        ref, NULL, true, kCGRenderingIntentDefault);
-        
-        // ok, now we have the pixel data from the OpenGL frame buffer.
-        // next we need to setup the image context to composite the
-        // background color, background image, and opengl image
-        
-        // OpenGL ES measures data in PIXELS
-        // Create a graphics context with the target size measured in POINTS
-        CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
-                                                           kCGImageAlphaPremultipliedLast);
-        
-        // flip vertical for our drawn content, since OpenGL is opposite core graphics
-        CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
-        CGContextScaleCTM(bitmapContext, 1.0, -1.0);
-        
-        //
-        // ok, now render our actual content
-        CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, exportSize.width, exportSize.height), iref);
-        
-        // Retrieve the UIImage from the current context
-        CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
-        UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
-        
-        // Clean up
-        free(data);
-        CFRelease(ref);
-        CFRelease(colorspace);
-        CGImageRelease(iref);
-        CGContextRelease(bitmapContext);
-        
-        // ok, we're done exporting and cleaning up
-        // so pass the newly generated image to the completion block
-        exportFinishBlock(image);
-        CGImageRelease(cgImage);
+        @autoreleasepool {
+            // Create a CGImage with the pixel data from OpenGL
+            // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+            // otherwise, use kCGImageAlphaPremultipliedLast
+            CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
+            CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+            CGImageRef iref = CGImageCreate(exportSize.width, exportSize.height, 8, 32, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+                                            kCGImageAlphaPremultipliedLast,
+                                            ref, NULL, true, kCGRenderingIntentDefault);
+            
+            // ok, now we have the pixel data from the OpenGL frame buffer.
+            // next we need to setup the image context to composite the
+            // background color, background image, and opengl image
+            
+            // OpenGL ES measures data in PIXELS
+            // Create a graphics context with the target size measured in POINTS
+            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+                                                               kCGImageAlphaPremultipliedLast);
+            
+            // flip vertical for our drawn content, since OpenGL is opposite core graphics
+            CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
+            CGContextScaleCTM(bitmapContext, 1.0, -1.0);
+            
+            //
+            // ok, now render our actual content
+            CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, exportSize.width, exportSize.height), iref);
+            
+            // Retrieve the UIImage from the current context
+            CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
+            UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
+            
+            // Clean up
+            free(data);
+            CFRelease(ref);
+            CFRelease(colorspace);
+            CGImageRelease(iref);
+            CGContextRelease(bitmapContext);
+            
+            // ok, we're done exporting and cleaning up
+            // so pass the newly generated image to the completion block
+            exportFinishBlock(image);
+            CGImageRelease(cgImage);
+        }
     });
 }
 
@@ -832,6 +836,10 @@ dispatch_queue_t importExportStateQueue;
 }
 
 
+
+
+static int undoCounter;
+
 /**
  * This method will make sure we only keep undoLimit
  * number of strokes. All others should be written to
@@ -847,6 +855,11 @@ dispatch_queue_t importExportStateQueue;
     [state tick];
     
     if([state.strokesBeingWrittenToBackingTexture count]){
+        undoCounter++;
+        if(undoCounter % 10 == 0){
+            NSLog(@"strokes waiting to write: %d", [state.strokesBeingWrittenToBackingTexture count]);
+            undoCounter = 0;
+        }
         JotBrushTexture* keepThisTexture = brushTexture;
         // get the stroke that we need to make permanent
         JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
@@ -867,12 +880,12 @@ dispatch_queue_t importExportStateQueue;
         // draw each stroke element. for performance reasons, we'll only
         // draw ~ 300 pixels of segments at a time.
         NSInteger distance = 0;
-        while([strokeToWriteToTexture.segments count] && distance < 100){
+        while([strokeToWriteToTexture.segments count] && distance < 500){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
             [strokeToWriteToTexture removeElementAtIndex:0];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
             prevElementForTextureWriting = element;
-            [[JotTrashManager sharedInstace] addObjectToDealloc:element];
+//            [[JotTrashManager sharedInstace] addObjectToDealloc:element];
             distance += [element lengthOfElement];
         }
 

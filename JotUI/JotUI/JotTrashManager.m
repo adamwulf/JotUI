@@ -39,6 +39,8 @@ static JotTrashManager* _instance = nil;
     maxTickDuration = _tickSize;
 }
 
+static int counter;
+
 -(BOOL) tick{
     NSDate *date = [NSDate date];
     int count = 0;
@@ -46,6 +48,11 @@ static JotTrashManager* _instance = nil;
         [objectsToDealloc removeLastObject];
         count++;
     }
+    if(counter % 10 == 0){
+        counter = 0;
+        NSLog(@"ticker: %d", [objectsToDealloc count]);
+    }
+    counter++;
     return count > 0;
 }
 

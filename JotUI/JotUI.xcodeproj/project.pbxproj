@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		6622F9D31774E72400C06825 /* JotViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 6622F9D11774E72400C06825 /* JotViewState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6622F9D41774E72400C06825 /* JotViewState.m in Sources */ = {isa = PBXBuildFile; fileRef = 6622F9D21774E72400C06825 /* JotViewState.m */; };
+		662681F6179B73FA0039A75B /* JotBufferVBO.h in Headers */ = {isa = PBXBuildFile; fileRef = 662681F4179B73FA0039A75B /* JotBufferVBO.h */; };
+		662681F7179B73FA0039A75B /* JotBufferVBO.m in Sources */ = {isa = PBXBuildFile; fileRef = 662681F5179B73FA0039A75B /* JotBufferVBO.m */; };
 		662B55D016A9EAC30020CFC3 /* MoveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		662B55D116A9EAC30020CFC3 /* MoveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */; };
 		66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 66382CB116DD5DC40053C6E6 /* NSMutableSet+Extras.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -20,6 +22,8 @@
 		66455F8F175FC47200C66DFA /* JotGLTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F8D175FC47200C66DFA /* JotGLTexture.m */; };
 		66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 66455F90175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66455F93175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */; };
+		6691EED5179B7097007BBD15 /* JotBufferManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6691EED3179B7097007BBD15 /* JotBufferManager.h */; };
+		6691EED6179B7097007BBD15 /* JotBufferManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6691EED4179B7097007BBD15 /* JotBufferManager.m */; };
 		669B39AD1692B46A00F12F42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
 		669B39B31692B46A00F12F42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 669B39B11692B46A00F12F42 /* InfoPlist.strings */; };
 		669B39BC1692B46B00F12F42 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39BB1692B46B00F12F42 /* SenTestingKit.framework */; };
@@ -87,6 +91,8 @@
 /* Begin PBXFileReference section */
 		6622F9D11774E72400C06825 /* JotViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewState.h; sourceTree = "<group>"; };
 		6622F9D21774E72400C06825 /* JotViewState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewState.m; sourceTree = "<group>"; };
+		662681F4179B73FA0039A75B /* JotBufferVBO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBufferVBO.h; sourceTree = "<group>"; };
+		662681F5179B73FA0039A75B /* JotBufferVBO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotBufferVBO.m; sourceTree = "<group>"; };
 		662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveToPathElement.h; sourceTree = "<group>"; };
 		662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MoveToPathElement.m; sourceTree = "<group>"; };
 		66382CB116DD5DC40053C6E6 /* NSMutableSet+Extras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableSet+Extras.h"; sourceTree = "<group>"; };
@@ -98,6 +104,8 @@
 		66455F8D175FC47200C66DFA /* JotGLTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLTexture.m; sourceTree = "<group>"; };
 		66455F90175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLTextureBackedFrameBuffer.h; sourceTree = "<group>"; };
 		66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLTextureBackedFrameBuffer.m; sourceTree = "<group>"; };
+		6691EED3179B7097007BBD15 /* JotBufferManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBufferManager.h; sourceTree = "<group>"; };
+		6691EED4179B7097007BBD15 /* JotBufferManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotBufferManager.m; sourceTree = "<group>"; };
 		6695B6D0174D497B0069E61F /* AbstractBezierPathElement-Protected.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AbstractBezierPathElement-Protected.h"; sourceTree = "<group>"; };
 		669B39A91692B46A00F12F42 /* JotUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = JotUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		669B39AC1692B46A00F12F42 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -313,6 +321,10 @@
 			children = (
 				66A79017177251960092A28A /* JotTrashManager.h */,
 				66A79018177251960092A28A /* JotTrashManager.m */,
+				6691EED3179B7097007BBD15 /* JotBufferManager.h */,
+				6691EED4179B7097007BBD15 /* JotBufferManager.m */,
+				662681F4179B73FA0039A75B /* JotBufferVBO.h */,
+				662681F5179B73FA0039A75B /* JotBufferVBO.m */,
 			);
 			name = Managers;
 			sourceTree = "<group>";
@@ -378,6 +390,7 @@
 				66BF7F21176675E0003F4F67 /* JotBrushTexture.h in Headers */,
 				66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */,
 				66BF7F29176679DB003F4F67 /* PlistSaving.h in Headers */,
+				6691EED5179B7097007BBD15 /* JotBufferManager.h in Headers */,
 				66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */,
 				663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */,
 				66BF7F301766D133003F4F67 /* UIImage+Resize.h in Headers */,
@@ -394,6 +407,7 @@
 				66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */,
 				66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */,
 				669B39EB1692B50500F12F42 /* SegmentSmoother.h in Headers */,
+				662681F6179B73FA0039A75B /* JotBufferVBO.h in Headers */,
 				66BF7F2C17667C19003F4F67 /* NSArray+JotMapReduce.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -564,12 +578,14 @@
 				66BF7F2617667663003F4F67 /* JotDefaultBrushTexture.m in Sources */,
 				66BF7F2D17667C19003F4F67 /* NSArray+JotMapReduce.m in Sources */,
 				66BF7F311766D133003F4F67 /* UIImage+Resize.m in Sources */,
+				6691EED6179B7097007BBD15 /* JotBufferManager.m in Sources */,
 				66BF7F371766D221003F4F67 /* UIImage+RoundedCorner.m in Sources */,
 				66BF7F391766D221003F4F67 /* UIImage+Alpha.m in Sources */,
 				66A7901A177251960092A28A /* JotTrashManager.m in Sources */,
 				6622F9D41774E72400C06825 /* JotViewState.m in Sources */,
 				66AA82E4177611D800F26904 /* JotImmutableStroke.m in Sources */,
 				66AA82E917761C2300F26904 /* JotViewImmutableState.m in Sources */,
+				662681F7179B73FA0039A75B /* JotBufferVBO.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

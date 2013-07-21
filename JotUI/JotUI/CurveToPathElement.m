@@ -13,11 +13,14 @@
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
+#import "JotBufferManager.h"
 
 @implementation CurveToPathElement{
     UIBezierPath* bezierCache;
     // cache the hash, since it's expenseive to calculate
     NSUInteger hashCache;
+    // the VBO
+    JotBufferVBO* vbo;
 }
 
 @synthesize curveTo;
@@ -300,31 +303,21 @@
     // on the main thread.
     // if we need a vao, then create it
     if(!vbo && dataVertexBuffer){
-        int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
-        int mallocSize = numberOfVertices*sizeof(struct Vertex);
-        glGenBuffers(1,&vbo);
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        glBufferData(GL_ARRAY_BUFFER, mallocSize, dataVertexBuffer.bytes, GL_STATIC_DRAW);
-    }else{
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        vbo = [[JotBufferManager sharedInstace] bufferWithData:dataVertexBuffer];
     }
-    glVertexPointer(2, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Position));
-    glColorPointer(4, GL_FLOAT, sizeof(struct Vertex), offsetof(struct Vertex, Color));
-    glTexCoordPointer(2, GL_SHORT, sizeof(struct Vertex), offsetof(struct Vertex, Texture));
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    [vbo bind];
     return YES;
 }
 
 -(void) unbind{
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    [vbo unbind];
 }
 
 
 -(void) dealloc{
     if(vbo){
-        glDeleteBuffers(1,&vbo);
+        [[JotBufferManager sharedInstace] recycleBuffer:vbo];
+        vbo = nil;
     }
 }
 
