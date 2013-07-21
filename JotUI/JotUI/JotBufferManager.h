@@ -19,4 +19,6 @@
 
 -(void) recycleBuffer:(JotBufferVBO*)buffer;
 
+-(void) resetCacheStats;
+
 @end
