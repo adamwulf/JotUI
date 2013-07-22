@@ -126,6 +126,47 @@
 }
 
 
+-(BOOL) shouldContainVertexColorDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+    if(!previousElement){
+        return NO;
+    }
+    
+    // now find the differences in color between
+    // the previous stroke and this stroke
+    GLfloat prevColor[4], myColor[4];
+    GLfloat colorSteps[4];
+    [previousElement.color getRGBAComponents:prevColor];
+    [self.color getRGBAComponents:myColor];
+    colorSteps[0] = myColor[0] - prevColor[0];
+    colorSteps[1] = myColor[1] - prevColor[1];
+    colorSteps[2] = myColor[2] - prevColor[2];
+    colorSteps[3] = myColor[3] - prevColor[3];
+    
+    
+    BOOL shouldContainColor = YES;
+    if(!self.color ||
+       (colorSteps[0] == 0 &&
+        colorSteps[1] == 0 &&
+        colorSteps[2] == 0 &&
+        colorSteps[3] == 0)){
+           shouldContainColor = NO;
+       }
+    return shouldContainColor;
+}
+
+
+-(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+    // find out how many steps we can put inside this segment length
+    int numberOfVertices = [self numberOfVertices];
+    NSInteger numberOfBytes;
+    if([self shouldContainVertexColorDataGivenPreviousElement:previousElement]){
+        numberOfBytes = numberOfVertices*sizeof(struct ColorfulVertex);
+    }else{
+        numberOfBytes = numberOfVertices*sizeof(struct ColorlessVertex);
+    }
+    return numberOfBytes;
+}
+
 /**
  * generate a vertex buffer array for all of the points
  * along this curve for the input scale.
@@ -154,23 +195,12 @@
     colorSteps[3] = myColor[3] - prevColor[3];
     
     
-    vertexBufferShouldContainColor = YES;
-    if(!self.color ||
-       (colorSteps[0] == 0 &&
-        colorSteps[1] == 0 &&
-        colorSteps[2] == 0 &&
-        colorSteps[3] == 0)){
-           vertexBufferShouldContainColor = NO;
-       }
+    vertexBufferShouldContainColor = [self shouldContainVertexColorDataGivenPreviousElement:previousElement];
     
     // find out how many steps we can put inside this segment length
-    int numberOfVertices = [self numberOfSteps] * [self numberOfVerticesPerStep];
-    int numberOfBytes;
-    if(vertexBufferShouldContainColor){
-        numberOfBytes = numberOfVertices*sizeof(struct ColorfulVertex);
-    }else{
-        numberOfBytes = numberOfVertices*sizeof(struct ColorlessVertex);
-    }
+    int numberOfVertices = [self numberOfVertices];
+    NSInteger numberOfBytes = [self numberOfBytesGivenPreviousElement:previousElement];
+
     
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;

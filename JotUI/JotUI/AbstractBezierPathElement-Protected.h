@@ -21,6 +21,10 @@
 
 -(NSInteger) numberOfSteps;
 
+-(NSInteger) numberOfVertices;
+
+-(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
+
 -(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
 
 -(void) arrayOfPositionsForPoint:(CGPoint)point

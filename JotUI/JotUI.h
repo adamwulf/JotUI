@@ -11,7 +11,6 @@
 
 #define CheckMainThread if(![NSThread isMainThread]){ NSAssert(NO, @"needs to be on main thread"); }
 
-
 #import <Foundation/Foundation.h>
 
 #import <JotTouchSDK/JotStylusManager.h>

@@ -27,6 +27,7 @@
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
 @property (nonatomic, strong) JotBrushTexture* brushTexture;
 @property (readonly) EAGLContext *context;
+@property (nonatomic) NSInteger maxStrokeSize;
 
 // erase the screen
 - (IBAction) clear:(BOOL)shouldPresent;

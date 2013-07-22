@@ -27,12 +27,15 @@
     __weak NSObject<JotStrokeDelegate>* delegate;
     // cache the hash, since it's expenseive to calculate
     NSUInteger hashCache;
+    // total Byte size
+    NSInteger totalNumberOfBytes;
 }
 
 @synthesize segments;
 @synthesize segmentSmoother;
 @synthesize texture;
 @synthesize delegate;
+@synthesize totalNumberOfBytes;
 
 
 -(id) initWithTexture:(JotBrushTexture*)_texture{
@@ -46,8 +49,8 @@
 }
 
 
-
 -(void) addElement:(AbstractBezierPathElement*)element{
+    totalNumberOfBytes += [element numberOfBytesGivenPreviousElement:[segments lastObject]];
     [segments addObject:element];
     [self updateHashWithObject:element];
 }
@@ -89,6 +92,7 @@
     if(self = [super init]){
         hashCache = 1;
         segmentSmoother = [[SegmentSmoother alloc] initFromDictionary:[dictionary objectForKey:@"segmentSmoother"]];
+        __block AbstractBezierPathElement* previousElement = nil;
         segments = [NSMutableArray arrayWithArray:[[dictionary objectForKey:@"segments"] jotMap:^id(id obj, NSUInteger index){
             NSString* className = [obj objectForKey:@"class"];
             Class class = NSClassFromString(className);
@@ -97,6 +101,8 @@
             if([segment bind]){
                 [segment unbind];
             }
+            totalNumberOfBytes += [segment numberOfBytesGivenPreviousElement:previousElement];
+            previousElement = segment;
             return segment;
         }]];
         texture = [[JotBrushTexture alloc] initFromDictionary:[dictionary objectForKey:@"texture"]];

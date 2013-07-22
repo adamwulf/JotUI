@@ -74,6 +74,17 @@
 }
 
 /**
+ * returns the total number of vertices for this element
+ */
+-(NSInteger) numberOfVertices{
+    return [self numberOfSteps] * [self numberOfVerticesPerStep];
+}
+
+-(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
+    @throw kAbstractMethodException;
+}
+
+/**
  * this will return an array of vertex structs
  * that we can send to OpenGL to draw. Ideally,
  * subclasses will generate this array once to save

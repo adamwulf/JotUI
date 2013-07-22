@@ -79,21 +79,21 @@ static JotBufferManager* _instance = nil;
 
 -(NSInteger) maxCacheSizeFor:(int)cacheNumber{
     if(cacheNumber <= 1){           // (2k) * 1000 = 4Mb
-        return 2000;
+        return 1250;
     }else if(cacheNumber <= 2){     // (4k) * 500 = 4Mb
-        return 1000;
+        return 400;
     }else if(cacheNumber <= 3){     // (6k) * 500 = 3Mb
-        return 500;
+        return 250;
     }else if(cacheNumber <= 5){     // (8k + 10k) * 200 = 3.6Mb
-        return 200;
+        return 40;
     }else if(cacheNumber <= 7){     // (12k 14k) * 50 = 1.3Mb
-        return 50;
+        return 20;
     }else if(cacheNumber <= 9){     // (16k + 18k) * 10 = 0.3Mb
-        return 10;
+        return 2;
     }else if(cacheNumber <= 12){    // (20k + 22k + 24k) * 5 = 0.3Mb
-        return 5;
+        return 2;
     }else if(cacheNumber <= 15){    // (26k + 28k + 30k) * 5 = .5Mb
-        return 5;
+        return 2;
     }else{
         return 0;
     }

@@ -13,6 +13,10 @@
 
 @implementation SegmentSmoother
 
+@synthesize point0;
+@synthesize point1;
+@synthesize point2;
+@synthesize point3;
 
 -(id) init{
     if(self = [super init]){
@@ -109,6 +113,13 @@
     return nil;
 }
 
+
+-(void) copyStateFrom:(SegmentSmoother*)otherSmoother{
+    point0 = otherSmoother.point0;
+    point1 = otherSmoother.point1;
+    point2 = otherSmoother.point2;
+    point3 = otherSmoother.point3;
+}
 
 
 

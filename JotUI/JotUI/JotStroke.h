@@ -26,6 +26,7 @@
 @property (nonatomic, readonly) NSArray* segments;
 @property (nonatomic, readonly) JotBrushTexture* texture;
 @property (nonatomic, weak) NSObject<JotStrokeDelegate>* delegate;
+@property (nonatomic, readonly) NSInteger totalNumberOfBytes;
 
 /**
  * create an empty stroke with the input texture

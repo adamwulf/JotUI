@@ -63,6 +63,9 @@
     return 0;
 }
 
+-(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+    return 0;
+}
 
 -(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
     return NULL;

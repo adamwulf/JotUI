@@ -79,6 +79,9 @@ dispatch_queue_t importExportStateQueue;
     BOOL shouldslow;
     // helper var to toggle between frames for 30fps limit
     BOOL slowtoggle;
+    // the maximum stroke size in bytes before a new stroke
+    // is created
+    NSInteger maxStrokeSize;
 }
 
 @end
@@ -88,6 +91,7 @@ dispatch_queue_t importExportStateQueue;
 
 @synthesize delegate;
 @synthesize context;
+@synthesize maxStrokeSize;
 
 #pragma mark - Initialization
 
@@ -123,6 +127,8 @@ dispatch_queue_t importExportStateQueue;
 
 -(id) finishInit{
     
+    // strokes have a max of .5Mb each
+    self.maxStrokeSize = 512*1024;
     
 //    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(presentRenderBuffer)];
 //    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
@@ -856,7 +862,7 @@ static int undoCounter;
     
     if([state.strokesBeingWrittenToBackingTexture count]){
         undoCounter++;
-        if(undoCounter % 10 == 0){
+        if(undoCounter % 3 == 0){
             NSLog(@"strokes waiting to write: %d", [state.strokesBeingWrittenToBackingTexture count]);
             undoCounter = 0;
         }
@@ -880,7 +886,7 @@ static int undoCounter;
         // draw each stroke element. for performance reasons, we'll only
         // draw ~ 300 pixels of segments at a time.
         NSInteger distance = 0;
-        while([strokeToWriteToTexture.segments count] && distance < 500){
+        while([strokeToWriteToTexture.segments count] && distance < 300){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
             [strokeToWriteToTexture removeElementAtIndex:0];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
@@ -974,6 +980,25 @@ static int undoCounter;
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+            if([currentStroke totalNumberOfBytes] > 512*1024){ // 0.5Mb
+                NSLog(@"stroke size: %d", [currentStroke totalNumberOfBytes]);
+                
+                // we'll split the stroke here
+                [state.stackOfStrokes addObject:currentStroke];
+                [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                [state.stackOfUndoneStrokes removeAllObjects];
+                [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
+
+                // now make a new stroke to pick up where we left off
+                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
+                [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+                [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
+                MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
+                moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
+                moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
+                moveTo.rotation = [[currentStroke.segments lastObject] rotation];
+                [newStroke addElement:moveTo];
+            };
         }
     }
 }
