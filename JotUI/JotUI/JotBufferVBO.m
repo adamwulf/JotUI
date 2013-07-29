@@ -45,18 +45,18 @@
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
     glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), offsetof(struct ColorfulVertex, Position));
     glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), offsetof(struct ColorfulVertex, Color));
-    glTexCoordPointer(2, GL_SHORT, sizeof(struct ColorfulVertex), offsetof(struct ColorfulVertex, Texture));
+    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), offsetof(struct ColorfulVertex, Size));
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
 }
 
 -(void) bindForColor:(UIColor*)color{
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
     glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), offsetof(struct ColorlessVertex, Position));
-    glTexCoordPointer(2, GL_SHORT, sizeof(struct ColorlessVertex), offsetof(struct ColorlessVertex, Texture));
+    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex), offsetof(struct ColorlessVertex, Size));
     glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
     glDisableClientState(GL_COLOR_ARRAY);
     
     if(!color){

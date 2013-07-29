@@ -62,7 +62,7 @@
  * since rendering is using GL_TRIANGLES
  */
 -(NSInteger) numberOfVerticesPerStep{
-    return 6;
+    return 1;
 }
 
 /**
@@ -156,7 +156,7 @@
 -(void) draw{
     if([self bind]){
         // VBO
-        glDrawArrays(GL_TRIANGLES, 0, [self numberOfSteps] * [self numberOfVerticesPerStep]);
+        glDrawArrays(GL_POINTS, 0, [self numberOfSteps] * [self numberOfVerticesPerStep]);
         [self unbind];
     }
 }

@@ -15,12 +15,12 @@
 struct ColorfulVertex{
     GLfloat Position[2];    // x,y position
     GLfloat Color [4];      // rgba color
-    GLshort Texture[2];    // x,y texture coord
+    GLfloat Size;           // pixel size
 };
 
 struct ColorlessVertex{
     GLfloat Position[2];    // x,y position
-    GLshort Texture[2];    // x,y texture coord
+    GLfloat Size;           // pixel size
 };
 
 #endif

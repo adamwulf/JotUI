@@ -235,10 +235,6 @@
     bez[2] = ctrl2;
     bez[3] = curveTo;
     
-    CGFloat rotationDiff = self.rotation - previousElement.rotation;
-    
-    CGPoint* pointArr = (CGPoint*) malloc(sizeof(CGPoint)*6);
-    
     //
     // calculate points along the curve that are realStepSize
     // length along the curve. since this is fairly intensive for
@@ -248,7 +244,6 @@
         CGFloat t = (CGFloat)step / (CGFloat)numberOfVertices;
         
         // current rotation
-        CGFloat stepRotation = previousElement.rotation + rotationDiff * t;
         CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
         
         // calculate the point that is realStepSize distance
@@ -279,64 +274,27 @@
             calcColor[1] = calcColor[1] * calcColor[3];
             calcColor[2] = calcColor[2] * calcColor[3];
         }
-        
-        // Find points for the quad we're drawing
-        // Also converts locations from Points to Pixels
-        [self arrayOfPositionsForPoint:point
-                              andWidth:stepWidth
-                           andRotation:stepRotation
-                              outArray:pointArr];
-        
-        for(int innerStep = 0;innerStep < 6;innerStep++){
-            CGPoint stepPoint = pointArr[innerStep];
-            GLfloat posX = stepPoint.x;
-            GLfloat posY = stepPoint.y;
-            GLshort tex0 = 0;
-            GLshort tex1 = 0;
-            
-            if(innerStep == 0){
-                tex0 = 0;
-                tex1 = 0;
-            }else if(innerStep == 1){
-                tex0 = 1;
-                tex1 = 0;
-            }else if(innerStep == 2){
-                tex0 = 0;
-                tex1 = 1;
-            }else if(innerStep == 3){
-                tex0 = 1;
-                tex1 = 1;
-            }else if(innerStep == 4){
-                tex0 = 1;
-                tex1 = 0;
-            }else if(innerStep == 5){
-                tex0 = 0;
-                tex1 = 1;
-            }
-            
-            if(vertexBufferShouldContainColor){
-                struct ColorfulVertex* coloredVertexBuffer = (struct ColorfulVertex*)vertexBuffer;
-                // set colors to the array
-                coloredVertexBuffer[step + innerStep].Color[0] = calcColor[0];
-                coloredVertexBuffer[step + innerStep].Color[1] = calcColor[1];
-                coloredVertexBuffer[step + innerStep].Color[2] = calcColor[2];
-                coloredVertexBuffer[step + innerStep].Color[3] = calcColor[3];
-                coloredVertexBuffer[step + innerStep].Texture[0] = tex0;
-                coloredVertexBuffer[step + innerStep].Texture[1] = tex1;
-                coloredVertexBuffer[step + innerStep].Position[0] = posX;
-                coloredVertexBuffer[step + innerStep].Position[1] = posY;
-            }else{
-                struct ColorlessVertex* colorlessVertexBuffer = (struct ColorlessVertex*)vertexBuffer;
-                // set colors to the array
-                colorlessVertexBuffer[step + innerStep].Texture[0] = tex0;
-                colorlessVertexBuffer[step + innerStep].Texture[1] = tex1;
-                colorlessVertexBuffer[step + innerStep].Position[0] = posX;
-                colorlessVertexBuffer[step + innerStep].Position[1] = posY;
-            }
+        // Convert locations from screen Points to GL points (screen pixels)
+        if(vertexBufferShouldContainColor){
+            struct ColorfulVertex* coloredVertexBuffer = (struct ColorfulVertex*)vertexBuffer;
+            // set colors to the array
+            coloredVertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
+            coloredVertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
+            coloredVertexBuffer[step].Color[0] = calcColor[0];
+            coloredVertexBuffer[step].Color[1] = calcColor[1];
+            coloredVertexBuffer[step].Color[2] = calcColor[2];
+            coloredVertexBuffer[step].Color[3] = calcColor[3];
+            CGFloat steppedWidth = prevWidth + widthDiff * t;
+            coloredVertexBuffer[step].Size = steppedWidth*scaleOfVertexBuffer;
+        }else{
+            struct ColorlessVertex* colorlessVertexBuffer = (struct ColorlessVertex*)vertexBuffer;
+            // set colors to the array
+            colorlessVertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
+            colorlessVertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
+            CGFloat steppedWidth = prevWidth + widthDiff * t;
+            colorlessVertexBuffer[step].Size = steppedWidth*scaleOfVertexBuffer;
         }
     }
-    
-    free(pointArr);
     
     dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytes];
     
