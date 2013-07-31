@@ -74,7 +74,7 @@ static JotBufferManager* _instance = nil;
     int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
     [cacheStats removeAllObjects];
     [cacheStats setObject:@(mem) forKey:@"totalMem"];
-    NSLog(@"RESET!!!");
+    NSLog(@"RESET CACHE STATS!!!");
 }
 
 -(NSInteger) maxCacheSizeFor:(int)cacheNumber{

@@ -50,7 +50,7 @@ static int counter;
     }
     if(counter % 10 == 0){
         counter = 0;
-        NSLog(@"ticker: %d", [objectsToDealloc count]);
+//        NSLog(@"ticker: %d", [objectsToDealloc count]);
     }
     counter++;
     return count > 0;
