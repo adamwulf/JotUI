@@ -9,6 +9,7 @@
 #import "JotBufferManager.h"
 #import "JotTrashManager.h"
 #import "NSArray+JotMapReduce.h"
+#import "JotUI.h"
 
 @implementation JotBufferManager{
     NSMutableDictionary* cacheOfVBOs;
@@ -24,10 +25,14 @@ static JotBufferManager* _instance = nil;
         cacheOfVBOs = [NSMutableDictionary dictionary];
         cacheStats = [NSMutableDictionary dictionary];
         
-        dispatch_async(dispatch_get_main_queue(),^{
-            [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(printStats) userInfo:nil repeats:YES];
-            [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(resetCacheStats) userInfo:nil repeats:NO];
-        });
+#ifdef DEBUG
+        if(kJotEnableCacheStats){
+            dispatch_async(dispatch_get_main_queue(),^{
+                [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(printStats) userInfo:nil repeats:YES];
+                [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(resetCacheStats) userInfo:nil repeats:NO];
+            });
+        }
+#endif
     }
     return _instance;
 }
@@ -124,19 +129,21 @@ static JotBufferManager* _instance = nil;
 
 -(void) updateCacheStats{
 #ifdef DEBUG
-    for(id key in [cacheOfVBOs allKeys]){
-        NSArray* vbos = [cacheOfVBOs objectForKey:key];
-        NSMutableDictionary* stats = [cacheStats objectForKey:key];
-        if(!stats){
-            stats = [NSMutableDictionary dictionary];
-            [cacheStats setObject:stats forKey:key];
+    if(kJotEnableCacheStats){
+        for(id key in [cacheOfVBOs allKeys]){
+            NSArray* vbos = [cacheOfVBOs objectForKey:key];
+            NSMutableDictionary* stats = [cacheStats objectForKey:key];
+            if(!stats){
+                stats = [NSMutableDictionary dictionary];
+                [cacheStats setObject:stats forKey:key];
+            }
+            double avg = [[stats objectForKey:@"avg"] doubleValue];
+            avg = avg - avg / 100 + [vbos count] / 100.0;
+            int max = [[stats objectForKey:@"max"] intValue];
+            [stats setObject:@(avg) forKey:@"avg"];
+            [stats setObject:@([vbos count]) forKey:@"current"];
+            [stats setObject:@(MAX(max, [vbos count])) forKey:@"max"];
         }
-        double avg = [[stats objectForKey:@"avg"] doubleValue];
-        avg = avg - avg / 100 + [vbos count] / 100.0;
-        int max = [[stats objectForKey:@"max"] intValue];
-        [stats setObject:@(avg) forKey:@"avg"];
-        [stats setObject:@([vbos count]) forKey:@"current"];
-        [stats setObject:@(MAX(max, [vbos count])) forKey:@"max"];
     }
 #endif
 }
@@ -146,7 +153,9 @@ static JotBufferManager* _instance = nil;
 
 -(void) printStats{
 #ifdef DEBUG
-    NSLog(@"cache stats: %@", cacheStats);
+    if(kJotEnableCacheStats){
+        NSLog(@"cache stats: %@", cacheStats);
+    }
 #endif
 }
 

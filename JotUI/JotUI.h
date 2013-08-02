@@ -11,6 +11,8 @@
 
 #define CheckMainThread if(![NSThread isMainThread]){ NSAssert(NO, @"needs to be on main thread"); }
 
+#define kJotEnableCacheStats NO
+
 #import <Foundation/Foundation.h>
 
 #import <JotTouchSDK/JotStylusManager.h>
