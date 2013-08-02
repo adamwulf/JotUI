@@ -12,6 +12,8 @@
 #import "AbstractBezierPathElement-Protected.h"
 #import "JotDefaultBrushTexture.h"
 #import "NSArray+JotMapReduce.h"
+#import "JotBufferVBO.h"
+#import "JotBufferManager.h"
 #import <OpenGLES/EAGLDrawable.h>
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
@@ -50,14 +52,19 @@
 
 
 -(void) addElement:(AbstractBezierPathElement*)element{
-    totalNumberOfBytes += [element numberOfBytesGivenPreviousElement:[segments lastObject]];
+    int numOfElementBytes = [element numberOfBytesGivenPreviousElement:[segments lastObject]];
+    int numOfCacheBytes = [JotBufferVBO cacheNumberForBytes:numOfElementBytes] * kJotBufferBucketSize;
+//    NSLog(@"number of element bytes: %d", numOfElementBytes);
+    totalNumberOfBytes += numOfElementBytes + numOfCacheBytes;
     [segments addObject:element];
     [self updateHashWithObject:element];
 }
 
 /**
  * removes an element from this stroke,
- * and updates our hash appropriately
+ * but does not update the hash. this should
+ * only be used to manage memory for a slow
+ * dealloc situation
  */
 -(void) removeElementAtIndex:(NSInteger)index{
     [segments removeObjectAtIndex:index];

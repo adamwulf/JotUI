@@ -16,6 +16,8 @@
 
 -(id) initWithData:(NSData*)vertexData;
 
++(int) cacheNumberForBytes:(int)bytes;
+
 -(int) cacheNumber;
 
 -(void) updateBufferWithData:(NSData*)vertexData;

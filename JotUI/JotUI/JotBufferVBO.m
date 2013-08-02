@@ -20,8 +20,8 @@
 -(id) initWithData:(NSData*)vertexData{
     if(self = [super init]){
         cacheNumber = [JotBufferManager cacheNumberForData:vertexData];
-        // round up to nearest 2000 bytes
-        mallocSize = ceilf(vertexData.length / 2000.0) * 2000;
+        // round up to nearest kJotBufferBucketSize bytes
+        mallocSize = ceilf(vertexData.length / kJotBufferBucketSize) * kJotBufferBucketSize;
         glGenBuffers(1,&vbo);
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
         // create buffer of size mallocSize (init w/ NULL to create)
@@ -32,8 +32,12 @@
     return self;
 }
 
++(int) cacheNumberForBytes:(int)bytes{
+    return ceilf(bytes / kJotBufferBucketSize);
+}
+
 -(int) cacheNumber{
-    return mallocSize / 2000;
+    return [JotBufferVBO cacheNumberForBytes:mallocSize];
 }
 
 -(void) updateBufferWithData:(NSData*)vertexData{

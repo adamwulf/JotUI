@@ -26,7 +26,7 @@ static JotBufferManager* _instance = nil;
         
         dispatch_async(dispatch_get_main_queue(),^{
             [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(printStats) userInfo:nil repeats:YES];
-            [NSTimer scheduledTimerWithTimeInterval:6 target:self selector:@selector(resetCacheStats) userInfo:nil repeats:NO];
+            [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(resetCacheStats) userInfo:nil repeats:NO];
         });
     }
     return _instance;
@@ -40,7 +40,7 @@ static JotBufferManager* _instance = nil;
 }
 
 +(NSInteger) cacheNumberForData:(NSData *)vertexData{
-    return ceilf(vertexData.length / 2000.0);
+    return ceilf(vertexData.length / kJotBufferBucketSize);
 }
 
 
@@ -60,13 +60,14 @@ static JotBufferManager* _instance = nil;
         // count miss
         int miss = [[stats objectForKey:@"miss"] intValue];
         [stats setObject:@(miss + 1) forKey:@"miss"];
+
+        int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
+        mem += buffer.cacheNumber * kJotBufferBucketSize;
+        [cacheStats setObject:@(mem) forKey:@"totalMem"];
     }
     int active = [[stats objectForKey:@"active"] intValue];
     [stats setObject:@(active + 1) forKey:@"active"];
     [self updateCacheStats];
-    int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
-    mem += buffer.cacheNumber * 2;
-    [cacheStats setObject:@(mem) forKey:@"totalMem"];
     return buffer;
 }
 
@@ -78,27 +79,30 @@ static JotBufferManager* _instance = nil;
 }
 
 -(NSInteger) maxCacheSizeFor:(int)cacheNumber{
-    if(cacheNumber <= 1){           // (2k) * 1000 = 4Mb
-        return 1250;
-    }else if(cacheNumber <= 2){     // (4k) * 500 = 4Mb
-        return 400;
-    }else if(cacheNumber <= 3){     // (6k) * 500 = 3Mb
-        return 250;
-    }else if(cacheNumber <= 5){     // (8k + 10k) * 200 = 3.6Mb
-        return 40;
-    }else if(cacheNumber <= 7){     // (12k 14k) * 50 = 1.3Mb
+    if(cacheNumber <= 1){           // (.2k) * 1000 = 200k
+        return 1000;
+    }else if(cacheNumber <= 2){     // (.4k) * 1000 = 400k
+        return 1000;
+    }else if(cacheNumber <= 3){     // (.6k) * 1000 = 600k
+        return 1000;
+    }else if(cacheNumber <= 5){     // (.8k + 1.0k) * 5000 = 400 + 500 = 900k
+        return 500;
+    }else if(cacheNumber <= 7){     // (1.2k + 1.4k) * 20 = 240k + 280k = 520k
         return 20;
-    }else if(cacheNumber <= 9){     // (16k + 18k) * 10 = 0.3Mb
-        return 2;
-    }else if(cacheNumber <= 12){    // (20k + 22k + 24k) * 5 = 0.3Mb
-        return 2;
-    }else if(cacheNumber <= 15){    // (26k + 28k + 30k) * 5 = .5Mb
-        return 2;
+    }else if(cacheNumber <= 9){     // (1.6k + 1.8k) * 20 = 32k + 36k = 68k
+        return 20;
+    }else if(cacheNumber <= 12){    // (2.0k + 2.2k + 2.4k) * 20 = = 40 + 44 + 48k = 112k
+        return 20;
+    }else if(cacheNumber <= 15){    // (2.6k + 2.8k + 3.0k) * 20 = 52 + 56 + 60 = 168k
+        return 20;
     }else{
         return 0;
     }
     
-//    ~15Mb cache
+    // 200 + 400 + 600 + 900 + 520 + 68 + 112 + 168
+    // 1200 + 1450 + 300
+    // 2900
+    // ~ 3Mb cache
 }
 
 -(void) recycleBuffer:(JotBufferVBO*)buffer{

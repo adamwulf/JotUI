@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "JotBufferVBO.h"
 
+#define kJotBufferBucketSize 200.0
+
 @interface JotBufferManager : NSObject
 
 +(JotBufferManager*) sharedInstace;

@@ -45,7 +45,9 @@ static int counter;
     NSDate *date = [NSDate date];
     int count = 0;
     while([objectsToDealloc count] && ABS([date timeIntervalSinceNow]) < maxTickDuration){
-        [objectsToDealloc removeLastObject];
+        @synchronized(self){
+            [objectsToDealloc removeLastObject];
+        }
         count++;
     }
     if(counter % 10 == 0){
@@ -57,7 +59,9 @@ static int counter;
 }
 
 -(void) addObjectToDealloc:(NSObject*)obj{
-    [objectsToDealloc addObject:obj];
+    @synchronized(self){
+        [objectsToDealloc addObject:obj];
+    }
 }
 
 

@@ -154,7 +154,6 @@
     return shouldContainColor;
 }
 
-
 -(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
     // find out how many steps we can put inside this segment length
     int numberOfVertices = [self numberOfVertices];

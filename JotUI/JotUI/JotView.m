@@ -980,7 +980,7 @@ static int undoCounter;
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-            if([currentStroke totalNumberOfBytes] > 512*1024){ // 0.5Mb
+            if([currentStroke totalNumberOfBytes] > 256*1024){ // 0.25Mb
                 NSLog(@"stroke size: %d", [currentStroke totalNumberOfBytes]);
                 
                 // we'll split the stroke here
