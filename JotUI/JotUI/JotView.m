@@ -476,6 +476,7 @@ dispatch_queue_t importExportStateQueue;
 
     if(!exportFinishBlock) return;
 
+    CGSize fullSize = CGSizeMake(initialViewport.width, initialViewport.height);
     CGSize exportSize = CGSizeMake(initialViewport.width / 2, initialViewport.height / 2);
     
 	GLuint exportFramebuffer;
@@ -497,7 +498,7 @@ dispatch_queue_t importExportStateQueue;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  exportSize.width, exportSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
     
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
@@ -509,18 +510,18 @@ dispatch_queue_t importExportStateQueue;
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     
     glClearColor(1.0, 1.0, 1.0, 1.0);
-    glViewport(0, 0, exportSize.width, exportSize.height);
+    glViewport(0, 0, fullSize.width, fullSize.height);
     glClear(GL_COLOR_BUFFER_BIT);
     
     [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
     
     // read the image from OpenGL and push it into a data buffer
     NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
-    NSInteger dataLength = exportSize.width * exportSize.height * 4;
+    NSInteger dataLength = fullSize.width * fullSize.height * 4;
     GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
     // Read pixel data from the framebuffer
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
-    glReadPixels(x, y, exportSize.width, exportSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     
     
@@ -539,7 +540,7 @@ dispatch_queue_t importExportStateQueue;
             // otherwise, use kCGImageAlphaPremultipliedLast
             CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
             CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-            CGImageRef iref = CGImageCreate(exportSize.width, exportSize.height, 8, 32, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+            CGImageRef iref = CGImageCreate(fullSize.width, fullSize.height, 8, 32, fullSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                             kCGImageAlphaPremultipliedLast,
                                             ref, NULL, true, kCGRenderingIntentDefault);
             
