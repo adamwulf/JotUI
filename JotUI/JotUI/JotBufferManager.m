@@ -123,6 +123,7 @@ static JotBufferManager* _instance = nil;
 }
 
 -(void) updateCacheStats{
+#ifdef DEBUG
     for(id key in [cacheOfVBOs allKeys]){
         NSArray* vbos = [cacheOfVBOs objectForKey:key];
         NSMutableDictionary* stats = [cacheStats objectForKey:key];
@@ -137,13 +138,16 @@ static JotBufferManager* _instance = nil;
         [stats setObject:@([vbos count]) forKey:@"current"];
         [stats setObject:@(MAX(max, [vbos count])) forKey:@"max"];
     }
+#endif
 }
 
 
 #pragma mark - Private
 
 -(void) printStats{
+#ifdef DEBUG
     NSLog(@"cache stats: %@", cacheStats);
+#endif
 }
 
 -(NSMutableArray*) arrayOfVBOsForCacheNumber:(int)size{

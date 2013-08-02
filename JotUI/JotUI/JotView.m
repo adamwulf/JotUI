@@ -27,6 +27,7 @@
 
 
 #define kJotValidateUndoTimer .06
+#define kJotMaxStrokeByteSize 256*1024
 
 
 dispatch_queue_t importExportImageQueue;
@@ -981,7 +982,7 @@ static int undoCounter;
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-            if([currentStroke totalNumberOfBytes] > 256*1024){ // 0.25Mb
+            if([currentStroke totalNumberOfBytes] > kJotMaxStrokeByteSize){ // 0.25Mb
                 NSLog(@"stroke size: %d", [currentStroke totalNumberOfBytes]);
                 
                 // we'll split the stroke here
@@ -1129,6 +1130,25 @@ static int undoCounter;
                                        toWidth:[self.delegate widthForTouch:jotTouch]
                                        toColor:[self.delegate colorForTouch:jotTouch]
                                  andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                if([currentStroke totalNumberOfBytes] > kJotMaxStrokeByteSize){ // 0.25Mb
+                    NSLog(@"stroke size: %d", [currentStroke totalNumberOfBytes]);
+                    
+                    // we'll split the stroke here
+                    [state.stackOfStrokes addObject:currentStroke];
+                    [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                    [state.stackOfUndoneStrokes removeAllObjects];
+                    [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
+                    
+                    // now make a new stroke to pick up where we left off
+                    JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
+                    [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+                    [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
+                    MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
+                    moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
+                    moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
+                    moveTo.rotation = [[currentStroke.segments lastObject] rotation];
+                    [newStroke addElement:moveTo];
+                };
             }
         }
     }
