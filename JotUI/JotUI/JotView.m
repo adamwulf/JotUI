@@ -893,8 +893,10 @@ static int undoCounter;
             [strokeToWriteToTexture removeElementAtIndex:0];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
             prevElementForTextureWriting = element;
-//            [[JotTrashManager sharedInstace] addObjectToDealloc:element];
             distance += [element lengthOfElement];
+            // this should dealloc the element immediately,
+            // and the VBO its using internally will be recycled
+            // in to the JotBufferManager
         }
 
         // now that we're done with the stroke,
