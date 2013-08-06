@@ -9,25 +9,24 @@
 #import "JotBufferVBO.h"
 #import "AbstractBezierPathElement.h"
 #import "JotBufferManager.h"
+#import "JotUI.h"
 
 @implementation JotBufferVBO{
-    GLuint vbo;
-    int mallocSize;
     int cacheNumber;
+    OpenGLVBO* vbo;
+    NSInteger stepNumber;
 }
 
 
--(id) initWithData:(NSData*)vertexData{
+-(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber{
     if(self = [super init]){
+        
+        vbo = _vbo;
+        stepNumber = _stepNumber;
+        
         cacheNumber = [JotBufferManager cacheNumberForData:vertexData];
-        // round up to nearest kJotBufferBucketSize bytes
-        mallocSize = ceilf(vertexData.length / kJotBufferBucketSize) * kJotBufferBucketSize;
-        glGenBuffers(1,&vbo);
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        // create buffer of size mallocSize (init w/ NULL to create)
-        glBufferData(GL_ARRAY_BUFFER, mallocSize, NULL, GL_DYNAMIC_DRAW);
-        // now fill with data
-        glBufferSubData(GL_ARRAY_BUFFER, 0, vertexData.length, vertexData.bytes);
+
+        [vbo updateStep:stepNumber withBufferWithData:vertexData];
     }
     return self;
 }
@@ -37,51 +36,25 @@
 }
 
 -(int) cacheNumber{
-    return [JotBufferVBO cacheNumberForBytes:mallocSize];
+    return cacheNumber;
 }
 
 -(void) updateBufferWithData:(NSData*)vertexData{
-    [self bind];
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertexData.length, vertexData.bytes);
+    [vbo updateStep:stepNumber withBufferWithData:vertexData];
 }
 
 -(void) bind{
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), offsetof(struct ColorfulVertex, Position));
-    glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), offsetof(struct ColorfulVertex, Color));
-    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), offsetof(struct ColorfulVertex, Size));
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
+    [vbo bindForStep:stepNumber];
 }
 
 -(void) bindForColor:(UIColor*)color{
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), offsetof(struct ColorlessVertex, Position));
-    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex), offsetof(struct ColorlessVertex, Size));
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
-    glDisableClientState(GL_COLOR_ARRAY);
-    
-    if(!color){
-        glColor4f(0, 0, 0, 1);
-    }else{
-        GLfloat colorSteps[4];
-        [color getRGBAComponents:colorSteps];
-        glColor4f(colorSteps[0], colorSteps[1], colorSteps[2], colorSteps[3]);
-    }
+    [vbo bindForColor:color andStep:stepNumber];
 }
 
 -(void) unbind{
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    [vbo unbind];
 }
 
-
--(void) dealloc{
-    if(vbo){
-        glDeleteBuffers(1,&vbo);
-    }
-}
 
 
 @end

@@ -10,6 +10,7 @@
 #import "JotTrashManager.h"
 #import "NSArray+JotMapReduce.h"
 #import "JotUI.h"
+#import "OpenGLVBO.h"
 
 @implementation JotBufferManager{
     NSMutableDictionary* cacheOfVBOs;
@@ -50,18 +51,28 @@ static JotBufferManager* _instance = nil;
 
 
 -(JotBufferVBO*) bufferWithData:(NSData*)vertexData{
-    NSMutableArray* arr = [self arrayOfVBOsForCacheNumber:[JotBufferManager cacheNumberForData:vertexData]];
-    JotBufferVBO* buffer = [arr firstObject];
+    NSInteger cacheNumberForData = [JotBufferManager cacheNumberForData:vertexData];
+    NSMutableArray* vboCache = [self arrayOfVBOsForCacheNumber:cacheNumberForData];
+    JotBufferVBO* buffer = [vboCache firstObject];
     NSMutableDictionary* stats = [cacheStats objectForKey:@(buffer.cacheNumber)];
     if(buffer){
-        [arr removeObjectAtIndex:0];
+        [vboCache removeObjectAtIndex:0];
         [buffer updateBufferWithData:vertexData];
         
         // update used stat
         int used = [[stats objectForKey:@"used"] intValue];
         [stats setObject:@(used + 1) forKey:@"used"];
     }else{
-        buffer = [[JotBufferVBO alloc] initWithData:vertexData];
+        // fill our cache with buffers of the right size
+        OpenGLVBO* openGLVBO = [[OpenGLVBO alloc] initForCacheNumber:cacheNumberForData];
+        for(int stepNumber=0;stepNumber<openGLVBO.numberOfSteps;stepNumber++){
+            buffer = [[JotBufferVBO alloc] initWithData:vertexData andOpenGLVBO:openGLVBO andStepNumber:stepNumber];
+            [vboCache addObject:buffer];
+        }
+        // now use the last of those newly created buffers
+        buffer = [vboCache lastObject];
+        [vboCache removeLastObject];
+        
         // count miss
         int miss = [[stats objectForKey:@"miss"] intValue];
         [stats setObject:@(miss + 1) forKey:@"miss"];

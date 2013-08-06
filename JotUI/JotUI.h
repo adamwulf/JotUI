@@ -13,6 +13,9 @@
 
 #define kJotEnableCacheStats NO
 
+#define kJotBufferBucketSize 200.0
+
+
 #import <Foundation/Foundation.h>
 
 #import <JotTouchSDK/JotStylusManager.h>
