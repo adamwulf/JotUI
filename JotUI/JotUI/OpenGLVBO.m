@@ -24,14 +24,13 @@
     if(self = [super init]){
         cacheNumber = _cacheNumber;
         stepMallocSize = cacheNumber * kJotBufferBucketSize;
-        mallocSize = ceilf(stepMallocSize / 4096.0) * 4096;
+        mallocSize = ceilf(stepMallocSize / ((float)kJotMemoryPageSize)) * kJotMemoryPageSize;
         numberOfSteps = floorf(mallocSize / stepMallocSize);
 
         glGenBuffers(1,&vbo);
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
         // create buffer of size mallocSize (init w/ NULL to create)
         glBufferData(GL_ARRAY_BUFFER, mallocSize, NULL, GL_DYNAMIC_DRAW);
-        NSLog(@"created VBO: %d, %d at %d", mallocSize, numberOfSteps, stepMallocSize);
     }
     return self;
 }
