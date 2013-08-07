@@ -71,6 +71,10 @@
     return NULL;
 }
 
+-(NSString*)description{
+    return [NSString stringWithFormat:@"[Move to: %f,%f]", startPoint.x, startPoint.y];
+}
+
 #pragma mark - PlistSaving
 
 -(id) initFromDictionary:(NSDictionary*)dictionary{

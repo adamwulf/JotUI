@@ -350,7 +350,11 @@
  * helpful description when debugging
  */
 -(NSString*)description{
-    return [NSString stringWithFormat:@"[Curve from: %f,%f  to: %f%f]", startPoint.x, startPoint.y, curveTo.x, curveTo.y];
+    if(CGPointEqualToPoint(startPoint, ctrl1) && CGPointEqualToPoint(curveTo, ctrl2)){
+        return [NSString stringWithFormat:@"[Line from: %f,%f  to: %f,%f]", startPoint.x, startPoint.y, curveTo.x, curveTo.y];
+    }else{
+        return [NSString stringWithFormat:@"[Curve from: %f,%f  to: %f,%f]", startPoint.x, startPoint.y, curveTo.x, curveTo.y];
+    }
 }
 
 
