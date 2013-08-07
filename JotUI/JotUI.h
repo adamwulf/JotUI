@@ -13,6 +13,12 @@
 
 #define kJotEnableCacheStats NO
 
+#define kJotBufferBucketSize 200.0
+
+// vm page size: http://developer.apple.com/library/mac/#documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
+#define kJotMemoryPageSize 4096
+
+
 #import <Foundation/Foundation.h>
 
 #import <JotTouchSDK/JotStylusManager.h>

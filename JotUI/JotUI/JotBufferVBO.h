@@ -11,10 +11,11 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 #import "UIColor+JotHelper.h"
+#import "OpenGLVBO.h"
 
 @interface JotBufferVBO : NSObject
 
--(id) initWithData:(NSData*)vertexData;
+-(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber;
 
 +(int) cacheNumberForBytes:(int)bytes;
 
