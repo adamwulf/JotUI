@@ -127,6 +127,8 @@
 
 
 -(BOOL) shouldContainVertexColorDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+    return YES;
+    
     if(!previousElement){
         return NO;
     }
@@ -318,9 +320,9 @@
  * depending on which was created/bound in this method+thread
  */
 -(BOOL) bind{
-    // we're only allowed to create vao
+    // we're only allowed to create vbo
     // on the main thread.
-    // if we need a vao, then create it
+    // if we need a vbo, then create it
     if(!vbo && dataVertexBuffer){
         vbo = [[JotBufferManager sharedInstace] bufferWithData:dataVertexBuffer];
     }
@@ -513,6 +515,10 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         hashCache = prime * hashCache + ctrl1.y;
         hashCache = prime * hashCache + ctrl2.x;
         hashCache = prime * hashCache + ctrl2.y;
+        
+        // force reload
+//        scaleOfVertexBuffer = 0;
+//        dataVertexBuffer = nil;
     }
     return self;
 }

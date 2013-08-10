@@ -9,6 +9,7 @@
 #import "OpenGLVBO.h"
 #import "JotUI.h"
 #import "UIColor+JotHelper.h"
+#import "AbstractBezierPathElement-Protected.h"
 
 @implementation OpenGLVBO{
     GLuint vbo;
@@ -50,6 +51,7 @@
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
+    printOpenGLError();
 }
 
 -(void) bindForColor:(UIColor*)color andStep:(NSInteger)stepNumber{
@@ -67,6 +69,7 @@
         [color getRGBAComponents:colorSteps];
         glColor4f(colorSteps[0], colorSteps[1], colorSteps[2], colorSteps[3]);
     }
+    printOpenGLError();
 }
 
 -(void) unbind{

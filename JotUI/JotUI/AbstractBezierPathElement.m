@@ -9,8 +9,26 @@
 #import "AbstractBezierPathElement.h"
 #import "AbstractBezierPathElement-Protected.h"
 #import "UIColor+JotHelper.h"
+#import "JotUI.h"
 
 #define kAbstractMethodException [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil]
+
+int printOglError(char *file, int line)
+{
+    
+    GLenum glErr;
+    int    retCode = 0;
+    
+    glErr = glGetError();
+    if (glErr != GL_NO_ERROR)
+    {
+        NSLog(@"glError in file %s @ line %d: %d\n",
+               file, line, glErr);
+        retCode = 1;
+    }
+    return retCode;
+}
+
 
 @implementation AbstractBezierPathElement
 
@@ -157,6 +175,7 @@
     if([self bind]){
         // VBO
         glDrawArrays(GL_POINTS, 0, [self numberOfSteps] * [self numberOfVerticesPerStep]);
+        printOpenGLError();
         [self unbind];
     }
 }
