@@ -269,9 +269,9 @@
             calcColor[3] = calcColor[3] / (stepWidth/20);
 
             // premultiply alpha
-            calcColor[0] = calcColor[0] * calcColor[3];
-            calcColor[1] = calcColor[1] * calcColor[3];
-            calcColor[2] = calcColor[2] * calcColor[3];
+//            calcColor[0] = calcColor[0] * calcColor[3];
+//            calcColor[1] = calcColor[1] * calcColor[3];
+//            calcColor[2] = calcColor[2] * calcColor[3];
         }
         // Convert locations from screen Points to GL points (screen pixels)
         if(vertexBufferShouldContainColor){
