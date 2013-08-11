@@ -66,7 +66,7 @@
 
         // now that we've saved all of our strokes,
         // we need to delete the files of any strokes that were
-        // written to the texture and aren't in our state dictionary any more.
+        // written to the disk and aren't in our state dictionary any more.
         // to do that, loop over the directory and compare to the files we just wrote.
         NSArray* contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:stateDirectory error:nil];
         for(NSString* item in contents){

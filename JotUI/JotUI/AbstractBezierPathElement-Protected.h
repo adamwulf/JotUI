@@ -35,6 +35,8 @@ int printOglError(char *file, int line);
 
 -(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
 
+-(void) validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
+
 -(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
 
 -(void) arrayOfPositionsForPoint:(CGPoint)point

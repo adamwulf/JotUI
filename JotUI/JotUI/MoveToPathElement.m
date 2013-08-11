@@ -55,7 +55,6 @@
     startPoint = CGPointMake(startPoint.x + adjustment.x, startPoint.y + adjustment.y);
 }
 
-
 /**
  * only 1 step to show our single point
  */
@@ -86,6 +85,12 @@
     }
     return self;
 }
+
+-(void) validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+    // noop, we don't have data
+}
+
+
 
 #pragma mark - hashing and equality
 

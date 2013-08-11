@@ -102,6 +102,10 @@ int printOglError(char *file, int line)
     @throw kAbstractMethodException;
 }
 
+-(void) validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+    @throw kAbstractMethodException;
+}
+
 /**
  * this will return an array of vertex structs
  * that we can send to OpenGL to draw. Ideally,

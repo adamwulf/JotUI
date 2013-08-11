@@ -106,10 +106,11 @@
             Class class = NSClassFromString(className);
             AbstractBezierPathElement* segment =  [[class alloc] initFromDictionary:obj];
             [self updateHashWithObject:segment];
+            totalNumberOfBytes += [segment numberOfBytesGivenPreviousElement:previousElement];
+            [segment validateDataGivenPreviousElement:previousElement];
             if([segment bind]){
                 [segment unbind];
             }
-            totalNumberOfBytes += [segment numberOfBytesGivenPreviousElement:previousElement];
             previousElement = segment;
             return segment;
         }]];

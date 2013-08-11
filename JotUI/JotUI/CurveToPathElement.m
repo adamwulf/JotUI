@@ -23,6 +23,8 @@
     JotBufferVBO* vbo;
     // a boolean for if color information is encoded in the VBO
     BOOL vertexBufferShouldContainColor;
+    // store the number of bytes of data that we've generated
+    NSInteger numberOfBytesOfVertexData;
 }
 
 @synthesize curveTo;
@@ -127,8 +129,6 @@
 
 
 -(BOOL) shouldContainVertexColorDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
-    return YES;
-    
     if(!previousElement){
         return NO;
     }
@@ -200,12 +200,12 @@
     
     // find out how many steps we can put inside this segment length
     int numberOfVertices = [self numberOfVertices];
-    NSInteger numberOfBytes = [self numberOfBytesGivenPreviousElement:previousElement];
+    numberOfBytesOfVertexData = [self numberOfBytesGivenPreviousElement:previousElement];
 
     
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;
-    void* vertexBuffer = malloc(numberOfBytes);
+    void* vertexBuffer = malloc(numberOfBytesOfVertexData);
     
     // save our scale, we're only going to cache a vertex
     // buffer for 1 scale at a time
@@ -297,7 +297,7 @@
         }
     }
     
-    dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytes];
+    dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytesOfVertexData];
     
     return (struct ColorfulVertex*) dataVertexBuffer.bytes;
 }
@@ -493,6 +493,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
     [dict setObject:[NSNumber numberWithFloat:ctrl2.y] forKey:@"ctrl2.y"];
     [dict setObject:[NSNumber numberWithBool:vertexBufferShouldContainColor] forKey:@"vertexBufferShouldContainColor"];
     [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
+    [dict setObject:[NSNumber numberWithFloat:numberOfBytesOfVertexData] forKey:@"numberOfBytesOfVertexData"];
     return [NSDictionary dictionaryWithDictionary:dict];
 }
 
@@ -504,6 +505,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         ctrl2 = CGPointMake([[dictionary objectForKey:@"ctrl2.x"] floatValue], [[dictionary objectForKey:@"ctrl2.y"] floatValue]);
         dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
         vertexBufferShouldContainColor = [[dictionary objectForKey:@"vertexBufferShouldContainColor"] boolValue];
+        numberOfBytesOfVertexData = [[dictionary objectForKey:@"numberOfBytesOfVertexData"] integerValue];
         
         NSUInteger prime = 31;
         hashCache = 1;
@@ -515,13 +517,30 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         hashCache = prime * hashCache + ctrl1.y;
         hashCache = prime * hashCache + ctrl2.x;
         hashCache = prime * hashCache + ctrl2.y;
-        
-        // force reload
-//        scaleOfVertexBuffer = 0;
-//        dataVertexBuffer = nil;
     }
     return self;
 }
+
+/**
+ * if we ever change how we render segments, then the data that's stored in our
+ * dataVertexBuffer will contain "bad" data, since it would have been generated
+ * for an older/different render method.
+ *
+ * we need to validate that we have the exact number of bytes of data to render
+ * that we think we do
+ */
+-(void) validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+    // noop, we don't have data
+    NSInteger numberOfBytesThatWeNeed = [self numberOfBytesGivenPreviousElement:previousElement];
+    if(numberOfBytesThatWeNeed != numberOfBytesOfVertexData){
+        // force reload
+        scaleOfVertexBuffer = 0;
+        dataVertexBuffer = nil;
+    }else{
+        // noop, we're good
+    }
+}
+
 
 #pragma mark - hashing and equality
 
