@@ -32,6 +32,7 @@
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
         // create buffer of size mallocSize (init w/ NULL to create)
         glBufferData(GL_ARRAY_BUFFER, mallocSize, NULL, GL_DYNAMIC_DRAW);
+        printOpenGLError();
     }
     return self;
 }
@@ -40,6 +41,7 @@
 -(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
     [self bindForStep:stepNumber];
     glBufferSubData(GL_ARRAY_BUFFER, stepNumber*stepMallocSize, vertexData.length, vertexData.bytes);
+    printOpenGLError();
 }
 
 
@@ -67,7 +69,7 @@
     }else{
         GLfloat colorSteps[4];
         [color getRGBAComponents:colorSteps];
-        glColor4f(colorSteps[0], colorSteps[1], colorSteps[2], colorSteps[3]);
+        glColor4f(colorSteps[0] * colorSteps[3], colorSteps[1] * colorSteps[3], colorSteps[2] * colorSteps[3], colorSteps[3]);
     }
     printOpenGLError();
 }

@@ -15,6 +15,9 @@
 #import <OpenGLES/ES1/glext.h>
 #import "JotBufferManager.h"
 
+
+#define kDivideStepBy 5
+
 @implementation CurveToPathElement{
     UIBezierPath* bezierCache;
     // cache the hash, since it's expenseive to calculate
@@ -129,6 +132,8 @@
 
 
 -(BOOL) shouldContainVertexColorDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+//    return YES;
+    
     if(!previousElement){
         return NO;
     }
@@ -143,7 +148,6 @@
     colorSteps[1] = myColor[1] - prevColor[1];
     colorSteps[2] = myColor[2] - prevColor[2];
     colorSteps[3] = myColor[3] - prevColor[3];
-    
     
     BOOL shouldContainColor = YES;
     if(!self.color ||
@@ -268,12 +272,12 @@
             calcColor[2] = prevColor[2] + colorSteps[2] * t;
             calcColor[3] = prevColor[3] + colorSteps[3] * t;
             
-            calcColor[3] = calcColor[3] / (stepWidth/20);
+            calcColor[3] = calcColor[3] / (stepWidth / kDivideStepBy);
 
             // premultiply alpha
-//            calcColor[0] = calcColor[0] * calcColor[3];
-//            calcColor[1] = calcColor[1] * calcColor[3];
-//            calcColor[2] = calcColor[2] * calcColor[3];
+            calcColor[0] = calcColor[0] * calcColor[3];
+            calcColor[1] = calcColor[1] * calcColor[3];
+            calcColor[2] = calcColor[2] * calcColor[3];
         }
         // Convert locations from screen Points to GL points (screen pixels)
         if(vertexBufferShouldContainColor){
@@ -287,6 +291,7 @@
             coloredVertexBuffer[step].Color[3] = calcColor[3];
             CGFloat steppedWidth = prevWidth + widthDiff * t;
             coloredVertexBuffer[step].Size = steppedWidth*scaleOfVertexBuffer;
+            [self validateVertexData:coloredVertexBuffer[step]];
         }else{
             struct ColorlessVertex* colorlessVertexBuffer = (struct ColorlessVertex*)vertexBuffer;
             // set colors to the array
@@ -300,6 +305,30 @@
     dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytesOfVertexData];
     
     return (struct ColorfulVertex*) dataVertexBuffer.bytes;
+}
+
+-(void) validateVertexData:(struct ColorfulVertex)vertex{
+    if(vertex.Color[0] < 0 || vertex.Color[0] > 1){
+        NSLog(@"what?!");
+    }
+    if(vertex.Color[1] < 0 || vertex.Color[1] > 1){
+        NSLog(@"what?!");
+    }
+    if(vertex.Color[2] < 0 || vertex.Color[2] > 1){
+        NSLog(@"what?!");
+    }
+    if(vertex.Color[3] < 0 || vertex.Color[3] > 1){
+        NSLog(@"what?!");
+    }
+    if(vertex.Size < 0 || vertex.Size > 200){
+        NSLog(@"what?!");
+    }
+    if(vertex.Position[0] < -500 || vertex.Position[0] > 2000){
+        NSLog(@"what?!");
+    }
+    if(vertex.Position[1] < -500 || vertex.Position[1] > 2000){
+        NSLog(@"what?!");
+    }
 }
 
 
@@ -331,7 +360,10 @@
     }else{
         GLfloat colors[4];
         [self.color getRGBAComponents:colors];
-        [vbo bindForColor:[self.color colorWithAlphaComponent:colors[3] / (self.width/20)]];
+        if(colors[3] / (self.width / kDivideStepBy) < 0 || colors[3] / (self.width / kDivideStepBy) > 1){
+            NSLog(@"what?!!");
+        }
+        [vbo bindForColor:[self.color colorWithAlphaComponent:colors[3] / (self.width / kDivideStepBy)]];
     }
     return YES;
 }
@@ -536,6 +568,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         // force reload
         scaleOfVertexBuffer = 0;
         dataVertexBuffer = nil;
+        numberOfBytesOfVertexData = 0;
     }else{
         // noop, we're good
     }
