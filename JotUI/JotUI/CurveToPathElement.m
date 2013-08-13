@@ -132,8 +132,6 @@
 
 
 -(BOOL) shouldContainVertexColorDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
-//    return YES;
-    
     if(!previousElement){
         return NO;
     }
