@@ -1015,6 +1015,7 @@ static int undoCounter;
     CheckMainThread;
     
     for(JotTouch* jotTouch in touches){
+        [self.delegate willEndStrokeWithTouch:jotTouch];
         JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
         if(currentStroke){
             // move to this endpoint

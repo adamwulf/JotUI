@@ -73,6 +73,12 @@
 - (void) willMoveStrokeWithTouch:(JotTouch*)touch;
 
 /**
+ * a notification that the input will end the
+ * stroke
+ */
+- (void) willEndStrokeWithTouch:(JotTouch*)touch;
+
+/**
  * a notification that the touch has ended. For
  * any ending touch, a willMoveStrokeWithTouch:
  * will also be called before this ending call
@@ -83,6 +89,11 @@
  * the stroke for the input touch has been cancelled.
  */
 - (void) didCancelStrokeWithTouch:(JotTouch*)touch;
+
+/**
+ * the stroke for the input touch will been cancelled.
+ */
+- (void) willCancelStrokeWithTouch:(JotTouch*)touch;
 
 @optional
 
