@@ -271,6 +271,9 @@
             calcColor[3] = prevColor[3] + colorSteps[3] * t;
             
             calcColor[3] = calcColor[3] / (stepWidth / kDivideStepBy);
+            if(calcColor[3] > 1){
+                calcColor[3] = 1;
+            }
 
             // premultiply alpha
             calcColor[0] = calcColor[0] * calcColor[3];
@@ -358,10 +361,12 @@
     }else{
         GLfloat colors[4];
         [self.color getRGBAComponents:colors];
-        if(colors[3] / (self.width / kDivideStepBy) < 0 || colors[3] / (self.width / kDivideStepBy) > 1){
+        if(colors[3] / (self.width / kDivideStepBy) < 0){
             NSLog(@"what?!!");
         }
-        [vbo bindForColor:[self.color colorWithAlphaComponent:colors[3] / (self.width / kDivideStepBy)]];
+        CGFloat alpha = colors[3] / (self.width / kDivideStepBy);
+        if(alpha > 1) alpha = 1;
+        [vbo bindForColor:[self.color colorWithAlphaComponent:alpha]];
     }
     return YES;
 }

@@ -69,6 +69,13 @@
     }else{
         GLfloat colorSteps[4];
         [color getRGBAComponents:colorSteps];
+        if(colorSteps[0] * colorSteps[3] > 1 ||
+           colorSteps[1] * colorSteps[3] > 1 ||
+           colorSteps[2] * colorSteps[3] > 1 ||
+           colorSteps[3] > 1){
+            NSLog(@"what");
+        }
+           
         glColor4f(colorSteps[0] * colorSteps[3], colorSteps[1] * colorSteps[3], colorSteps[2] * colorSteps[3], colorSteps[3]);
     }
     printOpenGLError();
