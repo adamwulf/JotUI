@@ -9,6 +9,12 @@
 #import "JotStrokeManager.h"
 
 
+#define kMaxSimultaneousTouchesAllowedToTrack 40
+
+struct TouchStrokeCacheItem{
+    NSUInteger touchHash;
+    JotStroke* stroke;
+};
 
 
 @interface JotStrokeManager ()
@@ -17,8 +23,7 @@
 @private
     // this dictionary will hold all of the
     // stroke objects
-    __strong NSMutableDictionary* strokeCache;
-    __strong NSMutableDictionary* touchCache;
+    struct TouchStrokeCacheItem strokeCache[kMaxSimultaneousTouchesAllowedToTrack];
 }
 
 @end
@@ -35,8 +40,6 @@ static JotStrokeManager* _instance = nil;
     if(_instance) return _instance;
     if((self = [super init])){
         // noop
-        strokeCache = [NSMutableDictionary dictionary];
-        touchCache = [NSMutableDictionary dictionary];
         _instance = self;
     }
     return _instance;
@@ -59,15 +62,25 @@ static JotStrokeManager* _instance = nil;
  * this method will return the stroke for the given touch
  */
 -(JotStroke*) getStrokeForTouchHash:(UITouch*)touch{
-    return [strokeCache objectForKey:@(touch.hash)];
+    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
+        if(strokeCache[i].touchHash == touch.hash){
+            return strokeCache[i].stroke;
+        }
+    }
+    return nil;
 }
 
 -(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture{
-    JotStroke* ret = [strokeCache objectForKey:@(touch.hash)];
+    JotStroke* ret = [self getStrokeForTouchHash:touch];
     if(!ret){
         ret = [[JotStroke alloc] initWithTexture:texture];
-        [strokeCache setObject:ret forKey:@(touch.hash)];
-        [touchCache setObject:@(touch.hash) forKey:@(ret.hash)];
+        for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
+            if(strokeCache[i].touchHash == 0){
+                strokeCache[i].touchHash = touch.hash;
+                strokeCache[i].stroke = ret;
+                return ret;
+            }
+        }
     }
     return ret;
 }
@@ -76,16 +89,25 @@ static JotStrokeManager* _instance = nil;
     //
     // TODO: how do we notify the view that uses the stroke
     // that it should be cancelled?
-    JotStroke* stroke = [self getStrokeForTouchHash:touch];
-    if(stroke){
-        [stroke cancel];
-        [self removeStrokeForTouch:touch];
+    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
+        if(strokeCache[i].touchHash == touch.hash){
+            strokeCache[i].touchHash = 0;
+            [strokeCache[i].stroke cancel];
+            [strokeCache[i].stroke autorelease];
+            return YES;
+        }
     }
-    return stroke != nil;
+    return NO;
 }
 
 -(void) removeStrokeForTouch:(UITouch*)touch{
-    [strokeCache removeObjectForKey:@(touch.hash)];
+    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
+        if(strokeCache[i].touchHash == touch.hash){
+            strokeCache[i].touchHash = 0;
+            [strokeCache[i].stroke autorelease];
+            return;
+        }
+    }
 }
 
 @end

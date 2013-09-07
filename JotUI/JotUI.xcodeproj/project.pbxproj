@@ -16,7 +16,7 @@
 		66382CB316DD5DC50053C6E6 /* NSMutableSet+Extras.h in Headers */ = {isa = PBXBuildFile; fileRef = 66382CB116DD5DC40053C6E6 /* NSMutableSet+Extras.h */; settings = {ATTRIBUTES = (Private, ); }; };
 		66382CB416DD5DC50053C6E6 /* NSMutableSet+Extras.m in Sources */ = {isa = PBXBuildFile; fileRef = 66382CB216DD5DC40053C6E6 /* NSMutableSet+Extras.m */; };
 		663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 663C186F175467DB00706A05 /* JotStrokeManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		663C1872175467DB00706A05 /* JotStrokeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 663C1870175467DB00706A05 /* JotStrokeManager.m */; };
+		663C1872175467DB00706A05 /* JotStrokeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 663C1870175467DB00706A05 /* JotStrokeManager.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		663C18751755271B00706A05 /* JotStrokeDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 663C1874175524EF00706A05 /* JotStrokeDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66455F8C175FC47200C66DFA /* JotGLTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66455F8F175FC47200C66DFA /* JotGLTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F8D175FC47200C66DFA /* JotGLTexture.m */; };
