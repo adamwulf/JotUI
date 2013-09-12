@@ -64,4 +64,8 @@
 
 -(void) slowDownFPS;
 -(void) speedUpFPS;
+
+
+-(void) addElement:(AbstractBezierPathElement*)element;
+
 @end

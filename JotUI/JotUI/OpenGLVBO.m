@@ -14,7 +14,7 @@
 @implementation OpenGLVBO{
     GLuint vbo;
     NSInteger cacheNumber;
-    NSInteger mallocSize;
+    GLsizeiptr mallocSize;
     NSInteger stepMallocSize;
     NSInteger numberOfSteps;
 }
@@ -38,10 +38,12 @@
 }
 
 
--(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
+-(BOOL) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
     [self bindForStep:stepNumber];
-    glBufferSubData(GL_ARRAY_BUFFER, stepNumber*stepMallocSize, vertexData.length, vertexData.bytes);
-    printOpenGLError();
+    GLintptr offset = stepNumber*stepMallocSize;
+    GLsizeiptr len = vertexData.length;
+    glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
+    return !printOpenGLError();
 }
 
 

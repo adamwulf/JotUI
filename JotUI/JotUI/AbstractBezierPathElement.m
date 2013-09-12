@@ -24,7 +24,7 @@ int printOglError(char *file, int line)
     {
         NSLog(@"glError in file %s @ line %d: %d\n",
                file, line, glErr);
-        retCode = 1;
+        retCode = glErr;
     }
     return retCode;
 }

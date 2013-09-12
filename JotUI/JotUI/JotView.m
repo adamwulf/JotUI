@@ -96,6 +96,12 @@ dispatch_queue_t importExportStateQueue;
 
 #pragma mark - Initialization
 
+static EAGLContext *mainThreadContext;
+
++(EAGLContext*) mainThreadContext{
+    return mainThreadContext;
+}
+
 /**
  * Implement this to override the default layer class (which is [CALayer class]).
  * We do this so that our view will be backed by a layer that is capable of OpenGL ES rendering.
@@ -124,7 +130,6 @@ dispatch_queue_t importExportStateQueue;
     }
     return self;
 }
-
 
 -(id) finishInit{
     
@@ -164,7 +169,12 @@ dispatch_queue_t importExportStateQueue;
     eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
                                     [NSNumber numberWithBool:YES], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
     
-    context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+    if(!mainThreadContext){
+        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+        mainThreadContext = context;
+    }else{
+        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
+    }
     
     if (!context || ![EAGLContext setCurrentContext:context]) {
         return nil;
@@ -808,6 +818,7 @@ dispatch_queue_t importExportStateQueue;
 -(void) prepOpenGLStateForFBO:(GLuint)frameBuffer{
     // set to current context
     [EAGLContext setCurrentContext:context];
+    
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
     
     // setup our state
@@ -1320,6 +1331,15 @@ static int undoCounter;
     // calc final size of the backing texture
     CGFloat scale = [[UIScreen mainScreen] scale];
     return CGSizeMake(initialFrameSize.width * scale, initialFrameSize.height * scale);
+}
+
+
+-(void) addElement:(AbstractBezierPathElement*)element{
+    JotStroke* stroke = [[JotStroke alloc] init];
+    [stroke addElement:element];
+    [state.stackOfStrokes addObject:stroke];
+    [self renderElement:element fromPreviousElement:nil includeOpenGLPrepForFBO:viewFramebuffer];
+    [self setNeedsPresentRenderBuffer];
 }
 
 
