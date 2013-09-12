@@ -19,7 +19,7 @@
 #define kDivideStepBy 5
 
 @implementation CurveToPathElement{
-    UIBezierPath* bezierCache;
+    CGRect boundsCache;
     // cache the hash, since it's expenseive to calculate
     NSUInteger hashCache;
     // the VBO
@@ -29,6 +29,8 @@
     // store the number of bytes of data that we've generated
     NSInteger numberOfBytesOfVertexData;
 }
+
+const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 
 @synthesize curveTo;
 @synthesize ctrl1;
@@ -53,6 +55,8 @@
         hashCache = prime * hashCache + ctrl1.y;
         hashCache = prime * hashCache + ctrl2.x;
         hashCache = prime * hashCache + ctrl2.y;
+        
+        boundsCache.origin = JotCGNotFoundPoint;
     }
     return self;
 }
@@ -121,13 +125,15 @@
 
 
 -(CGRect) bounds{
-    if(bezierCache){
-        return CGRectInset(bezierCache.bounds, -width, -width);
+    if(boundsCache.origin.x == JotCGNotFoundPoint.x){
+        CGFloat minX = MIN(MIN(MIN(startPoint.x, curveTo.x),ctrl1.x),ctrl2.x);
+        CGFloat minY = MIN(MIN(MIN(startPoint.y, curveTo.y),ctrl1.y),ctrl2.y);
+        CGFloat maxX = MAX(MAX(MAX(startPoint.x, curveTo.x),ctrl1.x),ctrl2.x);
+        CGFloat maxY = MAX(MAX(MAX(startPoint.y, curveTo.y),ctrl1.y),ctrl2.y);
+        boundsCache = CGRectMake(minX, minY, maxX - minX, maxY - minY);
+        boundsCache = CGRectInset(boundsCache, -width, -width);
     }
-    bezierCache = [UIBezierPath bezierPath];
-    [bezierCache moveToPoint:self.startPoint];
-    [bezierCache addCurveToPoint:curveTo controlPoint1:ctrl1 controlPoint2:ctrl2];
-    return [self bounds];
+    return boundsCache;
 }
 
 
