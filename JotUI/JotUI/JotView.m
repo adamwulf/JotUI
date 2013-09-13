@@ -202,7 +202,6 @@ static EAGLContext *mainThreadContext;
     glEnable(GL_POINT_SPRITE_OES);
     glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
     
-	[EAGLContext setCurrentContext:context];
 	[self destroyFramebuffer];
 	[self createFramebuffer];
 

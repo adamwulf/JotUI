@@ -83,6 +83,7 @@
         // into Open GL
         dispatch_async([JotView importExportImageQueue], ^{
             @autoreleasepool {
+                glFlush();
                 EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
                 [EAGLContext setCurrentContext:backgroundThreadContext];
                 
@@ -106,6 +107,7 @@
         // information for our page state
         dispatch_async([JotView importExportStateQueue], ^{
             @autoreleasepool {
+                glFlush();
                 EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
                 [EAGLContext setCurrentContext:backgroundThreadContext];
                 
