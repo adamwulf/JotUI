@@ -176,6 +176,7 @@ static EAGLContext *mainThreadContext;
         context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
     }
     
+    glFlush();
     if (!context || ![EAGLContext setCurrentContext:context]) {
         return nil;
     }
@@ -266,14 +267,17 @@ static EAGLContext *mainThreadContext;
     
     initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
     
-    glOrthof(0, frame.size.width * scale, 0, frame.size.height * scale, -1, 1);
-    glViewport(0, 0, initialViewport.width, initialViewport.height);
+    glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
+    printOpenGLError();
+    glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
+    printOpenGLError();
 
 	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
 		NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
 		return NO;
 	}
+    
     
     [self clear:NO];
 	
@@ -621,6 +625,7 @@ static EAGLContext *mainThreadContext;
     JotBrushTexture* keepThisTexture = brushTexture;
     
     // set our current OpenGL context
+    glFlush();
     [EAGLContext setCurrentContext:renderContext];
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
 
@@ -817,6 +822,7 @@ static EAGLContext *mainThreadContext;
  */
 -(void) prepOpenGLStateForFBO:(GLuint)frameBuffer{
     // set to current context
+    glFlush();
     [EAGLContext setCurrentContext:context];
     
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
@@ -1287,17 +1293,15 @@ static int undoCounter;
  */
 - (IBAction) clear:(BOOL)shouldPresent{
     // set our context
+    glFlush();
 	[EAGLContext setCurrentContext:context];
 	
 	// Clear the buffer
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
-    
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewRenderbuffer);
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
 
+    
     // clear the background
     [state.backgroundFramebuffer clear];
 
@@ -1354,6 +1358,7 @@ static int undoCounter;
     [[JotStylusManager sharedInstance] unregisterView:self];
 
 	if([EAGLContext currentContext] == context){
+        glFlush();
 		[EAGLContext setCurrentContext:nil];
 	}
 }
