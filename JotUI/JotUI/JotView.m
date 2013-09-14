@@ -1360,7 +1360,7 @@ static int undoCounter;
     }
     [stroke addElement:element];
     MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:element.startPoint];
-    moveTo.width = element.width/2;
+    moveTo.width = element.width;
     moveTo.color = element.color;
     [self renderElement:element fromPreviousElement:moveTo includeOpenGLPrepForFBO:viewFramebuffer];
     [self setNeedsPresentRenderBuffer];
