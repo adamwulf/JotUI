@@ -487,18 +487,10 @@ static EAGLContext *mainThreadContext;
 -(void) exportToImageOnComplete:(void(^)(UIImage*) )exportFinishBlock{
     
     CheckMainThread;
-
-    
-    if([EAGLContext currentContext] == self.context){
-        NSLog(@"yes");
-    }else{
-        NSLog(@"what");
-    }
-
     
     glFlush();
     [EAGLContext setCurrentContext:self.context];
-    
+
     if(!exportFinishBlock) return;
 
     CGSize fullSize = CGSizeMake(initialViewport.width, initialViewport.height);
@@ -553,11 +545,8 @@ static EAGLContext *mainThreadContext;
     glDeleteFramebuffersOES(1, &exportFramebuffer);
     glDeleteTextures(1, &canvastexture);
     
-    if([EAGLContext currentContext] == self.context){
-        NSLog(@"yes");
-    }else{
-        NSLog(@"what");
-    }
+    glFlush();
+    [EAGLContext setCurrentContext:self.context];
     
     glViewport(0, 0, initialViewport.width, initialViewport.height);
 
@@ -724,13 +713,15 @@ static EAGLContext *mainThreadContext;
  */
 -(void) presentRenderBuffer{
     CheckMainThread;
+    
+    if([EAGLContext currentContext] != self.context){
+        glFlush();
+        [EAGLContext setCurrentContext:self.context];
+    }
+    
     if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-        if([context presentRenderbuffer:GL_RENDERBUFFER_OES]){
-            NSLog(@"success");
-        }else{
-            NSLog(@"fail");
-        }
+        [context presentRenderbuffer:GL_RENDERBUFFER_OES];
         needsPresentRenderBuffer = NO;
     }
     slowtoggle = !slowtoggle;
