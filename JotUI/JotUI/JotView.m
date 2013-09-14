@@ -709,7 +709,11 @@ static EAGLContext *mainThreadContext;
     CheckMainThread;
     if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-        [context presentRenderbuffer:GL_RENDERBUFFER_OES];
+        if([context presentRenderbuffer:GL_RENDERBUFFER_OES]){
+            NSLog(@"success");
+        }else{
+            NSLog(@"fail");
+        }
         needsPresentRenderBuffer = NO;
     }
     slowtoggle = !slowtoggle;
@@ -1338,10 +1342,16 @@ static int undoCounter;
 
 
 -(void) addElement:(AbstractBezierPathElement*)element{
-    JotStroke* stroke = [[JotStroke alloc] init];
+    JotStroke* stroke = [state.stackOfStrokes lastObject];
+    if(!stroke){
+        stroke = [[JotStroke alloc] init];
+        [state.stackOfStrokes addObject:stroke];
+    }
     [stroke addElement:element];
-    [state.stackOfStrokes addObject:stroke];
-    [self renderElement:element fromPreviousElement:nil includeOpenGLPrepForFBO:viewFramebuffer];
+    MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:element.startPoint];
+    moveTo.width = element.width/2;
+    moveTo.color = element.color;
+    [self renderElement:element fromPreviousElement:moveTo includeOpenGLPrepForFBO:viewFramebuffer];
     [self setNeedsPresentRenderBuffer];
 }
 
