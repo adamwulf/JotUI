@@ -488,6 +488,17 @@ static EAGLContext *mainThreadContext;
     
     CheckMainThread;
 
+    
+    if([EAGLContext currentContext] == self.context){
+        NSLog(@"yes");
+    }else{
+        NSLog(@"what");
+    }
+
+    
+    glFlush();
+    [EAGLContext setCurrentContext:self.context];
+    
     if(!exportFinishBlock) return;
 
     CGSize fullSize = CGSizeMake(initialViewport.width, initialViewport.height);
@@ -541,6 +552,12 @@ static EAGLContext *mainThreadContext;
     
     glDeleteFramebuffersOES(1, &exportFramebuffer);
     glDeleteTextures(1, &canvastexture);
+    
+    if([EAGLContext currentContext] == self.context){
+        NSLog(@"yes");
+    }else{
+        NSLog(@"what");
+    }
     
     glViewport(0, 0, initialViewport.width, initialViewport.height);
 
@@ -1342,6 +1359,9 @@ static int undoCounter;
 
 
 -(void) addElement:(AbstractBezierPathElement*)element{
+    glFlush();
+    [EAGLContext setCurrentContext:self.context];
+    glViewport(0, 0, initialViewport.width, initialViewport.height);
     JotStroke* stroke = [state.stackOfStrokes lastObject];
     if(!stroke){
         stroke = [[JotStroke alloc] init];
