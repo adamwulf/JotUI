@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "PlistSaving.h"
+#import "JotGLContext.h"
 
 @interface JotBrushTexture : NSObject<PlistSaving>
 
@@ -17,7 +18,7 @@
 
 +(JotBrushTexture*) sharedInstace;
 
--(BOOL) bind;
--(void) unbind;
+-(BOOL) bindToContext:(JotGLContext*)context;
+-(void) unbindFromContext:(JotGLContext*)context;
 
 @end

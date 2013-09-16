@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "JotGLContext.h"
 
 @interface JotGLTexture : NSObject{
     GLuint textureID;
@@ -16,10 +17,10 @@
 @property (readonly) GLuint textureID;
 @property (readonly) CGSize pixelSize;
 
--(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size;
+-(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size inContext:(JotGLContext*)context;
 
--(void) bind;
+-(void) bindToContext:(JotGLContext*)context;
 
--(void) draw;
+-(void) drawInContext:(JotGLContext*)context;
 
 @end

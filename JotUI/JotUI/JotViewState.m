@@ -90,7 +90,8 @@
                 UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
                 
                 // load new texture
-                self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
+                // this also updates backgroundFramebuffer
+                self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize inContext:backgroundThreadContext];
                 
                 if(!savedInkImage){
                     // no image was given, so it should be a blank texture

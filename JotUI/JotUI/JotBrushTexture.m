@@ -34,10 +34,10 @@
 
 #pragma mark - binding
 
--(BOOL) bind{
+-(BOOL) bindToContext:(JotGLContext *)context{
     // check if we already have the texture generated
     if(glBrushTextureID){
-        glBindTexture(GL_TEXTURE_2D, glBrushTextureID);
+        [context glBindTexture:GL_TEXTURE_2D and:glBrushTextureID];
         return YES;
     }
     
@@ -66,13 +66,13 @@
         // You don't need the context at this point, so you need to release it to avoid memory leaks.
         CGContextRelease(brushContext);
         // Use OpenGL ES to generate a name for the texture.
-        glGenTextures(1, &glBrushTextureID);
+        [context glGenTextures:1 and:&glBrushTextureID];
         // Bind the texture name.
-        glBindTexture(GL_TEXTURE_2D, glBrushTextureID);
+        [context glBindTexture:GL_TEXTURE_2D and:glBrushTextureID];
         // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        [context glTexParameteri:GL_TEXTURE_2D and:GL_TEXTURE_MIN_FILTER and:GL_LINEAR];
         // Specify a 2D texture image, providing the a pointer to the image data in memory
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
+        [context glTexImage2D:GL_TEXTURE_2D and:0 and:GL_RGBA and:width and:height and:0 and:GL_RGBA and:GL_UNSIGNED_BYTE and:brushData];
         
         // Release  the image data; it's no longer needed
         free(brushData);
@@ -82,9 +82,9 @@
     return NO;
 }
 
--(void) unbind{
+-(void) unbindFromContext:(JotGLContext *)context{
     if(glBrushTextureID){
-        glBindTexture(GL_TEXTURE_2D, 0);
+        [context glBindTexture:GL_TEXTURE_2D and:0];
         glBrushTextureID = 0;
     }
 }

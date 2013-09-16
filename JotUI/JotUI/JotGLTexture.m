@@ -49,24 +49,24 @@
 // loaded in ~90ms hopefully.
 //
 
--(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size{
+-(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size inContext:(JotGLContext*)context{
     if(self = [super init]){
         fullPixelSize = size;
         
         // unload the old texture
-        [self unload];
+        [self unloadFromContext:context];
         
         // create a new texture in OpenGL
-        glGenTextures(1, &textureID);
+        [context glGenTextures:1 and:&textureID];
         
         // bind the texture that we'll be writing to
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        [context glBindTexture:GL_TEXTURE_2D and:textureID];
         
         // configure how this texture scales.
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        [context glTexParameteri:GL_TEXTURE_2D and:GL_TEXTURE_MIN_FILTER and:GL_LINEAR];
+        [context glTexParameteri:GL_TEXTURE_2D and:GL_TEXTURE_MAG_FILTER and:GL_LINEAR];
+        [context glTexParameteri:GL_TEXTURE_2D and:GL_TEXTURE_WRAP_S and:GL_CLAMP_TO_EDGE];
+        [context glTexParameteri:GL_TEXTURE_2D and:GL_TEXTURE_WRAP_T and:GL_CLAMP_TO_EDGE];
         
         //
         // load the image data if we have some, or initialize to
@@ -96,16 +96,19 @@
                                                        aspectFillSize.width,
                                                        aspectFillSize.height), imageToLoad.CGImage );
             // ok, initialize the data
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+            [context glTexImage2D:GL_TEXTURE_2D and:0 and:GL_RGBA and:fullPixelSize.width and:fullPixelSize.height and:0 and:GL_RGBA and:GL_UNSIGNED_BYTE and:imageData];
             
             // cleanup
             CGContextRelease(cgContext);
             free(imageData);
         }else{
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            // init w/ empty data
+            void* texels = calloc(fullPixelSize.width * fullPixelSize.height,4);
+            [context glTexImage2D:GL_TEXTURE_2D and:0 and:GL_RGBA and:fullPixelSize.width and:fullPixelSize.height and:0 and:GL_RGBA and:GL_UNSIGNED_BYTE and:texels];
+            free(texels);
         }
         // clear texture bind
-        glBindTexture(GL_TEXTURE_2D,0);
+        [context glBindTexture:GL_TEXTURE_2D and:0];
     }
     
     return self;
@@ -115,26 +118,26 @@
     return fullPixelSize;
 }
 
--(void) unload{
+-(void) unloadFromContext:(JotGLContext*)context{
     if (textureID){
-        glDeleteTextures(1, &textureID);
+        [context glDeleteTextures:1 and:&textureID];
         textureID = 0;
     }
 }
 
--(void) bind{
+-(void) bindToContext:(JotGLContext*)context{
     if(textureID){
-        glBindTexture(GL_TEXTURE_2D, textureID);
+        [context glBindTexture:GL_TEXTURE_2D and:textureID];
     }
 }
 
 
--(void) draw{
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glColor4f(1, 1, 1, 1);
+-(void) drawInContext:(JotGLContext*)context{
+    [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+    [context glEnableClientState:GL_VERTEX_ARRAY];
+    [context glEnableClientState:GL_TEXTURE_COORD_ARRAY];
+    [context glDisableClientState:GL_COLOR_ARRAY];
+    [context glColor4f:1 and:1 and:1 and:1];
     Vertex3D vertices[] = {
         { 0.0, fullPixelSize.height},
         { fullPixelSize.width, fullPixelSize.height},
@@ -148,18 +151,18 @@
         1, 0
     };
     
-    [self bind];
+    [self bindToContext:context];
     
-    glVertexPointer(2, GL_FLOAT, 0, vertices);
+    [context glVertexPointer:2 and:GL_FLOAT and:0 and:vertices];
     glTexCoordPointer(2, GL_SHORT, 0, texCoords);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+    [context glDisableClientState:GL_VERTEX_ARRAY];
+    [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
 }
 
 
 -(void) dealloc{
-	[self unload];
+	[self unloadFromContext:(JotGLContext*)[JotGLContext currentContext]];
 }
 
 @end

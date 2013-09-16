@@ -60,43 +60,49 @@ static void * zeroedDataCache = nil;
 
 
 -(void) bindToContext:(JotGLContext*)context forStep:(NSInteger)stepNumber{
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position));
-    glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color));
-    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size));
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
+    [context glBindBuffer:GL_ARRAY_BUFFER and:vbo];
+    [context glVertexPointer:2 and:GL_FLOAT and:sizeof(struct ColorfulVertex) and:stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position)];
+    [context glColorPointer:4 and:GL_FLOAT and:sizeof(struct ColorfulVertex) and:stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color)];
+    [context glPointSizePointerOES:GL_FLOAT and:sizeof(struct ColorfulVertex) and:stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size)];
+    [context glEnableClientState:GL_VERTEX_ARRAY];
+    [context glEnableClientState:GL_COLOR_ARRAY];
+    [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
     printOpenGLError();
 }
 
 -(void) bindToContext:(JotGLContext*)context forColor:(UIColor*)color andStep:(NSInteger)stepNumber{
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position));
-    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex), stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size));
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
-    glDisableClientState(GL_COLOR_ARRAY);
+    [context glBindBuffer:GL_ARRAY_BUFFER and:vbo];
+    [context glVertexPointer:2 and:GL_FLOAT and:sizeof(struct ColorlessVertex) and:stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position)];
+    [context glPointSizePointerOES:GL_FLOAT and:sizeof(struct ColorlessVertex) and:stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size)];
+    [context glEnableClientState:GL_VERTEX_ARRAY];
+    [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+    [context glDisableClientState:GL_COLOR_ARRAY];
     
     if(!color){
-        glColor4f(0, 0, 0, 1);
+        [context glColor4f:0 and:0 and:0 and:1];
     }else{
         GLfloat colorSteps[4];
         [color getRGBAComponents:colorSteps];
         if(colorSteps[0] * colorSteps[3] > 1 ||
            colorSteps[1] * colorSteps[3] > 1 ||
            colorSteps[2] * colorSteps[3] > 1 ||
-           colorSteps[3] > 1){
+           colorSteps[3] > 1 ||
+           colorSteps[0] * colorSteps[3] < 0 ||
+           colorSteps[1] * colorSteps[3] < 0 ||
+           colorSteps[2] * colorSteps[3] < 0 ||
+           colorSteps[3] < 0){
             NSLog(@"what");
         }
-           
-        glColor4f(colorSteps[0] * colorSteps[3], colorSteps[1] * colorSteps[3], colorSteps[2] * colorSteps[3], colorSteps[3]);
+        [context glColor4f:colorSteps[0] * colorSteps[3]
+                       and:colorSteps[1] * colorSteps[3]
+                       and:colorSteps[2] * colorSteps[3]
+                       and:colorSteps[3]];
     }
     printOpenGLError();
 }
 
 -(void) unbindFromContext:(JotGLContext*)context{
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    [context glBindBuffer:GL_ARRAY_BUFFER and:0];
 }
 
 

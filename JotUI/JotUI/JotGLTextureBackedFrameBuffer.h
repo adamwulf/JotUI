@@ -25,7 +25,7 @@
 -(void) clear;
 
 // export the buffered texture to disk
--(void) exportTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock;
+-(void) exportTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock withContext:context;
 
 // should call this method to notify the framebuffer that
 // it will be rendered to soon.

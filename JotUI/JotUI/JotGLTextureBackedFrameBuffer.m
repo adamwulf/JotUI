@@ -56,7 +56,7 @@ dispatch_queue_t importExportTextureQueue;
 }
 
 
--(void) exportTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock{
+-(void) exportTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock withContext:context{
     
     CheckMainThread;
     
@@ -68,15 +68,18 @@ dispatch_queue_t importExportTextureQueue;
                 exportFinishBlock(nil);
             }
         });
+        return;
     }
     
     // the texture size has the screen scale baked into it,
     // so this is already in the proper pixel size
     CGSize frameSize = texture.pixelSize;
 
+    [context glBindTexture:GL_TEXTURE_2D and:0];
+    [texture bindToContext:context];
     // bind our framebuffer. the texture is the colorbuffer
     // that we'll be exporting.
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+    [context glBindFramebufferOES:GL_FRAMEBUFFER_OES and:framebufferID];
     
     GLint x = 0, y = 0;
     NSInteger dataLength = frameSize.width * frameSize.height * 4;

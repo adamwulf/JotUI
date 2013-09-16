@@ -9,13 +9,33 @@
 #import "JotGLContext.h"
 #import "JotUI.h"
 
+#define kGL_COLOR_ARRAY 0
+#define kGL_NORMAL_ARRAY 1
+#define kGL_POINT_SIZE_ARRAY_OES 2
+#define kGL_TEXTURE_COORD_ARRAY 3
+#define kGL_VERTEX_ARRAY 4
+#define kGL_ARRAY_BUFFER 0
+#define kGL_ELEMENT_ARRAY_BUFFER 1
 
-@implementation JotGLContext
+@implementation JotGLContext{
+    // glEnableClientState
+    BOOL clientStateEnabled[5];
+    // glColor4f
+    GLfloat lastRed, lastGreen, lastBlue, lastAlpha;
+    // glBindBuffer
+    GLuint lastBoundBuffer[2];
+    //glVertexPointer
+    GLint lastVertextPointerSize;
+    GLenum lastVertextPointerType;
+    GLsizei lastVertextPointerStride;
+    GLvoid* lastVertextPointerPointer;
+    // blend func
+    GLenum lastsfactor, lastdfactor;
+}
 
 - (id) initWithAPI:(EAGLRenderingAPI) api{
     if(self = [super initWithAPI:api]){
-        // noop
-        
+        [self initIvars];
     }
     return self;
 }
@@ -23,9 +43,27 @@
 
 - (id) initWithAPI:(EAGLRenderingAPI) api sharegroup:(EAGLSharegroup*) sharegroup{
     if(self = [super initWithAPI:api sharegroup:sharegroup]){
-        // noop
+        [self initIvars];
     }
     return self;
+}
+
+-(void) initIvars{
+    clientStateEnabled[0] = NO;
+    clientStateEnabled[1] = NO;
+    clientStateEnabled[2] = NO;
+    clientStateEnabled[3] = NO;
+    clientStateEnabled[4] = NO;
+    
+    lastRed = -1, lastGreen = -1, lastBlue = -1, lastAlpha = -1;
+    lastBoundBuffer[0] = 0;
+    lastBoundBuffer[1] = 0;
+    lastVertextPointerSize = 0;
+    lastVertextPointerType = 0;
+    lastVertextPointerStride = 0;
+    lastVertextPointerPointer = nil;
+    lastsfactor = -1;
+    lastdfactor = -1;
 }
 
 
@@ -33,12 +71,17 @@
     EAGLContext* curr = [EAGLContext currentContext];
     if(curr != context){
         glFlush();
+        if([context isKindOfClass:[JotGLContext class]]){
+            [(JotGLContext*)context flushed];
+        }
         return [EAGLContext setCurrentContext:context];
     }
     return YES;
 }
 
-
+-(void) flushed{
+    [self initIvars];
+}
 
 -(void) glMatrixMode:(GLenum) mode{
     [JotGLContext setCurrentContext:self];
@@ -58,6 +101,11 @@
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor{
     [JotGLContext setCurrentContext:self];
     glBlendFunc(sfactor, dfactor);
+//    if(lastsfactor != sfactor || lastdfactor != dfactor){
+//        glBlendFunc(sfactor, dfactor);
+//        lastsfactor = sfactor;
+//        lastdfactor = dfactor;
+//    }
 }
 
 -(void) glTexEnvf:(GLenum) target and:(GLenum)pname and:(GLfloat) param{
@@ -89,7 +137,6 @@
     [JotGLContext setCurrentContext:self];
     glBindFramebufferOES(target, framebuffer);
 }
-
 
 -(void) glBindRenderbufferOES:(GLenum) target and:(GLuint)renderbuffer{
     [JotGLContext setCurrentContext:self];
@@ -193,14 +240,96 @@
     glScissor(x, y, width, height);
 }
 
+
+
 -(void) glEnableClientState:(GLenum)array{
     [JotGLContext setCurrentContext:self];
+//    if(array == GL_COLOR_ARRAY && !clientStateEnabled[kGL_COLOR_ARRAY]){
+//        clientStateEnabled[kGL_COLOR_ARRAY] = YES;
+//        glEnableClientState(array);
+//    }else if(array == GL_POINT_SIZE_ARRAY_OES && !clientStateEnabled[kGL_POINT_SIZE_ARRAY_OES]){
+//        clientStateEnabled[kGL_POINT_SIZE_ARRAY_OES] = YES;
+//        glEnableClientState(array);
+//    }else if(array == GL_NORMAL_ARRAY && !clientStateEnabled[kGL_NORMAL_ARRAY]){
+//        clientStateEnabled[kGL_NORMAL_ARRAY] = YES;
+//        glEnableClientState(array);
+//    }else if(array == GL_TEXTURE_COORD_ARRAY && !clientStateEnabled[kGL_TEXTURE_COORD_ARRAY]){
+//        clientStateEnabled[kGL_TEXTURE_COORD_ARRAY] = YES;
+//        glEnableClientState(array);
+//    }else if(array == GL_VERTEX_ARRAY && !clientStateEnabled[kGL_VERTEX_ARRAY]){
+//        clientStateEnabled[kGL_VERTEX_ARRAY] = YES;
+//        glEnableClientState(array);
+//    }
     glEnableClientState(array);
 }
 
 -(void) glDisableClientState:(GLenum)array{
     [JotGLContext setCurrentContext:self];
+//    if(array == GL_COLOR_ARRAY && clientStateEnabled[kGL_COLOR_ARRAY]){
+//        clientStateEnabled[kGL_COLOR_ARRAY] = NO;
+//        glDisableClientState(array);
+//    }else if(array == GL_POINT_SIZE_ARRAY_OES && clientStateEnabled[kGL_POINT_SIZE_ARRAY_OES]){
+//        clientStateEnabled[kGL_POINT_SIZE_ARRAY_OES] = NO;
+//        glDisableClientState(array);
+//    }else if(array == GL_NORMAL_ARRAY && clientStateEnabled[kGL_NORMAL_ARRAY]){
+//        clientStateEnabled[kGL_NORMAL_ARRAY] = NO;
+//        glDisableClientState(array);
+//    }else if(array == GL_TEXTURE_COORD_ARRAY && clientStateEnabled[kGL_TEXTURE_COORD_ARRAY]){
+//        clientStateEnabled[kGL_TEXTURE_COORD_ARRAY] = NO;
+//        glDisableClientState(array);
+//    }else if(array == GL_VERTEX_ARRAY && clientStateEnabled[kGL_VERTEX_ARRAY]){
+//        clientStateEnabled[kGL_VERTEX_ARRAY] = NO;
+//        glDisableClientState(array);
+//    }
     glDisableClientState(array);
+}
+
+-(void) glBindBuffer:(GLenum)target and:(GLuint)buffer{
+    [JotGLContext setCurrentContext:self];
+    glBindBuffer(target, buffer);
+//    if(target == GL_ARRAY_BUFFER && buffer != lastBoundBuffer[kGL_ARRAY_BUFFER]){
+//        glBindBuffer(target, buffer);
+//        lastBoundBuffer[kGL_ARRAY_BUFFER] = buffer;
+//    }else if(target == GL_ELEMENT_ARRAY_BUFFER && buffer != lastBoundBuffer[kGL_ELEMENT_ARRAY_BUFFER]){
+//        glBindBuffer(target, buffer);
+//        lastBoundBuffer[kGL_ELEMENT_ARRAY_BUFFER] = buffer;
+//    }
+}
+
+-(void) glVertexPointer:(GLint)size and:(GLenum)type and:(GLsizei)stride and:(const GLvoid*)pointer{
+    [JotGLContext setCurrentContext:self];
+//    if(size != lastVertextPointerSize ||
+//       type != lastVertextPointerType ||
+//       stride != lastVertextPointerStride ||
+//       pointer != lastVertextPointerPointer){
+//        glVertexPointer(size, type, stride, pointer);
+//        lastVertextPointerSize = size;
+//        lastVertextPointerType = type;
+//        lastVertextPointerStride = stride;
+//        lastVertextPointerPointer = (GLvoid*) pointer;
+//    }
+    glVertexPointer(size, type, stride, pointer);
+}
+
+-(void) glColorPointer:(GLint)size and:(GLenum)type and:(GLsizei)stride and:(const GLvoid*)pointer{
+    [JotGLContext setCurrentContext:self];
+    glColorPointer(size, type, stride, pointer);
+}
+
+-(void) glPointSizePointerOES:(GLenum)type and:(GLsizei)stride and:(const GLvoid*)pointer{
+    [JotGLContext setCurrentContext:self];
+    glPointSizePointerOES(type, stride, pointer);
+}
+
+-(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat)alpha{
+    [JotGLContext setCurrentContext:self];
+    if(red != lastRed || green != lastGreen || blue != lastBlue || alpha != lastAlpha){
+        glColor4f(red, green, blue, alpha);
+        lastRed = red;
+        lastGreen = green;
+        lastBlue = blue;
+        lastAlpha = alpha;
+    }
 }
 
 @end

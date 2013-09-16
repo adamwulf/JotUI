@@ -197,7 +197,7 @@ static JotGLContext *mainThreadContext;
         return nil;
     }
     
-    [self setBrushTexture:[JotDefaultBrushTexture sharedInstace]];
+    [self setBrushTexture:[JotDefaultBrushTexture sharedInstace] inContext:context];
 
     // Set the view's scale factor
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
@@ -328,6 +328,10 @@ static JotGLContext *mainThreadContext;
 -(void) loadState:(JotViewState*)newState{
     CheckMainThread;
     if(state != newState){
+        // reload context to be sure we've loaded
+        // in the backing texture properly
+        [JotGLContext setCurrentContext:nil];
+        [JotGLContext setCurrentContext:context];
         state.delegate = nil;
         newState.delegate = self;
         state = newState;
@@ -406,7 +410,7 @@ static JotGLContext *mainThreadContext;
     [state.backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
         ink = image;
         dispatch_semaphore_signal(sema2);
-    }];
+    } withContext:context];
     
     /////////////////////////////////////////////////////
     /////////////////////////////////////////////////////
@@ -648,7 +652,7 @@ static JotGLContext *mainThreadContext;
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [state.backgroundTexture draw];
+    [state.backgroundTexture drawInContext:context];
     
     //
     // ok, we're done rendering the background texture to the quad
@@ -665,7 +669,7 @@ static JotGLContext *mainThreadContext;
     for(JotStroke* stroke in [state everyVisibleStroke]){
         // make sure our texture is the correct one for this stroke
         if(stroke.texture != brushTexture){
-            [self setBrushTexture:stroke.texture];
+            [self setBrushTexture:stroke.texture inContext:renderContext];
         }
         // setup our blend mode properly for color vs eraser
         if([stroke.segments count]){
@@ -690,7 +694,7 @@ static JotGLContext *mainThreadContext;
     
     // now that we're done rendering strokes, reset the texture
     // to the current brush
-    [self setBrushTexture:keepThisTexture];
+    [self setBrushTexture:keepThisTexture inContext:renderContext];
     
     if(!CGRectEqualToRect(scissorRect, CGRectZero)){
         [context glDisable:GL_SCISSOR_TEST];
@@ -721,6 +725,9 @@ static JotGLContext *mainThreadContext;
     [JotGLContext setCurrentContext:self.context];
     
     if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
+//        const GLenum discards[]  = {GL_DEPTH_ATTACHMENT};
+//        [context glBindFramebufferOES:GL_FRAMEBUFFER_OES and:viewFramebuffer];
+//        glDiscardFramebufferEXT(GL_FRAMEBUFFER,1,discards);
         [context glBindRenderbufferOES:GL_RENDERBUFFER_OES and:viewRenderbuffer];
         [context presentRenderbuffer:GL_RENDERBUFFER_OES];
         needsPresentRenderBuffer = NO;
@@ -904,7 +911,7 @@ static int undoCounter;
         [state.backgroundFramebuffer willRenderToFrameBuffer];
 
         // set our brush texture if needed
-        [self setBrushTexture:strokeToWriteToTexture.texture];
+        [self setBrushTexture:strokeToWriteToTexture.texture inContext:context];
 
         // setup our blend mode properly for color vs eraser
         if([strokeToWriteToTexture.segments count]){
@@ -936,7 +943,8 @@ static int undoCounter;
         
         [self unprepOpenGLState];
 
-        [self setBrushTexture:keepThisTexture];
+        [self setBrushTexture:keepThisTexture inContext:context];
+        glFlush();
     }else if([state isReadyToExport]){
         // only export if the trash manager is empty
         // that way we're exporting w/ low memory instead
@@ -1248,14 +1256,18 @@ static int undoCounter;
     return brushTexture;
 }
 
+-(void) setBrushTexture:(JotBrushTexture *)brushImage{
+    [self setBrushTexture:brushImage inContext:(JotGLContext*)[JotGLContext currentContext]];
+}
+
 /**
  * setup the texture to use for the next brush stroke
  */
--(void) setBrushTexture:(JotBrushTexture*)brushImage{
+-(void) setBrushTexture:(JotBrushTexture*)brushImage inContext:(JotGLContext*)brushContext{
     if(brushTexture != brushImage){
-        [brushTexture unbind];
+        [brushTexture unbindFromContext:brushContext];
         brushTexture = brushImage;
-        [brushTexture bind];
+        [brushTexture bindToContext:brushContext];
     }
 }
 

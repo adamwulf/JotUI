@@ -78,4 +78,14 @@
 
 -(void) glDisableClientState:(GLenum)array;
 
+-(void) glBindBuffer:(GLenum)target and:(GLuint)buffer;
+
+-(void) glVertexPointer:(GLint)size and:(GLenum)type and:(GLsizei)stride and:(const GLvoid*)pointer;
+
+-(void) glColorPointer:(GLint)size and:(GLenum)type and:(GLsizei)stride and:(const GLvoid*)pointer;
+
+-(void) glPointSizePointerOES:(GLenum)type and:(GLsizei)stride and:(const GLvoid*)pointer;
+
+-(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat)alpha;
+
 @end
