@@ -37,7 +37,7 @@ dispatch_queue_t importExportStateQueue;
 @interface JotView (){
     __weak NSObject<JotViewDelegate>* delegate;
     
-	EAGLContext *context;
+	JotGLContext *context;
     
     CGSize initialViewport;
     
@@ -96,9 +96,9 @@ dispatch_queue_t importExportStateQueue;
 
 #pragma mark - Initialization
 
-static EAGLContext *mainThreadContext;
+static JotGLContext *mainThreadContext;
 
-+(EAGLContext*) mainThreadContext{
++(JotGLContext*) mainThreadContext{
     return mainThreadContext;
 }
 
@@ -170,14 +170,13 @@ static EAGLContext *mainThreadContext;
                                     [NSNumber numberWithBool:YES], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
     
     if(!mainThreadContext){
-        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+        context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
         mainThreadContext = context;
     }else{
-        context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
+        context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
     }
     
-    glFlush();
-    if (!context || ![EAGLContext setCurrentContext:context]) {
+    if (!context || ![JotGLContext setCurrentContext:context]) {
         return nil;
     }
     
@@ -488,8 +487,7 @@ static EAGLContext *mainThreadContext;
     
     CheckMainThread;
     
-    glFlush();
-    [EAGLContext setCurrentContext:self.context];
+    [JotGLContext setCurrentContext:self.context];
 
     if(!exportFinishBlock) return;
 
@@ -545,8 +543,7 @@ static EAGLContext *mainThreadContext;
     glDeleteFramebuffersOES(1, &exportFramebuffer);
     glDeleteTextures(1, &canvastexture);
     
-    glFlush();
-    [EAGLContext setCurrentContext:self.context];
+    [JotGLContext setCurrentContext:self.context];
     
     glViewport(0, 0, initialViewport.width, initialViewport.height);
 
@@ -612,7 +609,7 @@ static EAGLContext *mainThreadContext;
  * a stroke. it will clear the screen and re-draw all
  * strokes except for that undone/cancelled stroke
  */
--(void) renderAllStrokesToContext:(EAGLContext*)renderContext inFramebuffer:(GLuint)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect{
+-(void) renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(GLuint)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect{
     
     CheckMainThread;
 
@@ -630,8 +627,7 @@ static EAGLContext *mainThreadContext;
     JotBrushTexture* keepThisTexture = brushTexture;
     
     // set our current OpenGL context
-    glFlush();
-    [EAGLContext setCurrentContext:renderContext];
+    [JotGLContext setCurrentContext:renderContext];
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
 
 	//
@@ -714,9 +710,8 @@ static EAGLContext *mainThreadContext;
 -(void) presentRenderBuffer{
     CheckMainThread;
     
-    if([EAGLContext currentContext] != self.context){
-        glFlush();
-        [EAGLContext setCurrentContext:self.context];
+    if([JotGLContext currentContext] != self.context){
+        [JotGLContext setCurrentContext:self.context];
     }
     
     if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
@@ -787,7 +782,7 @@ static EAGLContext *mainThreadContext;
  * this renders a single stroke segment to the glcontext.
  *
  * this assumes that this has been called:
- * [EAGLContext setCurrentContext:context];
+ * [JotGLContext setCurrentContext:context];
  * glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
  *
  * and also assumes that this will be called after
@@ -833,8 +828,7 @@ static EAGLContext *mainThreadContext;
  */
 -(void) prepOpenGLStateForFBO:(GLuint)frameBuffer{
     // set to current context
-    glFlush();
-    [EAGLContext setCurrentContext:context];
+    [JotGLContext setCurrentContext:context];
     
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
     
@@ -1304,8 +1298,7 @@ static int undoCounter;
  */
 - (IBAction) clear:(BOOL)shouldPresent{
     // set our context
-    glFlush();
-	[EAGLContext setCurrentContext:context];
+	[JotGLContext setCurrentContext:context];
 	
 	// Clear the buffer
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
@@ -1350,8 +1343,7 @@ static int undoCounter;
 
 
 -(void) addElement:(AbstractBezierPathElement*)element{
-    glFlush();
-    [EAGLContext setCurrentContext:self.context];
+    [JotGLContext setCurrentContext:self.context];
     glViewport(0, 0, initialViewport.width, initialViewport.height);
     JotStroke* stroke = [state.stackOfStrokes lastObject];
     if(!stroke){
@@ -1377,9 +1369,8 @@ static int undoCounter;
     [self destroyFramebuffer];
     [[JotStylusManager sharedInstance] unregisterView:self];
 
-	if([EAGLContext currentContext] == context){
-        glFlush();
-		[EAGLContext setCurrentContext:nil];
+	if([JotGLContext currentContext] == context){
+		[JotGLContext setCurrentContext:nil];
 	}
 }
 

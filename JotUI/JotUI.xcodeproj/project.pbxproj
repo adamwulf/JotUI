@@ -53,6 +53,8 @@
 		66AA82E4177611D800F26904 /* JotImmutableStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA82E2177611D800F26904 /* JotImmutableStroke.m */; };
 		66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E617761C2300F26904 /* JotViewImmutableState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66AA82E917761C2300F26904 /* JotViewImmutableState.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA82E717761C2300F26904 /* JotViewImmutableState.m */; };
+		66AD3CFC17E6A94300E5B021 /* JotGLContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AD3CFA17E6A94300E5B021 /* JotGLContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		66AD3CFD17E6A94300E5B021 /* JotGLContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AD3CFB17E6A94300E5B021 /* JotGLContext.m */; };
 		66BF7F21176675E0003F4F67 /* JotBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66BF7F22176675E0003F4F67 /* JotBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F20176675E0003F4F67 /* JotBrushTexture.m */; };
 		66BF7F2517667663003F4F67 /* JotDefaultBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */; settings = {ATTRIBUTES = (Private, ); }; };
@@ -140,6 +142,8 @@
 		66AA82E2177611D800F26904 /* JotImmutableStroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotImmutableStroke.m; sourceTree = "<group>"; };
 		66AA82E617761C2300F26904 /* JotViewImmutableState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewImmutableState.h; sourceTree = "<group>"; };
 		66AA82E717761C2300F26904 /* JotViewImmutableState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewImmutableState.m; sourceTree = "<group>"; };
+		66AD3CFA17E6A94300E5B021 /* JotGLContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLContext.h; sourceTree = "<group>"; };
+		66AD3CFB17E6A94300E5B021 /* JotGLContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLContext.m; sourceTree = "<group>"; };
 		66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBrushTexture.h; sourceTree = "<group>"; };
 		66BF7F20176675E0003F4F67 /* JotBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotBrushTexture.m; sourceTree = "<group>"; };
 		66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotDefaultBrushTexture.h; sourceTree = "<group>"; };
@@ -281,6 +285,7 @@
 		669B3A2E1692B66B00F12F42 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				66AD3CF917E6A93400E5B021 /* GLContext */,
 				66A790161772516F0092A28A /* Managers */,
 				66BF7F2717667940003F4F67 /* Plist */,
 				66BF7F1E176675CE003F4F67 /* Brush Texture */,
@@ -354,6 +359,15 @@
 			name = State;
 			sourceTree = "<group>";
 		};
+		66AD3CF917E6A93400E5B021 /* GLContext */ = {
+			isa = PBXGroup;
+			children = (
+				66AD3CFA17E6A94300E5B021 /* JotGLContext.h */,
+				66AD3CFB17E6A94300E5B021 /* JotGLContext.m */,
+			);
+			name = GLContext;
+			sourceTree = "<group>";
+		};
 		66BF7F1E176675CE003F4F67 /* Brush Texture */ = {
 			isa = PBXGroup;
 			children = (
@@ -398,6 +412,7 @@
 				66BF7F381766D221003F4F67 /* UIImage+Alpha.h in Headers */,
 				6622F9D31774E72400C06825 /* JotViewState.h in Headers */,
 				66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */,
+				66AD3CFC17E6A94300E5B021 /* JotGLContext.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				66EBD103179069D2005AA6A2 /* AbstractBezierPathElement-Protected.h in Headers */,
 				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
@@ -577,6 +592,7 @@
 				66BF7F22176675E0003F4F67 /* JotBrushTexture.m in Sources */,
 				66BF7F2617667663003F4F67 /* JotDefaultBrushTexture.m in Sources */,
 				66BF7F2D17667C19003F4F67 /* NSArray+JotMapReduce.m in Sources */,
+				66AD3CFD17E6A94300E5B021 /* JotGLContext.m in Sources */,
 				66BF7F311766D133003F4F67 /* UIImage+Resize.m in Sources */,
 				6691EED6179B7097007BBD15 /* JotBufferManager.m in Sources */,
 				66BF7F371766D221003F4F67 /* UIImage+RoundedCorner.m in Sources */,

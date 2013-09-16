@@ -83,9 +83,8 @@
         // into Open GL
         dispatch_async([JotView importExportImageQueue], ^{
             @autoreleasepool {
-                glFlush();
-                EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-                [EAGLContext setCurrentContext:backgroundThreadContext];
+                JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+                [JotGLContext setCurrentContext:backgroundThreadContext];
                 
                 // load image from disk
                 UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
@@ -107,9 +106,8 @@
         // information for our page state
         dispatch_async([JotView importExportStateQueue], ^{
             @autoreleasepool {
-                glFlush();
-                EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-                [EAGLContext setCurrentContext:backgroundThreadContext];
+                JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+                [JotGLContext setCurrentContext:backgroundThreadContext];
                 
                 // load the file
                 stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "JotGLContext.h"
 #import "JotGLTexture.h"
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotViewImmutableState.h"
@@ -29,7 +30,7 @@
 -(id) initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
             andPageSize:(CGSize)fullPixelSize
-           andGLContext:(EAGLContext*)glContext;
+           andGLContext:(JotGLContext*)glContext;
 
 /**
  * this will return YES only
