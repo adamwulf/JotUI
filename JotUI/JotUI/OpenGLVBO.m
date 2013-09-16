@@ -50,8 +50,8 @@ static void * zeroedDataCache = nil;
 }
 
 
--(BOOL) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
-    [self bindForStep:stepNumber];
+-(BOOL) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData inContext:(JotGLContext*)context{
+    [self bindToContext:(JotGLContext*)context forStep:stepNumber];
     GLintptr offset = stepNumber*stepMallocSize;
     GLsizeiptr len = vertexData.length;
     glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
@@ -59,7 +59,7 @@ static void * zeroedDataCache = nil;
 }
 
 
--(void) bindForStep:(NSInteger)stepNumber{
+-(void) bindToContext:(JotGLContext*)context forStep:(NSInteger)stepNumber{
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
     glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position));
     glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color));
@@ -70,7 +70,7 @@ static void * zeroedDataCache = nil;
     printOpenGLError();
 }
 
--(void) bindForColor:(UIColor*)color andStep:(NSInteger)stepNumber{
+-(void) bindToContext:(JotGLContext*)context forColor:(UIColor*)color andStep:(NSInteger)stepNumber{
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
     glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position));
     glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex), stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size));
@@ -95,7 +95,7 @@ static void * zeroedDataCache = nil;
     printOpenGLError();
 }
 
--(void) unbind{
+-(void) unbindFromContext:(JotGLContext*)context{
     glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 

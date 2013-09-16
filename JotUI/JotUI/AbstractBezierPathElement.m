@@ -150,20 +150,20 @@
 }
 
 
--(BOOL) bind{
+-(BOOL) bindToContext:(JotGLContext*)context{
     return NO;
 }
 
--(void) unbind{
+-(void) unbindFromContext:(JotGLContext*)context{
     @throw kAbstractMethodException;
 }
 
--(void) draw{
-    if([self bind]){
+-(void) drawToContext:(JotGLContext*)context{
+    if([self bindToContext:(JotGLContext*)context]){
         // VBO
         glDrawArrays(GL_POINTS, 0, [self numberOfSteps] * [self numberOfVerticesPerStep]);
         printOpenGLError();
-        [self unbind];
+        [self unbindFromContext:context];
     }
 }
 

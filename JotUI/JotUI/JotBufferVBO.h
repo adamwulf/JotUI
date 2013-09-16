@@ -12,21 +12,22 @@
 #import <OpenGLES/ES1/glext.h>
 #import "UIColor+JotHelper.h"
 #import "OpenGLVBO.h"
+#import "JotGLContext.h"
 
 @interface JotBufferVBO : NSObject
 
--(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber;
+-(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber inContext:(JotGLContext*)context;
 
 +(int) cacheNumberForBytes:(int)bytes;
 
 -(int) cacheNumber;
 
--(void) updateBufferWithData:(NSData*)vertexData;
+-(void) updateBufferInContext:(JotGLContext*)context withData:(NSData*)vertexData;
 
--(void) bind;
+-(void) bindToContext:(JotGLContext*)context;
 
--(void) bindForColor:(UIColor*)color;
+-(void) bindToContext:(JotGLContext*)context forColor:(UIColor*)color;
 
--(void) unbind;
+-(void) unbindFromContext:(JotGLContext*)context;
 
 @end

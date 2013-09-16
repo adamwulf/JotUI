@@ -13,6 +13,7 @@
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
+#import "JotGLContext.h"
 
 
 @interface AbstractBezierPathElement ()
@@ -42,11 +43,11 @@
 
 -(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2;
 
--(BOOL) bind;
+-(BOOL) bindToContext:(JotGLContext*)context;
 
--(void) unbind;
+-(void) unbindFromContext:(JotGLContext*)context;
 
--(void) draw;
+-(void) drawToContext:(JotGLContext*)context;
 
 @end
 

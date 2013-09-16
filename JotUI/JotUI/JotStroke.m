@@ -108,8 +108,8 @@
             [self updateHashWithObject:segment];
             totalNumberOfBytes += [segment numberOfBytesGivenPreviousElement:previousElement];
             [segment validateDataGivenPreviousElement:previousElement];
-            if([segment bind]){
-                [segment unbind];
+            if([segment bindToContext:(JotGLContext*)[JotGLContext currentContext]]){
+                [segment unbindFromContext:(JotGLContext*)[JotGLContext currentContext]];
             }
             previousElement = segment;
             return segment;

@@ -355,15 +355,15 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  * the [unbind] method will unbind either the VAO or VBO
  * depending on which was created/bound in this method+thread
  */
--(BOOL) bind{
+-(BOOL) bindToContext:(JotGLContext*)context{
     // we're only allowed to create vbo
     // on the main thread.
     // if we need a vbo, then create it
     if(!vbo && dataVertexBuffer){
-        vbo = [[JotBufferManager sharedInstace] bufferWithData:dataVertexBuffer];
+        vbo = [[JotBufferManager sharedInstace] bufferWithData:dataVertexBuffer usingContext:context];
     }
     if(vertexBufferShouldContainColor){
-        [vbo bind];
+        [vbo bindToContext:(JotGLContext*)context];
     }else{
         GLfloat colors[4];
         [self.color getRGBAComponents:colors];
@@ -372,13 +372,13 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         }
         CGFloat alpha = colors[3] / (self.width / kDivideStepBy);
         if(alpha > 1) alpha = 1;
-        [vbo bindForColor:[self.color colorWithAlphaComponent:alpha]];
+        [vbo bindToContext:(JotGLContext*)context forColor:[self.color colorWithAlphaComponent:alpha]];
     }
     return YES;
 }
 
--(void) unbind{
-    [vbo unbind];
+-(void) unbindFromContext:(JotGLContext*)context{
+    [vbo unbindFromContext:context];
 }
 
 

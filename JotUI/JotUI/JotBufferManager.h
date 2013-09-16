@@ -15,7 +15,7 @@
 
 +(NSInteger) cacheNumberForData:(NSData*)data;
 
--(JotBufferVBO*) bufferWithData:(NSData*)data;
+-(JotBufferVBO*) bufferWithData:(NSData*)vertexData usingContext:(JotGLContext*)context;
 
 -(void) recycleBuffer:(JotBufferVBO*)buffer;
 

@@ -50,14 +50,14 @@ static JotBufferManager* _instance = nil;
 }
 
 
--(JotBufferVBO*) bufferWithData:(NSData*)vertexData{
+-(JotBufferVBO*) bufferWithData:(NSData*)vertexData usingContext:(JotGLContext*)context{
     NSInteger cacheNumberForData = [JotBufferManager cacheNumberForData:vertexData];
     NSMutableArray* vboCache = [self arrayOfVBOsForCacheNumber:cacheNumberForData];
     JotBufferVBO* buffer = [vboCache firstObject];
     NSMutableDictionary* stats = [cacheStats objectForKey:@(buffer.cacheNumber)];
     if(buffer){
         [vboCache removeObjectAtIndex:0];
-        [buffer updateBufferWithData:vertexData];
+        [buffer updateBufferInContext:context withData:vertexData];
         
         // update used stat
         int used = [[stats objectForKey:@"used"] intValue];
@@ -66,7 +66,7 @@ static JotBufferManager* _instance = nil;
         // fill our cache with buffers of the right size
         OpenGLVBO* openGLVBO = [[OpenGLVBO alloc] initForCacheNumber:cacheNumberForData];
         for(int stepNumber=0;stepNumber<openGLVBO.numberOfSteps;stepNumber++){
-            buffer = [[JotBufferVBO alloc] initWithData:vertexData andOpenGLVBO:openGLVBO andStepNumber:stepNumber];
+            buffer = [[JotBufferVBO alloc] initWithData:vertexData andOpenGLVBO:openGLVBO andStepNumber:stepNumber inContext:context];
             [vboCache addObject:buffer];
         }
         // now use the last of those newly created buffers

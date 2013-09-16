@@ -18,7 +18,7 @@
 }
 
 
--(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber{
+-(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber inContext:(JotGLContext*)context{
     if(self = [super init]){
         
         vbo = _vbo;
@@ -26,7 +26,7 @@
         
         cacheNumber = [JotBufferManager cacheNumberForData:vertexData];
 
-        [vbo updateStep:stepNumber withBufferWithData:vertexData];
+        [vbo updateStep:stepNumber withBufferWithData:vertexData inContext:context];
     }
     return self;
 }
@@ -39,20 +39,20 @@
     return cacheNumber;
 }
 
--(void) updateBufferWithData:(NSData*)vertexData{
-    [vbo updateStep:stepNumber withBufferWithData:vertexData];
+-(void) updateBufferInContext:(JotGLContext*)context withData:(NSData*)vertexData{
+    [vbo updateStep:stepNumber withBufferWithData:vertexData inContext:context];
 }
 
--(void) bind{
-    [vbo bindForStep:stepNumber];
+-(void) bindToContext:(JotGLContext*)context{
+    [vbo bindToContext:context forStep:stepNumber];
 }
 
--(void) bindForColor:(UIColor*)color{
-    [vbo bindForColor:color andStep:stepNumber];
+-(void) bindToContext:(JotGLContext*)context forColor:(UIColor*)color{
+    [vbo bindToContext:context forColor:color andStep:stepNumber];
 }
 
--(void) unbind{
-    [vbo unbind];
+-(void) unbindFromContext:(JotGLContext*)context{
+    [vbo unbindFromContext:context];
 }
 
 

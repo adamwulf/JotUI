@@ -819,7 +819,7 @@ static JotGLContext *mainThreadContext;
     [element generatedVertexArrayWithPreviousElement:previousElement forScale:scale];
 
     // now bind and draw the element
-    [element draw];
+    [element drawToContext:context];
     
     if(frameBuffer){
         [self unprepOpenGLState];

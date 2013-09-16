@@ -11,6 +11,7 @@
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
+#import "JotGLContext.h"
 
 @interface OpenGLVBO : NSObject
 
@@ -18,12 +19,12 @@
 
 -(id) initForCacheNumber:(NSInteger)_cacheNumber;
 
--(BOOL) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData;
+-(BOOL) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData inContext:(JotGLContext*)context;
 
--(void) bindForStep:(NSInteger)stepNumber;
+-(void) bindToContext:(JotGLContext*)context forStep:(NSInteger)stepNumber;
 
--(void) bindForColor:(UIColor*)color andStep:(NSInteger)stepNumber;
+-(void) bindToContext:(JotGLContext*)context forColor:(UIColor*)color andStep:(NSInteger)stepNumber;
 
--(void) unbind;
+-(void) unbindFromContext:(JotGLContext*)context;
 
 @end
