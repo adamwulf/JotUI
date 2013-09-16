@@ -49,4 +49,33 @@
 
 -(GLenum) glCheckFramebufferStatusOES:(GLenum)target;
 
+-(void) glGenTextures:(GLsizei)n and:(GLuint*)textures;
+
+-(void) glBindTexture:(GLenum)target and:(GLuint)texture;
+
+-(void) glTexParameteri:(GLenum)target and:(GLenum)pname and:(GLint)param;
+
+-(void) glTexImage2D:(GLenum)target and:(GLint)level and:(GLint)internalformat and:(GLsizei)width
+                 and:(GLsizei)height and:(GLint)border and:(GLenum)format and:(GLenum)type and:(const GLvoid *)pixels;
+
+-(void) glFramebufferTexture2DOES:(GLenum)target and:(GLenum)attachment and:(GLenum)textarget and:(GLuint)texture and:(GLint)level;
+
+-(void) glTexParameterf:(GLenum)target and:(GLenum)pname and:(GLfloat)param;
+
+-(void) glClearColor:(GLclampf)red and:(GLclampf)green and:(GLclampf)blue and:(GLclampf)alpha;
+
+-(void) glClear:(GLbitfield)mask;
+
+-(void) glPixelStorei:(GLenum)pname and:(GLint)param;
+
+-(void) glReadPixels:(GLint)x and:(GLint)y and:(GLsizei)width and:(GLsizei)height and:(GLenum)format and:(GLenum)type and:(GLvoid*)pixels;
+
+-(void) glDeleteTextures:(GLsizei)n and:(const GLuint*)textures;
+
+-(void) glScissor:(GLint)x and:(GLint)y and:(GLsizei)width and:(GLsizei)height;
+
+-(void) glEnableClientState:(GLenum)array;
+
+-(void) glDisableClientState:(GLenum)array;
+
 @end

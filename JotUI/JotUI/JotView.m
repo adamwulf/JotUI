@@ -281,9 +281,10 @@ static JotGLContext *mainThreadContext;
     [context glOrthof:0 and:(GLsizei)initialViewport.width and:0 and:(GLsizei)initialViewport.height and:-1 and:1];
     [context glViewport:0 and:0 and:(GLsizei)initialViewport.width and:(GLsizei) initialViewport.height];
 
-	if([context glCheckFramebufferStatusOES:GL_FRAMEBUFFER_OES] != GL_FRAMEBUFFER_COMPLETE_OES)
+    GLenum status = [context glCheckFramebufferStatusOES:GL_FRAMEBUFFER_OES];
+	if(status != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
-		NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
+		NSLog(@"failed to make complete framebuffer object %x", status);
 		return NO;
 	}
     
@@ -512,32 +513,32 @@ static JotGLContext *mainThreadContext;
     GLuint canvastexture;
     
     // create the texture
-    glGenTextures(1, &canvastexture);
-    glBindTexture(GL_TEXTURE_2D, canvastexture);
+    [context glGenTextures:1 and:&canvastexture];
+    [context glBindTexture:GL_TEXTURE_2D and:canvastexture];
     
     //
     // http://stackoverflow.com/questions/5835656/glframebuffertexture2d-fails-on-iphone-for-certain-texture-sizes
     // these are required for non power of 2 textures on iPad 1 version of OpenGL1.1
     // otherwise, the glCheckFramebufferStatusOES will be GL_FRAMEBUFFER_UNSUPPORTED_OES
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    [context glTexParameteri:GL_TEXTURE_2D and:GL_TEXTURE_WRAP_S and:GL_CLAMP_TO_EDGE];
+    [context glTexParameteri:GL_TEXTURE_2D and:GL_TEXTURE_WRAP_T and:GL_CLAMP_TO_EDGE];
+    [context glTexParameteri:GL_TEXTURE_2D and:GL_TEXTURE_MIN_FILTER and:GL_LINEAR];
+    [context glTexParameteri:GL_TEXTURE_2D and:GL_TEXTURE_MAG_FILTER and:GL_LINEAR];
 	
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
-    
-    GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+    [context glTexImage2D:GL_TEXTURE_2D and:0 and:GL_RGBA and:fullSize.width and:fullSize.height and:0 and:GL_RGBA and:GL_UNSIGNED_BYTE and:NULL];
+    [context glFramebufferTexture2DOES:GL_FRAMEBUFFER_OES and:GL_COLOR_ATTACHMENT0_OES and:GL_TEXTURE_2D and:canvastexture and:0];
+
+    GLenum status = [context glCheckFramebufferStatusOES:GL_FRAMEBUFFER_OES];
     if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
         NSLog(@"failed to make complete framebuffer object %x", status);
     }
     
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    [context glTexParameterf:GL_TEXTURE_2D and:GL_TEXTURE_MIN_FILTER and:GL_LINEAR];
+    [context glTexParameterf:GL_TEXTURE_2D and:GL_TEXTURE_MAG_FILTER and:GL_LINEAR];
     
-    glClearColor(1.0, 1.0, 1.0, 1.0);
-    glViewport(0, 0, fullSize.width, fullSize.height);
-    glClear(GL_COLOR_BUFFER_BIT);
+    [context glClearColor:1.0 and:1.0 and:1.0 and:1.0];
+    [context glViewport:0 and:0 and:fullSize.width and:fullSize.height];
+    [context glClear:GL_COLOR_BUFFER_BIT];
     
     [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
     
@@ -546,13 +547,11 @@ static JotGLContext *mainThreadContext;
     NSInteger dataLength = fullSize.width * fullSize.height * 4;
     GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
     // Read pixel data from the framebuffer
-    glPixelStorei(GL_PACK_ALIGNMENT, 4);
-    glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
+    [context glPixelStorei:GL_PACK_ALIGNMENT and:4];
+    [context glReadPixels:x and:y and:fullSize.width and:fullSize.height and:GL_RGBA and:GL_UNSIGNED_BYTE and:data];
     
-    
-    glDeleteFramebuffersOES(1, &exportFramebuffer);
-    glDeleteTextures(1, &canvastexture);
+    [context glDeleteFramebuffersOES:1 and:&exportFramebuffer];
+    [context glDeleteTextures:1 and:&canvastexture];
     
     [context glViewport:0 and:0 and:initialViewport.width and:initialViewport.height];
 
@@ -624,7 +623,7 @@ static JotGLContext *mainThreadContext;
 
     if(!CGRectEqualToRect(scissorRect, CGRectZero)){
         [context glEnable:GL_SCISSOR_TEST];
-        glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
+        [context glScissor:scissorRect.origin.x and:scissorRect.origin.y and:scissorRect.size.width and:scissorRect.size.height];
     }else{
         // noop for scissors
     }
@@ -642,8 +641,8 @@ static JotGLContext *mainThreadContext;
 	//
     // step 1:
     // Clear the buffer
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+    [context glClearColor:0.0 and:0.0 and:0.0 and:0.0];
+    [context glClear:GL_COLOR_BUFFER_BIT];
     
     //
     // step 2:
@@ -839,9 +838,9 @@ static JotGLContext *mainThreadContext;
     [context glBindFramebufferOES:GL_FRAMEBUFFER_OES and:frameBuffer];
     
     // setup our state
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
+    [context glEnableClientState:GL_VERTEX_ARRAY];
+    [context glEnableClientState:GL_COLOR_ARRAY];
+    [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
 }
 
 /**
@@ -866,9 +865,9 @@ static JotGLContext *mainThreadContext;
  */
 -(void) unprepOpenGLState{
     // Restore state
-    glDisableClientState(GL_POINT_SIZE_ARRAY_OES);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    [context glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
+    [context glDisableClientState:GL_COLOR_ARRAY];
+    [context glDisableClientState:GL_VERTEX_ARRAY];
 }
 
 
@@ -1308,8 +1307,8 @@ static int undoCounter;
 	
 	// Clear the buffer
     [context glBindFramebufferOES:GL_FRAMEBUFFER_OES and:viewFramebuffer];
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
+    [context glClearColor:0.0 and:0.0 and:0.0 and:0.0];
+    [context glClear:GL_COLOR_BUFFER_BIT];
 
     
     // clear the background

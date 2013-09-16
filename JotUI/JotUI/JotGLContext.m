@@ -132,11 +132,75 @@
     return glCheckFramebufferStatusOES(target);
 }
 
--(void) foo{
-    
-    
+-(void) glGenTextures:(GLsizei)n and:(GLuint*)textures{
+    [JotGLContext setCurrentContext:self];
+    glGenTextures(n, textures);
 }
 
+-(void) glBindTexture:(GLenum)target and:(GLuint)texture{
+    [JotGLContext setCurrentContext:self];
+    glBindTexture(target, texture);
+}
 
+-(void) glTexParameteri:(GLenum)target and:(GLenum)pname and:(GLint)param{
+    [JotGLContext setCurrentContext:self];
+    glTexParameteri(target, pname, param);
+}
+
+-(void) glTexImage2D:(GLenum)target and:(GLint)level and:(GLint)internalformat and:(GLsizei)width
+                 and:(GLsizei)height and:(GLint)border and:(GLenum)format and:(GLenum)type and:(const GLvoid *)pixels{
+    [JotGLContext setCurrentContext:self];
+    glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+}
+
+-(void) glFramebufferTexture2DOES:(GLenum)target and:(GLenum)attachment and:(GLenum)textarget and:(GLuint)texture and:(GLint)level{
+    [JotGLContext setCurrentContext:self];
+    glFramebufferTexture2DOES(target, attachment, textarget, texture, level);
+}
+
+-(void) glTexParameterf:(GLenum)target and:(GLenum)pname and:(GLfloat)param{
+    [JotGLContext setCurrentContext:self];
+    glTexParameterf(target, pname, param);
+}
+
+-(void) glClearColor:(GLclampf)red and:(GLclampf)green and:(GLclampf)blue and:(GLclampf)alpha{
+    [JotGLContext setCurrentContext:self];
+    glClearColor(red, green, blue, alpha);
+}
+
+-(void) glClear:(GLbitfield)mask{
+    [JotGLContext setCurrentContext:self];
+    glClear(mask);
+}
+
+-(void) glPixelStorei:(GLenum)pname and:(GLint)param{
+    [JotGLContext setCurrentContext:self];
+    glPixelStorei(pname, param);
+}
+
+-(void) glReadPixels:(GLint)x and:(GLint)y and:(GLsizei)width and:(GLsizei)height and:(GLenum)format and:(GLenum)type and:(GLvoid*)pixels{
+    [JotGLContext setCurrentContext:self];
+    glReadPixels(x, y, width, height, format, type, pixels);
+}
+
+-(void) glDeleteTextures:(GLsizei)n and:(const GLuint*)textures{
+    [JotGLContext setCurrentContext:self];
+    glDeleteTextures(n, textures);
+}
+
+-(void) glScissor:(GLint)x and:(GLint)y and:(GLsizei)width and:(GLsizei)height{
+    [JotGLContext setCurrentContext:self];
+    glScissor(x, y, width, height);
+}
+
+-(void) glEnableClientState:(GLenum)array{
+    [JotGLContext setCurrentContext:self];
+    glEnableClientState(array);
+}
+
+-(void) glDisableClientState:(GLenum)array{
+    [JotGLContext setCurrentContext:self];
+    glDisableClientState(array);
+}
 
 @end
