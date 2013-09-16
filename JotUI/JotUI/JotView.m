@@ -29,6 +29,23 @@
 #define kJotValidateUndoTimer .06
 #define kJotMaxStrokeByteSize 256*1024
 
+int printOglError(char *file, int line)
+{
+    
+    GLenum glErr;
+    int    retCode = 0;
+    
+    glErr = glGetError();
+    if (glErr != GL_NO_ERROR)
+    {
+        NSLog(@"glError in file %s @ line %d: %d\n",
+              file, line, glErr);
+        retCode = glErr;
+    }
+    return retCode;
+}
+
+
 
 dispatch_queue_t importExportImageQueue;
 dispatch_queue_t importExportStateQueue;
@@ -186,20 +203,16 @@ static JotGLContext *mainThreadContext;
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
     
     // Setup OpenGL states
-    glMatrixMode(GL_PROJECTION);
-    
+    [context glMatrixMode:GL_PROJECTION];
     // Setup the view port in Pixels
-    glMatrixMode(GL_MODELVIEW);
-    
-    glDisable(GL_DITHER);
-    glEnable(GL_TEXTURE_2D);
-    
-    glEnable(GL_BLEND);
+    [context glMatrixMode:GL_MODELVIEW];
+    [context glDisable:GL_DITHER];
+    [context glEnable:GL_TEXTURE_2D];
+    [context glEnable:GL_BLEND];
     // Set a blending function appropriate for premultiplied alpha pixel data
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    
-    glEnable(GL_POINT_SPRITE_OES);
-    glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+    [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+    [context glEnable:GL_POINT_SPRITE_OES];
+    [context glTexEnvf:GL_POINT_SPRITE_OES and:GL_COORD_REPLACE_OES and:GL_TRUE];
     
 	[self destroyFramebuffer];
 	[self createFramebuffer];
@@ -241,36 +254,34 @@ static JotGLContext *mainThreadContext;
 	GLint backingHeight;
 	
 	// Generate IDs for a framebuffer object and a color renderbuffer
-	glGenFramebuffersOES(1, &viewFramebuffer);
-	glGenRenderbuffersOES(1, &viewRenderbuffer);
+    [context glGenFramebuffersOES:1 and:&viewFramebuffer];
+    [context glGenRenderbuffersOES:1 and:&viewRenderbuffer];
 	
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+    [context glBindFramebufferOES:GL_FRAMEBUFFER_OES and:viewFramebuffer];
+    [context glBindRenderbufferOES:GL_RENDERBUFFER_OES and:viewRenderbuffer];
 	// This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
 	// allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
 	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(id<EAGLDrawable>)self.layer];
-	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, viewRenderbuffer);
+    [context glFramebufferRenderbufferOES:GL_FRAMEBUFFER_OES and:GL_COLOR_ATTACHMENT0_OES and:GL_RENDERBUFFER_OES and:viewRenderbuffer];
 	
-	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
-	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+    [context glGetRenderbufferParameterivOES:GL_RENDERBUFFER_OES and:GL_RENDERBUFFER_WIDTH_OES and:&backingWidth];
+    [context glGetRenderbufferParameterivOES:GL_RENDERBUFFER_OES and:GL_RENDERBUFFER_HEIGHT_OES and:&backingHeight];
 	
 	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
-	glGenRenderbuffersOES(1, &depthRenderbuffer);
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
-	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
-	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
+    [context glGenRenderbuffersOES:1 and:&depthRenderbuffer];
+    [context glBindRenderbufferOES:GL_RENDERBUFFER_OES and:depthRenderbuffer];
+    [context glRenderbufferStorageOES:GL_RENDERBUFFER_OES and:GL_DEPTH_COMPONENT16_OES and:backingWidth and:backingHeight];
+    [context glFramebufferRenderbufferOES:GL_FRAMEBUFFER_OES and:GL_DEPTH_ATTACHMENT_OES and:GL_RENDERBUFFER_OES and:depthRenderbuffer];
 	
     CGRect frame = self.layer.bounds;
     CGFloat scale = self.contentScaleFactor;
     
     initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
     
-    glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-    printOpenGLError();
-    glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
-    printOpenGLError();
+    [context glOrthof:0 and:(GLsizei)initialViewport.width and:0 and:(GLsizei)initialViewport.height and:-1 and:1];
+    [context glViewport:0 and:0 and:(GLsizei)initialViewport.width and:(GLsizei) initialViewport.height];
 
-	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
+	if([context glCheckFramebufferStatusOES:GL_FRAMEBUFFER_OES] != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
 		NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
 		return NO;
@@ -287,15 +298,15 @@ static JotGLContext *mainThreadContext;
  */
 - (void)destroyFramebuffer{
     if(viewFramebuffer){
-        glDeleteFramebuffersOES(1, &viewFramebuffer);
+        [context glDeleteFramebuffersOES:1 and:&viewFramebuffer];
         viewFramebuffer = 0;
     }
     if(viewRenderbuffer){
-        glDeleteRenderbuffersOES(1, &viewRenderbuffer);
+        [context glDeleteRenderbuffersOES:1 and:&viewRenderbuffer];
         viewRenderbuffer = 0;
     }
 	if(depthRenderbuffer){
-		glDeleteRenderbuffersOES(1, &depthRenderbuffer);
+        [context glDeleteRenderbuffersOES:1 and:&depthRenderbuffer];
 		depthRenderbuffer = 0;
 	}
 }
@@ -496,8 +507,8 @@ static JotGLContext *mainThreadContext;
     
 	GLuint exportFramebuffer;
     
-    glGenFramebuffersOES(1, &exportFramebuffer);
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+    [context glGenFramebuffersOES:1 and:&exportFramebuffer];
+    [context glBindFramebufferOES:GL_FRAMEBUFFER_OES and:exportFramebuffer];
     GLuint canvastexture;
     
     // create the texture
@@ -543,9 +554,7 @@ static JotGLContext *mainThreadContext;
     glDeleteFramebuffersOES(1, &exportFramebuffer);
     glDeleteTextures(1, &canvastexture);
     
-    [JotGLContext setCurrentContext:self.context];
-    
-    glViewport(0, 0, initialViewport.width, initialViewport.height);
+    [context glViewport:0 and:0 and:initialViewport.width and:initialViewport.height];
 
     
     //
@@ -614,7 +623,7 @@ static JotGLContext *mainThreadContext;
     CheckMainThread;
 
     if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-        glEnable(GL_SCISSOR_TEST);
+        [context glEnable:GL_SCISSOR_TEST];
         glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
     }else{
         // noop for scissors
@@ -628,7 +637,7 @@ static JotGLContext *mainThreadContext;
     
     // set our current OpenGL context
     [JotGLContext setCurrentContext:renderContext];
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
+    [context glBindFramebufferOES:GL_FRAMEBUFFER_OES and:theFramebuffer];
 
 	//
     // step 1:
@@ -685,7 +694,7 @@ static JotGLContext *mainThreadContext;
     [self setBrushTexture:keepThisTexture];
     
     if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-        glDisable(GL_SCISSOR_TEST);
+        [context glDisable:GL_SCISSOR_TEST];
     }
 }
 
@@ -710,12 +719,10 @@ static JotGLContext *mainThreadContext;
 -(void) presentRenderBuffer{
     CheckMainThread;
     
-    if([JotGLContext currentContext] != self.context){
-        [JotGLContext setCurrentContext:self.context];
-    }
+    [JotGLContext setCurrentContext:self.context];
     
     if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
-        glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+        [context glBindRenderbufferOES:GL_RENDERBUFFER_OES and:viewRenderbuffer];
         [context presentRenderbuffer:GL_RENDERBUFFER_OES];
         needsPresentRenderBuffer = NO;
     }
@@ -829,8 +836,7 @@ static JotGLContext *mainThreadContext;
 -(void) prepOpenGLStateForFBO:(GLuint)frameBuffer{
     // set to current context
     [JotGLContext setCurrentContext:context];
-    
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
+    [context glBindFramebufferOES:GL_FRAMEBUFFER_OES and:frameBuffer];
     
     // setup our state
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -845,10 +851,10 @@ static JotGLContext *mainThreadContext;
 -(void) prepOpenGLBlendModeForColor:(UIColor*)color{
     if(!color){
         // eraser
-        glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+        [context glBlendFunc:GL_ZERO and:GL_ONE_MINUS_SRC_ALPHA];
     }else{
         // normal brush
-        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
     }
 }
 
@@ -1301,7 +1307,7 @@ static int undoCounter;
 	[JotGLContext setCurrentContext:context];
 	
 	// Clear the buffer
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+    [context glBindFramebufferOES:GL_FRAMEBUFFER_OES and:viewFramebuffer];
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -1344,7 +1350,7 @@ static int undoCounter;
 
 -(void) addElement:(AbstractBezierPathElement*)element{
     [JotGLContext setCurrentContext:self.context];
-    glViewport(0, 0, initialViewport.width, initialViewport.height);
+    [context glViewport:0 and:0 and:initialViewport.width and:initialViewport.height];
     JotStroke* stroke = [state.stackOfStrokes lastObject];
     if(!stroke){
         stroke = [[JotStroke alloc] init];

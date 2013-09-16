@@ -13,23 +13,6 @@
 
 #define kAbstractMethodException [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil]
 
-int printOglError(char *file, int line)
-{
-    
-    GLenum glErr;
-    int    retCode = 0;
-    
-    glErr = glGetError();
-    if (glErr != GL_NO_ERROR)
-    {
-        NSLog(@"glError in file %s @ line %d: %d\n",
-               file, line, glErr);
-        retCode = glErr;
-    }
-    return retCode;
-}
-
-
 @implementation AbstractBezierPathElement
 
 @synthesize startPoint;

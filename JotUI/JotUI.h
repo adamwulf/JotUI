@@ -40,5 +40,7 @@ typedef struct {
 
 typedef Vertex3D Vector3D;
 
+#define printOpenGLError() printOglError(__FILE__, __LINE__)
+
 
 #endif

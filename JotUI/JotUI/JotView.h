@@ -18,6 +18,9 @@
 #import "JotUI/JotBrushTexture.h"
 #import "JotUI/JotViewState.h"
 
+int printOglError(char *file, int line);
+
+
 @class JotViewImmutableState;
 
 @class SegmentSmoother, UIPalmView;
