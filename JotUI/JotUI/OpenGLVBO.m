@@ -19,6 +19,10 @@
     NSInteger numberOfSteps;
 }
 
+static int zeroedCacheNumber = -1;
+static void * zeroedDataCache = nil;
+
+
 @synthesize numberOfSteps;
 
 -(id) initForCacheNumber:(NSInteger)_cacheNumber{
@@ -31,7 +35,15 @@
         glGenBuffers(1,&vbo);
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
         // create buffer of size mallocSize (init w/ NULL to create)
-        glBufferData(GL_ARRAY_BUFFER, mallocSize, NULL, GL_DYNAMIC_DRAW);
+        
+        if(_cacheNumber > zeroedCacheNumber){
+            if(zeroedDataCache){
+                free(zeroedDataCache);
+            }
+            zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
+        }
+        
+        glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
         printOpenGLError();
     }
     return self;
