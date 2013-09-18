@@ -24,9 +24,6 @@
 // to zero opacity
 -(void) clear;
 
-// export the buffered texture to disk
--(void) exportTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock;
-
 // should call this method to notify the framebuffer that
 // it will be rendered to soon.
 //
