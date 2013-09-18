@@ -77,7 +77,7 @@ dispatch_queue_t importExportTextureQueue;
     // bind our framebuffer. the texture is the colorbuffer
     // that we'll be exporting.
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-    
+
     GLint x = 0, y = 0;
     NSInteger dataLength = frameSize.width * frameSize.height * 4;
     GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));

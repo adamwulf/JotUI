@@ -385,16 +385,23 @@ static EAGLContext *mainThreadContext;
     
 //    NSLog(@"saving begins with hash: %u vs %u", [immutableState undoHash], [self undoHash]);
     
+    
+//    [state.backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
+//        ink = image;
+//        dispatch_semaphore_signal(sema2);
+//    }];
+    
+    [self exportInkTextureOnComplete:^(UIImage* image){
+        ink = image;
+        dispatch_semaphore_signal(sema2);
+    }];
+    
+
     // now grab the bits of the rendered thumbnail
     // and backing texture
     [self exportToImageOnComplete:^(UIImage* image){
         thumb = image;
         dispatch_semaphore_signal(sema1);
-    }];
-    
-    [state.backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
-        ink = image;
-        dispatch_semaphore_signal(sema2);
     }];
     
     /////////////////////////////////////////////////////
@@ -550,6 +557,161 @@ static EAGLContext *mainThreadContext;
     
     glViewport(0, 0, initialViewport.width, initialViewport.height);
 
+    
+    //
+    // the rest can be done in Core Graphics in a background thread
+    dispatch_async(importExportImageQueue, ^{
+        @autoreleasepool {
+            // Create a CGImage with the pixel data from OpenGL
+            // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+            // otherwise, use kCGImageAlphaPremultipliedLast
+            CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
+            CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+            CGImageRef iref = CGImageCreate(fullSize.width, fullSize.height, 8, 32, fullSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+                                            kCGImageAlphaPremultipliedLast,
+                                            ref, NULL, true, kCGRenderingIntentDefault);
+            
+            // ok, now we have the pixel data from the OpenGL frame buffer.
+            // next we need to setup the image context to composite the
+            // background color, background image, and opengl image
+            
+            // OpenGL ES measures data in PIXELS
+            // Create a graphics context with the target size measured in POINTS
+            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+                                                               kCGImageAlphaPremultipliedLast);
+            
+            // flip vertical for our drawn content, since OpenGL is opposite core graphics
+            CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
+            CGContextScaleCTM(bitmapContext, 1.0, -1.0);
+            
+            //
+            // ok, now render our actual content
+            CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, exportSize.width, exportSize.height), iref);
+            
+            // Retrieve the UIImage from the current context
+            CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
+            UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
+            
+            // Clean up
+            free(data);
+            CFRelease(ref);
+            CFRelease(colorspace);
+            CGImageRelease(iref);
+            CGContextRelease(bitmapContext);
+            
+            // ok, we're done exporting and cleaning up
+            // so pass the newly generated image to the completion block
+            exportFinishBlock(image);
+            CGImageRelease(cgImage);
+        }
+    });
+}
+
+
+/**
+ * export an image from the openGL render buffer to a UIImage
+ * @param backgroundColor an optional background color for the image. pass nil for a transparent background.
+ * @param backgroundImage an optional image to use as the background behind this view's content
+ *
+ * code modified from http://developer.apple.com/library/ios/#qa/qa1704/_index.html
+ *
+ * If you plan to save the returned image to the photo library,
+ * then you can maintain transparency by reformatting as a PNG:
+ * [UIImage imageWithData:UIImagePNGRepresentation(imageReturnedByThisMethod)];
+ *
+ * If you don't reformat as a PNG, then you may lose transparency
+ * when saving/loading from the Photo Library, as described here:
+ * http://stackoverflow.com/questions/1489250/uiimagewritetosavedphotosalbum-save-as-png-with-transparency
+ * and
+ * http://stackoverflow.com/questions/1379274/uiimagewritetosavedphotosalbum-saves-to-wrong-size-and-quality
+ */
+-(void) exportInkTextureOnComplete:(void(^)(UIImage*) )exportFinishBlock{
+    
+    CheckMainThread;
+    
+    glFlush();
+    [EAGLContext setCurrentContext:self.context];
+    
+    if(!exportFinishBlock) return;
+    
+    CGSize fullSize = CGSizeMake(initialViewport.width, initialViewport.height);
+    CGSize exportSize = CGSizeMake(initialViewport.width, initialViewport.height);
+    
+	GLuint exportFramebuffer;
+    
+    glGenFramebuffersOES(1, &exportFramebuffer);
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+    GLuint canvastexture;
+    
+    // create the texture
+    glGenTextures(1, &canvastexture);
+    glBindTexture(GL_TEXTURE_2D, canvastexture);
+    
+    //
+    // http://stackoverflow.com/questions/5835656/glframebuffertexture2d-fails-on-iphone-for-certain-texture-sizes
+    // these are required for non power of 2 textures on iPad 1 version of OpenGL1.1
+    // otherwise, the glCheckFramebufferStatusOES will be GL_FRAMEBUFFER_UNSUPPORTED_OES
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
+    
+    GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+    if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
+        NSLog(@"failed to make complete framebuffer object %x", status);
+    }
+    
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    
+    glClearColor(1.0, 1.0, 1.0, 1.0);
+    glViewport(0, 0, fullSize.width, fullSize.height);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    
+    
+    // set our current OpenGL context
+    glFlush();
+    [EAGLContext setCurrentContext:context];
+	glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+    
+	//
+    // step 1:
+    // Clear the buffer
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT);
+    
+    //
+    // step 2:
+    // load a texture and draw it into a quad
+    // that fills the screen
+    [state.backgroundTexture draw];
+
+    
+    
+    
+    
+    // read the image from OpenGL and push it into a data buffer
+    NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
+    NSInteger dataLength = fullSize.width * fullSize.height * 4;
+    GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
+    // Read pixel data from the framebuffer
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    
+    
+    
+    glDeleteFramebuffersOES(1, &exportFramebuffer);
+    glDeleteTextures(1, &canvastexture);
+    
+    glFlush();
+    [EAGLContext setCurrentContext:self.context];
+    
+    glViewport(0, 0, initialViewport.width, initialViewport.height);
+    
     
     //
     // the rest can be done in Core Graphics in a background thread
@@ -900,6 +1062,9 @@ static int undoCounter;
         // get the stroke that we need to make permanent
         JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
         
+        if([EAGLContext currentContext] != context){
+            NSLog(@"what");
+        }
         // render it to the backing texture
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID];
         [state.backgroundFramebuffer willRenderToFrameBuffer];
