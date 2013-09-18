@@ -176,7 +176,6 @@ static EAGLContext *mainThreadContext;
         context = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
     }
     
-    glFlush();
     if (!context || ![EAGLContext setCurrentContext:context]) {
         return nil;
     }
@@ -267,9 +266,7 @@ static EAGLContext *mainThreadContext;
     initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
     
     glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-    printOpenGLError();
     glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
-    printOpenGLError();
 
 	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
@@ -495,8 +492,10 @@ static EAGLContext *mainThreadContext;
     
     CheckMainThread;
     
-    glFlush();
-    [EAGLContext setCurrentContext:self.context];
+    if([EAGLContext currentContext] != context){
+        glFlush();
+        [EAGLContext setCurrentContext:context];
+    }
 
     if(!exportFinishBlock) return;
 
@@ -552,8 +551,10 @@ static EAGLContext *mainThreadContext;
     glDeleteFramebuffersOES(1, &exportFramebuffer);
     glDeleteTextures(1, &canvastexture);
     
-    glFlush();
-    [EAGLContext setCurrentContext:self.context];
+    if([EAGLContext currentContext] != context){
+        glFlush();
+        [EAGLContext setCurrentContext:context];
+    }
     
     glViewport(0, 0, initialViewport.width, initialViewport.height);
 
@@ -629,8 +630,10 @@ static EAGLContext *mainThreadContext;
     
     CheckMainThread;
     
-    glFlush();
-    [EAGLContext setCurrentContext:self.context];
+    if([EAGLContext currentContext] != context){
+        glFlush();
+        [EAGLContext setCurrentContext:context];
+    }
     
     if(!exportFinishBlock) return;
     
@@ -674,8 +677,10 @@ static EAGLContext *mainThreadContext;
     
     
     // set our current OpenGL context
-    glFlush();
-    [EAGLContext setCurrentContext:context];
+    if([EAGLContext currentContext] != context){
+        glFlush();
+        [EAGLContext setCurrentContext:context];
+    }
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
     
 	//
@@ -707,8 +712,10 @@ static EAGLContext *mainThreadContext;
     glDeleteFramebuffersOES(1, &exportFramebuffer);
     glDeleteTextures(1, &canvastexture);
     
-    glFlush();
-    [EAGLContext setCurrentContext:self.context];
+    if([EAGLContext currentContext] != context){
+        glFlush();
+        [EAGLContext setCurrentContext:context];
+    }
     
     glViewport(0, 0, initialViewport.width, initialViewport.height);
     
@@ -792,8 +799,10 @@ static EAGLContext *mainThreadContext;
     JotBrushTexture* keepThisTexture = brushTexture;
     
     // set our current OpenGL context
-    glFlush();
-    [EAGLContext setCurrentContext:renderContext];
+    if([EAGLContext currentContext] != renderContext){
+        glFlush();
+        [EAGLContext setCurrentContext:renderContext];
+    }
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
 
 	//
@@ -995,8 +1004,10 @@ static EAGLContext *mainThreadContext;
  */
 -(void) prepOpenGLStateForFBO:(GLuint)frameBuffer{
     // set to current context
-    glFlush();
-    [EAGLContext setCurrentContext:context];
+    if([EAGLContext currentContext] != context){
+        glFlush();
+        [EAGLContext setCurrentContext:context];
+    }
     
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
     

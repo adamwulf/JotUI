@@ -179,7 +179,6 @@ int printOglError(char *file, int line)
     if([self bind]){
         // VBO
         glDrawArrays(GL_POINTS, 0, [self numberOfSteps] * [self numberOfVerticesPerStep]);
-        printOpenGLError();
         [self unbind];
     }
 }

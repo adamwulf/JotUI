@@ -44,7 +44,6 @@ static void * zeroedDataCache = nil;
         }
         
         glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
-        printOpenGLError();
     }
     return self;
 }
@@ -55,7 +54,6 @@ static void * zeroedDataCache = nil;
     GLintptr offset = stepNumber*stepMallocSize;
     GLsizeiptr len = vertexData.length;
     glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
-    return !printOpenGLError();
 }
 
 
@@ -67,7 +65,6 @@ static void * zeroedDataCache = nil;
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
-    printOpenGLError();
 }
 
 -(void) bindForColor:(UIColor*)color andStep:(NSInteger)stepNumber{
@@ -92,7 +89,6 @@ static void * zeroedDataCache = nil;
            
         glColor4f(colorSteps[0] * colorSteps[3], colorSteps[1] * colorSteps[3], colorSteps[2] * colorSteps[3], colorSteps[3]);
     }
-    printOpenGLError();
 }
 
 -(void) unbind{

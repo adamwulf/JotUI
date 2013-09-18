@@ -102,7 +102,9 @@
             CGContextRelease(cgContext);
             free(imageData);
         }else{
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+            void* zeroedDataCache = calloc(fullPixelSize.height * fullPixelSize.width, 4);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zeroedDataCache);
+            free(zeroedDataCache);
         }
         // clear texture bind
         glBindTexture(GL_TEXTURE_2D,0);

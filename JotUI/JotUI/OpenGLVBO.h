@@ -18,7 +18,7 @@
 
 -(id) initForCacheNumber:(NSInteger)_cacheNumber;
 
--(BOOL) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData;
+-(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData;
 
 -(void) bindForStep:(NSInteger)stepNumber;
 
