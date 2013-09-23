@@ -92,7 +92,7 @@ static void * zeroedDataCache = nil;
            colorSteps[1] * colorSteps[3] > 1 ||
            colorSteps[2] * colorSteps[3] > 1 ||
            colorSteps[3] > 1){
-            NSLog(@"what");
+            NSLog(@"what2");
         }
         [context glColor4f:(colorSteps[0] * colorSteps[3]) and:(colorSteps[1] * colorSteps[3]) and:(colorSteps[2] * colorSteps[3]) and:(colorSteps[3])];
     }
