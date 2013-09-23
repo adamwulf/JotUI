@@ -693,7 +693,7 @@ static JotGLContext *mainThreadContext;
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [state.backgroundTexture draw];
+    [state.backgroundTexture drawInContext:context];
 
     
     
@@ -815,7 +815,7 @@ static JotGLContext *mainThreadContext;
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [state.backgroundTexture draw];
+    [state.backgroundTexture drawInContext:renderContext];
     
     //
     // ok, we're done rendering the background texture to the quad
@@ -1011,10 +1011,10 @@ static JotGLContext *mainThreadContext;
     
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
     
-    // setup our state
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
+    [context glEnableClientState:GL_VERTEX_ARRAY];
+    [context glEnableClientState:GL_COLOR_ARRAY];
+    [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+    [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
 }
 
 /**
@@ -1039,9 +1039,11 @@ static JotGLContext *mainThreadContext;
  */
 -(void) unprepOpenGLState{
     // Restore state
-    glDisableClientState(GL_POINT_SIZE_ARRAY_OES);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
+    // I used to disable all the client states that I had enabled
+    // before, but now that I handle this in the JotGLContext,
+    // I get better performance, and only adjust state
+    // immediately before a draw call, and only
+    // if the state actually needs changing
 }
 
 

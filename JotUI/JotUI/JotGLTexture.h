@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "JotGLContext.h"
 
 @interface JotGLTexture : NSObject{
     GLuint textureID;
@@ -20,6 +21,6 @@
 
 -(void) bind;
 
--(void) draw;
+-(void) drawInContext:(JotGLContext*)context;
 
 @end

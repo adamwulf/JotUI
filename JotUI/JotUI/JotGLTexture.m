@@ -108,6 +108,7 @@
         }
         // clear texture bind
         glBindTexture(GL_TEXTURE_2D,0);
+        glFlush();
     }
     
     return self;
@@ -131,12 +132,14 @@
 }
 
 
--(void) draw{
+-(void) drawInContext:(JotGLContext*)context{
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glColor4f(1, 1, 1, 1);
+
+    [context glEnableClientState:GL_VERTEX_ARRAY];
+    [context glDisableClientState:GL_COLOR_ARRAY];
+    [context glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
+    [context glEnableClientState:GL_TEXTURE_COORD_ARRAY];
+    [context glColor4f:1 and:1 and:1 and:1];
     Vertex3D vertices[] = {
         { 0.0, fullPixelSize.height},
         { fullPixelSize.width, fullPixelSize.height},
@@ -155,8 +158,6 @@
     glVertexPointer(2, GL_FLOAT, 0, vertices);
     glTexCoordPointer(2, GL_SHORT, 0, texCoords);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 

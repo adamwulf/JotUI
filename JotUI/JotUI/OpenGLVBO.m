@@ -62,21 +62,29 @@ static void * zeroedDataCache = nil;
     glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position));
     glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color));
     glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size));
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
+    
+    JotGLContext* context = (JotGLContext*) [JotGLContext currentContext];
+    [context glEnableClientState:GL_VERTEX_ARRAY];
+    [context glEnableClientState:GL_COLOR_ARRAY];
+    [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+    [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
 }
 
 -(void) bindForColor:(UIColor*)color andStep:(NSInteger)stepNumber{
+    
+    JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
+    
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
     glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position));
     glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex), stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size));
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_POINT_SIZE_ARRAY_OES);
-    glDisableClientState(GL_COLOR_ARRAY);
-    
+
+    [context glEnableClientState:GL_VERTEX_ARRAY];
+    [context glDisableClientState:GL_COLOR_ARRAY];
+    [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+    [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+
     if(!color){
-        glColor4f(0, 0, 0, 1);
+        [context glColor4f:0 and:0 and:0 and:1];
     }else{
         GLfloat colorSteps[4];
         [color getRGBAComponents:colorSteps];
@@ -86,8 +94,7 @@ static void * zeroedDataCache = nil;
            colorSteps[3] > 1){
             NSLog(@"what");
         }
-           
-        glColor4f(colorSteps[0] * colorSteps[3], colorSteps[1] * colorSteps[3], colorSteps[2] * colorSteps[3], colorSteps[3]);
+        [context glColor4f:(colorSteps[0] * colorSteps[3]) and:(colorSteps[1] * colorSteps[3]) and:(colorSteps[2] * colorSteps[3]) and:(colorSteps[3])];
     }
 }
 

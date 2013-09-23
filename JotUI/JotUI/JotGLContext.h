@@ -12,4 +12,10 @@
 
 @interface JotGLContext : EAGLContext
 
+-(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha;
+
+-(void) glEnableClientState:(GLenum)array;
+
+-(void) glDisableClientState:(GLenum)array;
+
 @end
