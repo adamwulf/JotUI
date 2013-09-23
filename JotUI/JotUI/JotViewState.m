@@ -70,7 +70,7 @@
 -(id) initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
             andPageSize:(CGSize)fullPixelSize
-           andGLContext:(EAGLContext*)glContext{
+           andGLContext:(JotGLContext*)glContext{
     __block NSDictionary* stateInfo = nil;
     if(self = [self init]){
         // we're going to wait for two background operations to complete
@@ -84,8 +84,8 @@
         dispatch_async([JotView importExportImageQueue], ^{
             @autoreleasepool {
                 glFlush();
-                EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-                [EAGLContext setCurrentContext:backgroundThreadContext];
+                JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+                [JotGLContext setCurrentContext:backgroundThreadContext];
                 
                 // load image from disk
                 UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
@@ -108,8 +108,8 @@
         dispatch_async([JotView importExportStateQueue], ^{
             @autoreleasepool {
                 glFlush();
-                EAGLContext* backgroundThreadContext = [[EAGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-                [EAGLContext setCurrentContext:backgroundThreadContext];
+                JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+                [JotGLContext setCurrentContext:backgroundThreadContext];
                 
                 // load the file
                 stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];

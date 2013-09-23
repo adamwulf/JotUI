@@ -49,7 +49,7 @@ static void * zeroedDataCache = nil;
 }
 
 
--(BOOL) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
+-(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
     [self bindForStep:stepNumber];
     GLintptr offset = stepNumber*stepMallocSize;
     GLsizeiptr len = vertexData.length;

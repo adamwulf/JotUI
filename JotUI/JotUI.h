@@ -31,6 +31,7 @@
 #import <JotUI/JotGLTextureBackedFrameBuffer.h>
 #import <JotUI/JotViewImmutableState.h>
 #import <JotUI/JotViewState.h>
+#import <JotUI/JotGLContext.h>
 
 
 typedef struct {

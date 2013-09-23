@@ -11,6 +11,7 @@
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotViewImmutableState.h"
 #import "JotStrokeDelegate.h"
+#import "JotGLContext.h"
 
 @interface JotViewState : NSObject<JotStrokeDelegate>
 
@@ -29,7 +30,7 @@
 -(id) initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
             andPageSize:(CGSize)fullPixelSize
-           andGLContext:(EAGLContext*)glContext;
+           andGLContext:(JotGLContext*)glContext;
 
 /**
  * this will return YES only
