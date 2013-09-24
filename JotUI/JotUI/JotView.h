@@ -24,6 +24,7 @@
 
 @interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>
 
+@property (readonly) JotViewState* state;
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
 @property (nonatomic, strong) JotBrushTexture* brushTexture;
 @property (readonly) JotGLContext *context;

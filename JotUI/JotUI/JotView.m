@@ -93,6 +93,7 @@ dispatch_queue_t importExportStateQueue;
 @synthesize delegate;
 @synthesize context;
 @synthesize maxStrokeSize;
+@synthesize state;
 
 #pragma mark - Initialization
 
