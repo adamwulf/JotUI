@@ -1117,6 +1117,12 @@ static int undoCounter;
         [self unprepOpenGLState];
 
         [self setBrushTexture:keepThisTexture];
+        //
+        // we just drew to the backing texture, so be sure
+        // to flush all openGL commands, so that when we rebind
+        // it'll use the updated texture and won't have any
+        // issues of unsynchronized textures.
+        glFlush();
     }else if([state isReadyToExport]){
         // only export if the trash manager is empty
         // that way we're exporting w/ low memory instead

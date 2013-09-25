@@ -15,6 +15,18 @@
 
 dispatch_queue_t importExportTextureQueue;
 
+/**
+ * this frame buffer will use a texture as it's backing store,
+ * so that anything drawn to this frame buffer will show up
+ * on the texture that its initialized with.
+ *
+ * one very important thing is to rebind the texture after it
+ * has been drawn to with this frame buffer
+ *
+ * it's also very important to call glFlush() after drawing
+ * using this framebuffer, and to rebind the backing texture before
+ * drawing with it
+ */
 @implementation JotGLTextureBackedFrameBuffer{
     __strong JotGLTexture* texture;
     BOOL hasBeenModifiedSinceLoading;

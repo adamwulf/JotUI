@@ -131,7 +131,10 @@
     }
 }
 
-
+/**
+ * this will draw the texture at coordinates (0,0)
+ * for its full pixel size
+ */
 -(void) drawInContext:(JotGLContext*)context{
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 

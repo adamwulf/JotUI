@@ -9,6 +9,20 @@
 #import "JotGLContext.h"
 #import <UIKit/UIKit.h>
 
+/**
+ * the goal of this class is to reduce the number of
+ * highly redundant and inefficient OpenGL calls
+ *
+ * I won't try to run all calls through here, but 
+ * this class will track state for some calls so that
+ * I don't re-call them unless they actually change.
+ *
+ * it's VERY important to either always or never call
+ * the state methods here. If my internal state gets
+ * out of sync with the OpenGL state, then some calls
+ * might be dropped when they shouldn't be, which will
+ * result in unexpected behavior or crashes
+ */
 @implementation JotGLContext{
     CGFloat lastRed;
     CGFloat lastBlue;
