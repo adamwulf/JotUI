@@ -55,7 +55,7 @@
         NSString* stateDirectory = [plistPath stringByDeletingLastPathComponent];
         NSMutableArray* fileNamesOfStrokes = [NSMutableArray array];
         [[[stateDict objectForKey:@"stackOfStrokes"] arrayByAddingObjectsFromArray:[stateDict objectForKey:@"stackOfUndoneStrokes"]] jotMap:^id(id obj, NSUInteger index){
-            NSString* filename = [[stateDirectory stringByAppendingPathComponent:[obj uuid]] stringByAppendingPathExtension:@"data"];
+            NSString* filename = [[stateDirectory stringByAppendingPathComponent:[obj uuid]] stringByAppendingPathExtension:kJotStrokeFileExt];
             NSFileManager* manager = [NSFileManager defaultManager];
             if(![manager fileExistsAtPath:filename]){
                 [[obj asDictionary] writeToFile:filename atomically:YES];
@@ -71,7 +71,7 @@
         NSArray* contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:stateDirectory error:nil];
         for(NSString* item in contents){
             NSString* fileInDir = [stateDirectory stringByAppendingPathComponent:item];
-            if(![fileNamesOfStrokes containsObject:fileInDir] && [[fileInDir pathExtension] isEqualToString:@"data"]){
+            if(![fileNamesOfStrokes containsObject:fileInDir] && [[fileInDir pathExtension] isEqualToString:kJotStrokeFileExt]){
                 [[NSFileManager defaultManager] removeItemAtPath:fileInDir error:nil];
             }
         }

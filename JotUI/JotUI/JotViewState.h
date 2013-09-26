@@ -13,6 +13,8 @@
 #import "JotStrokeDelegate.h"
 #import "JotGLContext.h"
 
+#define kJotStrokeFileExt @"strokedata"
+
 @interface JotViewState : NSObject<JotStrokeDelegate>
 
 //

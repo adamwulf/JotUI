@@ -119,7 +119,7 @@
                     NSString* stateDirectory = [stateInfoFile stringByDeletingLastPathComponent];
                     id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
                         if(![obj isKindOfClass:[NSDictionary class]]){
-                            NSString* filename = [[stateDirectory stringByAppendingPathComponent:obj] stringByAppendingPathExtension:@"data"];
+                            NSString* filename = [[stateDirectory stringByAppendingPathComponent:obj] stringByAppendingPathExtension:kJotStrokeFileExt];
                             obj = [NSDictionary dictionaryWithContentsOfFile:filename];
                         }
                         NSString* className = [obj objectForKey:@"class"];
