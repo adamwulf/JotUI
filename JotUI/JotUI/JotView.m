@@ -1244,8 +1244,12 @@ static int undoCounter;
             // and remove it from the current strokes, and reset our undo state if any
             if([currentStroke.segments count] == 0){
                 NSLog(@"zero segments!");
+            }else if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
+                NSLog(@"only a move to, ignore");
+                // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
+            }else{
+                [state.stackOfStrokes addObject:currentStroke];
             }
-            [state.stackOfStrokes addObject:currentStroke];
             [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
             [state.stackOfUndoneStrokes removeAllObjects];
 
