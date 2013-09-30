@@ -126,6 +126,8 @@ static JotGLContext *mainThreadContext;
  * initialize a new view for the given frame
  */
 - (id) initWithFrame:(CGRect)frame{
+    frame.size.width = ceilf(frame.size.width);
+    frame.size.height = ceilf(frame.size.height);
     if((self = [super initWithFrame:frame])){
         return [self finishInit];
     }
@@ -501,7 +503,7 @@ static JotGLContext *mainThreadContext;
     if(!exportFinishBlock) return;
 
     CGSize fullSize = CGSizeMake(initialViewport.width, initialViewport.height);
-    CGSize exportSize = CGSizeMake(initialViewport.width / 2, initialViewport.height / 2);
+    CGSize exportSize = CGSizeMake(ceilf(initialViewport.width / 2), ceilf(initialViewport.height / 2));
     
 	GLuint exportFramebuffer;
     
@@ -638,8 +640,8 @@ static JotGLContext *mainThreadContext;
     
     if(!exportFinishBlock) return;
     
-    CGSize fullSize = CGSizeMake(initialViewport.width, initialViewport.height);
-    CGSize exportSize = CGSizeMake(initialViewport.width, initialViewport.height);
+    CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+    CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     
 	GLuint exportFramebuffer;
     
@@ -742,6 +744,10 @@ static JotGLContext *mainThreadContext;
             // Create a graphics context with the target size measured in POINTS
             CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                                                kCGImageAlphaPremultipliedLast);
+            
+            if(!bitmapContext){
+                NSLog(@"oh no");
+            }
             
             // flip vertical for our drawn content, since OpenGL is opposite core graphics
             CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
@@ -1065,7 +1071,11 @@ static int undoCounter;
     // containing only the correct number of undoable items in its
     // arrays, and putting all excess strokes into strokesBeingWrittenToBackingTexture
     [state tick];
-    
+
+    if([JotGLContext currentContext] != context){
+        [JotGLContext setCurrentContext:context];
+    }
+
     if([state.strokesBeingWrittenToBackingTexture count]){
         undoCounter++;
         if(undoCounter % 3 == 0){
@@ -1076,9 +1086,6 @@ static int undoCounter;
         // get the stroke that we need to make permanent
         JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
         
-        if([JotGLContext currentContext] != context){
-            NSLog(@"what");
-        }
         // render it to the backing texture
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID];
         [state.backgroundFramebuffer willRenderToFrameBuffer];
@@ -1544,7 +1551,10 @@ static int undoCounter;
     glViewport(0, 0, initialViewport.width, initialViewport.height);
     JotStroke* stroke = [state.stackOfStrokes lastObject];
     if(!stroke){
-        stroke = [[JotStroke alloc] init];
+        stroke = [[JotStroke alloc] initWithTexture:brushTexture];
+        [state.stackOfStrokes addObject:stroke];
+    }else if ([stroke.segments count] > 10){
+        stroke = [[JotStroke alloc] initWithTexture:brushTexture];
         [state.stackOfStrokes addObject:stroke];
     }
     [stroke addElement:element];
