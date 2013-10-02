@@ -11,6 +11,7 @@
 #import "JotStrokeDelegate.h"
 #import "JotBrushTexture.h"
 #import "PlistSaving.h"
+#import "JotBufferManager.h"
 
 @class SegmentSmoother, AbstractBezierPathElement;
 
@@ -27,11 +28,12 @@
 @property (nonatomic, readonly) JotBrushTexture* texture;
 @property (nonatomic, weak) NSObject<JotStrokeDelegate>* delegate;
 @property (nonatomic, readonly) NSInteger totalNumberOfBytes;
+@property (nonatomic, strong) JotBufferManager* bufferManager;
 
 /**
  * create an empty stroke with the input texture
  */
--(id) initWithTexture:(JotBrushTexture*)_texture;
+-(id) initWithTexture:(JotBrushTexture*)_texture andBufferManager:(JotBufferManager*)bufferManager;
 
 -(CGRect) bounds;
 

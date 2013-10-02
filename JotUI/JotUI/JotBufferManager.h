@@ -7,7 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "JotBufferVBO.h"
+
+@class JotBufferVBO;
 
 @interface JotBufferManager : NSObject
 

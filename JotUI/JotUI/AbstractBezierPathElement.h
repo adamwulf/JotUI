@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "PlistSaving.h"
+#import "JotBufferManager.h"
 
 #ifndef AbstractBezierPathElement_H
 #define AbstractBezierPathElement_H
@@ -54,6 +55,7 @@ struct ColorlessVertex{
 @property (nonatomic, readonly) CGPoint endPoint;
 @property (nonatomic, readonly) CGFloat rotation;
 @property (nonatomic, readonly) CGRect bounds;
+@property (nonatomic, strong) JotBufferManager* bufferManager;
 
 -(CGFloat) lengthOfElement;
 -(CGFloat) angleOfStart;

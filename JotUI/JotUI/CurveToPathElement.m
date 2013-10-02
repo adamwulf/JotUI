@@ -14,6 +14,7 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 #import "JotBufferManager.h"
+#import "JotBufferVBO.h"
 
 
 #define kDivideStepBy 5
@@ -360,7 +361,10 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // on the main thread.
     // if we need a vbo, then create it
     if(!vbo && dataVertexBuffer){
-        vbo = [[JotBufferManager sharedInstace] bufferWithData:dataVertexBuffer];
+        if(!self.bufferManager){
+            NSLog(@"what");
+        }
+        vbo = [self.bufferManager bufferWithData:dataVertexBuffer];
     }
     if(vertexBufferShouldContainColor){
         [vbo bind];
@@ -384,7 +388,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 
 -(void) dealloc{
     if(vbo){
-        [[JotBufferManager sharedInstace] recycleBuffer:vbo];
+        [self.bufferManager recycleBuffer:vbo];
         vbo = nil;
     }
 }

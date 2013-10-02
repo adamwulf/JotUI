@@ -70,10 +70,10 @@ static JotStrokeManager* _instance = nil;
     return nil;
 }
 
--(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture{
+-(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture andBufferManager:(JotBufferManager*)bufferManager{
     JotStroke* ret = [self getStrokeForTouchHash:touch];
     if(!ret){
-        ret = [[JotStroke alloc] initWithTexture:texture];
+        ret = [[JotStroke alloc] initWithTexture:texture andBufferManager:bufferManager];
         for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
             if(strokeCache[i].touchHash == 0){
                 strokeCache[i].touchHash = touch.hash;

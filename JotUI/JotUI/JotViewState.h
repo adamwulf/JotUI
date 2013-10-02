@@ -12,6 +12,7 @@
 #import "JotViewImmutableState.h"
 #import "JotStrokeDelegate.h"
 #import "JotGLContext.h"
+#import "JotBufferManager.h"
 
 #define kJotStrokeFileExt @"strokedata"
 
@@ -27,12 +28,14 @@
 @property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
 @property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
 @property (nonatomic) NSUInteger undoLimit;
+@property (nonatomic, readonly) JotBufferManager* bufferManager;
 
 
 -(id) initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
             andPageSize:(CGSize)fullPixelSize
-           andGLContext:(JotGLContext*)glContext;
+           andGLContext:(JotGLContext*)glContext
+       andBufferManager:(JotBufferManager*)bufferManager;
 
 /**
  * this will return YES only

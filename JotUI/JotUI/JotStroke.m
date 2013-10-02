@@ -32,6 +32,8 @@
     NSUInteger hashCache;
     // total Byte size
     NSInteger totalNumberOfBytes;
+    // buffer manager to use for this stroke
+    JotBufferManager* bufferManager;
 }
 
 @synthesize segments;
@@ -39,20 +41,23 @@
 @synthesize texture;
 @synthesize delegate;
 @synthesize totalNumberOfBytes;
+@synthesize bufferManager;
 
 
--(id) initWithTexture:(JotBrushTexture*)_texture{
+-(id) initWithTexture:(JotBrushTexture*)_texture andBufferManager:(JotBufferManager*)_bufferManager{
     if(self = [super init]){
         segments = [NSMutableArray array];
         segmentSmoother = [[SegmentSmoother alloc] init];
         texture = _texture;
         hashCache = 1;
+        bufferManager = _bufferManager;
     }
     return self;
 }
 
 
 -(void) addElement:(AbstractBezierPathElement*)element{
+    element.bufferManager = self.bufferManager;
     int numOfElementBytes = [element numberOfBytesGivenPreviousElement:[segments lastObject]];
     int numOfCacheBytes = [JotBufferVBO cacheNumberForBytes:numOfElementBytes] * kJotBufferBucketSize;
 //    NSLog(@"number of element bytes: %d", numOfElementBytes);
@@ -100,11 +105,13 @@
     if(self = [super init]){
         hashCache = 1;
         segmentSmoother = [[SegmentSmoother alloc] initFromDictionary:[dictionary objectForKey:@"segmentSmoother"]];
+        bufferManager = [dictionary objectForKey:@"bufferManager"];
         __block AbstractBezierPathElement* previousElement = nil;
         segments = [NSMutableArray arrayWithArray:[[dictionary objectForKey:@"segments"] jotMap:^id(id obj, NSUInteger index){
             NSString* className = [obj objectForKey:@"class"];
             Class class = NSClassFromString(className);
             AbstractBezierPathElement* segment =  [[class alloc] initFromDictionary:obj];
+            [segment setBufferManager:bufferManager];
             [self updateHashWithObject:segment];
             totalNumberOfBytes += [segment numberOfBytesGivenPreviousElement:previousElement];
             [segment validateDataGivenPreviousElement:previousElement];

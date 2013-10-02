@@ -22,6 +22,7 @@
 #import "JotViewState.h"
 #import "JotViewImmutableState.h"
 #import "SegmentSmoother.h"
+#import "MMWeakTimerTarget.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -147,9 +148,11 @@ static JotGLContext *mainThreadContext;
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
     
+    MMWeakTimerTarget* weakTimerTarget = [[MMWeakTimerTarget alloc] initWithTarget:self andSelector:@selector(validateUndoState:)];
+    
     validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer
-                                                              target:self
-                                                            selector:@selector(validateUndoState)
+                                                              target:weakTimerTarget
+                                                            selector:@selector(timerDidFire:)
                                                             userInfo:nil
                                                              repeats:YES];
 
@@ -496,7 +499,7 @@ static JotGLContext *mainThreadContext;
     CheckMainThread;
     
     if([JotGLContext currentContext] != context){
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:context];
     }
 
@@ -555,7 +558,7 @@ static JotGLContext *mainThreadContext;
     glDeleteTextures(1, &canvastexture);
     
     if([JotGLContext currentContext] != context){
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:context];
     }
     
@@ -583,6 +586,9 @@ static JotGLContext *mainThreadContext;
             // Create a graphics context with the target size measured in POINTS
             CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                                                kCGImageAlphaPremultipliedLast);
+            if(!bitmapContext){
+                NSLog(@"oh no");
+            }
             
             // flip vertical for our drawn content, since OpenGL is opposite core graphics
             CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
@@ -634,7 +640,7 @@ static JotGLContext *mainThreadContext;
     CheckMainThread;
     
     if([JotGLContext currentContext] != context){
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:context];
     }
     
@@ -681,7 +687,7 @@ static JotGLContext *mainThreadContext;
     
     // set our current OpenGL context
     if([JotGLContext currentContext] != context){
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:context];
     }
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
@@ -716,7 +722,7 @@ static JotGLContext *mainThreadContext;
     glDeleteTextures(1, &canvastexture);
     
     if([JotGLContext currentContext] != context){
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:context];
     }
     
@@ -807,7 +813,7 @@ static JotGLContext *mainThreadContext;
     
     // set our current OpenGL context
     if([JotGLContext currentContext] != renderContext){
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:renderContext];
     }
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
@@ -893,7 +899,7 @@ static JotGLContext *mainThreadContext;
     CheckMainThread;
     
     if([JotGLContext currentContext] != self.context){
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:self.context];
     }
     
@@ -903,6 +909,9 @@ static JotGLContext *mainThreadContext;
         needsPresentRenderBuffer = NO;
     }
     slowtoggle = !slowtoggle;
+    if([self.context needsFlush]){
+        [self.context flush];
+    }
 }
 
 -(void) setNeedsPresentRenderBuffer{
@@ -1012,7 +1021,7 @@ static JotGLContext *mainThreadContext;
 -(void) prepOpenGLStateForFBO:(GLuint)frameBuffer{
     // set to current context
     if([JotGLContext currentContext] != context){
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:context];
     }
     
@@ -1063,7 +1072,7 @@ static int undoCounter;
  * number of strokes. All others should be written to
  * our backing texture
  */
--(void) validateUndoState{
+-(void) validateUndoState:(NSTimer *)timer{
     
     CheckMainThread;
 
@@ -1129,7 +1138,7 @@ static int undoCounter;
         // to flush all openGL commands, so that when we rebind
         // it'll use the updated texture and won't have any
         // issues of unsynchronized textures.
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
     }else if([state isReadyToExport]){
         // only export if the trash manager is empty
         // that way we're exporting w/ low memory instead
@@ -1174,7 +1183,7 @@ static int undoCounter;
     
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-            JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
+            JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
             newStroke.delegate = self;
             [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
             // find the stroke that we're modifying, and then add an element and render it
@@ -1214,7 +1223,9 @@ static int undoCounter;
                 [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
 
                 // now make a new stroke to pick up where we left off
-                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
+                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
+                                                                                     andTexture:brushTexture
+                                                                               andBufferManager:state.bufferManager];
                 [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
                 [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
                 MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
@@ -1327,7 +1338,9 @@ static int undoCounter;
         for (UITouch *touch in touches) {
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
             if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
+                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
+                                                                                     andTexture:brushTexture
+                                                                               andBufferManager:state.bufferManager];
                 newStroke.delegate = self;
                 [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
                 [self addLineToAndRenderStroke:newStroke
@@ -1367,7 +1380,9 @@ static int undoCounter;
                     [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
                     
                     // now make a new stroke to pick up where we left off
-                    JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture];
+                    JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
+                                                                                         andTexture:brushTexture
+                                                                                   andBufferManager:state.bufferManager];
                     [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
                     [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
                     MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
@@ -1500,7 +1515,7 @@ static int undoCounter;
  */
 - (IBAction) clear:(BOOL)shouldPresent{
     // set our context
-    glFlush();
+    [(JotGLContext*)[JotGLContext currentContext] flush];
 	[JotGLContext setCurrentContext:context];
 	
 	// Clear the buffer
@@ -1546,15 +1561,15 @@ static int undoCounter;
 
 
 -(void) addElement:(AbstractBezierPathElement*)element{
-    glFlush();
+    [(JotGLContext*)[JotGLContext currentContext] flush];
     [JotGLContext setCurrentContext:self.context];
     glViewport(0, 0, initialViewport.width, initialViewport.height);
     JotStroke* stroke = [state.stackOfStrokes lastObject];
     if(!stroke){
-        stroke = [[JotStroke alloc] initWithTexture:brushTexture];
+        stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
         [state.stackOfStrokes addObject:stroke];
     }else if ([stroke.segments count] > 10){
-        stroke = [[JotStroke alloc] initWithTexture:brushTexture];
+        stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
         [state.stackOfStrokes addObject:stroke];
     }
     [stroke addElement:element];
@@ -1577,7 +1592,7 @@ static int undoCounter;
     [[JotStylusManager sharedInstance] unregisterView:self];
 
 	if([JotGLContext currentContext] == context){
-        glFlush();
+        [(JotGLContext*)[JotGLContext currentContext] flush];
 		[JotGLContext setCurrentContext:nil];
 	}
 }

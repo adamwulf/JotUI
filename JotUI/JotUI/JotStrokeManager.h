@@ -23,7 +23,7 @@
  * return a new or existing stroke for the
  * input touch
  */
--(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture;
+-(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture andBufferManager:(JotBufferManager*)bufferManager;
 
 /**
  * returns true if a stroke exists and has

@@ -30,12 +30,15 @@ int printOglError(char *file, int line)
 }
 
 
-@implementation AbstractBezierPathElement
+@implementation AbstractBezierPathElement{
+    JotBufferManager* bufferManager;
+}
 
 @synthesize startPoint;
 @synthesize width;
 @synthesize color;
 @synthesize rotation;
+@synthesize bufferManager;
 
 -(id) initWithStart:(CGPoint)point{
     if(self = [super init]){

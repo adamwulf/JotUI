@@ -33,6 +33,8 @@
     BOOL enabled_GL_COLOR_ARRAY;
     BOOL enabled_GL_POINT_SIZE_ARRAY_OES;
     BOOL enabled_GL_TEXTURE_COORD_ARRAY;
+    
+    BOOL needsFlush;
 }
 
 -(id) initWithAPI:(EAGLRenderingAPI)api{
@@ -53,6 +55,19 @@
         lastAlpha = -1;
     }
     return self;
+}
+
+-(void) setNeedsFlush:(BOOL)_needsFlush{
+    needsFlush = _needsFlush;
+}
+
+-(BOOL) needsFlush{
+    return needsFlush;
+}
+
+-(void) flush{
+    needsFlush = NO;
+    glFlush();
 }
 
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha{

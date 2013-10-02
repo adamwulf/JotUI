@@ -24,7 +24,9 @@
 		66455F93175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */; };
 		6648A52417F0E09000117ECB /* JotGLContext.h in Headers */ = {isa = PBXBuildFile; fileRef = 6648A52217F0E09000117ECB /* JotGLContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6648A52517F0E09000117ECB /* JotGLContext.m in Sources */ = {isa = PBXBuildFile; fileRef = 6648A52317F0E09000117ECB /* JotGLContext.m */; };
-		6691EED5179B7097007BBD15 /* JotBufferManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6691EED3179B7097007BBD15 /* JotBufferManager.h */; };
+		668E838517FCB27D003B00D3 /* MMWeakTimerTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */; };
+		668E838617FCB27D003B00D3 /* MMWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */; };
+		6691EED5179B7097007BBD15 /* JotBufferManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 6691EED3179B7097007BBD15 /* JotBufferManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6691EED6179B7097007BBD15 /* JotBufferManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6691EED4179B7097007BBD15 /* JotBufferManager.m */; };
 		669B39AD1692B46A00F12F42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
 		669B39B31692B46A00F12F42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 669B39B11692B46A00F12F42 /* InfoPlist.strings */; };
@@ -108,6 +110,8 @@
 		66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLTextureBackedFrameBuffer.m; sourceTree = "<group>"; };
 		6648A52217F0E09000117ECB /* JotGLContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLContext.h; sourceTree = "<group>"; };
 		6648A52317F0E09000117ECB /* JotGLContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLContext.m; sourceTree = "<group>"; };
+		668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMWeakTimerTarget.h; sourceTree = "<group>"; };
+		668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMWeakTimerTarget.m; sourceTree = "<group>"; };
 		6691EED3179B7097007BBD15 /* JotBufferManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBufferManager.h; sourceTree = "<group>"; };
 		6691EED4179B7097007BBD15 /* JotBufferManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotBufferManager.m; sourceTree = "<group>"; };
 		6695B6D0174D497B0069E61F /* AbstractBezierPathElement-Protected.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "AbstractBezierPathElement-Protected.h"; sourceTree = "<group>"; };
@@ -296,6 +300,8 @@
 				66AA82E517761BBF00F26904 /* State */,
 				669B3A2F1692B68F00F12F42 /* JotView.h */,
 				669B3A301692B68F00F12F42 /* JotView.m */,
+				668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */,
+				668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */,
 				669B3A971692BADA00F12F42 /* JotViewDelegate.h */,
 			);
 			name = Classes;
@@ -387,6 +393,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				669B39F31692B52800F12F42 /* JotUI.h in Headers */,
+				668E838517FCB27D003B00D3 /* MMWeakTimerTarget.h in Headers */,
 				669B3A981692BADA00F12F42 /* JotViewDelegate.h in Headers */,
 				669B39E31692B50500F12F42 /* AbstractBezierPathElement.h in Headers */,
 				662B55D016A9EAC30020CFC3 /* MoveToPathElement.h in Headers */,
@@ -396,7 +403,6 @@
 				66BF7F21176675E0003F4F67 /* JotBrushTexture.h in Headers */,
 				66455F8E175FC47200C66DFA /* JotGLTexture.h in Headers */,
 				66BF7F29176679DB003F4F67 /* PlistSaving.h in Headers */,
-				6691EED5179B7097007BBD15 /* JotBufferManager.h in Headers */,
 				66455F92175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h in Headers */,
 				663C1871175467DB00706A05 /* JotStrokeManager.h in Headers */,
 				66BF7F301766D133003F4F67 /* UIImage+Resize.h in Headers */,
@@ -406,6 +412,7 @@
 				66AA82E817761C2300F26904 /* JotViewImmutableState.h in Headers */,
 				669B39E51692B50500F12F42 /* CurveToPathElement.h in Headers */,
 				6648A52417F0E09000117ECB /* JotGLContext.h in Headers */,
+				6691EED5179B7097007BBD15 /* JotBufferManager.h in Headers */,
 				66EBD103179069D2005AA6A2 /* AbstractBezierPathElement-Protected.h in Headers */,
 				66A79019177251960092A28A /* JotTrashManager.h in Headers */,
 				66A340271694FF5E0093E81A /* UIColor+JotHelper.h in Headers */,
@@ -569,6 +576,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				668E838617FCB27D003B00D3 /* MMWeakTimerTarget.m in Sources */,
 				66D9828217B1679400007732 /* OpenGLVBO.m in Sources */,
 				669B39E41692B50500F12F42 /* AbstractBezierPathElement.m in Sources */,
 				669B39E61692B50500F12F42 /* CurveToPathElement.m in Sources */,

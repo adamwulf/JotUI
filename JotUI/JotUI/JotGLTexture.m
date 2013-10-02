@@ -108,7 +108,9 @@
         }
         // clear texture bind
         glBindTexture(GL_TEXTURE_2D,0);
-        glFlush();
+        
+        JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
+        [context flush];
     }
     
     return self;

@@ -18,7 +18,6 @@
 #import "JotView.h"
 #import "JotTrashManager.h"
 
-
 #define kJotDefaultUndoLimit 10
 
 //
@@ -44,6 +43,7 @@
     __strong NSMutableArray* stackOfUndoneStrokes;
     NSMutableArray* strokesBeingWrittenToBackingTexture;
     NSUInteger undoLimit;
+    JotBufferManager* bufferManager;
 }
 
 @synthesize delegate;
@@ -54,6 +54,7 @@
 @synthesize stackOfUndoneStrokes;
 @synthesize strokesBeingWrittenToBackingTexture;
 @synthesize undoLimit;
+@synthesize bufferManager;
 
 -(id) init{
     if(self = [super init]){
@@ -70,9 +71,10 @@
 -(id) initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
             andPageSize:(CGSize)fullPixelSize
-           andGLContext:(JotGLContext*)glContext{
-    __block NSDictionary* stateInfo = nil;
+           andGLContext:(JotGLContext*)glContext
+       andBufferManager:(JotBufferManager*)_bufferManager{
     if(self = [self init]){
+        bufferManager = _bufferManager;
         // we're going to wait for two background operations to complete
         // using these semaphores
         dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -83,22 +85,7 @@
         // into Open GL
         dispatch_async([JotView importExportImageQueue], ^{
             @autoreleasepool {
-                glFlush();
-                JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-                [JotGLContext setCurrentContext:backgroundThreadContext];
-                
-                // load image from disk
-                UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
-                
-                // load new texture
-                self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
-                
-                if(!savedInkImage){
-                    // no image was given, so it should be a blank texture
-                    // lets erase it, since it defaults to uncleared memory
-                    [self.backgroundFramebuffer clear];
-                }
-                glFlush();
+                [self loadTextureHelperWithGLContext:glContext andInkImageFile:inkImageFile andPixelSize:fullPixelSize];
                 dispatch_semaphore_signal(sema1);
             }
         });
@@ -107,43 +94,79 @@
         // information for our page state
         dispatch_async([JotView importExportStateQueue], ^{
             @autoreleasepool {
-                glFlush();
-                JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-                [JotGLContext setCurrentContext:backgroundThreadContext];
-                
-                // load the file
-                stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
-                
-                if(stateInfo){
-                    // load our undo state if we have it
-                    NSString* stateDirectory = [stateInfoFile stringByDeletingLastPathComponent];
-                    id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
-                        if(![obj isKindOfClass:[NSDictionary class]]){
-                            NSString* filename = [[stateDirectory stringByAppendingPathComponent:obj] stringByAppendingPathExtension:kJotStrokeFileExt];
-                            obj = [NSDictionary dictionaryWithContentsOfFile:filename];
-                        }
-                        NSString* className = [obj objectForKey:@"class"];
-                        Class class = NSClassFromString(className);
-                        JotStroke* stroke = [[class alloc] initFromDictionary:obj];
-                        stroke.delegate = self;
-                        return stroke;
-                    };
-                    
-                    [self.stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
-                    [self.stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
-                }
-                
-                glFlush();
-                dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
+                [self loadStrokesHelperWithGLContext:glContext andStateInfoFile:stateInfoFile];
                 dispatch_semaphore_signal(sema2);
             }
         });
         // wait here
         // until both above items are complete
+        dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
     }
     return self;
 }
+
+#pragma mark - Load Helpers
+
+// These used to just be blocked used above in the initFromDictionary method,
+// but I've moved them into methods so that instruments can give me better detail
+// about CPU usage inside here
+
+-(void) loadTextureHelperWithGLContext:(JotGLContext*)glContext andInkImageFile:(NSString*)inkImageFile andPixelSize:(CGSize)fullPixelSize{
+    [(JotGLContext*)[JotGLContext currentContext] flush];
+    JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+    [JotGLContext setCurrentContext:backgroundThreadContext];
+    
+    // load image from disk
+    UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
+    
+    // load new texture
+    self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
+    
+    if(!savedInkImage){
+        // no image was given, so it should be a blank texture
+        // lets erase it, since it defaults to uncleared memory
+        [self.backgroundFramebuffer clear];
+    }
+    [(JotGLContext*)[JotGLContext currentContext] flush];
+}
+
+
+-(void) loadStrokesHelperWithGLContext:(JotGLContext*)glContext andStateInfoFile:(NSString*)stateInfoFile{
+    [(JotGLContext*)[JotGLContext currentContext] flush];
+    JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+    [JotGLContext setCurrentContext:backgroundThreadContext];
+    
+    // load the file
+    NSDictionary* stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
+    
+    if(stateInfo){
+        // load our undo state if we have it
+        NSString* stateDirectory = [stateInfoFile stringByDeletingLastPathComponent];
+        id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
+            if(![obj isKindOfClass:[NSDictionary class]]){
+                NSString* filename = [[stateDirectory stringByAppendingPathComponent:obj] stringByAppendingPathExtension:kJotStrokeFileExt];
+                obj = [NSDictionary dictionaryWithContentsOfFile:filename];
+            }
+            // pass in the buffer manager to use
+            [obj setObject:bufferManager forKey:@"bufferManager"];
+            
+            NSString* className = [obj objectForKey:@"class"];
+            Class class = NSClassFromString(className);
+            JotStroke* stroke = [[class alloc] initFromDictionary:obj];
+            stroke.delegate = self;
+            return stroke;
+        };
+        
+        [self.stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
+        [self.stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+    }
+    
+    [(JotGLContext*)[JotGLContext currentContext] flush];
+}
+
+
+
 
 #pragma mark - Public Methods
 

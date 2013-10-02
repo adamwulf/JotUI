@@ -12,10 +12,14 @@
 
 @interface JotGLContext : EAGLContext
 
+@property (assign) BOOL needsFlush;
+
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha;
 
 -(void) glEnableClientState:(GLenum)array;
 
 -(void) glDisableClientState:(GLenum)array;
+
+-(void) flush;
 
 @end

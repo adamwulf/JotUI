@@ -11,6 +11,7 @@
 #import "NSArray+JotMapReduce.h"
 #import "JotUI.h"
 #import "OpenGLVBO.h"
+#import "JotBufferVBO.h"
 
 /**
  * the JotBufferManager will help allocate
@@ -49,9 +50,7 @@
 static JotBufferManager* _instance = nil;
 
 -(id) init{
-    if(_instance) return _instance;
     if((self = [super init])){
-        _instance = self;
         cacheOfVBOs = [NSMutableDictionary dictionary];
         cacheStats = [NSMutableDictionary dictionary];
         
@@ -64,7 +63,7 @@ static JotBufferManager* _instance = nil;
         }
 #endif
     }
-    return _instance;
+    return self;
 }
 
 +(JotBufferManager*) sharedInstace{
@@ -143,6 +142,9 @@ static JotBufferManager* _instance = nil;
     int active = [[stats objectForKey:@"active"] intValue];
     [stats setObject:@(active + 1) forKey:@"active"];
     [self updateCacheStats];
+    
+    [(JotGLContext*)[JotGLContext currentContext] setNeedsFlush:YES];
+
     return buffer;
 }
 
