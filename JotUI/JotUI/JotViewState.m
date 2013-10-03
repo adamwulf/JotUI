@@ -86,6 +86,7 @@
         dispatch_async([JotView importExportImageQueue], ^{
             @autoreleasepool {
                 [self loadTextureHelperWithGLContext:glContext andInkImageFile:inkImageFile andPixelSize:fullPixelSize];
+                [JotGLContext setCurrentContext:nil];
                 dispatch_semaphore_signal(sema1);
             }
         });
@@ -95,6 +96,7 @@
         dispatch_async([JotView importExportStateQueue], ^{
             @autoreleasepool {
                 [self loadStrokesHelperWithGLContext:glContext andStateInfoFile:stateInfoFile];
+                [JotGLContext setCurrentContext:nil];
                 dispatch_semaphore_signal(sema2);
             }
         });
@@ -102,6 +104,8 @@
         // until both above items are complete
         dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
         dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
+        dispatch_release(sema1);
+        dispatch_release(sema2);
     }
     return self;
 }
