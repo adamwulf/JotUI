@@ -327,6 +327,13 @@ static JotGLContext *mainThreadContext;
     }
 }
 
+/**
+ * i need to send out nil for the ink and thumbnail
+ * if i can determine that either/both do not have any
+ * user drawn content on them
+ *
+ * https://github.com/adamwulf/loose-leaf/issues/226
+ */
 -(void) exportImageTo:(NSString*)inkPath
        andThumbnailTo:(NSString*)thumbnailPath
            andStateTo:(NSString*)plistPath
