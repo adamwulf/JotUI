@@ -57,13 +57,17 @@ static void * zeroedDataCache = nil;
         // use to initialze our VBO. This prevents "VBO uses uninitialized data"
         // warning in Instruments, and will only waste a few Kb of memory
         if(_cacheNumber > zeroedCacheNumber){
-            if(zeroedDataCache){
-                free(zeroedDataCache);
+            @synchronized([OpenGLVBO class]){
+                if(zeroedDataCache){
+                    free(zeroedDataCache);
+                }
+                zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
             }
-            zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
         }
-        // initialize the buffer to zero'd data
-        glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
+        @synchronized([OpenGLVBO class]){
+            // initialize the buffer to zero'd data
+            glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
+        }
     }
     return self;
 }
