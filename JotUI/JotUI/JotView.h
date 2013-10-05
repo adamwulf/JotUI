@@ -69,4 +69,9 @@
 
 -(void) addElement:(AbstractBezierPathElement*)element;
 
+
+
+#pragma mark - debug
+-(void) drawLongLine;
+
 @end

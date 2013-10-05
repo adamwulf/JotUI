@@ -939,7 +939,7 @@ static JotGLContext *mainThreadContext;
  * it will smooth a rounded line from the previous segment, and will
  * also smooth the width and color transition
  */
-- (void) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
+- (BOOL) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
     
     CheckMainThread;
     
@@ -955,7 +955,7 @@ static JotGLContext *mainThreadContext;
     // add the segment to the stroke if we can
     AbstractBezierPathElement* addedElement = [currentStroke.segmentSmoother addPoint:end andSmoothness:smoothFactor];
     // a new element wasn't possible, so just bail here.
-    if(!addedElement) return;
+    if(!addedElement) return NO;
     // ok, we have the new element, set its color/width/rotation
     addedElement.color = color;
     addedElement.width = width;
@@ -977,6 +977,7 @@ static JotGLContext *mainThreadContext;
     
     // Display the buffer
     [self setNeedsPresentRenderBuffer];
+    return YES;
 }
 
 
@@ -1183,6 +1184,36 @@ static int undoCounter;
 
 
 #pragma mark - JotPalmRejectionDelegate
+
+-(void) drawLongLine{
+    JotStroke* newStroke = [[JotStroke alloc] initWithTexture:self.brushTexture andBufferManager:state.bufferManager];
+    newStroke.delegate = self;
+    [self addLineToAndRenderStroke:newStroke
+                           toPoint:CGPointMake(100, 100)
+                           toWidth:6
+                           toColor:[UIColor redColor]
+                     andSmoothness:0.7];
+    [self addLineToAndRenderStroke:newStroke
+                           toPoint:CGPointMake(100, 100)
+                           toWidth:6
+                           toColor:[UIColor redColor]
+                     andSmoothness:0.7];
+    
+    [self addLineToAndRenderStroke:newStroke
+                           toPoint:CGPointMake(600, 900)
+                           toWidth:6
+                           toColor:[UIColor redColor]
+                     andSmoothness:0.7];
+    [self addLineToAndRenderStroke:newStroke
+                           toPoint:CGPointMake(600, 900)
+                           toWidth:30
+                           toColor:[UIColor blueColor]
+                     andSmoothness:0.7];
+    [state.stackOfStrokes addObject:newStroke];
+    
+    [self.delegate didEndStrokeWithTouch:nil];
+
+}
 
 /**
  * Handles the start of a touch
