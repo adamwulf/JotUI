@@ -1606,6 +1606,8 @@ static int undoCounter;
     [JotGLContext setCurrentContext:self.context];
     glViewport(0, 0, initialViewport.width, initialViewport.height);
     JotStroke* stroke = [state.stackOfStrokes lastObject];
+    AbstractBezierPathElement* prevElement = [stroke.segments lastObject];
+    
     if(!stroke){
         stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
         [state.stackOfStrokes addObject:stroke];
@@ -1614,10 +1616,8 @@ static int undoCounter;
         [state.stackOfStrokes addObject:stroke];
     }
     [stroke addElement:element];
-    MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:element.startPoint];
-    moveTo.width = element.width;
-    moveTo.color = element.color;
-    [self renderElement:element fromPreviousElement:moveTo includeOpenGLPrepForFBO:viewFramebuffer];
+    
+    [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:viewFramebuffer];
     [self setNeedsPresentRenderBuffer];
 }
 
