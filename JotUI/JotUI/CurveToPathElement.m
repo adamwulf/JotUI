@@ -328,13 +328,13 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     if(vertex.Color[3] < 0 || vertex.Color[3] > 1){
         NSLog(@"what?!");
     }
-    if(vertex.Size < 0 || vertex.Size > 200){
+    if(vertex.Size < 0 || vertex.Size > 360){
         NSLog(@"what?!");
     }
-    if(vertex.Position[0] < -500 || vertex.Position[0] > 2000){
+    if(vertex.Position[0] < -50 || vertex.Position[0] > 1500){
         NSLog(@"what?!");
     }
-    if(vertex.Position[1] < -500 || vertex.Position[1] > 2000){
+    if(vertex.Position[1] < -50 || vertex.Position[1] > 2080){
         NSLog(@"what?!");
     }
 }
@@ -374,7 +374,8 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         if(colors[3] / (self.width / kDivideStepBy) < 0){
             NSLog(@"what?!!");
         }
-        CGFloat alpha = colors[3] / (self.width / kDivideStepBy);
+        CGFloat stepWidth = self.width * scaleOfVertexBuffer;
+        CGFloat alpha = colors[3] / (stepWidth / kDivideStepBy);
         if(alpha > 1) alpha = 1;
         [vbo bindForColor:[self.color colorWithAlphaComponent:alpha]];
     }

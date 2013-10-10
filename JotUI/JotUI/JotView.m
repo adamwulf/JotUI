@@ -1176,7 +1176,7 @@ static int undoCounter;
         JotStroke* aStroke = [state.currentStrokes objectForKey:key];
         if(aStroke == stroke){
             [state.currentStrokes removeObjectForKey:key];
-            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:stroke.bounds];
+            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
             return;
         }
     }
