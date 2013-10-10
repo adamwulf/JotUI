@@ -331,7 +331,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     if(vertex.Size < 0 || vertex.Size > 360){
         NSLog(@"what?!");
     }
-    if(vertex.Position[0] < -50 || vertex.Position[0] > 1500){
+    if(vertex.Position[0] < -50 || vertex.Position[0] > 1600){
         NSLog(@"what?!");
     }
     if(vertex.Position[1] < -50 || vertex.Position[1] > 2080){
