@@ -420,9 +420,6 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  */
 
 -(void) setColor:(UIColor *)_color{
-    if(_color){
-        NSLog(@"what");
-    }
     color = _color;
 }
 
