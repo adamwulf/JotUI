@@ -225,7 +225,7 @@ static JotGLContext *mainThreadContext;
 +(dispatch_queue_t) importExportStateQueue{
     if(!importExportStateQueue){
         importExportStateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,NULL);
-//        dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
+        importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
     }
     return importExportStateQueue;
 }
