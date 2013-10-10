@@ -142,6 +142,9 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     if(!previousElement){
         return NO;
     }
+    if(!self.color){
+        return NO;
+    }
     
     // now find the differences in color between
     // the previous stroke and this stroke
@@ -192,10 +195,11 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         return (struct ColorfulVertex*) dataVertexBuffer.bytes;
     }
     
-    
     // now find the differences in color between
     // the previous stroke and this stroke
     GLfloat prevColor[4], myColor[4];
+    prevColor[0] = prevColor[1] = prevColor[2] = prevColor[3] = 0;
+    myColor[0] = myColor[1] = myColor[2] = myColor[3] = 0;
     GLfloat colorSteps[4];
     [previousElement.color getRGBAComponents:prevColor];
     [self.color getRGBAComponents:myColor];
@@ -369,15 +373,19 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     if(vertexBufferShouldContainColor){
         [vbo bind];
     }else{
-        GLfloat colors[4];
-        [self.color getRGBAComponents:colors];
-        if(colors[3] / (self.width / kDivideStepBy) < 0){
-            NSLog(@"what?!!");
+        if(self.color){
+            GLfloat colors[4];
+            [self.color getRGBAComponents:colors];
+            if(colors[3] / (self.width / kDivideStepBy) < 0){
+                NSLog(@"what?!!");
+            }
+            CGFloat stepWidth = self.width * scaleOfVertexBuffer;
+            CGFloat alpha = colors[3] / (stepWidth / kDivideStepBy);
+            if(alpha > 1) alpha = 1;
+            [vbo bindForColor:[self.color colorWithAlphaComponent:alpha]];
+        }else{
+            [vbo bindForColor:nil];
         }
-        CGFloat stepWidth = self.width * scaleOfVertexBuffer;
-        CGFloat alpha = colors[3] / (stepWidth / kDivideStepBy);
-        if(alpha > 1) alpha = 1;
-        [vbo bindForColor:[self.color colorWithAlphaComponent:alpha]];
     }
     return YES;
 }
@@ -411,7 +419,12 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  * these bezier functions are licensed and used with permission from http://apptree.net/drawkit.htm
  */
 
-
+-(void) setColor:(UIColor *)_color{
+    if(_color){
+        NSLog(@"what");
+    }
+    color = _color;
+}
 
 /**
  * will divide a bezier curve into two curves at time t
