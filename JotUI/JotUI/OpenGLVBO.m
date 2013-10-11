@@ -7,7 +7,7 @@
 //
 
 #import "OpenGLVBO.h"
-#import "JotUI.h"
+#import "JotUI/JotUI.h"
 #import "UIColor+JotHelper.h"
 #import "AbstractBezierPathElement-Protected.h"
 #include <stddef.h>
