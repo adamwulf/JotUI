@@ -10,6 +10,7 @@
 #import "JotUI.h"
 #import "UIColor+JotHelper.h"
 #import "AbstractBezierPathElement-Protected.h"
+#include <stddef.h>
 
 /**
  * an OpenGLVBO serves as a backing store for (potentially) multiple
@@ -92,9 +93,9 @@ static void * zeroedDataCache = nil;
  */
 -(void) bindForStep:(NSInteger)stepNumber{
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position));
-    glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color));
-    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size));
+    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position)));
+    glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color)));
+    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size)));
     
     JotGLContext* context = (JotGLContext*) [JotGLContext currentContext];
     [context glEnableClientState:GL_VERTEX_ARRAY];
@@ -115,8 +116,8 @@ static void * zeroedDataCache = nil;
     JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
     
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position));
-    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex), stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size));
+    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position)));
+    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex),(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size)));
 
     [context glEnableClientState:GL_VERTEX_ARRAY];
     [context glDisableClientState:GL_COLOR_ARRAY];

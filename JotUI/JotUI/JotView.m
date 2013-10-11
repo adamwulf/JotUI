@@ -224,7 +224,7 @@ static JotGLContext *mainThreadContext;
 
 +(dispatch_queue_t) importExportStateQueue{
     if(!importExportStateQueue){
-        importExportStateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,NULL);
+        importExportStateQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND,(unsigned long)NULL);
         importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
     }
     return importExportStateQueue;
@@ -866,7 +866,7 @@ static JotGLContext *mainThreadContext;
         // draw each stroke element
         AbstractBezierPathElement* prevElement = nil;
         for(AbstractBezierPathElement* element in stroke.segments){
-            [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil];
+            [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:(GLuint)nil];
             prevElement = element;
         }
     }
@@ -1125,7 +1125,7 @@ static int undoCounter;
         while([strokeToWriteToTexture.segments count] && distance < 300){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
             [strokeToWriteToTexture removeElementAtIndex:0];
-            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil];
+            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:(GLuint)nil];
             prevElementForTextureWriting = element;
             distance += [element lengthOfElement];
             // this should dealloc the element immediately,
