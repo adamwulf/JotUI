@@ -14,14 +14,14 @@
 #define AbstractBezierPathElement_H
 
 struct ColorfulVertex{
-    GLfloat Position[2];    // x,y position
-    GLfloat Color [4];      // rgba color
-    GLfloat Size;           // pixel size
+    GLfloat Position[2];    // x,y position   // 8
+    GLfloat Color [4];      // rgba color     // 16
+    GLfloat Size;           // pixel size     // 4
 };
 
 struct ColorlessVertex{
-    GLfloat Position[2];    // x,y position
-    GLfloat Size;           // pixel size
+    GLfloat Position[2];    // x,y position   // 8
+    GLfloat Size;           // pixel size     // 4
 };
 
 #endif
