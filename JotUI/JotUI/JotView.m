@@ -1168,8 +1168,9 @@ static int undoCounter;
         NSInteger distance = 0;
         while([strokeToWriteToTexture.segments count] && distance < 300){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
-            if((prevElementForTextureWriting.color && !element.color) ||
-               (!prevElementForTextureWriting.color && element.color)){
+            if(prevElementForTextureWriting && (
+               (prevElementForTextureWriting.color && !element.color) ||
+               (!prevElementForTextureWriting.color && element.color))){
                 NSLog(@"gotcha!");
             }
             [strokeToWriteToTexture removeElementAtIndex:0];
@@ -1669,7 +1670,7 @@ static int undoCounter;
             // or add pen elements to an eraser stroke! otherwise this
             // will create artifacts when saving these strokes to the
             // backing texture.
-            NSLog(@"fixed!!!!");
+//            NSLog(@"fixed!!!!");
         }
         stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
         [state.stackOfStrokes addObject:stroke];
