@@ -90,6 +90,7 @@
         if(!enabled_GL_COLOR_ARRAY){
             enabled_GL_COLOR_ARRAY = YES;
             glEnableClientState(array);
+            lastAlpha = -1; // need to reset glColor4f http://lwjgl.org/forum/index.php?topic=2424.0
         }
     }else if(array == GL_POINT_SIZE_ARRAY_OES){
         if(!enabled_GL_POINT_SIZE_ARRAY_OES){
@@ -116,6 +117,7 @@
         if(enabled_GL_COLOR_ARRAY){
             enabled_GL_COLOR_ARRAY = NO;
             glDisableClientState(array);
+            lastAlpha = -1; // need to reset glColor4f http://lwjgl.org/forum/index.php?topic=2424.0
         }
     }else if(array == GL_POINT_SIZE_ARRAY_OES){
         if(enabled_GL_POINT_SIZE_ARRAY_OES){

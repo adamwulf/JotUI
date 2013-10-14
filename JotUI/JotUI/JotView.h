@@ -67,8 +67,7 @@
 -(void) speedUpFPS;
 
 
--(void) addElement:(AbstractBezierPathElement*)element;
-
+-(void) addElements:(NSArray*)elements;
 
 
 #pragma mark - debug

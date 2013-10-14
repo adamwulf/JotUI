@@ -77,7 +77,7 @@
             // then we can load those bytes into OpenGL directly.
             // after they're loaded, we can free the memory for our cgcontext.
             CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-            void *imageData = malloc( fullPixelSize.height * fullPixelSize.width * 4 );
+            void* imageData = calloc(fullPixelSize.height * fullPixelSize.width, 4);
             CGContextRef cgContext = CGBitmapContextCreate( imageData, fullPixelSize.width, fullPixelSize.height, 8, 4 * fullPixelSize.width, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big );
             CGContextTranslateCTM (cgContext, 0, fullPixelSize.height);
             CGContextScaleCTM (cgContext, 1.0, -1.0);

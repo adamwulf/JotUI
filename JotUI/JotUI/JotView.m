@@ -537,7 +537,16 @@ static JotGLContext *mainThreadContext;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    //
+    // TODO: validate how I create texture backing stores.
+    // do i need the calloc?
+    //
+    // old init:
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    // new init:
+    void* zeroedDataCache = calloc(fullSize.height * fullSize.width, 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zeroedDataCache);
+    free(zeroedDataCache);
     glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
     
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
@@ -557,7 +566,7 @@ static JotGLContext *mainThreadContext;
     // read the image from OpenGL and push it into a data buffer
     NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
     NSInteger dataLength = fullSize.width * fullSize.height * 4;
-    GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
+    GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
     // Read pixel data from the framebuffer
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
     glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -594,8 +603,21 @@ static JotGLContext *mainThreadContext;
             
             // OpenGL ES measures data in PIXELS
             // Create a graphics context with the target size measured in POINTS
-            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+            //
+            // TODO: validate how I initialize the core context
+            //
+            // old:
+//            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+            // new:
+            void* zeroedDataCache = calloc(fullSize.height * fullSize.width, 4);
+            CGContextRef bitmapContext = CGBitmapContextCreate(zeroedDataCache, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                                                kCGImageAlphaPremultipliedLast);
+            // TODO: might be over clearing this too (?)
+            // can I do less here?
+            CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
+            CGContextSetRGBFillColor(bitmapContext, 0, 0, 0, 0);
+            CGContextFillRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
+            
             if(!bitmapContext){
                 NSLog(@"oh no");
             }
@@ -603,6 +625,8 @@ static JotGLContext *mainThreadContext;
             // flip vertical for our drawn content, since OpenGL is opposite core graphics
             CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
             CGContextScaleCTM(bitmapContext, 1.0, -1.0);
+            
+            
             
             //
             // ok, now render our actual content
@@ -623,6 +647,7 @@ static JotGLContext *mainThreadContext;
             // so pass the newly generated image to the completion block
             exportFinishBlock(image);
             CGImageRelease(cgImage);
+            free(zeroedDataCache);
         }
     });
 }
@@ -678,7 +703,13 @@ static JotGLContext *mainThreadContext;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    // TODO: look at how I create textures vs callocing data
+    // old:
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    // new:
+    void* zeroedDataCache = calloc(fullSize.height * fullSize.width, 4);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zeroedDataCache);
+    free(zeroedDataCache);
     glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
     
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
@@ -689,7 +720,7 @@ static JotGLContext *mainThreadContext;
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 0.0);
     glViewport(0, 0, fullSize.width, fullSize.height);
     glClear(GL_COLOR_BUFFER_BIT);
     
@@ -721,7 +752,7 @@ static JotGLContext *mainThreadContext;
     // read the image from OpenGL and push it into a data buffer
     NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
     NSInteger dataLength = fullSize.width * fullSize.height * 4;
-    GLubyte *data = (GLubyte*)malloc(dataLength * sizeof(GLubyte));
+    GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
     // Read pixel data from the framebuffer
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
     glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -758,8 +789,18 @@ static JotGLContext *mainThreadContext;
             
             // OpenGL ES measures data in PIXELS
             // Create a graphics context with the target size measured in POINTS
-            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+            //
+            // TODO: validate how i create this context. can i do less?
+            // old:
+//            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
+            // new:
+            void* zeroedDataCache = calloc(fullSize.height * fullSize.width, 4);
+            CGContextRef bitmapContext = CGBitmapContextCreate(zeroedDataCache, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                                                kCGImageAlphaPremultipliedLast);
+            // can I clear less stuff and still be ok?
+            CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
+            CGContextSetRGBFillColor(bitmapContext, 0, 0, 0, 0);
+            CGContextFillRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
             
             if(!bitmapContext){
                 NSLog(@"oh no");
@@ -788,6 +829,7 @@ static JotGLContext *mainThreadContext;
             // so pass the newly generated image to the completion block
             exportFinishBlock(image);
             CGImageRelease(cgImage);
+            free(zeroedDataCache);
         }
     });
 }
@@ -1034,6 +1076,8 @@ static JotGLContext *mainThreadContext;
     if([JotGLContext currentContext] != context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:context];
+        // TODO: why do i set glViewport here?
+        glViewport(0, 0, initialViewport.width, initialViewport.height);
     }
     
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
@@ -1124,6 +1168,10 @@ static int undoCounter;
         NSInteger distance = 0;
         while([strokeToWriteToTexture.segments count] && distance < 300){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
+            if((prevElementForTextureWriting.color && !element.color) ||
+               (!prevElementForTextureWriting.color && element.color)){
+                NSLog(@"gotcha!");
+            }
             [strokeToWriteToTexture removeElementAtIndex:0];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:(GLuint)nil];
             prevElementForTextureWriting = element;
@@ -1600,25 +1648,55 @@ static int undoCounter;
     return CGSizeMake(initialFrameSize.width * scale, initialFrameSize.height * scale);
 }
 
-
--(void) addElement:(AbstractBezierPathElement*)element{
-    [(JotGLContext*)[JotGLContext currentContext] flush];
-    [JotGLContext setCurrentContext:self.context];
-    glViewport(0, 0, initialViewport.width, initialViewport.height);
+/**
+ * this will add all of the input elements to a stroke,
+ * and will make sure that the stroke color matches the input
+ * elements color.
+ *
+ * if the most recent stroke is for an eraser, then a new stroke
+ * will be built if these input elements are for a pen, etc
+ */
+-(void) addElements:(NSArray*)elements{
     JotStroke* stroke = [state.stackOfStrokes lastObject];
-    AbstractBezierPathElement* prevElement = [stroke.segments lastObject];
-    
-    if(!stroke){
-        stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
-        [state.stackOfStrokes addObject:stroke];
-    }else if ([stroke.segments count] > 10){
+    BOOL strokeHasColor = [[stroke.segments lastObject] color] != nil;
+    BOOL elementsHaveColor = [[elements firstObject] color] != nil;
+    if(!stroke || strokeHasColor != elementsHaveColor){
+        if(stroke && strokeHasColor != elementsHaveColor){
+            //
+            // https://github.com/adamwulf/loose-leaf/issues/249
+            //
+            // don't allow us to add eraser elements to a pen stroke,
+            // or add pen elements to an eraser stroke! otherwise this
+            // will create artifacts when saving these strokes to the
+            // backing texture.
+            NSLog(@"fixed!!!!");
+        }
         stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
         [state.stackOfStrokes addObject:stroke];
     }
-    [stroke addElement:element];
-    
-    [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:viewFramebuffer];
-    [self setNeedsPresentRenderBuffer];
+    BOOL needsPresent = NO;
+    for(AbstractBezierPathElement* element in elements){
+        [(JotGLContext*)[JotGLContext currentContext] flush];
+        [JotGLContext setCurrentContext:self.context];
+        glViewport(0, 0, initialViewport.width, initialViewport.height);
+        AbstractBezierPathElement* prevElement = [stroke.segments lastObject];
+        
+        [stroke addElement:element];
+        
+        if(![element isKindOfClass:[MoveToPathElement class]]){
+            CGRect eleBounds = element.bounds;
+            CGRect myBounds = self.bounds;
+            if(CGRectIntersectsRect(myBounds, eleBounds)){
+                needsPresent = YES;
+                [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:viewFramebuffer];
+            }else{
+                NSLog(@"gotcha?");
+            }
+        }
+    }
+    if(needsPresent){
+        [self setNeedsPresentRenderBuffer];
+    }
 }
 
 

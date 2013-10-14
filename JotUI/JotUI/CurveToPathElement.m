@@ -387,6 +387,31 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             [vbo bindForColor:nil];
         }
     }
+/**
+ * debugging code to validate vertex data when binding
+ *
+    if(vertexBufferShouldContainColor && dataVertexBuffer){
+        struct ColorfulVertex* data = (struct ColorfulVertex*) [dataVertexBuffer bytes];
+        for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
+            struct ColorfulVertex vert = data[i];
+            if(vert.Position[0] < 0 ||
+               vert.Position[1] < 0 ||
+               vert.Size < 1){
+                NSLog(@"what");
+            }
+        }
+    }else if(dataVertexBuffer){
+        struct ColorlessVertex* data = (struct ColorlessVertex*) [dataVertexBuffer bytes];
+        for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
+            struct ColorlessVertex vert = data[i];
+            if(vert.Position[0] < 0 ||
+               vert.Position[1] < 0 ||
+               vert.Size < 1){
+                NSLog(@"what");
+            }
+        }
+    }
+*/
     return YES;
 }
 
