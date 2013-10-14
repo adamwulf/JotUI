@@ -138,8 +138,8 @@
  * for its full pixel size
  */
 -(void) drawInContext:(JotGLContext*)context{
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-
+    
+    [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
     [context glEnableClientState:GL_VERTEX_ARRAY];
     [context glDisableClientState:GL_COLOR_ARRAY];
     [context glDisableClientState:GL_POINT_SIZE_ARRAY_OES];

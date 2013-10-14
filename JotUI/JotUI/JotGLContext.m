@@ -35,6 +35,9 @@
     BOOL enabled_GL_TEXTURE_COORD_ARRAY;
     
     BOOL needsFlush;
+    
+    GLenum blend_sfactor;
+    GLenum blend_dfactor;
 }
 
 -(id) initWithAPI:(EAGLRenderingAPI)api{
@@ -53,6 +56,8 @@
         lastBlue = -1;
         lastGreen = -1;
         lastAlpha = -1;
+        blend_dfactor = GL_ZERO;
+        blend_sfactor = GL_ZERO;
     }
     return self;
 }
@@ -131,6 +136,25 @@
         }
     }else{
         glDisableClientState(array);
+    }
+}
+
+-(void) prepOpenGLBlendModeForColor:(UIColor*)color{
+    if(!color){
+        // eraser
+        [self glBlendFunc:GL_ZERO and:GL_ONE_MINUS_SRC_ALPHA];
+    }else{
+        // normal brush
+        [self glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+    }
+}
+
+-(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor{
+    if(blend_sfactor != sfactor ||
+       blend_dfactor != dfactor){
+        blend_sfactor = sfactor;
+        blend_dfactor = dfactor;
+        glBlendFunc(blend_sfactor, blend_dfactor);
     }
 }
 

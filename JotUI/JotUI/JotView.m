@@ -202,7 +202,7 @@ static JotGLContext *mainThreadContext;
     
     glEnable(GL_BLEND);
     // Set a blending function appropriate for premultiplied alpha pixel data
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
     
     glEnable(GL_POINT_SPRITE_OES);
     glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
@@ -899,12 +899,6 @@ static JotGLContext *mainThreadContext;
         if(stroke.texture != brushTexture){
             [self setBrushTexture:stroke.texture];
         }
-        // setup our blend mode properly for color vs eraser
-        if([stroke.segments count]){
-            AbstractBezierPathElement* firstElement = [stroke.segments objectAtIndex:0];
-            [self prepOpenGLBlendModeForColor:firstElement.color];
-        }
-        
         // draw each stroke element
         AbstractBezierPathElement* prevElement = nil;
         for(AbstractBezierPathElement* element in stroke.segments){
@@ -1043,8 +1037,11 @@ static JotGLContext *mainThreadContext;
     if(frameBuffer){
         // draw the stroke element
         [self prepOpenGLStateForFBO:frameBuffer];
-        [self prepOpenGLBlendModeForColor:element.color];
     }
+    // always prep the blend mode, the context
+    // will cache the result so it won't over set
+    // the gl state
+    [context prepOpenGLBlendModeForColor:element.color];
     
     if([[NSNull null] isEqual:previousElement]){
         previousElement = nil;
@@ -1086,20 +1083,6 @@ static JotGLContext *mainThreadContext;
     [context glEnableClientState:GL_COLOR_ARRAY];
     [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
     [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
-}
-
-/**
- * sets up the blend mode
- * for normal vs eraser drawing
- */
--(void) prepOpenGLBlendModeForColor:(UIColor*)color{
-    if(!color){
-        // eraser
-        glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-    }else{
-        // normal brush
-        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    }
 }
 
 /**
@@ -1157,12 +1140,6 @@ static int undoCounter;
         // set our brush texture if needed
         [self setBrushTexture:strokeToWriteToTexture.texture];
 
-        // setup our blend mode properly for color vs eraser
-        if([strokeToWriteToTexture.segments count]){
-            AbstractBezierPathElement* firstElement = [strokeToWriteToTexture.segments objectAtIndex:0];
-            [self prepOpenGLBlendModeForColor:firstElement.color];
-        }
-        
         // draw each stroke element. for performance reasons, we'll only
         // draw ~ 300 pixels of segments at a time.
         NSInteger distance = 0;

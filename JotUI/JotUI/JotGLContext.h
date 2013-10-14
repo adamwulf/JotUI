@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 Adonit. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
@@ -21,5 +22,9 @@
 -(void) glDisableClientState:(GLenum)array;
 
 -(void) flush;
+
+-(void) prepOpenGLBlendModeForColor:(UIColor*)color;
+
+-(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor;
 
 @end
