@@ -515,7 +515,7 @@ static JotGLContext *mainThreadContext;
 
     if(!exportFinishBlock) return;
 
-    CGSize fullSize = CGSizeMake(initialViewport.width, initialViewport.height);
+    CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     CGSize exportSize = CGSizeMake(ceilf(initialViewport.width / 2), ceilf(initialViewport.height / 2));
     
 	GLuint exportFramebuffer;
@@ -1073,8 +1073,6 @@ static JotGLContext *mainThreadContext;
     if([JotGLContext currentContext] != context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:context];
-        // TODO: why do i set glViewport here?
-        glViewport(0, 0, initialViewport.width, initialViewport.height);
     }
     
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
@@ -1638,7 +1636,7 @@ static int undoCounter;
     JotStroke* stroke = [state.stackOfStrokes lastObject];
     BOOL strokeHasColor = [[stroke.segments lastObject] color] != nil;
     BOOL elementsHaveColor = [[elements firstObject] color] != nil;
-    if(!stroke || strokeHasColor != elementsHaveColor){
+    if(!stroke || strokeHasColor != elementsHaveColor || [stroke.segments count] > 50){
         if(stroke && strokeHasColor != elementsHaveColor){
             //
             // https://github.com/adamwulf/loose-leaf/issues/249
@@ -1656,7 +1654,6 @@ static int undoCounter;
     for(AbstractBezierPathElement* element in elements){
         [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:self.context];
-        glViewport(0, 0, initialViewport.width, initialViewport.height);
         AbstractBezierPathElement* prevElement = [stroke.segments lastObject];
         
         [stroke addElement:element];
@@ -1664,6 +1661,10 @@ static int undoCounter;
         if(![element isKindOfClass:[MoveToPathElement class]]){
             CGRect eleBounds = element.bounds;
             CGRect myBounds = self.bounds;
+            if(prevElement && ((!prevElement.color && element.color) ||
+                               (prevElement.color && !element.color))){
+                NSLog(@"gotcha!");
+            }
             if(CGRectIntersectsRect(myBounds, eleBounds)){
                 needsPresent = YES;
                 [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:viewFramebuffer];
