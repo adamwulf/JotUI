@@ -142,9 +142,7 @@ int printOglError(char *file, int line)
     CGPoint botLeft  = rect.origin;
     CGPoint botRight = rect.origin; botRight.x += rect.size.width;
     
-    // TODO: rotation
     // translate + rotate + translate each point to rotate it
-    
     CGAffineTransform translateTransform = CGAffineTransformMakeTranslation(point.x, point.y);
     CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(stepRotation);
     CGAffineTransform customRotation = CGAffineTransformConcat(CGAffineTransformConcat( CGAffineTransformInvert(translateTransform), rotationTransform), translateTransform);

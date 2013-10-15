@@ -537,16 +537,7 @@ static JotGLContext *mainThreadContext;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-    //
-    // TODO: validate how I create texture backing stores.
-    // do i need the calloc?
-    //
-    // old init:
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    // new init:
-    void* zeroedDataCache = calloc(fullSize.height * fullSize.width, 4);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zeroedDataCache);
-    free(zeroedDataCache);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
     
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
@@ -557,10 +548,12 @@ static JotGLContext *mainThreadContext;
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     
-    glClearColor(1.0, 1.0, 1.0, 1.0);
+    // set viewport to round up to the pixel, if needed
     glViewport(0, 0, fullSize.width, fullSize.height);
-    glClear(GL_COLOR_BUFFER_BIT);
     
+    // ok, everything is setup at this point, so render all
+    // of the strokes over the backing texture to our
+    // export texture
     [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
     
     // read the image from OpenGL and push it into a data buffer
@@ -571,19 +564,14 @@ static JotGLContext *mainThreadContext;
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
     glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-    
-    
+    // now we've read our data out from gl into *data
+    // so delete the export framebuffer
     glDeleteFramebuffersOES(1, &exportFramebuffer);
     glDeleteTextures(1, &canvastexture);
     
-    if([JotGLContext currentContext] != context){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:context];
-    }
-    
+    // reset back to exact viewport
     glViewport(0, 0, initialViewport.width, initialViewport.height);
 
-    
     //
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
@@ -603,20 +591,9 @@ static JotGLContext *mainThreadContext;
             
             // OpenGL ES measures data in PIXELS
             // Create a graphics context with the target size measured in POINTS
-            //
-            // TODO: validate how I initialize the core context
-            //
-            // old:
-//            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
-            // new:
-            void* zeroedDataCache = calloc(fullSize.height * fullSize.width, 4);
-            CGContextRef bitmapContext = CGBitmapContextCreate(zeroedDataCache, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                                                kCGImageAlphaPremultipliedLast);
-            // TODO: might be over clearing this too (?)
-            // can I do less here?
             CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
-            CGContextSetRGBFillColor(bitmapContext, 0, 0, 0, 0);
-            CGContextFillRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
             
             if(!bitmapContext){
                 NSLog(@"oh no");
@@ -625,8 +602,6 @@ static JotGLContext *mainThreadContext;
             // flip vertical for our drawn content, since OpenGL is opposite core graphics
             CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
             CGContextScaleCTM(bitmapContext, 1.0, -1.0);
-            
-            
             
             //
             // ok, now render our actual content
@@ -647,7 +622,6 @@ static JotGLContext *mainThreadContext;
             // so pass the newly generated image to the completion block
             exportFinishBlock(image);
             CGImageRelease(cgImage);
-            free(zeroedDataCache);
         }
     });
 }
@@ -703,13 +677,7 @@ static JotGLContext *mainThreadContext;
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
-    // TODO: look at how I create textures vs callocing data
-    // old:
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    // new:
-    void* zeroedDataCache = calloc(fullSize.height * fullSize.width, 4);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zeroedDataCache);
-    free(zeroedDataCache);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
     
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
@@ -720,35 +688,19 @@ static JotGLContext *mainThreadContext;
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     
-	glClearColor(0.0, 0.0, 0.0, 0.0);
     glViewport(0, 0, fullSize.width, fullSize.height);
-    glClear(GL_COLOR_BUFFER_BIT);
     
-    
-    
-    // set our current OpenGL context
-    if([JotGLContext currentContext] != context){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:context];
-    }
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-    
-	//
     // step 1:
     // Clear the buffer
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
     
-    //
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
     [state.backgroundTexture drawInContext:context];
-
     
-    
-    
-    
+    // step 3:
     // read the image from OpenGL and push it into a data buffer
     NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
     NSInteger dataLength = fullSize.width * fullSize.height * 4;
@@ -757,20 +709,13 @@ static JotGLContext *mainThreadContext;
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
     glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
     
-    
-    
+    // now we're done, delete our buffers
     glDeleteFramebuffersOES(1, &exportFramebuffer);
     glDeleteTextures(1, &canvastexture);
-    
-    if([JotGLContext currentContext] != context){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:context];
-    }
-    
+
+    // reset our viewport
     glViewport(0, 0, initialViewport.width, initialViewport.height);
     
-    
-    //
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
         @autoreleasepool {
@@ -789,18 +734,9 @@ static JotGLContext *mainThreadContext;
             
             // OpenGL ES measures data in PIXELS
             // Create a graphics context with the target size measured in POINTS
-            //
-            // TODO: validate how i create this context. can i do less?
-            // old:
-//            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
-            // new:
-            void* zeroedDataCache = calloc(fullSize.height * fullSize.width, 4);
-            CGContextRef bitmapContext = CGBitmapContextCreate(zeroedDataCache, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
-                                                               kCGImageAlphaPremultipliedLast);
+            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
             // can I clear less stuff and still be ok?
             CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
-            CGContextSetRGBFillColor(bitmapContext, 0, 0, 0, 0);
-            CGContextFillRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
             
             if(!bitmapContext){
                 NSLog(@"oh no");
@@ -829,7 +765,6 @@ static JotGLContext *mainThreadContext;
             // so pass the newly generated image to the completion block
             exportFinishBlock(image);
             CGImageRelease(cgImage);
-            free(zeroedDataCache);
         }
     });
 }
@@ -850,6 +785,12 @@ static JotGLContext *mainThreadContext;
     
     CheckMainThread;
 
+    // set our current OpenGL context
+    if([JotGLContext currentContext] != renderContext){
+        [(JotGLContext*)[JotGLContext currentContext] flush];
+        [JotGLContext setCurrentContext:renderContext];
+    }
+
     if(!CGRectEqualToRect(scissorRect, CGRectZero)){
         glEnable(GL_SCISSOR_TEST);
         glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
@@ -857,17 +798,11 @@ static JotGLContext *mainThreadContext;
         // noop for scissors
     }
     
-    //
     // hang onto the current texture
     // so we can reset it after we draw
     // the strokes
     JotBrushTexture* keepThisTexture = brushTexture;
     
-    // set our current OpenGL context
-    if([JotGLContext currentContext] != renderContext){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:renderContext];
-    }
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
 
 	//
