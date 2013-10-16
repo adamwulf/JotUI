@@ -29,6 +29,10 @@
     BOOL vertexBufferShouldContainColor;
     // store the number of bytes of data that we've generated
     NSInteger numberOfBytesOfVertexData;
+    // cached color components so that we don't recalculate
+    // every time we bind
+    BOOL hasCalculatedColorComponents;
+    GLfloat colorComponents[4];
 }
 
 const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
@@ -180,6 +184,35 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     return numberOfBytes;
 }
 
+
+-(void) calculateAndCacheColorComponents{
+    if(!hasCalculatedColorComponents){
+        hasCalculatedColorComponents = YES;
+        // save color components, because we'll use these
+        // when we bind, since our colors won't be in the VBO
+        if(self.color){
+            [self.color getRGBAComponents:colorComponents];
+            if(colorComponents[3] / (self.width / kDivideStepBy) < 0){
+                NSLog(@"what?!!");
+            }
+            CGFloat stepWidth = self.width * scaleOfVertexBuffer;
+            CGFloat alpha = colorComponents[3] / (stepWidth / kDivideStepBy);
+            if(alpha > 1) alpha = 1;
+            
+            // set alpha first, because we'll premultiply immediately after
+            colorComponents[3] = alpha;
+            colorComponents[0] = colorComponents[0] * colorComponents[3];
+            colorComponents[1] = colorComponents[1] * colorComponents[3];
+            colorComponents[2] = colorComponents[2] * colorComponents[3];
+        }else{
+            colorComponents[0] = 0;
+            colorComponents[1] = 0;
+            colorComponents[2] = 0;
+            colorComponents[3] = 1.0;
+        }
+    }
+}
+
 /**
  * generate a vertex buffer array for all of the points
  * along this curve for the input scale.
@@ -209,12 +242,17 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     colorSteps[3] = myColor[3] - prevColor[3];
     
     
+    // check if we'll be saving the color information inside of our VBO
+    // or if we'll set it during the bind instead
     vertexBufferShouldContainColor = [self shouldContainVertexColorDataGivenPreviousElement:previousElement];
     
     // find out how many steps we can put inside this segment length
     int numberOfVertices = [self numberOfVertices];
     numberOfBytesOfVertexData = [self numberOfBytesGivenPreviousElement:previousElement];
-
+    
+    if(!vertexBufferShouldContainColor){
+        [self calculateAndCacheColorComponents];
+    }
     
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;
@@ -343,6 +381,17 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     }
 }
 
+-(void) loadDataIntoVBOIfNeeded{
+    // we're only allowed to create vbo
+    // on the main thread.
+    // if we need a vbo, then create it
+    if(!vbo && dataVertexBuffer){
+        if(!self.bufferManager){
+            NSLog(@"what");
+        }
+        vbo = [self.bufferManager bufferWithData:dataVertexBuffer];
+    }
+}
 
 /**
  * this method has become quite a bit more complex
@@ -364,28 +413,14 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // we're only allowed to create vbo
     // on the main thread.
     // if we need a vbo, then create it
-    if(!vbo && dataVertexBuffer){
-        if(!self.bufferManager){
-            NSLog(@"what");
-        }
-        vbo = [self.bufferManager bufferWithData:dataVertexBuffer];
-    }
+    [self loadDataIntoVBOIfNeeded];
     if(vertexBufferShouldContainColor){
         [vbo bind];
     }else{
-        if(self.color){
-            GLfloat colors[4];
-            [self.color getRGBAComponents:colors];
-            if(colors[3] / (self.width / kDivideStepBy) < 0){
-                NSLog(@"what?!!");
-            }
-            CGFloat stepWidth = self.width * scaleOfVertexBuffer;
-            CGFloat alpha = colors[3] / (stepWidth / kDivideStepBy);
-            if(alpha > 1) alpha = 1;
-            [vbo bindForColor:[self.color colorWithAlphaComponent:alpha]];
-        }else{
-            [vbo bindForColor:nil];
-        }
+        // by this point, we've cached our components into
+        // colorComponents, even if self.color is nil we've
+        // set it appropriately
+        [vbo bindForColor:colorComponents];
     }
 /**
  * debugging code to validate vertex data when binding
@@ -587,6 +622,10 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
         vertexBufferShouldContainColor = [[dictionary objectForKey:@"vertexBufferShouldContainColor"] boolValue];
         numberOfBytesOfVertexData = [[dictionary objectForKey:@"numberOfBytesOfVertexData"] integerValue];
+        
+        if(!vertexBufferShouldContainColor){
+            [self calculateAndCacheColorComponents];
+        }
         
         NSUInteger prime = 31;
         hashCache = 1;

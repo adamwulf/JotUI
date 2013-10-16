@@ -22,7 +22,7 @@
 
 -(void) bindForStep:(NSInteger)stepNumber;
 
--(void) bindForColor:(UIColor*)color andStep:(NSInteger)stepNumber;
+-(void) bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber;
 
 -(void) unbind;
 

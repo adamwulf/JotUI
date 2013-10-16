@@ -25,7 +25,7 @@
 
 -(void) bind;
 
--(void) bindForColor:(UIColor*)color;
+-(void) bindForColor:(GLfloat[4])color;
 
 -(void) unbind;
 

@@ -7,8 +7,11 @@
 //
 
 #import "UIColor+JotHelper.h"
+#import <objc/runtime.h>
 
 @implementation UIColor (JotHelper)
+
+static char COLOR_COMPONENTS;
 
 -(void) getRGBAComponents:(GLfloat[4])components{
     int numComponents = CGColorGetNumberOfComponents(self.CGColor);;
@@ -28,6 +31,17 @@
         components[2] = cmps[0];
         components[3] = cmps[1];
     }
+}
+
+
+-(NSMutableDictionary*) colorProperties{
+//    objc_getAssociatedObject(<#id object#>, <#const void *key#>)
+    id props = objc_getAssociatedObject(self, &COLOR_COMPONENTS);
+    if(!props){
+        props = [[NSMutableDictionary alloc] initWithCapacity:4];
+        objc_setAssociatedObject(self, &COLOR_COMPONENTS, props, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return props;
 }
 
 

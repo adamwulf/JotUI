@@ -167,6 +167,9 @@ int printOglError(char *file, int line)
     return atan2f(point1.y - point2.y, point1.x - point2.x) + M_PI_2;
 }
 
+-(void) loadDataIntoVBOIfNeeded{
+   // noop
+}
 
 -(BOOL) bind{
     return NO;

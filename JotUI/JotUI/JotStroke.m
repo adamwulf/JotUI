@@ -114,10 +114,8 @@
             [segment setBufferManager:bufferManager];
             [self updateHashWithObject:segment];
             totalNumberOfBytes += [segment numberOfBytesGivenPreviousElement:previousElement];
-            [segment validateDataGivenPreviousElement:previousElement];
-            if([segment bind]){
-                [segment unbind];
-            }
+            [segment validateDataGivenPreviousElement:previousElement]; // nil out our dictionary loaded data if it's the wrong size
+            [segment loadDataIntoVBOIfNeeded]; // generate if if needed
             previousElement = segment;
             return segment;
         }]];

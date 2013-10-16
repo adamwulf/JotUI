@@ -64,7 +64,7 @@
  * this bind method presumes that color information is NOT included in
  * the vertex data of the VBO, and will set glColor4f
  */
--(void) bindForColor:(UIColor*)color{
+-(void) bindForColor:(CGFloat[4])color{
     [vbo bindForColor:color andStep:stepNumber];
 }
 

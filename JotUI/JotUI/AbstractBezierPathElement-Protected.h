@@ -51,6 +51,8 @@ int printOglError(char *file, int line);
 
 -(void) draw;
 
+-(void) loadDataIntoVBOIfNeeded;
+
 @end
 
 

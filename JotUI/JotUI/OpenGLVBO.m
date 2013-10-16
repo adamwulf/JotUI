@@ -78,7 +78,7 @@ static void * zeroedDataCache = nil;
  * no other steps are affected
  */
 -(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
-    [self bindForStep:stepNumber];
+    glBindBuffer(GL_ARRAY_BUFFER,vbo);
     GLintptr offset = stepNumber*stepMallocSize;
     GLsizeiptr len = vertexData.length;
     glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
@@ -92,12 +92,13 @@ static void * zeroedDataCache = nil;
  * this assumes the VBO is filled with ColorfulVertex vertex data
  */
 -(void) bindForStep:(NSInteger)stepNumber{
+    JotGLContext* context = (JotGLContext*) [JotGLContext currentContext];
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    
     glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position)));
     glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color)));
     glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size)));
     
-    JotGLContext* context = (JotGLContext*) [JotGLContext currentContext];
     [context glEnableClientState:GL_VERTEX_ARRAY];
     [context glEnableClientState:GL_COLOR_ARRAY];
     [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
@@ -111,7 +112,7 @@ static void * zeroedDataCache = nil;
  * this will also set glColor4f for the input color, and assumes
  * that the VBO is filled with ColorlessVertex vertex data
  */
--(void) bindForColor:(UIColor*)color andStep:(NSInteger)stepNumber{
+-(void) bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber{
     
     JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
     
@@ -123,20 +124,7 @@ static void * zeroedDataCache = nil;
     [context glDisableClientState:GL_COLOR_ARRAY];
     [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
     [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
-
-    if(!color){
-        [context glColor4f:0 and:0 and:0 and:1];
-    }else{
-        GLfloat colorSteps[4];
-        [color getRGBAComponents:colorSteps];
-        if(colorSteps[0] * colorSteps[3] > 1 ||
-           colorSteps[1] * colorSteps[3] > 1 ||
-           colorSteps[2] * colorSteps[3] > 1 ||
-           colorSteps[3] > 1){
-            NSLog(@"what2");
-        }
-        [context glColor4f:(colorSteps[0] * colorSteps[3]) and:(colorSteps[1] * colorSteps[3]) and:(colorSteps[2] * colorSteps[3]) and:(colorSteps[3])];
-    }
+    [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
 }
 
 -(void) unbind{

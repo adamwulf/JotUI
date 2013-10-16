@@ -784,6 +784,8 @@ static JotGLContext *mainThreadContext;
 -(void) renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(GLuint)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect{
     
     CheckMainThread;
+    
+    NSLog(@"render all");
 
     // set our current OpenGL context
     if([JotGLContext currentContext] != renderContext){
@@ -829,6 +831,8 @@ static JotGLContext *mainThreadContext;
     brushTexture = nil;
     // now draw the strokes
     
+    int c = 0;
+    
     for(JotStroke* stroke in [state everyVisibleStroke]){
         // make sure our texture is the correct one for this stroke
         if(stroke.texture != brushTexture){
@@ -839,9 +843,12 @@ static JotGLContext *mainThreadContext;
         for(AbstractBezierPathElement* element in stroke.segments){
             [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:(GLuint)nil];
             prevElement = element;
+            c++;
         }
     }
     [self unprepOpenGLState];
+    
+    NSLog(@"done render all: %d", c);
     
     if(shouldPresent){
         // step 4:
@@ -878,6 +885,8 @@ static JotGLContext *mainThreadContext;
  */
 -(void) presentRenderBuffer{
     CheckMainThread;
+    
+    NSLog(@"present!");
     
     if([JotGLContext currentContext] != self.context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
@@ -1135,7 +1144,9 @@ static int undoCounter;
         JotStroke* aStroke = [state.currentStrokes objectForKey:key];
         if(aStroke == stroke){
             [state.currentStrokes removeObjectForKey:key];
-            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+            if([aStroke.segments count] > 1 || ![[aStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
+                [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:stroke.bounds];
+            }
             return;
         }
     }

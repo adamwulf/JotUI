@@ -38,6 +38,11 @@
     
     GLenum blend_sfactor;
     GLenum blend_dfactor;
+    
+    GLint vertex_pointer_size;
+    GLenum vertex_pointer_type;
+    GLsizei vertex_pointer_stride;
+    GLvoid* vertex_pointer_pointer;
 }
 
 -(id) initWithAPI:(EAGLRenderingAPI)api{
