@@ -886,8 +886,6 @@ static JotGLContext *mainThreadContext;
 -(void) presentRenderBuffer{
     CheckMainThread;
     
-    NSLog(@"present!");
-    
     if([JotGLContext currentContext] != self.context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:self.context];
