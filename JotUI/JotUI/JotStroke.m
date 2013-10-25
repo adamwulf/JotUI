@@ -62,6 +62,14 @@
     int numOfCacheBytes = [JotBufferVBO cacheNumberForBytes:numOfElementBytes] * kJotBufferBucketSize;
 //    NSLog(@"number of element bytes: %d", numOfElementBytes);
     totalNumberOfBytes += numOfElementBytes + numOfCacheBytes;
+    
+    if([segments count]){
+        if((element.color && ![[segments lastObject] color]) ||
+           (!element.color && [[segments lastObject] color])){
+            NSLog(@"gotcha!");
+        }
+    }
+    
     [segments addObject:element];
     [self updateHashWithObject:element];
 }

@@ -561,18 +561,7 @@ static JotGLContext *mainThreadContext;
     // export texture
     [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
     
-    // read the image from OpenGL and push it into a data buffer
-    NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
-    NSInteger dataLength = fullSize.width * fullSize.height * 4;
-    GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
-    // Read pixel data from the framebuffer
-    glPixelStorei(GL_PACK_ALIGNMENT, 4);
-    glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    // now we've read our data out from gl into *data
-    // so delete the export framebuffer
     glDeleteFramebuffersOES(1, &exportFramebuffer);
-    glDeleteTextures(1, &canvastexture);
     
     // reset back to exact viewport
     glViewport(0, 0, initialViewport.width, initialViewport.height);
@@ -581,6 +570,40 @@ static JotGLContext *mainThreadContext;
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
         @autoreleasepool {
+            // do i need this context flush??
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                [context flush];
+            });
+            
+            JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
+            [JotGLContext setCurrentContext:subContext];
+            glViewport(0, 0, fullSize.width, fullSize.height);
+
+            GLuint exportFramebuffer;
+            glGenFramebuffersOES(1, &exportFramebuffer);
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
+            GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+            if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
+                NSLog(@"failed to make complete framebuffer object %x", status);
+            }
+
+            // read the image from OpenGL and push it into a data buffer
+            NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
+            NSInteger dataLength = fullSize.width * fullSize.height * 4;
+            GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
+            // Read pixel data from the framebuffer
+            glPixelStorei(GL_PACK_ALIGNMENT, 4);
+            glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            
+            // now we've read our data out from gl into *data
+            // so delete the export framebuffer
+            glDeleteFramebuffersOES(1, &exportFramebuffer);
+            glDeleteTextures(1, &canvastexture);
+            
+
+            
+            
             // Create a CGImage with the pixel data from OpenGL
             // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
             // otherwise, use kCGImageAlphaPremultipliedLast
@@ -710,18 +733,7 @@ static JotGLContext *mainThreadContext;
     // that fills the screen
     [state.backgroundTexture drawInContext:context];
     
-    // step 3:
-    // read the image from OpenGL and push it into a data buffer
-    NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
-    NSInteger dataLength = fullSize.width * fullSize.height * 4;
-    GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
-    // Read pixel data from the framebuffer
-    glPixelStorei(GL_PACK_ALIGNMENT, 4);
-    glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    
-    // now we're done, delete our buffers
     glDeleteFramebuffersOES(1, &exportFramebuffer);
-    glDeleteTextures(1, &canvastexture);
 
     // reset our viewport
     glViewport(0, 0, initialViewport.width, initialViewport.height);
@@ -729,6 +741,37 @@ static JotGLContext *mainThreadContext;
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
         @autoreleasepool {
+            // do i need this context flush??
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                [context flush];
+            });
+            
+            JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
+            [JotGLContext setCurrentContext:subContext];
+            glViewport(0, 0, fullSize.width, fullSize.height);
+
+            GLuint exportFramebuffer;
+            glGenFramebuffersOES(1, &exportFramebuffer);
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
+            GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+            if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
+                NSLog(@"failed to make complete framebuffer object %x", status);
+            }
+            // step 3:
+            // read the image from OpenGL and push it into a data buffer
+            NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
+            NSInteger dataLength = fullSize.width * fullSize.height * 4;
+            GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
+            // Read pixel data from the framebuffer
+            glPixelStorei(GL_PACK_ALIGNMENT, 4);
+            glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            
+            // now we're done, delete our buffers
+            glDeleteTextures(1, &canvastexture);
+            
+            
+
             // Create a CGImage with the pixel data from OpenGL
             // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
             // otherwise, use kCGImageAlphaPremultipliedLast
@@ -1102,11 +1145,6 @@ static int undoCounter;
         NSInteger distance = 0;
         while([strokeToWriteToTexture.segments count] && distance < 300){
             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
-            if(prevElementForTextureWriting && (
-               (prevElementForTextureWriting.color && !element.color) ||
-               (!prevElementForTextureWriting.color && element.color))){
-                NSLog(@"gotcha!");
-            }
             [strokeToWriteToTexture removeElementAtIndex:0];
             [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:(GLuint)nil];
             prevElementForTextureWriting = element;
@@ -1637,9 +1675,11 @@ static int undoCounter;
         [state.stackOfStrokes addObject:stroke];
     }
     BOOL needsPresent = NO;
-    for(AbstractBezierPathElement* element in elements){
+    if([JotGLContext currentContext] != self.context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:self.context];
+    }
+    for(AbstractBezierPathElement* element in elements){
         AbstractBezierPathElement* prevElement = [stroke.segments lastObject];
         
         [stroke addElement:element];
