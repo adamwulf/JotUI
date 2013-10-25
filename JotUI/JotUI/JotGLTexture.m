@@ -130,6 +130,8 @@
 -(void) bind{
     if(textureID){
         glBindTexture(GL_TEXTURE_2D, textureID);
+    }else{
+        NSLog(@"what");
     }
 }
 

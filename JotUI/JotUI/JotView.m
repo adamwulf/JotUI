@@ -1674,6 +1674,8 @@ static int undoCounter;
         stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
         [state.stackOfStrokes addObject:stroke];
     }
+    [stroke.texture bind];
+
     BOOL needsPresent = NO;
     if([JotGLContext currentContext] != self.context){
         [(JotGLContext*)[JotGLContext currentContext] flush];

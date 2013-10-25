@@ -76,7 +76,7 @@
         
         // Release  the image data; it's no longer needed
         free(brushData);
-        
+        glFlush();
         return YES;
     }
     return NO;
