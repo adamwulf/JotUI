@@ -162,7 +162,7 @@ static JotGLContext *mainThreadContext;
     [[JotTrashManager sharedInstace] setMaxTickDuration:kJotValidateUndoTimer * 1 / 20];
 
     // create a default empty state
-    state = [[JotViewState alloc] init];
+    state = nil;
     
     // allow more than 1 finger/stylus to draw at a time
     self.multipleTouchEnabled = YES;
@@ -341,7 +341,12 @@ static JotGLContext *mainThreadContext;
     
     CheckMainThread;
     
-    if(![state isReadyToExport] || isCurrentlyExporting){
+    if(!state){
+        exportFinishBlock(nil, nil, nil);
+        return;
+    }
+    
+    if((![state isReadyToExport] || isCurrentlyExporting)){
         if(isCurrentlyExporting){
 //            NSLog(@"cant save, currently exporting");
         }
@@ -648,6 +653,11 @@ static JotGLContext *mainThreadContext;
     
     CheckMainThread;
     
+    if(!state){
+        exportFinishBlock(nil);
+        return;
+    }
+    
     if([JotGLContext currentContext] != context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:context];
@@ -785,6 +795,8 @@ static JotGLContext *mainThreadContext;
     
     CheckMainThread;
     
+    if(!state) return;
+    
     NSLog(@"render all");
 
     // set our current OpenGL context
@@ -886,6 +898,8 @@ static JotGLContext *mainThreadContext;
 -(void) presentRenderBuffer{
     CheckMainThread;
     
+    if(!state) return;
+
     if([JotGLContext currentContext] != self.context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
         [JotGLContext setCurrentContext:self.context];
@@ -976,6 +990,9 @@ static JotGLContext *mainThreadContext;
  * setup the openGL state, or send in nil or 0 to bypass setup
  */
 -(void) renderElement:(AbstractBezierPathElement*)element fromPreviousElement:(AbstractBezierPathElement*)previousElement includeOpenGLPrepForFBO:(GLuint)frameBuffer{
+    
+    if(!state) return;
+    
     if(frameBuffer){
         // draw the stroke element
         [self prepOpenGLStateForFBO:frameBuffer];
@@ -1154,6 +1171,7 @@ static int undoCounter;
 #pragma mark - JotPalmRejectionDelegate
 
 -(void) drawLongLine{
+    if(!state) return;
     JotStroke* newStroke = [[JotStroke alloc] initWithTexture:self.brushTexture andBufferManager:state.bufferManager];
     newStroke.delegate = self;
     [self addLineToAndRenderStroke:newStroke
@@ -1190,6 +1208,8 @@ static int undoCounter;
     
     CheckMainThread;
     
+    if(!state) return;
+    
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
             JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
@@ -1212,6 +1232,8 @@ static int undoCounter;
     
     CheckMainThread;
     
+    if(!state) return;
+
     for(JotTouch* jotTouch in touches){
         [self.delegate willMoveStrokeWithTouch:jotTouch];
         JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
@@ -1254,6 +1276,8 @@ static int undoCounter;
     
     CheckMainThread;
     
+    if(!state) return;
+
     for(JotTouch* jotTouch in touches){
         [self.delegate willEndStrokeWithTouch:jotTouch];
         JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
@@ -1294,6 +1318,8 @@ static int undoCounter;
     
     CheckMainThread;
     
+    if(!state) return;
+
     for(JotTouch* jotTouch in touches){
         // If appropriate, add code necessary to save the state of the application.
         // This application is not saving state.
@@ -1343,6 +1369,9 @@ static int undoCounter;
  * the jot sdk is not enabled.
  */
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
+    
+    if(!state) return;
+
     if(![JotStylusManager sharedInstance].enabled){
         for (UITouch *touch in touches) {
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
@@ -1363,6 +1392,9 @@ static int undoCounter;
 }
 
 -(void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
+
+    if(!state) return;
+
     if(![JotStylusManager sharedInstance].enabled){
         for (UITouch *touch in touches) {
             // check for other brands of stylus,
@@ -1406,6 +1438,9 @@ static int undoCounter;
 }
 
 -(void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
+
+    if(!state) return;
+
     if(![JotStylusManager sharedInstance].enabled){
         for(UITouch* touch in touches){
             
@@ -1445,6 +1480,9 @@ static int undoCounter;
 }
 
 -(void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event{
+
+    if(!state) return;
+
     if(![JotStylusManager sharedInstance].enabled){
         for(UITouch* touch in touches){
             // If appropriate, add code necessary to save the state of the application.
@@ -1523,6 +1561,8 @@ static int undoCounter;
  * erase the screen
  */
 - (IBAction) clear:(BOOL)shouldPresent{
+    if(!state) return;
+
     // set our context
     [(JotGLContext*)[JotGLContext currentContext] flush];
 	[JotGLContext setCurrentContext:context];
@@ -1577,6 +1617,8 @@ static int undoCounter;
  * will be built if these input elements are for a pen, etc
  */
 -(void) addElements:(NSArray*)elements{
+    if(!state) return;
+
     JotStroke* stroke = [state.stackOfStrokes lastObject];
     BOOL strokeHasColor = [[stroke.segments lastObject] color] != nil;
     BOOL elementsHaveColor = [[elements firstObject] color] != nil;
