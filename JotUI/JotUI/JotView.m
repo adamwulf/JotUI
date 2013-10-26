@@ -570,7 +570,10 @@ static JotGLContext *mainThreadContext;
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
         @autoreleasepool {
-            // do i need this context flush??
+            // we have to flush the main queue's context
+            // so that all of the pixels have been pushed
+            // through the GPU onto the texture. otherwise
+            // we risk exporting and old state of the texture
             dispatch_sync(dispatch_get_main_queue(), ^{
                 [context flush];
             });
@@ -741,7 +744,10 @@ static JotGLContext *mainThreadContext;
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
         @autoreleasepool {
-            // do i need this context flush??
+            // we have to flush the main queue's context
+            // so that all of the pixels have been pushed
+            // through the GPU onto the texture. otherwise
+            // we risk exporting and old state of the texture
             dispatch_sync(dispatch_get_main_queue(), ^{
                 [context flush];
             });
