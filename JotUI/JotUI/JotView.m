@@ -373,6 +373,11 @@ static JotGLContext *mainThreadContext;
             [saveInvocation setArgument:&block atIndex:5];
             [saveInvocation retainArguments];
             [exportLaterInvocations addObject:saveInvocation];
+        }else{
+            // we have to call the export finish block, no matter what.
+            // so call the block and send nil b/c we're not actually done
+            // exporting.
+            exportFinishBlock(nil, nil, nil);
         }
         return;
     }
