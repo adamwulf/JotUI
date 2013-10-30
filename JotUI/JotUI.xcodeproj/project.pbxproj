@@ -741,7 +741,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/adam/Documents/Code/loose-leaf/Loose\\ Leaf/Submodules/JotUI/JotTouchSDK",
+					"\"$(SRCROOT)/../JotTouchSDK\"",
 				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -780,7 +780,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/adam/Documents/Code/loose-leaf/Loose\\ Leaf/Submodules/JotUI/JotTouchSDK",
+					"\"$(SRCROOT)/../JotTouchSDK\"",
 				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
