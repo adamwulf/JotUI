@@ -252,10 +252,6 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     int numberOfVertices = [self numberOfVertices];
     numberOfBytesOfVertexData = [self numberOfBytesGivenPreviousElement:previousElement];
     
-    if(!vertexBufferShouldContainColor){
-        [self calculateAndCacheColorComponents];
-    }
-    
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;
     void* vertexBuffer = malloc(numberOfBytesOfVertexData);
@@ -263,6 +259,10 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // save our scale, we're only going to cache a vertex
     // buffer for 1 scale at a time
     scaleOfVertexBuffer = scale;
+    
+    if(!vertexBufferShouldContainColor){
+        [self calculateAndCacheColorComponents];
+    }
     
     // since kBrushStepSize doesn't exactly divide into our segment length,
     // let's find a step size that /does/ exactly divide into our segment length
