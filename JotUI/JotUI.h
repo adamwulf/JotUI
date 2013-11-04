@@ -30,8 +30,9 @@
 #import <JotUI/JotStrokeManager.h>
 #import <JotUI/JotGLTextureBackedFrameBuffer.h>
 #import <JotUI/JotViewImmutableState.h>
-#import <JotUI/JotViewState.h>
 #import <JotUI/JotGLContext.h>
+#import <JotUI/JotViewStateProxy.h>
+#import <JotUI/JotViewStateProxyDelegate.h>
 
 
 typedef struct {

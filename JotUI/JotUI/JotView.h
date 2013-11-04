@@ -16,15 +16,15 @@
 #import "JotUI/JotStroke.h"
 #import "JotUI/JotGLTextureBackedFrameBuffer.h"
 #import "JotUI/JotBrushTexture.h"
-#import "JotUI/JotViewState.h"
+#import "JotUI/JotViewStateProxyDelegate.h"
 
 @class JotViewImmutableState;
 
 @class SegmentSmoother, UIPalmView;
 
-@interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>
+@interface JotView : UIView<JotPalmRejectionDelegate,JotViewStateProxyDelegate>
 
-@property (readonly) JotViewState* state;
+@property (readonly) JotViewStateProxy* state;
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
 @property (nonatomic, strong) JotBrushTexture* brushTexture;
 @property (readonly) JotGLContext *context;
@@ -57,7 +57,7 @@
          onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock;
 
 // imports an image
--(void) loadState:(JotViewState*)newState;
+-(void) loadState:(JotViewStateProxy*)newState;
 
 +(dispatch_queue_t) importExportImageQueue;
 

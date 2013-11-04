@@ -21,8 +21,8 @@
     return [self initWithMinSize:22.0 andMaxSize:30.0 andMinAlpha:.3 andMaxAlpha:.5];
 }
 
--(UIImage*) texture{
-    return [UIImage imageNamed:@"Rectangle.png"];
+-(JotBrushTexture*) texture{
+    return [JotDefaultBrushTexture sharedInstace];
 }
 
 

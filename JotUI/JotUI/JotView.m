@@ -70,7 +70,7 @@ dispatch_queue_t importExportStateQueue;
 
     // a handle to the image used as the current brush texture
     __strong JotBrushTexture* brushTexture;
-    JotViewState* state;
+    JotViewStateProxy* state;
     
     CGSize initialFrameSize;
     
@@ -317,7 +317,7 @@ static JotGLContext *mainThreadContext;
  *
  * This method must be called at least one time after initialization
  */
--(void) loadState:(JotViewState*)newState{
+-(void) loadState:(JotViewStateProxy*)newState{
     CheckMainThread;
     if(state != newState){
         state.delegate = nil;
@@ -1198,7 +1198,7 @@ static int undoCounter;
 }
 
 
-#pragma mark - JotStrokeDelegate
+#pragma mark - JotViewStateProxyDelegate
 
 -(void) jotStrokeWasCancelled:(JotStroke*)stroke{
 
@@ -1214,6 +1214,14 @@ static int undoCounter;
             return;
         }
     }
+}
+
+-(void) didLoadState:(JotViewStateProxy*)state{
+    NSLog(@"JotView didLoadState:");
+}
+
+-(void) didUnloadState:(JotViewStateProxy*)state{
+    NSLog(@"JotView didUnloadState:");
 }
 
 

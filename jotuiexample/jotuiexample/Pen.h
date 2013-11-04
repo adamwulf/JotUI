@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 #import <JotUI/JotUI.h>
+#import <JotUI/JotDefaultBrushTexture.h>
+#import <JotUI/JotBrushTexture.h>
 
 #define           VELOCITY_CLAMP_MIN 20
 #define           VELOCITY_CLAMP_MAX 5000
@@ -37,7 +39,7 @@
 @property (nonatomic, assign) CGFloat minAlpha;
 @property (nonatomic, assign) CGFloat maxAlpha;
 @property (nonatomic) __strong UIColor* color;
-@property (nonatomic, readonly) UIImage* texture;
+@property (nonatomic, readonly) JotBrushTexture* texture;
 /**
  * the velocity of the last touch, between 0 and 1
  *

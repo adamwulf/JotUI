@@ -7,12 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F7D1828501B00B7442F /* JotViewStateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 66696F7E1828501B00B7442F /* JotViewStateProxy.m */; };
+		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		669B39BC1692B46B00F12F42 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39BB1692B46B00F12F42 /* SenTestingKit.framework */; };
 		669B39BF1692B46B00F12F42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
 		669B39CA1692B46B00F12F42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 669B39C81692B46B00F12F42 /* InfoPlist.strings */; };
 		669B39CD1692B46B00F12F42 /* JotUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39CC1692B46B00F12F42 /* JotUITests.m */; };
 		66AC155818079A72005315C8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
-		66AC155E18079A72005315C8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 66AC155C18079A72005315C8 /* InfoPlist.strings */; };
 		66AC156318079B27005315C8 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2F1766D133003F4F67 /* UIImage+Resize.m */; };
 		66AC156418079B27005315C8 /* UIImage+RoundedCorner.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F331766D220003F4F67 /* UIImage+RoundedCorner.m */; };
 		66AC156518079B27005315C8 /* UIImage+Alpha.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F351766D220003F4F67 /* UIImage+Alpha.m */; };
@@ -66,7 +68,7 @@
 		66F1F1F818079BD700B8CE3B /* AbstractBezierPathElement-Protected.h in Headers */ = {isa = PBXBuildFile; fileRef = 6695B6D0174D497B0069E61F /* AbstractBezierPathElement-Protected.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1F918079BD700B8CE3B /* MoveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FA18079BD700B8CE3B /* CurveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DB1692B50500F12F42 /* CurveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 6622F9D11774E72400C06825 /* JotViewState.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 6622F9D11774E72400C06825 /* JotViewState.h */; };
 		66F1F1FC18079BD700B8CE3B /* JotViewImmutableState.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E617761C2300F26904 /* JotViewImmutableState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FD18079BD700B8CE3B /* JotView.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B3A2F1692B68F00F12F42 /* JotView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -92,6 +94,9 @@
 		66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLTextureBackedFrameBuffer.m; sourceTree = "<group>"; };
 		6648A52217F0E09000117ECB /* JotGLContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLContext.h; sourceTree = "<group>"; };
 		6648A52317F0E09000117ECB /* JotGLContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLContext.m; sourceTree = "<group>"; };
+		66696F7D1828501B00B7442F /* JotViewStateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxy.h; sourceTree = "<group>"; };
+		66696F7E1828501B00B7442F /* JotViewStateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewStateProxy.m; sourceTree = "<group>"; };
+		66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxyDelegate.h; sourceTree = "<group>"; };
 		668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMWeakTimerTarget.h; sourceTree = "<group>"; };
 		668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMWeakTimerTarget.m; sourceTree = "<group>"; };
 		6691EED3179B7097007BBD15 /* JotBufferManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBufferManager.h; sourceTree = "<group>"; };
@@ -130,9 +135,6 @@
 		66AA82E617761C2300F26904 /* JotViewImmutableState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewImmutableState.h; sourceTree = "<group>"; };
 		66AA82E717761C2300F26904 /* JotViewImmutableState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewImmutableState.m; sourceTree = "<group>"; };
 		66AC155718079A71005315C8 /* JotUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = JotUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		66AC155B18079A72005315C8 /* JotUI-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "JotUI-Info.plist"; sourceTree = "<group>"; };
-		66AC155D18079A72005315C8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		66AC155F18079A72005315C8 /* JotUI-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotUI-Prefix.pch"; sourceTree = "<group>"; };
 		66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBrushTexture.h; sourceTree = "<group>"; };
 		66BF7F20176675E0003F4F67 /* JotBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotBrushTexture.m; sourceTree = "<group>"; };
 		66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotDefaultBrushTexture.h; sourceTree = "<group>"; };
@@ -192,7 +194,6 @@
 				669B39F21692B52800F12F42 /* JotUI.h */,
 				669B39AE1692B46A00F12F42 /* JotUI */,
 				669B39C51692B46B00F12F42 /* JotUITests */,
-				66AC155918079A72005315C8 /* JotUI */,
 				669B39AB1692B46A00F12F42 /* Frameworks */,
 				669B39AA1692B46A00F12F42 /* Products */,
 			);
@@ -285,9 +286,9 @@
 				66AA82E517761BBF00F26904 /* State */,
 				669B3A2F1692B68F00F12F42 /* JotView.h */,
 				669B3A301692B68F00F12F42 /* JotView.m */,
+				669B3A971692BADA00F12F42 /* JotViewDelegate.h */,
 				668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */,
 				668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */,
-				669B3A971692BADA00F12F42 /* JotViewDelegate.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -345,28 +346,13 @@
 			children = (
 				6622F9D11774E72400C06825 /* JotViewState.h */,
 				6622F9D21774E72400C06825 /* JotViewState.m */,
+				66696F7D1828501B00B7442F /* JotViewStateProxy.h */,
+				66696F7E1828501B00B7442F /* JotViewStateProxy.m */,
+				66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */,
 				66AA82E617761C2300F26904 /* JotViewImmutableState.h */,
 				66AA82E717761C2300F26904 /* JotViewImmutableState.m */,
 			);
 			name = State;
-			sourceTree = "<group>";
-		};
-		66AC155918079A72005315C8 /* JotUI */ = {
-			isa = PBXGroup;
-			children = (
-				66AC155A18079A72005315C8 /* Supporting Files */,
-			);
-			path = JotUI;
-			sourceTree = "<group>";
-		};
-		66AC155A18079A72005315C8 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				66AC155B18079A72005315C8 /* JotUI-Info.plist */,
-				66AC155C18079A72005315C8 /* InfoPlist.strings */,
-				66AC155F18079A72005315C8 /* JotUI-Prefix.pch */,
-			);
-			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
 		66BF7F1E176675CE003F4F67 /* Brush Texture */ = {
@@ -421,11 +407,13 @@
 				66F1F1F818079BD700B8CE3B /* AbstractBezierPathElement-Protected.h in Headers */,
 				66F1F1F918079BD700B8CE3B /* MoveToPathElement.h in Headers */,
 				66F1F1FA18079BD700B8CE3B /* CurveToPathElement.h in Headers */,
-				66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */,
 				66F1F1FC18079BD700B8CE3B /* JotViewImmutableState.h in Headers */,
 				66F1F1FD18079BD700B8CE3B /* JotView.h in Headers */,
+				66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */,
 				66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */,
+				66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */,
 				66F1F1FF18079BD700B8CE3B /* JotViewDelegate.h in Headers */,
+				66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -511,7 +499,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				66AC155E18079A72005315C8 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -590,6 +577,7 @@
 				66AC156518079B27005315C8 /* UIImage+Alpha.m in Sources */,
 				66AC156618079B27005315C8 /* NSMutableSet+Extras.m in Sources */,
 				66AC156718079B27005315C8 /* UIColor+JotHelper.m in Sources */,
+				66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */,
 				66AC156818079B27005315C8 /* NSArray+JotMapReduce.m in Sources */,
 				66AC156918079B27005315C8 /* JotTrashManager.m in Sources */,
 				66AC156A18079B27005315C8 /* JotBufferManager.m in Sources */,
@@ -629,14 +617,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				669B39C91692B46B00F12F42 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		66AC155C18079A72005315C8 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				66AC155D18079A72005315C8 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";

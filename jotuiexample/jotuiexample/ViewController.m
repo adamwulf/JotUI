@@ -218,8 +218,8 @@
 
 
 -(IBAction) saveImage{
-    [jotView exportToImageWithBackgroundColor:nil andBackgroundImage:nil onComplete:^(UIImage* image){
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+    [jotView exportImageTo:nil andThumbnailTo:nil andStateTo:nil onComplete:^(UIImage* ink, UIImage* thumb, JotViewImmutableState*state){
+        UIImageWriteToSavedPhotosAlbum(thumb, nil, nil, nil);
     }];
 }
 
@@ -237,7 +237,6 @@
 }
 - (void) imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo
 {
-    [jotView loadImage:image];
     [popoverController dismissPopoverAnimated:YES];
     popoverController = nil;
 }

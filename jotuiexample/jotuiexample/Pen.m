@@ -40,8 +40,8 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
     return [self initWithMinSize:6.0 andMaxSize:15.0 andMinAlpha:0.9 andMaxAlpha:0.9];
 }
 
--(UIImage*) texture{
-    return [UIImage imageNamed:@"Circle.png"];
+-(JotBrushTexture*) texture{
+    return [JotDefaultBrushTexture sharedInstace];
 }
 
 #pragma mark - Setters

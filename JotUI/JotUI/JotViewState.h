@@ -18,24 +18,38 @@
 
 @interface JotViewState : NSObject<JotStrokeDelegate>
 
-//
-// begin possible state object
-@property (nonatomic, strong) JotGLTexture* backgroundTexture;
+// ability to cancel strokes
 @property (nonatomic, weak) NSObject<JotStrokeDelegate>* delegate;
+
+// backing textures
+@property (nonatomic, strong) JotGLTexture* backgroundTexture;
 @property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
+// backing strokes
 @property (nonatomic, readonly)  NSMutableDictionary* currentStrokes;
 @property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
 @property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
 @property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
-@property (nonatomic) NSUInteger undoLimit;
+// opengl backing memory
 @property (nonatomic, readonly) JotBufferManager* bufferManager;
 
 
+/**
+ * synchronous init method to load textures and strokes
+ * from disk
+ */
 -(id) initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
             andPageSize:(CGSize)fullPixelSize
            andGLContext:(JotGLContext*)glContext
        andBufferManager:(JotBufferManager*)bufferManager;
+
+/**
+ * this will return an immutable copy of the state
+ * but only if we are ready to export
+ *
+ * otherwise it will throw an exception
+ */
+-(JotViewImmutableState*) immutableState;
 
 /**
  * this will return YES only
@@ -61,14 +75,6 @@
  * that need to be
  */
 -(void) tick;
-
-/**
- * this will return an immutable copy of the state
- * but only if we are ready to export
- *
- * otherwise it will throw an exception
- */
--(JotViewImmutableState*) immutableState;
 
 /**
  * a unique value that defines the current undo state.

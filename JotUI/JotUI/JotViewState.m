@@ -42,7 +42,6 @@
     __strong NSMutableArray* stackOfStrokes;
     __strong NSMutableArray* stackOfUndoneStrokes;
     NSMutableArray* strokesBeingWrittenToBackingTexture;
-    NSUInteger undoLimit;
     JotBufferManager* bufferManager;
 }
 
@@ -53,7 +52,6 @@
 @synthesize stackOfStrokes;
 @synthesize stackOfUndoneStrokes;
 @synthesize strokesBeingWrittenToBackingTexture;
-@synthesize undoLimit;
 @synthesize bufferManager;
 
 -(id) init{
@@ -63,7 +61,6 @@
         stackOfStrokes = [NSMutableArray array];
         stackOfUndoneStrokes = [NSMutableArray array];
         strokesBeingWrittenToBackingTexture = [NSMutableArray array];
-        undoLimit = kJotDefaultUndoLimit;
     }
     return self;
 }
@@ -188,8 +185,8 @@
 
 
 -(void) tick{
-    if([self.stackOfStrokes count] > self.undoLimit){
-        while([self.stackOfStrokes count] > self.undoLimit){
+    if([self.stackOfStrokes count] > kJotDefaultUndoLimit){
+        while([self.stackOfStrokes count] > kJotDefaultUndoLimit){
 //            NSLog(@"== eating strokes");
             
             [self.strokesBeingWrittenToBackingTexture addObject:[self.stackOfStrokes objectAtIndex:0]];
@@ -218,12 +215,12 @@
     [self tick];
     if([strokesBeingWrittenToBackingTexture count] ||
        [currentStrokes count] ||
-       [stackOfStrokes count] > undoLimit){
+       [stackOfStrokes count] > kJotDefaultUndoLimit){
         if([currentStrokes count]){
 //            NSLog(@"cant save, currently drawing");
         }else if([strokesBeingWrittenToBackingTexture count]){
 //            NSLog(@"can't save, writing to texture");
-        }else if([stackOfStrokes count] > undoLimit){
+        }else if([stackOfStrokes count] > kJotDefaultUndoLimit){
 //            NSLog(@"can't save, more strokes than undo");
         }
         return NO;
