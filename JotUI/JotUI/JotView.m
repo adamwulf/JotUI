@@ -384,7 +384,7 @@ static JotGLContext *mainThreadContext;
     
     @synchronized(self){
         isCurrentlyExporting = YES;
-        NSLog(@"export begins: %d", (int) self);
+        NSLog(@"export begins: %d hash:%d", (int) self, state.undoHash);
     }
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -571,18 +571,16 @@ static JotGLContext *mainThreadContext;
     // reset back to exact viewport
     glViewport(0, 0, initialViewport.width, initialViewport.height);
 
+    // we have to flush here to push all
+    // the pixels to the texture so they're
+    // available in the background thread's
+    // context
+    [context flush];
+
     //
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
         @autoreleasepool {
-            // we have to flush the main queue's context
-            // so that all of the pixels have been pushed
-            // through the GPU onto the texture. otherwise
-            // we risk exporting and old state of the texture
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [context flush];
-            });
-            
             JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
             [JotGLContext setCurrentContext:subContext];
             glViewport(0, 0, fullSize.width, fullSize.height);
@@ -604,13 +602,12 @@ static JotGLContext *mainThreadContext;
             glPixelStorei(GL_PACK_ALIGNMENT, 4);
             glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
             
+            printOpenGLError();
+            
             // now we've read our data out from gl into *data
             // so delete the export framebuffer
             glDeleteFramebuffersOES(1, &exportFramebuffer);
             glDeleteTextures(1, &canvastexture);
-            
-
-            
             
             // Create a CGImage with the pixel data from OpenGL
             // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
@@ -745,17 +742,16 @@ static JotGLContext *mainThreadContext;
 
     // reset our viewport
     glViewport(0, 0, initialViewport.width, initialViewport.height);
-    
+
+    // we have to flush here to push all
+    // the pixels to the texture so they're
+    // available in the background thread's
+    // context
+    [context flush];
+
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
         @autoreleasepool {
-            // we have to flush the main queue's context
-            // so that all of the pixels have been pushed
-            // through the GPU onto the texture. otherwise
-            // we risk exporting and old state of the texture
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [context flush];
-            });
             
             JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
             [JotGLContext setCurrentContext:subContext];
@@ -885,6 +881,10 @@ static JotGLContext *mainThreadContext;
     // that fills the screen
     [state.backgroundTexture drawInContext:renderContext];
     
+    if(!state.backgroundTexture){
+        NSLog(@"what");
+    }
+    
     //
     // ok, we're done rendering the background texture to the quad
     //
@@ -898,6 +898,10 @@ static JotGLContext *mainThreadContext;
     // now draw the strokes
     
     int c = 0;
+    
+    if(![state everyVisibleStroke] || ![[state everyVisibleStroke] count]){
+        NSLog(@"what");
+    }
     
     for(JotStroke* stroke in [state everyVisibleStroke]){
         // make sure our texture is the correct one for this stroke
@@ -1733,6 +1737,10 @@ static int undoCounter;
  */
 - (void) dealloc
 {
+    if(isCurrentlyExporting){
+        NSLog(@"what");
+    }
+    
     [self destroyFramebuffer];
     [[JotStylusManager sharedInstance] unregisterView:self];
 
