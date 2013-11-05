@@ -384,7 +384,7 @@ static JotGLContext *mainThreadContext;
     
     @synchronized(self){
         isCurrentlyExporting = YES;
-        NSLog(@"export begins: %@", [NSDate date]);
+        NSLog(@"export begins: %d", (int) self);
     }
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -489,7 +489,7 @@ static JotGLContext *mainThreadContext;
                 // and will fire after we're done. (from validateUndoState).
                 isCurrentlyExporting = NO;
             }
-            NSLog(@"export ends: %@", [NSDate date]);
+            NSLog(@"export ends: %d", (int) self);
         }
     });
 }

@@ -96,6 +96,9 @@ dispatch_queue_t loadUnloadStateQueue;
 -(void) unload{
     @synchronized(self){
         shouldKeepStateLoaded = NO;
+        if([self hasEditsToSave]){
+            NSLog(@"what??");
+        }
         if(!isLoadingState && jotViewState){
             jotViewState = nil;
             [self.delegate didUnloadState:self];
@@ -162,5 +165,12 @@ dispatch_queue_t loadUnloadStateQueue;
     return [self.jotViewState undoHash] != lastSavedUndoHash;
 }
 
+
+
+-(void) dealloc{
+    if([self hasEditsToSave]){
+        NSLog(@"oh no %d", [self hasEditsToSave]);
+    }
+}
 
 @end
