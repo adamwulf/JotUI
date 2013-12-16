@@ -33,7 +33,7 @@
 #import <JotUI/JotGLContext.h>
 #import <JotUI/JotViewStateProxy.h>
 #import <JotUI/JotViewStateProxyDelegate.h>
-
+#import <JotUI/NSArray+JotMapReduce.h>
 
 typedef struct {
 	GLfloat	x;
