@@ -22,7 +22,6 @@ int printOglError(char *file, int line);
 
 @property (nonatomic, strong) UIColor* color;
 @property (nonatomic, assign) CGFloat width;
-@property (nonatomic, assign) CGFloat  rotation;
 
 -(id) initWithStart:(CGPoint)point;
 
@@ -37,11 +36,6 @@ int printOglError(char *file, int line);
 -(void) validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
 
 -(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
-
--(void) arrayOfPositionsForPoint:(CGPoint)point
-                            andWidth:(CGFloat)stepWidth
-                     andRotation:(CGFloat)stepRotation
-                        outArray:(CGPoint*)pointArr;
 
 -(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2;
 

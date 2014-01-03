@@ -37,7 +37,6 @@ int printOglError(char *file, int line)
 @synthesize startPoint;
 @synthesize width;
 @synthesize color;
-@synthesize rotation;
 @synthesize bufferManager;
 
 -(id) initWithStart:(CGPoint)point{
@@ -122,43 +121,10 @@ int printOglError(char *file, int line)
     @throw kAbstractMethodException;
 }
 
-
-/**
- * will calculate a square of coordinates that can
- * be filled with the texture of the brush.
- * results are returned through pointArr
- */
--(void) arrayOfPositionsForPoint:(CGPoint)point
-                            andWidth:(CGFloat)stepWidth
-                         andRotation:(CGFloat)stepRotation
-                            outArray:(CGPoint*)pointArr{
-    point.x = point.x * scaleOfVertexBuffer;
-    point.y = point.y * scaleOfVertexBuffer;
-    
-    CGRect rect = CGRectMake(point.x - stepWidth/2, point.y - stepWidth/2, stepWidth, stepWidth);
-    
-    CGPoint topLeft  = rect.origin; topLeft.y += rect.size.width;
-    CGPoint topRight = rect.origin; topRight.y += rect.size.width; topRight.x += rect.size.width;
-    CGPoint botLeft  = rect.origin;
-    CGPoint botRight = rect.origin; botRight.x += rect.size.width;
-    
-    // translate + rotate + translate each point to rotate it
-    CGAffineTransform translateTransform = CGAffineTransformMakeTranslation(point.x, point.y);
-    CGAffineTransform rotationTransform = CGAffineTransformMakeRotation(stepRotation);
-    CGAffineTransform customRotation = CGAffineTransformConcat(CGAffineTransformConcat( CGAffineTransformInvert(translateTransform), rotationTransform), translateTransform);
-    
-    topLeft = CGPointApplyAffineTransform(topLeft, customRotation);
-    topRight = CGPointApplyAffineTransform(topRight, customRotation);
-    botLeft = CGPointApplyAffineTransform(botLeft, customRotation);
-    botRight = CGPointApplyAffineTransform(botRight, customRotation);
-    
-    pointArr[0] = topLeft;
-    pointArr[1] = topRight;
-    pointArr[2] = botLeft;
-    pointArr[3] = botRight;
-    pointArr[4] = topRight;
-    pointArr[5] = botLeft;
+-(UIBezierPath*) bezierPathSegment{
+    @throw kAbstractMethodException;
 }
+
 
 -(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2 {
     // Provides a directional bearing from point2 to the given point.
@@ -196,7 +162,6 @@ int printOglError(char *file, int line)
             [NSNumber numberWithFloat:startPoint.y], @"startPoint.y",
             [NSNumber numberWithFloat:width], @"width",
             (color ? [color asDictionary] : [NSDictionary dictionary]), @"color",
-            [NSNumber numberWithFloat:rotation], @"rotation",
             [NSNumber numberWithFloat:scaleOfVertexBuffer], @"scaleOfVertexBuffer", nil];
 }
 
@@ -206,7 +171,6 @@ int printOglError(char *file, int line)
         startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
         width = [[dictionary objectForKey:@"width"] floatValue];
         color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
-        rotation = [[dictionary objectForKey:@"rotation"] floatValue];
         scaleOfVertexBuffer = [[dictionary objectForKey:@"scaleOfVertexBuffer"] floatValue];
     }
     return self;

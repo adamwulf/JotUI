@@ -297,7 +297,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         // 0 <= t < 1 representing where we are in the stroke element
         CGFloat t = (CGFloat)step / (CGFloat)numberOfVertices;
         
-        // current rotation
+        // current width
         CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
         
         // calculate the point that is realStepSize distance
@@ -671,6 +671,13 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
     }else{
         // noop, we're good
     }
+}
+
+-(UIBezierPath*) bezierPathSegment{
+    UIBezierPath* strokePath = [UIBezierPath bezierPath];
+    [strokePath moveToPoint:self.startPoint];
+    [strokePath addCurveToPoint:self.endPoint controlPoint1:self.ctrl1 controlPoint2:self.ctrl2];
+    return strokePath;
 }
 
 

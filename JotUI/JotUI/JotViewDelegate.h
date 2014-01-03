@@ -44,16 +44,6 @@
 - (CGFloat) smoothnessForTouch:(JotTouch*)touch;
 
 /**
- * defines to what angle the stroke will rotate during
- * this segment
- *
- * a value of 0 will cause sharp points at each touch location,
- * a value of 1 will be very rounded at each touch point
- * values > 1 or < 0 will be knotted or loopy at each touch point
- */
-- (CGFloat) rotationForSegment:(AbstractBezierPathElement*)segment fromPreviousSegment:(AbstractBezierPathElement*)previousSegment;
-
-/**
  * notifies the delegate that the input segments will be added to the stroke,
  * and allows the delegate to return a modified array of elements
  * to add instead

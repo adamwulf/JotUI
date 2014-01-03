@@ -43,7 +43,6 @@ struct ColorlessVertex{
     CGPoint startPoint;
     CGFloat width;
     UIColor* color;
-    CGFloat rotation;
     
     NSData* dataVertexBuffer;
     CGFloat scaleOfVertexBuffer;
@@ -53,7 +52,6 @@ struct ColorlessVertex{
 @property (nonatomic, readonly) CGFloat width;
 @property (nonatomic, readonly) CGPoint startPoint;
 @property (nonatomic, readonly) CGPoint endPoint;
-@property (nonatomic, readonly) CGFloat rotation;
 @property (nonatomic, readonly) CGRect bounds;
 @property (nonatomic, strong) JotBufferManager* bufferManager;
 
@@ -61,4 +59,6 @@ struct ColorlessVertex{
 -(CGFloat) angleOfStart;
 -(CGFloat) angleOfEnd;
 -(void) adjustStartBy:(CGPoint)adjustment;
+-(UIBezierPath*) bezierPathSegment;
+
 @end

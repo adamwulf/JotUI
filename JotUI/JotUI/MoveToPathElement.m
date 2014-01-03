@@ -90,6 +90,11 @@
     // noop, we don't have data
 }
 
+-(UIBezierPath*) bezierPathSegment{
+    UIBezierPath* strokePath = [UIBezierPath bezierPath];
+    [strokePath moveToPoint:self.startPoint];
+    return strokePath;
+}
 
 
 #pragma mark - hashing and equality

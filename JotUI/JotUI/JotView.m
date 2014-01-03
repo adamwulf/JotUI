@@ -1009,7 +1009,6 @@ static JotGLContext *mainThreadContext;
     // ok, we have the new element, set its color/width/rotation
     addedElement.color = color;
     addedElement.width = width;
-    addedElement.rotation = [self.delegate rotationForSegment:addedElement fromPreviousSegment:previousElement];
     // now tell the stroke that it's added
 
     // let our delegate have an opportunity to modify the element array
