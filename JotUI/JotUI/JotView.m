@@ -1322,7 +1322,6 @@ static int undoCounter;
                 MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
                 moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
                 moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
-                moveTo.rotation = [[currentStroke.segments lastObject] rotation];
                 [newStroke addElement:moveTo];
             };
         }
@@ -1489,7 +1488,6 @@ static int undoCounter;
                     MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
                     moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
                     moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
-                    moveTo.rotation = [[currentStroke.segments lastObject] rotation];
                     [newStroke addElement:moveTo];
                 };
             }

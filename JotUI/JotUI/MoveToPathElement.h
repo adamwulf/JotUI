@@ -16,8 +16,6 @@
  */
 @interface MoveToPathElement : AbstractBezierPathElement
 
-@property (nonatomic, assign) CGFloat  rotation;
-
 +(id) elementWithMoveTo:(CGPoint)point;
 
 @end
