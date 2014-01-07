@@ -94,7 +94,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     bez[2] = ctrl2;
     bez[3] = curveTo;
     
-    length = lengthOfBezier(bez, .1);
+    length = jotLengthOfBezier(bez, .1);
     return length;
 }
 
@@ -534,7 +534,7 @@ static inline CGFloat distanceBetween(CGPoint a, CGPoint b){
  * estimates the length along the curve of the
  * input bezier within the input acceptableError
  */
-CGFloat lengthOfBezier(const  CGPoint bez[4], CGFloat acceptableError){
+CGFloat jotLengthOfBezier(const  CGPoint bez[4], CGFloat acceptableError){
     CGFloat   polyLen = 0.0;
     CGFloat   chordLen = distanceBetween (bez[0], bez[3]);
     CGFloat   retLen, errLen;
@@ -548,8 +548,8 @@ CGFloat lengthOfBezier(const  CGPoint bez[4], CGFloat acceptableError){
     if (errLen > acceptableError) {
         CGPoint left[4], right[4];
         subdivideBezier (bez, left, right);
-        retLen = (lengthOfBezier (left, acceptableError)
-                  + lengthOfBezier (right, acceptableError));
+        retLen = (jotLengthOfBezier (left, acceptableError)
+                  + jotLengthOfBezier (right, acceptableError));
     } else {
         retLen = 0.5 * (polyLen + chordLen);
     }
@@ -581,7 +581,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         int lengthCacheIndex = (int)floorf(t*1000);
         len1 = subBezierlengthCache[lengthCacheIndex];
         if(!len1){
-            len1 = lengthOfBezier (bez1, 0.5 * acceptableError);
+            len1 = jotLengthOfBezier (bez1, 0.5 * acceptableError);
             subBezierlengthCache[lengthCacheIndex] = len1;
         }
         
