@@ -1246,12 +1246,12 @@ static int undoCounter;
                      andSmoothness:0.7];
     
     [self addLineToAndRenderStroke:newStroke
-                           toPoint:CGPointMake(600, 900)
+                           toPoint:CGPointMake(700, 700)
                            toWidth:6
                            toColor:[UIColor redColor]
                      andSmoothness:0.7];
     [self addLineToAndRenderStroke:newStroke
-                           toPoint:CGPointMake(600, 900)
+                           toPoint:CGPointMake(700, 700)
                            toWidth:30
                            toColor:[UIColor blueColor]
                      andSmoothness:0.7];
@@ -1676,6 +1676,12 @@ static int undoCounter;
  */
 -(void) addElements:(NSArray*)elements{
     if(!state) return;
+    
+    BOOL needsPresent = NO;
+    if([JotGLContext currentContext] != self.context){
+        [(JotGLContext*)[JotGLContext currentContext] flush];
+        [JotGLContext setCurrentContext:self.context];
+    }
 
     JotStroke* stroke = [state.stackOfStrokes lastObject];
     BOOL strokeHasColor = [[stroke.segments lastObject] color] != nil;
@@ -1696,11 +1702,6 @@ static int undoCounter;
     }
     [stroke.texture bind];
 
-    BOOL needsPresent = NO;
-    if([JotGLContext currentContext] != self.context){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:self.context];
-    }
     for(AbstractBezierPathElement* element in elements){
         AbstractBezierPathElement* prevElement = [stroke.segments lastObject];
         
