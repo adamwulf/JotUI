@@ -1614,6 +1614,22 @@ static int undoCounter;
     }
 }
 
+-(void) redrawWithAngle:(CGFloat)angle{
+    if([JotGLContext currentContext] != context){
+        [(JotGLContext*)[JotGLContext currentContext] flush];
+        [JotGLContext setCurrentContext:context];
+    }
+    
+    glPushMatrix();
+    glTranslatef(self.bounds.size.width / 2, self.bounds.size.height/2, 0);
+    glRotatef(angle * 180 / M_PI, 0, 0, 1.0);
+    glScalef((cosf(angle) + 1) / 2, (cosf(angle) + 1) / 2, 1.0);
+    glTranslatef(-self.bounds.size.width / 2, -self.bounds.size.height/2, 0);
+
+    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+    glPopMatrix();
+}
+
 
 /**
  * erase the screen
