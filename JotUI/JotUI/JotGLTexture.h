@@ -19,6 +19,8 @@
 
 -(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size;
 
+-(id) initForTextureID:(GLuint)textureID withSize:(CGSize)size;
+
 -(void) bind;
 
 -(void) drawInContext:(JotGLContext*)context;

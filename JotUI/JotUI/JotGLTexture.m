@@ -116,6 +116,14 @@
     return self;
 }
 
+-(id) initForTextureID:(GLuint)_textureID withSize:(CGSize)_size{
+    if(self = [super init]){
+        fullPixelSize = _size;
+        textureID = _textureID;
+    }
+    return self;
+}
+
 -(CGSize) pixelSize{
     return fullPixelSize;
 }

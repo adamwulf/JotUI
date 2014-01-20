@@ -1621,10 +1621,15 @@ static int undoCounter;
     }
     
     glPushMatrix();
-    glTranslatef(self.bounds.size.width / 2, self.bounds.size.height/2, 0);
+    glOrthof(0, 0, 200, 200, -1, 1);
+//    glTranslatef(self.bounds.size.width / 2, self.bounds.size.height/2, 0);
     glRotatef(angle * 180 / M_PI, 0, 0, 1.0);
-    glScalef((cosf(angle) + 1) / 2, (cosf(angle) + 1) / 2, 1.0);
-    glTranslatef(-self.bounds.size.width / 2, -self.bounds.size.height/2, 0);
+//    CGFloat scale = (cosf(angle) + 1) / 2;
+//    glScalef(scale, scale, 1.0);
+    
+    // here i render all strokes.
+    // instead, i should render what's in the render buffer itself
+    // to the other scrap's buffer.
 
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     glPopMatrix();
@@ -1762,6 +1767,112 @@ static int undoCounter;
         [(JotGLContext*)[JotGLContext currentContext] flush];
 		[JotGLContext setCurrentContext:nil];
 	}
+}
+
+#pragma mark - OpenGL
+
+-(JotGLTexture*) generateTexture{
+    CheckMainThread;
+    
+    if([JotGLContext currentContext] != context){
+        [(JotGLContext*)[JotGLContext currentContext] flush];
+        [JotGLContext setCurrentContext:context];
+    }
+    
+    CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+    
+	GLuint exportFramebuffer;
+    
+    glGenFramebuffersOES(1, &exportFramebuffer);
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+    GLuint canvastexture;
+    
+    // create the texture
+    glGenTextures(1, &canvastexture);
+    glBindTexture(GL_TEXTURE_2D, canvastexture);
+    
+    //
+    // http://stackoverflow.com/questions/5835656/glframebuffertexture2d-fails-on-iphone-for-certain-texture-sizes
+    // these are required for non power of 2 textures on iPad 1 version of OpenGL1.1
+    // otherwise, the glCheckFramebufferStatusOES will be GL_FRAMEBUFFER_UNSUPPORTED_OES
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
+    
+    GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+    if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
+        NSLog(@"failed to make complete framebuffer object %x", status);
+    }
+    
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    
+    // set viewport to round up to the pixel, if needed
+    glViewport(0, 0, fullSize.width, fullSize.height);
+    
+    // ok, everything is setup at this point, so render all
+    // of the strokes over the backing texture to our
+    // export texture
+    [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
+    
+    glDeleteFramebuffersOES(1, &exportFramebuffer);
+    
+    // reset back to exact viewport
+    glViewport(0, 0, initialViewport.width, initialViewport.height);
+    
+    // we have to flush here to push all
+    // the pixels to the texture so they're
+    // available in the background thread's
+    // context
+    [context flush];
+
+    return [[JotGLTexture alloc] initForTextureID:canvastexture withSize:fullSize];
+}
+
+
+
+
+/**
+ * This method will make sure we only keep undoLimit
+ * number of strokes. All others should be written to
+ * our backing texture
+ */
+-(void) drawBackingTexture:(JotGLTexture*)texture{
+    
+    CheckMainThread;
+    
+    if([JotGLContext currentContext] != context){
+        [JotGLContext setCurrentContext:context];
+    }
+    // render it to the backing texture
+    [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID];
+    [state.backgroundFramebuffer willRenderToFrameBuffer];
+
+    //
+    // step 1:
+    // Clear the buffer
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    //
+    // step 2:
+    // load a texture and draw it into a quad
+    // that fills the screen
+    [texture drawInContext:context];
+
+    [self unprepOpenGLState];
+    //
+    // we just drew to the backing texture, so be sure
+    // to flush all openGL commands, so that when we rebind
+    // it'll use the updated texture and won't have any
+    // issues of unsynchronized textures.
+    [(JotGLContext*)[JotGLContext currentContext] flush];
+    
+    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
 }
 
 

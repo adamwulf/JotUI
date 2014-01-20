@@ -69,6 +69,8 @@
 
 -(void) addElements:(NSArray*)elements;
 
+-(JotGLTexture*) generateTexture;
+-(void) drawBackingTexture:(JotGLTexture*)texture;
 
 #pragma mark - debug
 -(void) drawLongLine;
