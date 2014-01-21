@@ -24,11 +24,4 @@
 // to zero opacity
 -(void) clear;
 
-// should call this method to notify the framebuffer that
-// it will be rendered to soon.
-//
-// this helps optimize the export method, so that it will only
-// export if something has been rendered to it
--(void) willRenderToFrameBuffer;
-
 @end

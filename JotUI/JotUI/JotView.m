@@ -1098,7 +1098,6 @@ static int undoCounter;
         
         // render it to the backing texture
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID];
-        [state.backgroundFramebuffer willRenderToFrameBuffer];
 
         // set our brush texture if needed
         [self setBrushTexture:strokeToWriteToTexture.texture];
@@ -1793,7 +1792,6 @@ static int undoCounter;
     }
     // render it to the backing texture
     [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID];
-    [state.backgroundFramebuffer willRenderToFrameBuffer];
 
     //
     // step 1:

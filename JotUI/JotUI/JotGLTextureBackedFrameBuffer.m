@@ -29,7 +29,6 @@ dispatch_queue_t importExportTextureQueue;
  */
 @implementation JotGLTextureBackedFrameBuffer{
     __strong JotGLTexture* texture;
-    BOOL hasBeenModifiedSinceLoading;
 }
 
 @synthesize framebufferID;
@@ -53,7 +52,6 @@ dispatch_queue_t importExportTextureQueue;
             NSLog(@"failed to create texture frame buffer");
             return nil;
         }
-        hasBeenModifiedSinceLoading = NO;
     }
     return self;
 }
@@ -71,10 +69,6 @@ dispatch_queue_t importExportTextureQueue;
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
-}
-
--(void) willRenderToFrameBuffer{
-    hasBeenModifiedSinceLoading = YES;
 }
 
 -(void) unload{
