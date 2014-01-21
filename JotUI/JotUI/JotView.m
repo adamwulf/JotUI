@@ -847,7 +847,7 @@ static JotGLContext *mainThreadContext;
     
     if(!state) return;
     
-    NSLog(@"render all");
+//    NSLog(@"render all");
 
     // set our current OpenGL context
     if([JotGLContext currentContext] != renderContext){
@@ -899,10 +899,6 @@ static JotGLContext *mainThreadContext;
     
     int c = 0;
     
-    if(![state everyVisibleStroke] || ![[state everyVisibleStroke] count]){
-        NSLog(@"what");
-    }
-    
     for(JotStroke* stroke in [state everyVisibleStroke]){
         // make sure our texture is the correct one for this stroke
         if(stroke.texture != brushTexture){
@@ -918,7 +914,7 @@ static JotGLContext *mainThreadContext;
     }
     [self unprepOpenGLState];
     
-    NSLog(@"done render all: %d", c);
+//    NSLog(@"done render all: %d", c);
     
     if(shouldPresent){
         // step 4:
@@ -1621,8 +1617,8 @@ static int undoCounter;
     }
     
     glPushMatrix();
-    glOrthof(0, 0, 200, 200, -1, 1);
-//    glTranslatef(self.bounds.size.width / 2, self.bounds.size.height/2, 0);
+//    glOrthof(0, 0, 200, 200, -1, 1);
+    glTranslatef(self.bounds.size.width / 2, self.bounds.size.height/2, 0);
     glRotatef(angle * 180 / M_PI, 0, 0, 1.0);
 //    CGFloat scale = (cosf(angle) + 1) / 2;
 //    glScalef(scale, scale, 1.0);
@@ -1841,7 +1837,7 @@ static int undoCounter;
  * number of strokes. All others should be written to
  * our backing texture
  */
--(void) drawBackingTexture:(JotGLTexture*)texture{
+-(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4{
     
     CheckMainThread;
     
@@ -1862,7 +1858,7 @@ static int undoCounter;
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [texture drawInContext:context];
+    [texture drawInContext:context atP1:p1 andP2:p2 andP3:p3 andP4:p4 toSize:state.backgroundTexture.pixelSize];
 
     [self unprepOpenGLState];
     //

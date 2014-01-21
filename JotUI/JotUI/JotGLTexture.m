@@ -148,6 +148,15 @@
  * for its full pixel size
  */
 -(void) drawInContext:(JotGLContext*)context{
+    [self drawInContext:context atP1:CGPointMake(0, 1) andP2:CGPointMake(1, 1) andP3:CGPointMake(0, 0) andP4:CGPointMake(1, 0) toSize:fullPixelSize];
+}
+
+
+/**
+ * this will draw the texture at coordinates (0,0)
+ * for its full pixel size
+ */
+-(void) drawInContext:(JotGLContext*)context atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 toSize:(CGSize)size{
     
     [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
     [context glEnableClientState:GL_VERTEX_ARRAY];
@@ -156,25 +165,24 @@
     [context glEnableClientState:GL_TEXTURE_COORD_ARRAY];
     [context glColor4f:1 and:1 and:1 and:1];
     Vertex3D vertices[] = {
-        { 0.0, fullPixelSize.height},
-        { fullPixelSize.width, fullPixelSize.height},
+        { 0.0, size.height},
+        { size.width, size.height},
         { 0.0, 0.0},
-        { fullPixelSize.width, 0.0}
+        { size.width, 0.0}
     };
-    static const GLshort texCoords[] = {
-        0, 1,
-        1, 1,
-        0, 0,
-        1, 0
+    const GLfloat texCoords[] = {
+        p1.x, p1.y,
+        p2.x, p2.y,
+        p3.x, p3.y,
+        p4.x, p4.y
     };
     
     [self bind];
     
     glVertexPointer(2, GL_FLOAT, 0, vertices);
-    glTexCoordPointer(2, GL_SHORT, 0, texCoords);
+    glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 }
-
 
 -(void) dealloc{
 	[self unload];
