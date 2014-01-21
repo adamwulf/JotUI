@@ -1783,7 +1783,7 @@ static int undoCounter;
  * number of strokes. All others should be written to
  * our backing texture
  */
--(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4{
+-(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clip{
     
     CheckMainThread;
     
@@ -1803,7 +1803,7 @@ static int undoCounter;
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [texture drawInContext:context atP1:p1 andP2:p2 andP3:p3 andP4:p4 toSize:state.backgroundTexture.pixelSize];
+    [texture drawInContext:context atP1:p1 andP2:p2 andP3:p3 andP4:p4 toSize:state.backgroundTexture.pixelSize andClip:clip];
 
     [self unprepOpenGLState];
     //
