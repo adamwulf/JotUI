@@ -159,6 +159,7 @@
 -(void) drawInContext:(JotGLContext*)context atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 toSize:(CGSize)size andClip:(UIBezierPath*)clippingPath{
     
     JotGLTexture* clipping;
+    GLuint stencil_rb;
     if(clippingPath){
         
         // generate texture
@@ -203,7 +204,6 @@
     
     if(clippingPath){
         // setup stencil
-        GLuint stencil_rb;
         glGenRenderbuffersOES(1, &stencil_rb);
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, stencil_rb);
         glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, size.width, size.height);
@@ -230,11 +230,6 @@
         
         
         
-        
-        
-        
-        
-
         Vertex3D vertices[] = {
             { 0, size.height},
             { size.width, size.height},
@@ -273,6 +268,8 @@
     
     if(clippingPath){
         glDisable(GL_STENCIL_TEST);
+        glDisable(GL_ALPHA_TEST);
+        glDeleteRenderbuffersOES(1, &stencil_rb);
     }
 }
 
