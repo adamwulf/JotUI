@@ -525,57 +525,10 @@ static JotGLContext *mainThreadContext;
 
     if(!exportFinishBlock) return;
 
-    CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+    
+    JotGLTexture* fullTexture = [self generateTexture];
+    
     CGSize exportSize = CGSizeMake(ceilf(initialViewport.width / 2), ceilf(initialViewport.height / 2));
-    
-	GLuint exportFramebuffer;
-    
-    glGenFramebuffersOES(1, &exportFramebuffer);
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-    GLuint canvastexture;
-    
-    // create the texture
-    glGenTextures(1, &canvastexture);
-    glBindTexture(GL_TEXTURE_2D, canvastexture);
-    
-    //
-    // http://stackoverflow.com/questions/5835656/glframebuffertexture2d-fails-on-iphone-for-certain-texture-sizes
-    // these are required for non power of 2 textures on iPad 1 version of OpenGL1.1
-    // otherwise, the glCheckFramebufferStatusOES will be GL_FRAMEBUFFER_UNSUPPORTED_OES
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
-    
-    GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-    if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-        NSLog(@"failed to make complete framebuffer object %x", status);
-    }
-    
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    
-    // set viewport to round up to the pixel, if needed
-    glViewport(0, 0, fullSize.width, fullSize.height);
-    
-    // ok, everything is setup at this point, so render all
-    // of the strokes over the backing texture to our
-    // export texture
-    [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
-    
-    glDeleteFramebuffersOES(1, &exportFramebuffer);
-    
-    // reset back to exact viewport
-    glViewport(0, 0, initialViewport.width, initialViewport.height);
-
-    // we have to flush here to push all
-    // the pixels to the texture so they're
-    // available in the background thread's
-    // context
-    [context flush];
 
     //
     // the rest can be done in Core Graphics in a background thread
@@ -583,12 +536,12 @@ static JotGLContext *mainThreadContext;
         @autoreleasepool {
             JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
             [JotGLContext setCurrentContext:subContext];
-            glViewport(0, 0, fullSize.width, fullSize.height);
+            glViewport(0, 0, fullTexture.pixelSize.width, fullTexture.pixelSize.height);
 
             GLuint exportFramebuffer;
             glGenFramebuffersOES(1, &exportFramebuffer);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
+            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, fullTexture.textureID, 0);
             GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
                 NSLog(@"failed to make complete framebuffer object %x", status);
@@ -596,25 +549,25 @@ static JotGLContext *mainThreadContext;
 
             // read the image from OpenGL and push it into a data buffer
             NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
-            NSInteger dataLength = fullSize.width * fullSize.height * 4;
-            GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
+            NSInteger dataLength = fullTexture.pixelSize.width * fullTexture.pixelSize.height * 4;
+            GLubyte *data = calloc(fullTexture.pixelSize.height * fullTexture.pixelSize.width, 4);
             // Read pixel data from the framebuffer
             glPixelStorei(GL_PACK_ALIGNMENT, 4);
-            glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            glReadPixels(x, y, fullTexture.pixelSize.width, fullTexture.pixelSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
             
             printOpenGLError();
             
             // now we've read our data out from gl into *data
             // so delete the export framebuffer
             glDeleteFramebuffersOES(1, &exportFramebuffer);
-            glDeleteTextures(1, &canvastexture);
             
             // Create a CGImage with the pixel data from OpenGL
             // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
             // otherwise, use kCGImageAlphaPremultipliedLast
             CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
             CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-            CGImageRef iref = CGImageCreate(fullSize.width, fullSize.height, 8, 32, fullSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+            CGImageRef iref = CGImageCreate(fullTexture.pixelSize.width, fullTexture.pixelSize.height, 8, 32,
+                                            fullTexture.pixelSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                             kCGImageAlphaPremultipliedLast,
                                             ref, NULL, true, kCGRenderingIntentDefault);
             
