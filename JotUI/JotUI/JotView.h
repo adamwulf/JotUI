@@ -74,6 +74,5 @@
 
 #pragma mark - debug
 -(void) drawLongLine;
--(void) redrawWithAngle:(CGFloat)angle;
 
 @end

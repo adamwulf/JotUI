@@ -1610,27 +1610,6 @@ static int undoCounter;
     }
 }
 
--(void) redrawWithAngle:(CGFloat)angle{
-    if([JotGLContext currentContext] != context){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:context];
-    }
-    
-    glPushMatrix();
-//    glOrthof(0, 0, 200, 200, -1, 1);
-    glTranslatef(self.bounds.size.width / 2, self.bounds.size.height/2, 0);
-    glRotatef(angle * 180 / M_PI, 0, 0, 1.0);
-//    CGFloat scale = (cosf(angle) + 1) / 2;
-//    glScalef(scale, scale, 1.0);
-    
-    // here i render all strokes.
-    // instead, i should render what's in the render buffer itself
-    // to the other scrap's buffer.
-
-    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
-    glPopMatrix();
-}
-
 
 /**
  * erase the screen
