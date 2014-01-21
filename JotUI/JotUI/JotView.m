@@ -1676,6 +1676,21 @@ static int undoCounter;
     }
 }
 
+/**
+ * this will add an empty stroke to the jotview,
+ * which is useful for force updating the undo history/
+ * hash of the view to help trigger a save
+ *
+ * this is useful particularly when force drawing a texture
+ * using drawBackingTexture:atP1:andP2:andP3:andP4: and wanting
+ * it to trigger a new undoHash to help with knowing about
+ * when to save
+ */
+-(void) forceAddEmptyStroke{
+    JotStroke* stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
+    [state.stackOfStrokes addObject:stroke];
+}
+
 
 #pragma mark - dealloc
 
