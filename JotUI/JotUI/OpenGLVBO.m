@@ -63,6 +63,9 @@ static void * zeroedDataCache = nil;
                     free(zeroedDataCache);
                 }
                 zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
+                if(!zeroedDataCache){
+                    @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't calloc" userInfo:nil];
+                }
             }
         }
         @synchronized([OpenGLVBO class]){

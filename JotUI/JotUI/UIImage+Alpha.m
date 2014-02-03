@@ -34,7 +34,10 @@
                                                           0,
                                                           CGImageGetColorSpace(imageRef),
                                                           kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedFirst);
-    
+    if(!offscreenContext){
+        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+    }
+
     // Draw the image into the context and retrieve the new image, which will now have an alpha layer
     CGContextDrawImage(offscreenContext, CGRectMake(0, 0, width, height), imageRef);
     CGImageRef imageRefWithAlpha = CGBitmapContextCreateImage(offscreenContext);
@@ -63,7 +66,10 @@
                                                 0,
                                                 CGImageGetColorSpace(self.CGImage),
                                                 CGImageGetBitmapInfo(self.CGImage));
-    
+    if(!bitmap){
+        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+    }
+
     // Draw the image in the center of the context, leaving a gap around the edges
     CGRect imageLocation = CGRectMake(borderSize, borderSize, image.size.width, image.size.height);
     CGContextDrawImage(bitmap, imageLocation, self.CGImage);
@@ -100,7 +106,10 @@
                                                      0,
                                                      colorSpace,
                                                      kCGBitmapByteOrderDefault | kCGImageAlphaNone);
-    
+    if(!maskContext){
+        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+    }
+
     // Start with a mask that's entirely transparent
     CGContextSetFillColorWithColor(maskContext, [UIColor blackColor].CGColor);
     CGContextFillRect(maskContext, CGRectMake(0, 0, size.width, size.height));

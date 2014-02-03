@@ -115,7 +115,10 @@
                                                 0,
                                                 CGImageGetColorSpace(imageRef),
                                                 CGImageGetBitmapInfo(imageRef));
-    
+    if(!bitmap){
+        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+    }
+
     // Rotate and/or flip the image if required by its orientation
     CGContextConcatCTM(bitmap, transform);
     

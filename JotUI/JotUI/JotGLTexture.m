@@ -78,7 +78,13 @@
             // after they're loaded, we can free the memory for our cgcontext.
             CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
             void* imageData = calloc(fullPixelSize.height * fullPixelSize.width, 4);
+            if(!imageData){
+                @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
+            }
             CGContextRef cgContext = CGBitmapContextCreate( imageData, fullPixelSize.width, fullPixelSize.height, 8, 4 * fullPixelSize.width, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big );
+            if(!cgContext){
+                @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+            }
             CGContextTranslateCTM (cgContext, 0, fullPixelSize.height);
             CGContextScaleCTM (cgContext, 1.0, -1.0);
             CGColorSpaceRelease( colorSpace );
@@ -103,6 +109,9 @@
             free(imageData);
         }else{
             void* zeroedDataCache = calloc(fullPixelSize.height * fullPixelSize.width, 4);
+            if(!zeroedDataCache){
+                @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
+            }
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zeroedDataCache);
             free(zeroedDataCache);
         }

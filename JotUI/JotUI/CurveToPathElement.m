@@ -255,7 +255,10 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;
     void* vertexBuffer = malloc(numberOfBytesOfVertexData);
-    
+    if(!vertexBuffer){
+        @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
+    }
+
     // save our scale, we're only going to cache a vertex
     // buffer for 1 scale at a time
     scaleOfVertexBuffer = scale;

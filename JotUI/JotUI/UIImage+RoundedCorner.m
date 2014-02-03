@@ -24,6 +24,9 @@
                                                  0,
                                                  CGImageGetColorSpace(image.CGImage),
                                                  CGImageGetBitmapInfo(image.CGImage));
+    if(!context){
+        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+    }
 
     // Create a clipping path with rounded corners
     CGContextBeginPath(context);

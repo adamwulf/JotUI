@@ -551,6 +551,9 @@ static JotGLContext *mainThreadContext;
             NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
             NSInteger dataLength = fullTexture.pixelSize.width * fullTexture.pixelSize.height * 4;
             GLubyte *data = calloc(fullTexture.pixelSize.height * fullTexture.pixelSize.width, 4);
+            if(!data){
+                @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
+            }
             // Read pixel data from the framebuffer
             glPixelStorei(GL_PACK_ALIGNMENT, 4);
             glReadPixels(x, y, fullTexture.pixelSize.width, fullTexture.pixelSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -579,6 +582,9 @@ static JotGLContext *mainThreadContext;
             // Create a graphics context with the target size measured in POINTS
             CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                                                kCGImageAlphaPremultipliedLast);
+            if(!bitmapContext){
+                @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+            }
             CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
             
             if(!bitmapContext){
@@ -595,6 +601,10 @@ static JotGLContext *mainThreadContext;
             
             // Retrieve the UIImage from the current context
             CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
+            if(!cgImage){
+                @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+            }
+
             UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
             
             // Clean up
@@ -723,6 +733,9 @@ static JotGLContext *mainThreadContext;
             NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
             NSInteger dataLength = fullSize.width * fullSize.height * 4;
             GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
+            if(!data){
+                @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
+            }
             // Read pixel data from the framebuffer
             glPixelStorei(GL_PACK_ALIGNMENT, 4);
             glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -748,6 +761,10 @@ static JotGLContext *mainThreadContext;
             // OpenGL ES measures data in PIXELS
             // Create a graphics context with the target size measured in POINTS
             CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
+            if(!bitmapContext){
+                @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+            }
+
             // can I clear less stuff and still be ok?
             CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
             
@@ -765,6 +782,10 @@ static JotGLContext *mainThreadContext;
             
             // Retrieve the UIImage from the current context
             CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
+            if(!cgImage){
+                @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+            }
+
             UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
             
             // Clean up
