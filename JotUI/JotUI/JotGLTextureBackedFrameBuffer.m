@@ -49,7 +49,9 @@ dispatch_queue_t importExportTextureQueue;
         if (status != GL_FRAMEBUFFER_COMPLETE_OES)
         {
             // didn't work
-            NSLog(@"failed to create texture frame buffer");
+            NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+            NSLog(@"%@", str);
+            @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             return nil;
         }
     }

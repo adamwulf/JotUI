@@ -276,7 +276,9 @@ static JotGLContext *mainThreadContext;
 
 	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
-		NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES));
+        NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+		NSLog(@"%@", str);
+        @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
 		return NO;
 	}
     
@@ -540,11 +542,14 @@ static JotGLContext *mainThreadContext;
 
             GLuint exportFramebuffer;
             glGenFramebuffersOES(1, &exportFramebuffer);
+            NSLog(@"new framebuffer3: %d", exportFramebuffer);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
             glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, fullTexture.textureID, 0);
             GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                NSLog(@"failed to make complete framebuffer object %x", status);
+                NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+                NSLog(@"%@", str);
+                @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             }
 
             // read the image from OpenGL and push it into a data buffer
@@ -683,7 +688,9 @@ static JotGLContext *mainThreadContext;
     
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
     if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-        NSLog(@"failed to make complete framebuffer object %x", status);
+        NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+		NSLog(@"%@", str);
+        @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
     }
     
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -726,7 +733,9 @@ static JotGLContext *mainThreadContext;
             glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
             GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                NSLog(@"failed to make complete framebuffer object %x", status);
+                NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+                NSLog(@"%@", str);
+                @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             }
             // step 3:
             // read the image from OpenGL and push it into a data buffer
@@ -742,6 +751,7 @@ static JotGLContext *mainThreadContext;
             
             // now we're done, delete our buffers
             glDeleteTextures(1, &canvastexture);
+            glDeleteFramebuffersOES(1, &exportFramebuffer);
             
             
 
@@ -1768,7 +1778,9 @@ static int undoCounter;
     
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
     if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-        NSLog(@"failed to make complete framebuffer object %x", status);
+        NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+		NSLog(@"%@", str);
+        @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
     }
     
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
