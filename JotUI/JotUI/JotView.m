@@ -22,6 +22,7 @@
 #import "JotViewState.h"
 #import "JotViewImmutableState.h"
 #import "SegmentSmoother.h"
+#import "JotFilledPathStroke.h"
 #import "MMWeakTimerTarget.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
@@ -1721,6 +1722,12 @@ static int undoCounter;
     [state.stackOfStrokes addObject:stroke];
 }
 
+-(void) forceAddStrokeForFilledPath:(UIBezierPath*)path{
+    JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path];
+    [state.stackOfStrokes addObject:stroke];
+    [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:YES];
+    [self setNeedsPresentRenderBuffer];
+}
 
 #pragma mark - dealloc
 

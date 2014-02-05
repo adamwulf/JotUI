@@ -43,6 +43,10 @@
 		66AC157C18079B27005315C8 /* MMWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */; };
 		66AC157D18079B35005315C8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A32026170242D200692C71 /* UIKit.framework */; };
 		66AC157E18079B41005315C8 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
+		66C6AAE718A2E4D50036F4BB /* JotFilledPathStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66C6AAE518A2E4D50036F4BB /* JotFilledPathStroke.h */; };
+		66C6AAE818A2E4D50036F4BB /* JotFilledPathStroke.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C6AAE618A2E4D50036F4BB /* JotFilledPathStroke.m */; };
+		66C6AAEB18A2E78E0036F4BB /* FilledPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 66C6AAE918A2E78E0036F4BB /* FilledPathElement.h */; };
+		66C6AAEC18A2E78E0036F4BB /* FilledPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = 66C6AAEA18A2E78E0036F4BB /* FilledPathElement.m */; };
 		66F1F1E218079BD700B8CE3B /* UIImage+Resize.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F2E1766D133003F4F67 /* UIImage+Resize.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1E318079BD700B8CE3B /* UIImage+RoundedCorner.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F321766D220003F4F67 /* UIImage+RoundedCorner.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1E418079BD700B8CE3B /* UIImage+Alpha.h in Headers */ = {isa = PBXBuildFile; fileRef = 66BF7F341766D220003F4F67 /* UIImage+Alpha.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -148,6 +152,10 @@
 		66BF7F331766D220003F4F67 /* UIImage+RoundedCorner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+RoundedCorner.m"; sourceTree = "<group>"; };
 		66BF7F341766D220003F4F67 /* UIImage+Alpha.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+Alpha.h"; sourceTree = "<group>"; };
 		66BF7F351766D220003F4F67 /* UIImage+Alpha.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Alpha.m"; sourceTree = "<group>"; };
+		66C6AAE518A2E4D50036F4BB /* JotFilledPathStroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotFilledPathStroke.h; sourceTree = "<group>"; };
+		66C6AAE618A2E4D50036F4BB /* JotFilledPathStroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotFilledPathStroke.m; sourceTree = "<group>"; };
+		66C6AAE918A2E78E0036F4BB /* FilledPathElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FilledPathElement.h; sourceTree = "<group>"; };
+		66C6AAEA18A2E78E0036F4BB /* FilledPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilledPathElement.m; sourceTree = "<group>"; };
 		66D9827F17B1679400007732 /* OpenGLVBO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLVBO.h; sourceTree = "<group>"; };
 		66D9828017B1679400007732 /* OpenGLVBO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLVBO.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -270,6 +278,8 @@
 				662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */,
 				669B39DB1692B50500F12F42 /* CurveToPathElement.h */,
 				669B39DC1692B50500F12F42 /* CurveToPathElement.m */,
+				66C6AAE918A2E78E0036F4BB /* FilledPathElement.h */,
+				66C6AAEA18A2E78E0036F4BB /* FilledPathElement.m */,
 			);
 			name = "Smoothing Helpers";
 			sourceTree = "<group>";
@@ -332,6 +342,8 @@
 			children = (
 				66AA5FB6169E77180046CA26 /* JotStroke.h */,
 				66AA5FB7169E77180046CA26 /* JotStroke.m */,
+				66C6AAE518A2E4D50036F4BB /* JotFilledPathStroke.h */,
+				66C6AAE618A2E4D50036F4BB /* JotFilledPathStroke.m */,
 				663C1874175524EF00706A05 /* JotStrokeDelegate.h */,
 				663C186F175467DB00706A05 /* JotStrokeManager.h */,
 				663C1870175467DB00706A05 /* JotStrokeManager.m */,
@@ -388,6 +400,7 @@
 				66F1F1E518079BD700B8CE3B /* NSMutableSet+Extras.h in Headers */,
 				66F1F1E618079BD700B8CE3B /* UIColor+JotHelper.h in Headers */,
 				66F1F1E718079BD700B8CE3B /* NSArray+JotMapReduce.h in Headers */,
+				66C6AAE718A2E4D50036F4BB /* JotFilledPathStroke.h in Headers */,
 				66F1F1E818079BD700B8CE3B /* JotTrashManager.h in Headers */,
 				66F1F1E918079BD700B8CE3B /* JotBufferManager.h in Headers */,
 				66F1F1EA18079BD700B8CE3B /* JotBufferVBO.h in Headers */,
@@ -410,6 +423,7 @@
 				66F1F1FC18079BD700B8CE3B /* JotViewImmutableState.h in Headers */,
 				66F1F1FD18079BD700B8CE3B /* JotView.h in Headers */,
 				66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */,
+				66C6AAEB18A2E78E0036F4BB /* FilledPathElement.h in Headers */,
 				66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */,
 				66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */,
 				66F1F1FF18079BD700B8CE3B /* JotViewDelegate.h in Headers */,
@@ -598,7 +612,9 @@
 				66AC157918079B27005315C8 /* JotViewState.m in Sources */,
 				66AC157A18079B27005315C8 /* JotViewImmutableState.m in Sources */,
 				66AC157B18079B27005315C8 /* JotView.m in Sources */,
+				66C6AAE818A2E4D50036F4BB /* JotFilledPathStroke.m in Sources */,
 				66AC157C18079B27005315C8 /* MMWeakTimerTarget.m in Sources */,
+				66C6AAEC18A2E78E0036F4BB /* FilledPathElement.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
