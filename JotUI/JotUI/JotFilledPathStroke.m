@@ -8,6 +8,8 @@
 
 #import "JotFilledPathStroke.h"
 #import "FilledPathElement.h"
+#import "AbstractBezierPathElement.h"
+#import "AbstractBezierPathElement-Protected.h"
 
 @implementation JotFilledPathStroke{
     UIBezierPath* path;
@@ -20,6 +22,7 @@
     if(self = [self init]){
         path = _path;
         [segments addObject:[FilledPathElement elementWithPath:_path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4]];
+        [self updateHashWithObject:[segments firstObject]];
     }
     return self;
 }
@@ -56,12 +59,20 @@
 
 -(NSDictionary*) asDictionary{
     return [NSDictionary dictionaryWithObjectsAndKeys:@"JotFilledPathStroke", @"class",
+            [self.segments jotMapWithSelector:@selector(asDictionary)], @"segments",
             nil];
 }
 
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     if(self = [super init]){
         hashCache = 1;
+        segments = [NSMutableArray arrayWithArray:[[dictionary objectForKey:@"segments"] jotMap:^id(id obj, NSUInteger index){
+            NSString* className = [obj objectForKey:@"class"];
+            Class class = NSClassFromString(className);
+            AbstractBezierPathElement* segment =  [[class alloc] initFromDictionary:obj];
+            [self updateHashWithObject:segment];
+            return segment;
+        }]];
     }
     return self;
 }

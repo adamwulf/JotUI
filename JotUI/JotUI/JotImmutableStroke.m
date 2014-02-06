@@ -15,6 +15,8 @@
     // this is the texture to use when drawing the stroke
     JotBrushTexture* texture;
     NSString* uuid;
+    //
+    NSString* strokeClassName;
 }
 
 -(id) initWithJotStroke:(JotStroke*)stroke{
@@ -23,6 +25,7 @@
         segments = [NSArray arrayWithArray:stroke.segments];
         texture = stroke.texture;
         uuid = [stroke uuid];
+        strokeClassName = NSStringFromClass([stroke class]);
     }
     return self;
 }
@@ -41,6 +44,12 @@
 
 -(NSString*) uuid{
     return uuid;
+}
+
+-(NSDictionary*) asDictionary{
+    NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[super asDictionary]];
+    [dict setObject:strokeClassName forKey:@"class"];
+    return dict;
 }
 
 

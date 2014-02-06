@@ -31,9 +31,6 @@
 
 -(id) initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4{
     if(self = [super initWithStart:CGPointZero]){
-        NSUInteger prime = 31;
-        hashCache = 1;
-        hashCache = prime * hashCache + [path hash];
         path = [_path copy];
         
         p1 = _p1;
@@ -41,55 +38,68 @@
         p3 = _p3;
         p4 = _p4;
         
+        NSUInteger prime = 31;
+        hashCache = 1;
+        hashCache = prime * hashCache + p1.x;
+        hashCache = prime * hashCache + p1.y;
+        hashCache = prime * hashCache + p2.x;
+        hashCache = prime * hashCache + p2.y;
+        hashCache = prime * hashCache + p3.x;
+        hashCache = prime * hashCache + p3.y;
+        hashCache = prime * hashCache + p4.x;
+        hashCache = prime * hashCache + p4.y;
         
+        [self generateTextureFromPath];
         
-        [path applyTransform:CGAffineTransformMakeTranslation(-path.bounds.origin.x, -path.bounds.origin.y)];
-        CGRect textureBounds = CGRectMake(0, 0, ceilf(path.bounds.size.width), ceilf(path.bounds.size.height));
-        
-        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-        CGContextRef bitmapContext = CGBitmapContextCreate(NULL, textureBounds.size.width, textureBounds.size.height, 8, textureBounds.size.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
-        if(!bitmapContext){
-            @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
-        }
-        UIGraphicsPushContext(bitmapContext);
-
-        CGContextClearRect(bitmapContext, CGRectMake(0, 0, textureBounds.size.width, textureBounds.size.height));
-        
-        // flip vertical for our drawn content, since OpenGL is opposite core graphics
-        CGContextTranslateCTM(bitmapContext, 0, path.bounds.size.height);
-        CGContextScaleCTM(bitmapContext, 1.0, -1.0);
-        
-        //
-        // ok, now render our actual content
-        CGContextClearRect(bitmapContext, CGRectMake(0.0, 0.0, textureBounds.size.width, textureBounds.size.height));
-        [[UIColor whiteColor] setFill];
-        [path fill];
-        
-        // Retrieve the UIImage from the current context
-        CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
-        if(!cgImage){
-            @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
-        }
-        
-        UIImage* image = [UIImage imageWithCGImage:cgImage scale:1.0 orientation:UIImageOrientationUp];
-        
-        // Clean up
-        CFRelease(colorspace);
-        UIGraphicsPopContext();
-        CGContextRelease(bitmapContext);
-        
-        // ok, we're done exporting and cleaning up
-        // so pass the newly generated image to the completion block
-        texture = [[JotGLTexture alloc] initForImage:image withSize:image.size];
-        CGImageRelease(cgImage);
     }
     return self;
 }
 
-
-
 +(id) elementWithPath:(UIBezierPath*)path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4{
     return [[FilledPathElement alloc] initWithPath:path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4];
+}
+
+
+-(void) generateTextureFromPath{
+    [path applyTransform:CGAffineTransformMakeTranslation(-path.bounds.origin.x, -path.bounds.origin.y)];
+    CGRect textureBounds = CGRectMake(0, 0, ceilf(path.bounds.size.width), ceilf(path.bounds.size.height));
+    
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef bitmapContext = CGBitmapContextCreate(NULL, textureBounds.size.width, textureBounds.size.height, 8, textureBounds.size.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
+    if(!bitmapContext){
+        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+    }
+    UIGraphicsPushContext(bitmapContext);
+    
+    CGContextClearRect(bitmapContext, CGRectMake(0, 0, textureBounds.size.width, textureBounds.size.height));
+    
+    // flip vertical for our drawn content, since OpenGL is opposite core graphics
+    CGContextTranslateCTM(bitmapContext, 0, path.bounds.size.height);
+    CGContextScaleCTM(bitmapContext, 1.0, -1.0);
+    
+    //
+    // ok, now render our actual content
+    CGContextClearRect(bitmapContext, CGRectMake(0.0, 0.0, textureBounds.size.width, textureBounds.size.height));
+    [[UIColor whiteColor] setFill];
+    [path fill];
+    
+    // Retrieve the UIImage from the current context
+    CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
+    if(!cgImage){
+        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+    }
+    
+    UIImage* image = [UIImage imageWithCGImage:cgImage scale:1.0 orientation:UIImageOrientationUp];
+    
+    // Clean up
+    CFRelease(colorspace);
+    UIGraphicsPopContext();
+    CGContextRelease(bitmapContext);
+    
+    // ok, we're done exporting and cleaning up
+    // so pass the newly generated image to the completion block
+    texture = [[JotGLTexture alloc] initForImage:image withSize:image.size];
+    CGImageRelease(cgImage);
 }
 
 /**
@@ -195,12 +205,22 @@
 }
 
 
-
-
 #pragma mark - PlistSaving
 
 -(NSDictionary*) asDictionary{
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[super asDictionary]];
+    
+    [dict setObject:[NSKeyedArchiver archivedDataWithRootObject:path] forKey:@"bezierPath"];
+    
+    [dict setObject:[NSNumber numberWithFloat:p1.x] forKey:@"p1.x"];
+    [dict setObject:[NSNumber numberWithFloat:p1.y] forKey:@"p1.y"];
+    [dict setObject:[NSNumber numberWithFloat:p2.x] forKey:@"p2.x"];
+    [dict setObject:[NSNumber numberWithFloat:p2.y] forKey:@"p2.y"];
+    [dict setObject:[NSNumber numberWithFloat:p3.x] forKey:@"p3.x"];
+    [dict setObject:[NSNumber numberWithFloat:p3.y] forKey:@"p3.y"];
+    [dict setObject:[NSNumber numberWithFloat:p4.x] forKey:@"p4.x"];
+    [dict setObject:[NSNumber numberWithFloat:p4.y] forKey:@"p4.y"];
+
     return [NSDictionary dictionaryWithDictionary:dict];
 }
 
@@ -208,6 +228,24 @@
     self = [super initFromDictionary:dictionary];
     if (self) {
         // load from dictionary
+        path = [NSKeyedUnarchiver unarchiveObjectWithData:[dictionary objectForKey:@"bezierPath"]];
+        p1 = CGPointMake([[dictionary objectForKey:@"p1.x"] floatValue], [[dictionary objectForKey:@"p1.y"] floatValue]);
+        p2 = CGPointMake([[dictionary objectForKey:@"p2.x"] floatValue], [[dictionary objectForKey:@"p2.y"] floatValue]);
+        p3 = CGPointMake([[dictionary objectForKey:@"p3.x"] floatValue], [[dictionary objectForKey:@"p3.y"] floatValue]);
+        p4 = CGPointMake([[dictionary objectForKey:@"p4.x"] floatValue], [[dictionary objectForKey:@"p4.y"] floatValue]);
+        
+        NSUInteger prime = 31;
+        hashCache = 1;
+        hashCache = prime * hashCache + p1.x;
+        hashCache = prime * hashCache + p1.y;
+        hashCache = prime * hashCache + p2.x;
+        hashCache = prime * hashCache + p2.y;
+        hashCache = prime * hashCache + p3.x;
+        hashCache = prime * hashCache + p3.y;
+        hashCache = prime * hashCache + p4.x;
+        hashCache = prime * hashCache + p4.y;
+
+        [self generateTextureFromPath];
     }
     return self;
 }

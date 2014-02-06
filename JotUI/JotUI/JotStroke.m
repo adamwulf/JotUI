@@ -106,8 +106,8 @@
 
 -(NSDictionary*) asDictionary{
     return [NSDictionary dictionaryWithObjectsAndKeys:@"JotStroke", @"class",
-            [self.segmentSmoother asDictionary], @"segmentSmoother",
             [self.segments jotMapWithSelector:@selector(asDictionary)], @"segments",
+            [self.segmentSmoother asDictionary], @"segmentSmoother",
             [self.texture asDictionary], @"texture", nil];
 }
 
