@@ -69,7 +69,7 @@
 
 -(void) addElements:(NSArray*)elements;
 -(void) forceAddEmptyStroke;
--(void) forceAddStrokeForFilledPath:(UIBezierPath*)path;
+-(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4;
 
 -(JotGLTexture*) generateTexture;
 -(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clip;

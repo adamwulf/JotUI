@@ -157,7 +157,16 @@
  * for its full pixel size
  */
 -(void) drawInContext:(JotGLContext*)context{
-    [self drawInContext:context atP1:CGPointMake(0, 1) andP2:CGPointMake(1, 1) andP3:CGPointMake(0, 0) andP4:CGPointMake(1, 0) toSize:fullPixelSize andClip:NO];
+    [self drawInContext:context atT1:CGPointMake(0, 1)
+                  andT2:CGPointMake(1, 1)
+                  andT3:CGPointMake(0, 0)
+                  andT4:CGPointMake(1, 0)
+                   atP1:CGPointMake(0, fullPixelSize.height)
+                  andP2:CGPointMake(fullPixelSize.width, fullPixelSize.height)
+                  andP3:CGPointMake(0,0)
+                  andP4:CGPointMake(fullPixelSize.width, 0)
+         withResolution:fullPixelSize
+                andClip:NO];
 }
 
 
@@ -165,7 +174,17 @@
  * this will draw the texture at coordinates (0,0)
  * for its full pixel size
  */
--(void) drawInContext:(JotGLContext*)context atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 toSize:(CGSize)size andClip:(UIBezierPath*)clippingPath{
+-(void) drawInContext:(JotGLContext*)context
+                 atT1:(CGPoint)t1
+                andT2:(CGPoint)t2
+                andT3:(CGPoint)t3
+                andT4:(CGPoint)t4
+                 atP1:(CGPoint)p1
+                andP2:(CGPoint)p2
+                andP3:(CGPoint)p3
+                andP4:(CGPoint)p4
+       withResolution:(CGSize)size
+              andClip:(UIBezierPath*)clippingPath{
     // save our clipping texture and stencil buffer, if any
     JotGLTexture* clipping;
     GLuint stencil_rb;
@@ -230,10 +249,10 @@
         // these vertices will stretch the stencil texture
         // across the entire size that we're drawing on
         Vertex3D vertices[] = {
-            { 0, size.height},
-            { size.width, size.height},
-            { 0, 0},
-            { size.width, 0}
+            { p1.x, p1.y},
+            { p2.x, p2.y},
+            { p3.x, p3.y},
+            { p4.x, p4.y}
         };
         const GLfloat texCoords[] = {
             0, 1,
@@ -254,7 +273,6 @@
         glDepthMask(GL_TRUE);
         glStencilMask(0x00);
         glStencilFunc(GL_EQUAL, 1, 0xFF);
-        
     }
     
     //
@@ -264,16 +282,16 @@
     // this allows the caller to ask us to render a portion of our
     // texture in any size rect it needs
     Vertex3D vertices[] = {
-        { 0.0, size.height},
-        { size.width, size.height},
-        { 0.0, 0.0},
-        { size.width, 0.0}
+        { p1.x, p1.y},
+        { p2.x, p2.y},
+        { p3.x, p3.y},
+        { p4.x, p4.y}
     };
     const GLfloat texCoords[] = {
-        p1.x, p1.y,
-        p2.x, p2.y,
-        p3.x, p3.y,
-        p4.x, p4.y
+        t1.x, t1.y,
+        t2.x, t2.y,
+        t3.x, t3.y,
+        t4.x, t4.y
     };
     // now draw our own texture, which will be drawn
     // for only the input texture coords and will respect

@@ -25,11 +25,11 @@
 /**
  * create an empty stroke with the input texture
  */
--(id) initWithPath:(UIBezierPath*)_path{
+-(id) initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4{
     if(self = [super init]){
         hashCache = 1;
         path = _path;
-        segments = [NSMutableArray arrayWithObject:[FilledPathElement elementWithPath:_path]];
+        segments = [NSMutableArray arrayWithObject:[FilledPathElement elementWithPath:_path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4]];
     }
     return self;
 }

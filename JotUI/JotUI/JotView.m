@@ -1722,8 +1722,8 @@ static int undoCounter;
     [state.stackOfStrokes addObject:stroke];
 }
 
--(void) forceAddStrokeForFilledPath:(UIBezierPath*)path{
-    JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path];
+-(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4{
+    JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path andP1:p1 andP2:p2 andP3:p3 andP4:p4];
     [state.stackOfStrokes addObject:stroke];
     [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:YES];
     [self setNeedsPresentRenderBuffer];
@@ -1818,11 +1818,6 @@ static int undoCounter;
 
 
 
-/**
- * This method will make sure we only keep undoLimit
- * number of strokes. All others should be written to
- * our backing texture
- */
 -(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clip{
     
     CheckMainThread;
@@ -1843,7 +1838,17 @@ static int undoCounter;
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [texture drawInContext:context atP1:p1 andP2:p2 andP3:p3 andP4:p4 toSize:state.backgroundTexture.pixelSize andClip:clip];
+    [texture drawInContext:context
+                      atT1:p1
+                     andT2:p2
+                     andT3:p3
+                     andT4:p4
+                      atP1:CGPointMake(0, state.backgroundTexture.pixelSize.height)
+                     andP2:CGPointMake(state.backgroundTexture.pixelSize.width, state.backgroundTexture.pixelSize.height)
+                     andP3:CGPointMake(0,0)
+                     andP4:CGPointMake(state.backgroundTexture.pixelSize.width, 0)
+            withResolution:state.backgroundTexture.pixelSize
+                   andClip:clip];
 
     [self unprepOpenGLState];
     //

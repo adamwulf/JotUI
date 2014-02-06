@@ -24,6 +24,16 @@
 -(void) bind;
 
 -(void) drawInContext:(JotGLContext*)context;
--(void) drawInContext:(JotGLContext*)context atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 toSize:(CGSize)size andClip:(UIBezierPath*)clippingPath;
+-(void) drawInContext:(JotGLContext*)context
+                 atT1:(CGPoint)p1
+                andT2:(CGPoint)p2
+                andT3:(CGPoint)p3
+                andT4:(CGPoint)p4
+                 atP1:(CGPoint)p1
+                andP2:(CGPoint)p2
+                andP3:(CGPoint)p3
+                andP4:(CGPoint)p4
+       withResolution:(CGSize)size
+              andClip:(UIBezierPath*)clippingPath;
 
 @end
