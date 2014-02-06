@@ -91,7 +91,6 @@
 -(void) unbind{
     if(glBrushTextureID){
         glBindTexture(GL_TEXTURE_2D, 0);
-        glBrushTextureID = 0;
     }
 }
 

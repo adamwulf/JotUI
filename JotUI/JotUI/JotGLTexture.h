@@ -22,6 +22,7 @@
 -(id) initForTextureID:(GLuint)textureID withSize:(CGSize)size;
 
 -(void) bind;
+-(void) unbind;
 
 -(void) drawInContext:(JotGLContext*)context;
 -(void) drawInContext:(JotGLContext*)context

@@ -13,13 +13,10 @@
     UIBezierPath* path;
     // cache the hash, since it's expenseive to calculate
     NSUInteger hashCache;
-    // texture
-    JotGLTexture* pathTexture;
     // segments
     NSMutableArray* segments;
 }
 
-@synthesize texture;
 @synthesize segments;
 
 /**
@@ -36,6 +33,10 @@
 
 -(CGRect) bounds{
     return [path bounds];
+}
+
+-(JotGLTexture*) texture{
+    return nil;
 }
 
 /**

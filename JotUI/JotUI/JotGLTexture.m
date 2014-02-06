@@ -152,6 +152,10 @@
     }
 }
 
+-(void) unbind{
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 /**
  * this will draw the texture at coordinates (0,0)
  * for its full pixel size
@@ -204,12 +208,14 @@
         clipping = [[JotGLTexture alloc] initForImage:image withSize:size];
     }
     
+    //
+    // prep our context to draw our texture as a quad.
     // now prep to draw the actual texture
     [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
     [context glEnableClientState:GL_VERTEX_ARRAY];
-    [context glEnableClientState:GL_TEXTURE_COORD_ARRAY];
     [context glDisableClientState:GL_COLOR_ARRAY];
     [context glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
+    [context glEnableClientState:GL_TEXTURE_COORD_ARRAY];
     [context glColor4f:1 and:1 and:1 and:1];
 
     
@@ -307,6 +313,14 @@
         glDisable(GL_ALPHA_TEST);
         glDeleteRenderbuffersOES(1, &stencil_rb);
     }
+    
+    // unprep our quad drawing texture, and prep back for
+    // drawing lines
+    [context glEnableClientState:GL_VERTEX_ARRAY];
+    [context glEnableClientState:GL_COLOR_ARRAY];
+    [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+    [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+
 }
 
 -(void) dealloc{

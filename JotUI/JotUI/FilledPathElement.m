@@ -131,7 +131,7 @@
 
 -(void) draw{
     [self bind];
-
+    
     [texture drawInContext:(JotGLContext*)[JotGLContext currentContext]
                    atT1:CGPointMake(0, 1)
                   andT2:CGPointMake(1, 1)
@@ -143,8 +143,6 @@
                   andP4:p4
          withResolution:texture.pixelSize
                 andClip:NO];
-    
-    
     
     //
     // should make a drawInQuad: method that takes four points
@@ -179,6 +177,7 @@
 }
 
 -(void) unbind{
+    [texture unbind];
     // noop
 }
 

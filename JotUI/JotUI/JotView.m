@@ -889,6 +889,7 @@ static JotGLContext *mainThreadContext;
         if(stroke.texture != brushTexture){
             [self setBrushTexture:stroke.texture];
         }
+        
         // draw each stroke element
         AbstractBezierPathElement* prevElement = nil;
         for(AbstractBezierPathElement* element in stroke.segments){
@@ -1050,7 +1051,7 @@ static JotGLContext *mainThreadContext;
         
     // fetch the vertex data from the element
     [element generatedVertexArrayWithPreviousElement:previousElement forScale:scale];
-
+    
     // now bind and draw the element
     [element draw];
     
@@ -1725,8 +1726,12 @@ static int undoCounter;
 -(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4{
     JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path andP1:p1 andP2:p2 andP3:p3 andP4:p4];
     [state.stackOfStrokes addObject:stroke];
+    
+    JotBrushTexture* keepThisTexture = brushTexture;
+    [self setBrushTexture:stroke.texture];
     [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:YES];
     [self setNeedsPresentRenderBuffer];
+    [self setBrushTexture:keepThisTexture];
 }
 
 #pragma mark - dealloc
