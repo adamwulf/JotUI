@@ -170,7 +170,8 @@
                   andP3:CGPointMake(0,0)
                   andP4:CGPointMake(fullPixelSize.width, 0)
          withResolution:fullPixelSize
-                andClip:NO];
+                andClip:NO
+              asErase:NO]; // default to draw full texture w/o color modification
 }
 
 
@@ -188,7 +189,8 @@
                 andP3:(CGPoint)p3
                 andP4:(CGPoint)p4
        withResolution:(CGSize)size
-              andClip:(UIBezierPath*)clippingPath{
+              andClip:(UIBezierPath*)clippingPath
+            asErase:(BOOL)asErase{
     // save our clipping texture and stencil buffer, if any
     JotGLTexture* clipping;
     GLuint stencil_rb;
@@ -211,7 +213,7 @@
     //
     // prep our context to draw our texture as a quad.
     // now prep to draw the actual texture
-    [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+    // always draw
     [context glEnableClientState:GL_VERTEX_ARRAY];
     [context glDisableClientState:GL_COLOR_ARRAY];
     [context glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
@@ -222,6 +224,8 @@
     // if we were provided a clippingPath, then we should
     // use it as our stencil when drawing our texture
     if(clippingPath){
+        // always draw to stencil with correct blend mode
+        [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
         // setup stencil buffers
         glGenRenderbuffersOES(1, &stencil_rb);
         NSLog(@"new renderbuffer: %d", stencil_rb);
@@ -280,6 +284,8 @@
         glStencilMask(0x00);
         glStencilFunc(GL_EQUAL, 1, 0xFF);
     }
+    
+    [context prepOpenGLBlendModeForColor:asErase ? nil : [UIColor whiteColor]];
     
     //
     // these vertices make sure to draw our texture across

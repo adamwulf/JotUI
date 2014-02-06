@@ -142,7 +142,8 @@
                   andP3:p3
                   andP4:p4
          withResolution:texture.pixelSize
-                andClip:NO];
+                andClip:NO
+                 asErase:YES]; // erase
     
     //
     // should make a drawInQuad: method that takes four points

@@ -1853,7 +1853,8 @@ static int undoCounter;
                      andP3:CGPointMake(0,0)
                      andP4:CGPointMake(state.backgroundTexture.pixelSize.width, 0)
             withResolution:state.backgroundTexture.pixelSize
-                   andClip:clip];
+                   andClip:clip
+                 asErase:NO];
 
     [self unprepOpenGLState];
     //

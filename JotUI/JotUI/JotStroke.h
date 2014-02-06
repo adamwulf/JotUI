@@ -21,7 +21,12 @@
  * between points into a nice single curve, and also
  * interpolate width and color including alpha
  */
-@interface JotStroke : NSObject<PlistSaving>
+@interface JotStroke : NSObject<PlistSaving>{
+    // this will store all the segments in drawn order
+    NSMutableArray* segments;
+    // cache the hash, since it's expenseive to calculate
+    NSUInteger hashCache;
+}
 
 @property (nonatomic, readonly) SegmentSmoother* segmentSmoother;
 @property (nonatomic, readonly) NSArray* segments;

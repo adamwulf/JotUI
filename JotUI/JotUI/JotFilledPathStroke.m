@@ -11,22 +11,15 @@
 
 @implementation JotFilledPathStroke{
     UIBezierPath* path;
-    // cache the hash, since it's expenseive to calculate
-    NSUInteger hashCache;
-    // segments
-    NSMutableArray* segments;
 }
-
-@synthesize segments;
 
 /**
  * create an empty stroke with the input texture
  */
 -(id) initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4{
-    if(self = [super init]){
-        hashCache = 1;
+    if(self = [self init]){
         path = _path;
-        segments = [NSMutableArray arrayWithObject:[FilledPathElement elementWithPath:_path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4]];
+        [segments addObject:[FilledPathElement elementWithPath:_path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4]];
     }
     return self;
 }
@@ -46,12 +39,9 @@
     @throw [NSException exceptionWithName:@"FilledPathStroke Exception" reason:@"cannot add element to filled path stroke" userInfo:nil];
 }
 
-/**
- * remove a segment from the stroke
- */
--(void) removeElementAtIndex:(NSInteger)index{
-    @throw [NSException exceptionWithName:@"FilledPathStroke Exception" reason:@"cannot remove element of filled path stroke" userInfo:nil];
-}
+// NOTE: we allow removeElement: to pass through to the parent class
+// this method is used during validateUndoState to draw strokes to the
+// backing layer, not to modify the strokes state
 
 /**
  * cancel the stroke and notify the delegate

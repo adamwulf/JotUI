@@ -23,13 +23,9 @@
 @implementation JotStroke{
     // this will interpolate between points into curved segments
     SegmentSmoother* segmentSmoother;
-    // this will store all the segments in drawn order
-    NSMutableArray* segments;
     // this is the texture to use when drawing the stroke
     JotBrushTexture* texture;
     __weak NSObject<JotStrokeDelegate>* delegate;
-    // cache the hash, since it's expenseive to calculate
-    NSUInteger hashCache;
     // total Byte size
     NSInteger totalNumberOfBytes;
     // buffer manager to use for this stroke
@@ -45,12 +41,18 @@
 
 
 -(id) initWithTexture:(JotBrushTexture*)_texture andBufferManager:(JotBufferManager*)_bufferManager{
-    if(self = [super init]){
-        segments = [NSMutableArray array];
+    if(self = [self init]){
         segmentSmoother = [[SegmentSmoother alloc] init];
         texture = _texture;
-        hashCache = 1;
         bufferManager = _bufferManager;
+    }
+    return self;
+}
+
+-(id) init{
+    if(self = [super init]){
+        segments = [NSMutableArray array];
+        hashCache = 1;
     }
     return self;
 }
