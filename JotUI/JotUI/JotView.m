@@ -1667,7 +1667,7 @@ static int undoCounter;
     JotStroke* stroke = [state.stackOfStrokes lastObject];
     BOOL strokeHasColor = [[stroke.segments lastObject] color] != nil;
     BOOL elementsHaveColor = [[elements firstObject] color] != nil;
-    if(!stroke || strokeHasColor != elementsHaveColor || [stroke.segments count] > 50){
+    if(!stroke || strokeHasColor != elementsHaveColor || [stroke.segments count] > 50 || [stroke isKindOfClass:[JotFilledPathStroke class]]){
         if(stroke && strokeHasColor != elementsHaveColor){
             //
             // https://github.com/adamwulf/loose-leaf/issues/249
