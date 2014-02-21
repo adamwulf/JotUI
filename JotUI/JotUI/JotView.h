@@ -17,6 +17,8 @@
 #import "JotUI/JotGLTextureBackedFrameBuffer.h"
 #import "JotUI/JotBrushTexture.h"
 #import "JotUI/JotViewStateProxyDelegate.h"
+#import <JotTouchSDK/JotStylusManager.h>
+
 
 @class JotViewImmutableState;
 

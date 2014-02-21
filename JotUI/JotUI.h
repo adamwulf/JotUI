@@ -21,8 +21,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <JotTouchSDK/JotStylusManager.h>
-
 #import <JotUI/JotView.h>
 #import <JotUI/JotViewDelegate.h>
 #import <JotUI/MoveToPathElement.h>
