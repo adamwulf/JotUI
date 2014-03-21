@@ -98,6 +98,7 @@ dispatch_queue_t loadUnloadStateQueue;
         shouldKeepStateLoaded = NO;
         if([self hasEditsToSave]){
             NSLog(@"what??");
+            @throw [NSException exceptionWithName:@"UnloadedEditedPageExceptoin" reason:@"The page has been asked to unload, but as edits pending save" userInfo:nil];
         }
         if(!isLoadingState && jotViewState){
             jotViewState = nil;
