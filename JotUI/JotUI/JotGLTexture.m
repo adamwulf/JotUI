@@ -228,7 +228,7 @@
         [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
         // setup stencil buffers
         glGenRenderbuffersOES(1, &stencil_rb);
-        NSLog(@"new renderbuffer: %d", stencil_rb);
+//        NSLog(@"new renderbuffer: %d", stencil_rb);
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, stencil_rb);
         glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, size.width, size.height);
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, stencil_rb);

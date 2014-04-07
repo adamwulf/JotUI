@@ -387,7 +387,7 @@ static JotGLContext *mainThreadContext;
     
     @synchronized(self){
         isCurrentlyExporting = YES;
-        NSLog(@"export begins: %d hash:%d", (int) self, state.undoHash);
+        NSLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
     }
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -492,7 +492,7 @@ static JotGLContext *mainThreadContext;
                 // and will fire after we're done. (from validateUndoState).
                 isCurrentlyExporting = NO;
             }
-            NSLog(@"export ends: %d", (int) self);
+            NSLog(@"export ends: %p", self);
         }
     });
 }
@@ -543,7 +543,7 @@ static JotGLContext *mainThreadContext;
 
             GLuint exportFramebuffer;
             glGenFramebuffersOES(1, &exportFramebuffer);
-            NSLog(@"new framebuffer3: %d", exportFramebuffer);
+//            NSLog(@"new framebuffer3: %d", exportFramebuffer);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
             glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, fullTexture.textureID, 0);
             GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
@@ -554,7 +554,7 @@ static JotGLContext *mainThreadContext;
             }
 
             // read the image from OpenGL and push it into a data buffer
-            NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
+            int x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
             NSInteger dataLength = fullTexture.pixelSize.width * fullTexture.pixelSize.height * 4;
             GLubyte *data = calloc(fullTexture.pixelSize.height * fullTexture.pixelSize.width, 4);
             if(!data){
