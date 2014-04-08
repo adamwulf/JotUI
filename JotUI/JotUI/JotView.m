@@ -387,7 +387,7 @@ static JotGLContext *mainThreadContext;
     
     @synchronized(self){
         isCurrentlyExporting = YES;
-        NSLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
+//        NSLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
     }
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -492,7 +492,7 @@ static JotGLContext *mainThreadContext;
                 // and will fire after we're done. (from validateUndoState).
                 isCurrentlyExporting = NO;
             }
-            NSLog(@"export ends: %p", self);
+//            NSLog(@"export ends: %p", self);
         }
     });
 }
