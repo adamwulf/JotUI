@@ -76,6 +76,7 @@ dispatch_queue_t loadUnloadStateQueue;
                         // told that we didn't really need the
                         // state after all, so just throw it away :(
                         jotViewState = nil;
+                        lastSavedUndoHash = 0;
                     }
                 }
             }
@@ -96,7 +97,13 @@ dispatch_queue_t loadUnloadStateQueue;
 -(void) unload{
     @synchronized(self){
         shouldKeepStateLoaded = NO;
-        if([self hasEditsToSave]){
+        if(isLoadingState){
+            // hrm, need to unload the state that
+            // never loaded in the first place.
+            // tell the state to immediately unload
+            // after it finishes
+            shouldKeepStateLoaded = NO;
+        }else if([self hasEditsToSave]){
             NSLog(@"what??");
             @throw [NSException exceptionWithName:@"UnloadedEditedPageExceptoin" reason:@"The page has been asked to unload, but as edits pending save" userInfo:nil];
         }
