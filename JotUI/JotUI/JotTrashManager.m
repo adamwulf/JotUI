@@ -7,6 +7,7 @@
 //
 
 #import "JotTrashManager.h"
+#import <QuartzCore/CAAnimation.h>
 
 /**
  * The trash manager will hold onto objects and slowly
@@ -63,9 +64,9 @@ static int counter;
  * for them, so releasing them will cause their dealloc
  */
 -(BOOL) tick{
-    NSDate *date = [NSDate date];
+    double startTime = CACurrentMediaTime();
     int count = 0;
-    while([objectsToDealloc count] && ABS([date timeIntervalSinceNow]) < maxTickDuration){
+    while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
         @synchronized(self){
             [objectsToDealloc removeLastObject];
         }

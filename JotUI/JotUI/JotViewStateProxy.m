@@ -95,23 +95,26 @@ dispatch_queue_t loadUnloadStateQueue;
 }
 
 -(void) unload{
-    @synchronized(self){
-        shouldKeepStateLoaded = NO;
-        if(isLoadingState){
-            // hrm, need to unload the state that
-            // never loaded in the first place.
-            // tell the state to immediately unload
-            // after it finishes
+    JotViewStateProxy* strongSelf = self;
+    dispatch_async(([JotViewStateProxy loadUnloadStateQueue]), ^{
+        @synchronized(strongSelf){
             shouldKeepStateLoaded = NO;
-        }else if([self hasEditsToSave]){
-            NSLog(@"what??");
-            @throw [NSException exceptionWithName:@"UnloadedEditedPageExceptoin" reason:@"The page has been asked to unload, but as edits pending save" userInfo:nil];
+            if(isLoadingState){
+                // hrm, need to unload the state that
+                // never loaded in the first place.
+                // tell the state to immediately unload
+                // after it finishes
+                shouldKeepStateLoaded = NO;
+            }else if([strongSelf hasEditsToSave]){
+                NSLog(@"what??");
+                @throw [NSException exceptionWithName:@"UnloadedEditedPageExceptoin" reason:@"The page has been asked to unload, but as edits pending save" userInfo:nil];
+            }
+            if(!isLoadingState && jotViewState){
+                jotViewState = nil;
+                [strongSelf.delegate didUnloadState:strongSelf];
+            }
         }
-        if(!isLoadingState && jotViewState){
-            jotViewState = nil;
-            [self.delegate didUnloadState:self];
-        }
-    }
+    });
 }
 
 -(BOOL) isStateLoaded{
