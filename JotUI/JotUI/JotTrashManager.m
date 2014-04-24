@@ -22,7 +22,15 @@
     NSTimeInterval maxTickDuration;
 }
 
+static dispatch_queue_t _trashQueue;
 static JotTrashManager* _instance = nil;
+
++(dispatch_queue_t) trashQueue{
+    if(!_trashQueue){
+        _trashQueue = dispatch_queue_create("com.milestonemade.looseleaf.jotTrashQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    return _trashQueue;
+}
 
 -(id) init{
     if(_instance) return _instance;
@@ -55,8 +63,6 @@ static JotTrashManager* _instance = nil;
     maxTickDuration = _tickSize;
 }
 
-static int counter;
-
 /**
  * release as many objects as we can within maxTickDuration
  *
@@ -64,19 +70,25 @@ static int counter;
  * for them, so releasing them will cause their dealloc
  */
 -(BOOL) tick{
-    double startTime = CACurrentMediaTime();
-    int count = 0;
-    while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
-        @synchronized(self){
-            [objectsToDealloc removeLastObject];
-        }
-        count++;
+    NSUInteger countToDealloc = 0;
+    @synchronized(self){
+        countToDealloc = [objectsToDealloc count];
     }
-    if(counter % 10 == 0){
-        counter = 0;
+    if(countToDealloc){
+        dispatch_async([JotTrashManager trashQueue], ^{
+            @autoreleasepool {
+                @synchronized(self){
+                    double startTime = CACurrentMediaTime();
+                    while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
+                        @synchronized(self){
+                            [objectsToDealloc removeLastObject];
+                        }
+                    }
+                }
+            }
+        });
     }
-    counter++;
-    return count > 0;
+    return countToDealloc > 0;
 }
 
 -(void) addObjectToDealloc:(NSObject*)obj{
