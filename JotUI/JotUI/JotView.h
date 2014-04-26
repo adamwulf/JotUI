@@ -24,7 +24,7 @@
 
 @class SegmentSmoother, UIPalmView;
 
-@interface JotView : UIView<JotPalmRejectionDelegate,JotViewStateProxyDelegate>
+@interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>
 
 @property (readonly) JotViewStateProxy* state;
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;

@@ -323,8 +323,6 @@ static JotGLContext *mainThreadContext;
 -(void) loadState:(JotViewStateProxy*)newState{
     CheckMainThread;
     if(state != newState){
-        state.delegate = nil;
-        newState.delegate = self;
         state = newState;
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     }
@@ -1182,7 +1180,7 @@ static int undoCounter;
 }
 
 
-#pragma mark - JotViewStateProxyDelegate
+#pragma mark - JotStrokeDelegate
 
 -(void) jotStrokeWasCancelled:(JotStroke*)stroke{
 
@@ -1199,15 +1197,6 @@ static int undoCounter;
         }
     }
 }
-
--(void) didLoadState:(JotViewStateProxy*)state{
-    NSLog(@"JotView didLoadState:");
-}
-
--(void) didUnloadState:(JotViewStateProxy*)state{
-    NSLog(@"JotView didUnloadState:");
-}
-
 
 #pragma mark - JotPalmRejectionDelegate
 

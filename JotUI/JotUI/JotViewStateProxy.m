@@ -47,10 +47,14 @@ dispatch_queue_t loadUnloadStateQueue;
     @synchronized(self){
         // if we're already loading our
         // state, then bail early
-        if(isLoadingState) return;
+        if(isLoadingState){
+            return;
+        }
         // if we already have our state,
         // then bail early
-        if(jotViewState) return;
+        if(jotViewState){
+            return;
+        }
         
         shouldKeepStateLoaded = YES;
         isLoadingState = YES;
@@ -78,6 +82,10 @@ dispatch_queue_t loadUnloadStateQueue;
                         jotViewState = nil;
                         lastSavedUndoHash = 0;
                     }
+                }
+            }else{
+                @synchronized(self){
+                    isLoadingState = NO;
                 }
             }
         }
