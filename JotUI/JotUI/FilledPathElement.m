@@ -22,6 +22,9 @@
     CGPoint p2;
     CGPoint p3;
     CGPoint p4;
+    
+    CGFloat scaleToDraw;
+    CGAffineTransform scaleTransform;
 }
 
 -(UIColor*) color{
@@ -51,6 +54,8 @@
         
         [self generateTextureFromPath];
         
+        scaleToDraw = 1.0;
+        scaleTransform = CGAffineTransformIdentity;
     }
     return self;
 }
@@ -130,6 +135,8 @@
  * for the new scale.
  */
 -(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
+    scaleToDraw = scale;
+    scaleTransform = CGAffineTransformMakeScale(scaleToDraw, scaleToDraw);
     return nil;
 }
 
@@ -142,15 +149,16 @@
 -(void) draw{
     [self bind];
     
+    
     [texture drawInContext:(JotGLContext*)[JotGLContext currentContext]
                    atT1:CGPointMake(0, 1)
                   andT2:CGPointMake(1, 1)
                   andT3:CGPointMake(0, 0)
                   andT4:CGPointMake(1, 0)
-                   atP1:p1
-                  andP2:p2
-                  andP3:p3
-                  andP4:p4
+                   atP1:CGPointApplyAffineTransform(p1, scaleTransform)
+                  andP2:CGPointApplyAffineTransform(p2, scaleTransform)
+                  andP3:CGPointApplyAffineTransform(p3, scaleTransform)
+                  andP4:CGPointApplyAffineTransform(p4, scaleTransform)
          withResolution:texture.pixelSize
                 andClip:NO
                  asErase:YES]; // erase
