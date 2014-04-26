@@ -170,7 +170,7 @@
                   andP3:CGPointMake(0,0)
                   andP4:CGPointMake(fullPixelSize.width, 0)
          withResolution:fullPixelSize
-                andClip:NO
+                andClip:nil
               asErase:NO]; // default to draw full texture w/o color modification
 }
 
@@ -196,10 +196,22 @@
     GLuint stencil_rb;
     
     if(clippingPath){
+        
+        CGSize pathSize = clippingPath.bounds.size;
+        
+        // on high res screens, the input path is in
+        // pt instead of px, so we need to make sure
+        // the clipping texture is in the same coordinate
+        // space as the gl context. to do that build
+        // a texture that matches the path's bounds, and
+        // it'll stretch to fill the context.
+        //
+        // https://github.com/adamwulf/loose-leaf/issues/408
+        //
         // generate simple coregraphics texture in coregraphics
-        UIGraphicsBeginImageContextWithOptions(size, NO, 1);
+        UIGraphicsBeginImageContextWithOptions(pathSize, NO, 1);
         CGContextRef cgContext = UIGraphicsGetCurrentContext();
-        CGContextClearRect(cgContext, CGRectMake(0, 0, size.width, size.height));
+        CGContextClearRect(cgContext, CGRectMake(0, 0, pathSize.width, pathSize.height));
         [[UIColor whiteColor] setFill];
         [clippingPath fill];
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
