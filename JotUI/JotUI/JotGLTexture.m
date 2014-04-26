@@ -178,6 +178,10 @@
 /**
  * this will draw the texture at coordinates (0,0)
  * for its full pixel size
+ *
+ * Note: https://github.com/adamwulf/loose-leaf/issues/408
+ * clipping path is in 1.0 scale, regardless of the context.
+ * so it may need to be stretched to fill the size.
  */
 -(void) drawInContext:(JotGLContext*)context
                  atT1:(CGPoint)t1
