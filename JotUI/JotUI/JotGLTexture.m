@@ -206,12 +206,6 @@
         CGSize pathSize = clippingPath.bounds.size;
         pathSize.width = ceilf(pathSize.width);
         pathSize.height = ceilf(pathSize.height);
-        CGPoint origin = clippingPath.bounds.origin;
-        
-        NSLog(@"path size: %f %f", pathSize.width, pathSize.height);
-        NSLog(@"     size: %f %f", size.width, size.height);
-        NSLog(@"origin:    %f %f", origin.x, origin.y);
-        
         
         // on high res screens, the input path is in
         // pt instead of px, so we need to make sure
@@ -229,17 +223,13 @@
         [[UIColor whiteColor] setFill];
         [clippingPath fill];
         CGContextSetBlendMode(cgContext, kCGBlendModeClear);
-        [[UIColor whiteColor] setStroke];
-        CGContextAddPath(cgContext, clippingPath.CGPath);
-        CGContextSetLineWidth(cgContext, 3);
-        CGContextStrokePath(cgContext);
         CGContextSetBlendMode(cgContext, kCGBlendModeNormal);
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         
         // this is an image that's filled white with our path and
         // clear everywhere else
-        clipping = [[JotGLTexture alloc] initForImage:image withSize:clipSize];
+        clipping = [[JotGLTexture alloc] initForImage:image withSize:image.size];
     }
     
     //
@@ -283,7 +273,8 @@
         glStencilFunc(GL_NEVER, 1, 0xFF);
         glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
         glEnable(GL_ALPHA_TEST);
-        glAlphaFunc(GL_NOTEQUAL, 0.0 );
+//        glAlphaFunc(GL_NOTEQUAL, 0.0 );
+        glAlphaFunc(GL_GREATER, 0.5);
         glStencilMask(0xFF);
         glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
         
