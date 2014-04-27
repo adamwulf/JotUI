@@ -233,7 +233,7 @@
         
         // this is an image that's filled white with our path and
         // clear everywhere else
-        clipping = [[JotGLTexture alloc] initForImage:image withSize:pathSize];
+        clipping = [[JotGLTexture alloc] initForImage:image withSize:clipSize];
     }
     
     //
