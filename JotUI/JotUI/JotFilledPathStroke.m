@@ -18,10 +18,10 @@
 /**
  * create an empty stroke with the input texture
  */
--(id) initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4{
+-(id) initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4 andSize:(CGSize)size{
     if(self = [self init]){
         path = _path;
-        [segments addObject:[FilledPathElement elementWithPath:_path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4]];
+        [segments addObject:[FilledPathElement elementWithPath:_path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4 andSize:(CGSize)size]];
         [self updateHashWithObject:[segments firstObject]];
     }
     return self;

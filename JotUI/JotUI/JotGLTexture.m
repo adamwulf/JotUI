@@ -228,6 +228,12 @@
         CGContextClearRect(cgContext, CGRectMake(0, 0, clipSize.width, clipSize.height));
         [[UIColor whiteColor] setFill];
         [clippingPath fill];
+        CGContextSetBlendMode(cgContext, kCGBlendModeClear);
+        [[UIColor whiteColor] setStroke];
+        CGContextAddPath(cgContext, clippingPath.CGPath);
+        CGContextSetLineWidth(cgContext, 3);
+        CGContextStrokePath(cgContext);
+        CGContextSetBlendMode(cgContext, kCGBlendModeNormal);
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
         

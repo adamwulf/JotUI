@@ -25,6 +25,8 @@
     
     CGFloat scaleToDraw;
     CGAffineTransform scaleTransform;
+    
+    CGSize sizeOfTexture;
 }
 
 -(UIColor*) color{
@@ -32,9 +34,11 @@
 }
 
 
--(id) initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4{
+-(id) initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4 andSize:(CGSize)size{
     if(self = [super initWithStart:CGPointZero]){
         path = [_path copy];
+        path.lineWidth = 2;
+        sizeOfTexture = size;
         
         p1 = _p1;
         p2 = _p2;
@@ -60,33 +64,36 @@
     return self;
 }
 
-+(id) elementWithPath:(UIBezierPath*)path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4{
-    return [[FilledPathElement alloc] initWithPath:path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4];
++(id) elementWithPath:(UIBezierPath*)path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4 andSize:(CGSize)size{
+    return [[FilledPathElement alloc] initWithPath:path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4 andSize:(CGSize)size];
 }
 
 
 -(void) generateTextureFromPath{
-    [path applyTransform:CGAffineTransformMakeTranslation(-path.bounds.origin.x, -path.bounds.origin.y)];
-    CGRect textureBounds = CGRectMake(0, 0, ceilf(path.bounds.size.width), ceilf(path.bounds.size.height));
-    
+    CGRect textureBounds = path.bounds;
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef bitmapContext = CGBitmapContextCreate(NULL, textureBounds.size.width, textureBounds.size.height, 8, textureBounds.size.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
+    CGContextRef bitmapContext = CGBitmapContextCreate(NULL, sizeOfTexture.width, sizeOfTexture.height, 8, sizeOfTexture.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
     if(!bitmapContext){
         @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
     }
+    
     UIGraphicsPushContext(bitmapContext);
     
-    CGContextClearRect(bitmapContext, CGRectMake(0, 0, textureBounds.size.width, textureBounds.size.height));
+    CGContextClearRect(bitmapContext, CGRectMake(0, 0, sizeOfTexture.width, sizeOfTexture.height));
     
     // flip vertical for our drawn content, since OpenGL is opposite core graphics
-    CGContextTranslateCTM(bitmapContext, 0, path.bounds.size.height);
+    CGContextTranslateCTM(bitmapContext, 0, sizeOfTexture.height);
     CGContextScaleCTM(bitmapContext, 1.0, -1.0);
     
     //
     // ok, now render our actual content
-    CGContextClearRect(bitmapContext, CGRectMake(0.0, 0.0, textureBounds.size.width, textureBounds.size.height));
+    CGContextClearRect(bitmapContext, CGRectMake(0.0, 0.0, sizeOfTexture.width, sizeOfTexture.height));
     [[UIColor whiteColor] setFill];
     [path fill];
+//    CGContextSetBlendMode(bitmapContext, kCGBlendModeClear);
+//    [[UIColor whiteColor] setStroke];
+//    [path stroke];
+//    CGContextSetBlendMode(bitmapContext, kCGBlendModeNormal);
     
     // Retrieve the UIImage from the current context
     CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
@@ -229,6 +236,8 @@
     [dict setObject:[NSNumber numberWithFloat:p3.y] forKey:@"p3.y"];
     [dict setObject:[NSNumber numberWithFloat:p4.x] forKey:@"p4.x"];
     [dict setObject:[NSNumber numberWithFloat:p4.y] forKey:@"p4.y"];
+    [dict setObject:[NSNumber numberWithFloat:sizeOfTexture.width] forKey:@"sizeOfTexture.width"];
+    [dict setObject:[NSNumber numberWithFloat:sizeOfTexture.height] forKey:@"sizeOfTexture.height"];
 
     return [NSDictionary dictionaryWithDictionary:dict];
 }
@@ -242,6 +251,7 @@
         p2 = CGPointMake([[dictionary objectForKey:@"p2.x"] floatValue], [[dictionary objectForKey:@"p2.y"] floatValue]);
         p3 = CGPointMake([[dictionary objectForKey:@"p3.x"] floatValue], [[dictionary objectForKey:@"p3.y"] floatValue]);
         p4 = CGPointMake([[dictionary objectForKey:@"p4.x"] floatValue], [[dictionary objectForKey:@"p4.y"] floatValue]);
+        sizeOfTexture = CGSizeMake([[dictionary objectForKey:@"sizeOfTexture.width"] floatValue], [[dictionary objectForKey:@"sizeOfTexture.height"] floatValue]);
         
         NSUInteger prime = 31;
         hashCache = 1;

@@ -591,10 +591,6 @@ static JotGLContext *mainThreadContext;
             }
             CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
             
-            if(!bitmapContext){
-                NSLog(@"oh no");
-            }
-            
             // flip vertical for our drawn content, since OpenGL is opposite core graphics
             CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
             CGContextScaleCTM(bitmapContext, 1.0, -1.0);
@@ -738,7 +734,7 @@ static JotGLContext *mainThreadContext;
             }
             // step 3:
             // read the image from OpenGL and push it into a data buffer
-            NSInteger x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
+            GLint x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
             NSInteger dataLength = fullSize.width * fullSize.height * 4;
             GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
             if(!data){
@@ -1712,8 +1708,11 @@ static int undoCounter;
     [state.stackOfStrokes addObject:stroke];
 }
 
--(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4{
-    JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path andP1:p1 andP2:p2 andP3:p3 andP4:p4];
+-(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 andSize:(CGSize)size{
+    // make sure size is rounded up
+    size.width = ceilf(size.width);
+    size.height = ceilf(size.height);
+    JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path andP1:p1 andP2:p2 andP3:p3 andP4:p4 andSize:size];
     [state.stackOfStrokes addObject:stroke];
     
     JotBrushTexture* keepThisTexture = brushTexture;
