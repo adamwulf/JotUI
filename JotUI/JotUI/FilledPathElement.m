@@ -151,17 +151,18 @@
     
     
     [texture drawInContext:(JotGLContext*)[JotGLContext currentContext]
-                   atT1:CGPointMake(0, 1)
-                  andT2:CGPointMake(1, 1)
-                  andT3:CGPointMake(0, 0)
-                  andT4:CGPointMake(1, 0)
-                   atP1:CGPointApplyAffineTransform(p1, scaleTransform)
-                  andP2:CGPointApplyAffineTransform(p2, scaleTransform)
-                  andP3:CGPointApplyAffineTransform(p3, scaleTransform)
-                  andP4:CGPointApplyAffineTransform(p4, scaleTransform)
-         withResolution:texture.pixelSize
-                andClip:NO
-                 asErase:YES]; // erase
+                      atT1:CGPointMake(0, 1)
+                     andT2:CGPointMake(1, 1)
+                     andT3:CGPointMake(0, 0)
+                     andT4:CGPointMake(1, 0)
+                      atP1:CGPointApplyAffineTransform(p1, scaleTransform)
+                     andP2:CGPointApplyAffineTransform(p2, scaleTransform)
+                     andP3:CGPointApplyAffineTransform(p3, scaleTransform)
+                     andP4:CGPointApplyAffineTransform(p4, scaleTransform)
+            withResolution:texture.pixelSize
+                   andClip:NO
+           andClippingSize:CGSizeZero
+                   asErase:YES]; // erase
     
     //
     // should make a drawInQuad: method that takes four points

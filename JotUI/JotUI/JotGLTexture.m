@@ -171,6 +171,7 @@
                   andP4:CGPointMake(fullPixelSize.width, 0)
          withResolution:fullPixelSize
                 andClip:nil
+        andClippingSize:CGSizeZero
               asErase:NO]; // default to draw full texture w/o color modification
 }
 
@@ -194,6 +195,7 @@
                 andP4:(CGPoint)p4
        withResolution:(CGSize)size
               andClip:(UIBezierPath*)clippingPath
+      andClippingSize:(CGSize)clipSize
             asErase:(BOOL)asErase{
     // save our clipping texture and stencil buffer, if any
     JotGLTexture* clipping;
@@ -204,6 +206,12 @@
         CGSize pathSize = clippingPath.bounds.size;
         pathSize.width = ceilf(pathSize.width);
         pathSize.height = ceilf(pathSize.height);
+        CGPoint origin = clippingPath.bounds.origin;
+        
+        NSLog(@"path size: %f %f", pathSize.width, pathSize.height);
+        NSLog(@"     size: %f %f", size.width, size.height);
+        NSLog(@"origin:    %f %f", origin.x, origin.y);
+        
         
         // on high res screens, the input path is in
         // pt instead of px, so we need to make sure
@@ -215,9 +223,9 @@
         // https://github.com/adamwulf/loose-leaf/issues/408
         //
         // generate simple coregraphics texture in coregraphics
-        UIGraphicsBeginImageContextWithOptions(pathSize, NO, 1);
+        UIGraphicsBeginImageContextWithOptions(clipSize, NO, 1);
         CGContextRef cgContext = UIGraphicsGetCurrentContext();
-        CGContextClearRect(cgContext, CGRectMake(0, 0, pathSize.width, pathSize.height));
+        CGContextClearRect(cgContext, CGRectMake(0, 0, clipSize.width, clipSize.height));
         [[UIColor whiteColor] setFill];
         [clippingPath fill];
         UIImage *image = UIGraphicsGetImageFromCurrentImageContext();

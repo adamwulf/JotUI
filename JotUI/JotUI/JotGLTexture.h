@@ -36,6 +36,7 @@
                 andP4:(CGPoint)p4
        withResolution:(CGSize)size
               andClip:(UIBezierPath*)clippingPath
+      andClippingSize:(CGSize)clipSize
             asErase:(BOOL)asErase;
 
 @end

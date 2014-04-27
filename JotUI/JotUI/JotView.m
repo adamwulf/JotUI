@@ -1812,7 +1812,7 @@ static int undoCounter;
 
 
 
--(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clip{
+-(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clip andClippingSize:(CGSize)clipSize{
     
     CheckMainThread;
     
@@ -1843,6 +1843,7 @@ static int undoCounter;
                      andP4:CGPointMake(state.backgroundTexture.pixelSize.width, 0)
             withResolution:state.backgroundTexture.pixelSize
                    andClip:clip
+           andClippingSize:clipSize
                  asErase:NO];
 
     [self unprepOpenGLState];
