@@ -202,6 +202,8 @@
     if(clippingPath){
         
         CGSize pathSize = clippingPath.bounds.size;
+        pathSize.width = ceilf(pathSize.width);
+        pathSize.height = ceilf(pathSize.height);
         
         // on high res screens, the input path is in
         // pt instead of px, so we need to make sure
