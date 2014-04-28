@@ -49,8 +49,8 @@
     // Make sure the image exists
     if(brushCGImage) {
         // Get the width and height of the image
-        size_t width = CGImageGetWidth(brushCGImage);
-        size_t height = CGImageGetHeight(brushCGImage);
+        GLsizei width = (GLsizei) CGImageGetWidth(brushCGImage);
+        GLsizei height = (GLsizei) CGImageGetHeight(brushCGImage);
         
         // Texture dimensions must be a power of 2. If you write an application that allows users to supply an image,
         // you'll want to add code that checks the dimensions and takes appropriate action if they are not a power of 2.

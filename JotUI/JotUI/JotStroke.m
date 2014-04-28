@@ -60,7 +60,7 @@
 
 -(void) addElement:(AbstractBezierPathElement*)element{
     element.bufferManager = self.bufferManager;
-    int numOfElementBytes = [element numberOfBytesGivenPreviousElement:[segments lastObject]];
+    NSInteger numOfElementBytes = [element numberOfBytesGivenPreviousElement:[segments lastObject]];
     int numOfCacheBytes = [JotBufferVBO cacheNumberForBytes:numOfElementBytes] * kJotBufferBucketSize;
 //    NSLog(@"number of element bytes: %d", numOfElementBytes);
     totalNumberOfBytes += numOfElementBytes + numOfCacheBytes;
@@ -147,7 +147,7 @@
 }
 
 -(NSString*) uuid{
-    return [NSString stringWithFormat:@"%u", [self hash]];
+    return [NSString stringWithFormat:@"%lu", (unsigned long)[self hash]];
 }
 
 -(BOOL) isEqual:(id)object{

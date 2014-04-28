@@ -90,7 +90,7 @@
 }
 
 -(NSString*) uuid{
-    return [NSString stringWithFormat:@"%u", [self hash]];
+    return [NSString stringWithFormat:@"%lu", (unsigned long)[self hash]];
 }
 
 -(BOOL) isEqual:(id)object{

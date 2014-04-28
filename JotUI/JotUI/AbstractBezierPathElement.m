@@ -148,7 +148,7 @@ int printOglError(char *file, int line)
 -(void) draw{
     if([self bind]){
         // VBO
-        glDrawArrays(GL_POINTS, 0, [self numberOfSteps] * [self numberOfVerticesPerStep]);
+        glDrawArrays(GL_POINTS, 0, (int) ([self numberOfSteps] * [self numberOfVerticesPerStep]));
         [self unbind];
     }
 }

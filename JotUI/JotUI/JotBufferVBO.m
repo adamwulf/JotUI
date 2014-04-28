@@ -20,7 +20,7 @@
  */
 @implementation JotBufferVBO{
     // this cacheNumber saves which bucket of VBOs this particular VBO may share with
-    int cacheNumber;
+    NSInteger cacheNumber;
     // this is the backing VBO which may or may not be shared with other JotBufferVBOs
     OpenGLVBO* vbo;
     // this is the stepNumber inside the OpenGL vbo where our memory is stored
@@ -40,11 +40,11 @@
     return self;
 }
 
-+(int) cacheNumberForBytes:(int)bytes{
++(int) cacheNumberForBytes:(NSInteger)bytes{
     return ceilf(bytes / kJotBufferBucketSize);
 }
 
--(int) cacheNumber{
+-(NSInteger) cacheNumber{
     return cacheNumber;
 }
 
@@ -64,7 +64,7 @@
  * this bind method presumes that color information is NOT included in
  * the vertex data of the VBO, and will set glColor4f
  */
--(void) bindForColor:(CGFloat[4])color{
+-(void) bindForColor:(GLfloat[4])color{
     [vbo bindForColor:color andStep:stepNumber];
 }
 

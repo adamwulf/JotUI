@@ -176,7 +176,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 
 -(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
     // find out how many steps we can put inside this segment length
-    int numberOfVertices = [self numberOfVertices];
+    NSInteger numberOfVertices = [self numberOfVertices];
     NSInteger numberOfBytes;
     if([self shouldContainVertexColorDataGivenPreviousElement:previousElement]){
         numberOfBytes = numberOfVertices*sizeof(struct ColorfulVertex);
@@ -249,7 +249,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     vertexBufferShouldContainColor = [self shouldContainVertexColorDataGivenPreviousElement:previousElement];
     
     // find out how many steps we can put inside this segment length
-    int numberOfVertices = [self numberOfVertices];
+    NSInteger numberOfVertices = [self numberOfVertices];
     numberOfBytesOfVertexData = [self numberOfBytesGivenPreviousElement:previousElement];
     
     // malloc the memory for our buffer, if needed

@@ -166,7 +166,7 @@ static JotBufferManager* _instance = nil;
  * anything above this will be automatically sent to the trashmanager
  * anything below will be kept.
  */
--(NSInteger) maxCacheSizeFor:(int)cacheNumber{
+-(NSInteger) maxCacheSizeFor:(NSInteger)cacheNumber{
     if(cacheNumber <= 1){           // (.2k) * 1000 = 200k
         return 1000;
     }else if(cacheNumber <= 2){     // (.4k) * 1000 = 400k
@@ -254,7 +254,7 @@ static JotBufferManager* _instance = nil;
  * this will return/create an array of VBOs for a
  * particular size
  */
--(NSMutableArray*) arrayOfVBOsForCacheNumber:(int)size{
+-(NSMutableArray*) arrayOfVBOsForCacheNumber:(NSInteger)size{
     NSMutableArray* arr = [cacheOfVBOs objectForKey:@(size)];
     if(!arr){
         arr = [NSMutableArray array];

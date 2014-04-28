@@ -14,7 +14,7 @@
 static char COLOR_COMPONENTS;
 
 -(void) getRGBAComponents:(GLfloat[4])components{
-    int numComponents = CGColorGetNumberOfComponents(self.CGColor);;
+    size_t numComponents = CGColorGetNumberOfComponents(self.CGColor);;
     const CGFloat *cmps = CGColorGetComponents(self.CGColor);
     
     if (numComponents == 4)

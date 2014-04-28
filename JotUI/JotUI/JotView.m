@@ -1116,7 +1116,7 @@ static int undoCounter;
     if([state.strokesBeingWrittenToBackingTexture count]){
         undoCounter++;
         if(undoCounter % 3 == 0){
-            NSLog(@"strokes waiting to write: %d", [state.strokesBeingWrittenToBackingTexture count]);
+            NSLog(@"strokes waiting to write: %lu", (unsigned long)[state.strokesBeingWrittenToBackingTexture count]);
             undoCounter = 0;
         }
         JotBrushTexture* keepThisTexture = brushTexture;
@@ -1271,7 +1271,7 @@ static int undoCounter;
                                    toColor:[self.delegate colorForTouch:jotTouch]
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
             if([currentStroke totalNumberOfBytes] > kJotMaxStrokeByteSize){ // 0.25Mb
-                NSLog(@"stroke size: %d", [currentStroke totalNumberOfBytes]);
+                NSLog(@"stroke size: %ld", (long)[currentStroke totalNumberOfBytes]);
                 
                 // we'll split the stroke here
                 [state.stackOfStrokes addObject:currentStroke];
@@ -1437,7 +1437,7 @@ static int undoCounter;
                                        toColor:[self.delegate colorForTouch:jotTouch]
                                  andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
                 if([currentStroke totalNumberOfBytes] > kJotMaxStrokeByteSize){ // 0.25Mb
-                    NSLog(@"stroke size: %d", [currentStroke totalNumberOfBytes]);
+                    NSLog(@"stroke size: %ld", (long)[currentStroke totalNumberOfBytes]);
                     
                     // we'll split the stroke here
                     [state.stackOfStrokes addObject:currentStroke];

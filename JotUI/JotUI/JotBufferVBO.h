@@ -17,9 +17,9 @@
 
 -(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber;
 
-+(int) cacheNumberForBytes:(int)bytes;
++(int) cacheNumberForBytes:(NSInteger)bytes;
 
--(int) cacheNumber;
+-(NSInteger) cacheNumber;
 
 -(void) updateBufferWithData:(NSData*)vertexData;
 

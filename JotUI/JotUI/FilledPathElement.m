@@ -70,7 +70,6 @@
 
 
 -(void) generateTextureFromPath{
-    CGRect textureBounds = path.bounds;
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
     CGContextRef bitmapContext = CGBitmapContextCreate(NULL, sizeOfTexture.width, sizeOfTexture.height, 8, sizeOfTexture.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
     if(!bitmapContext){
@@ -90,10 +89,6 @@
     CGContextClearRect(bitmapContext, CGRectMake(0.0, 0.0, sizeOfTexture.width, sizeOfTexture.height));
     [[UIColor whiteColor] setFill];
     [path fill];
-//    CGContextSetBlendMode(bitmapContext, kCGBlendModeClear);
-//    [[UIColor whiteColor] setStroke];
-//    [path stroke];
-//    CGContextSetBlendMode(bitmapContext, kCGBlendModeNormal);
     
     // Retrieve the UIImage from the current context
     CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
