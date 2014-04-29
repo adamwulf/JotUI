@@ -1187,7 +1187,10 @@ static int undoCounter;
         if(aStroke == stroke){
             [state.currentStrokes removeObjectForKey:key];
             if([aStroke.segments count] > 1 || ![[aStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
-                [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:stroke.bounds];
+                CGFloat scale = [[UIScreen mainScreen] scale];
+                CGRect bounds = [stroke bounds];
+                bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
+                [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
             }
             return;
         }
