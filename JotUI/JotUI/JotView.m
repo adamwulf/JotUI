@@ -1397,13 +1397,19 @@ static int undoCounter;
  * the jot sdk is not enabled.
  */
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-    
-    if(!state) return;
 
-    if(![JotStylusManager sharedInstance].enabled){
+    NSLog(@"checking state");
+
+    if(!state) return;
+    NSLog(@"have state");
+
+    if(![JotStylusManager sharedInstance].preferredStylus){
+        NSLog(@"no stylus");
         for (UITouch *touch in touches) {
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+            NSLog(@"got touch");
             if([self.delegate willBeginStrokeWithTouch:jotTouch]){
+                NSLog(@"will begin");
                 JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
                                                                                      andTexture:brushTexture
                                                                                andBufferManager:state.bufferManager];
@@ -1423,7 +1429,7 @@ static int undoCounter;
 
     if(!state) return;
 
-    if(![JotStylusManager sharedInstance].enabled){
+    if(![JotStylusManager sharedInstance].preferredStylus){
         for (UITouch *touch in touches) {
             // check for other brands of stylus,
             // or process non-Jot touches
@@ -1468,7 +1474,7 @@ static int undoCounter;
 
     if(!state) return;
 
-    if(![JotStylusManager sharedInstance].enabled){
+    if(![JotStylusManager sharedInstance].preferredStylus){
         for(UITouch* touch in touches){
             
             // now line to the end of the stroke
@@ -1510,7 +1516,7 @@ static int undoCounter;
 
     if(!state) return;
 
-    if(![JotStylusManager sharedInstance].enabled){
+    if(![JotStylusManager sharedInstance].preferredStylus){
         for(UITouch* touch in touches){
             // If appropriate, add code necessary to save the state of the application.
             // This application is not saving state.
