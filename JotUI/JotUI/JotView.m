@@ -1403,18 +1403,16 @@ static int undoCounter;
     if(!state) return;
     NSLog(@"have state");
 
-    if(![JotStylusManager sharedInstance].preferredStylus){
+    if(![JotStylusManager sharedInstance].isStylusConnected){
         NSLog(@"no stylus");
         for (UITouch *touch in touches) {
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
             NSLog(@"got touch");
             if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-                NSLog(@"will begin");
-                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
-                                                                                     andTexture:brushTexture
-                                                                               andBufferManager:state.bufferManager];
+                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
                 newStroke.delegate = self;
                 [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+                // find the stroke that we're modifying, and then add an element and render it
                 [self addLineToAndRenderStroke:newStroke
                                        toPoint:[touch locationInView:self]
                                        toWidth:[self.delegate widthForTouch:jotTouch]
@@ -1429,7 +1427,7 @@ static int undoCounter;
 
     if(!state) return;
 
-    if(![JotStylusManager sharedInstance].preferredStylus){
+    if(![JotStylusManager sharedInstance].isStylusConnected){
         for (UITouch *touch in touches) {
             // check for other brands of stylus,
             // or process non-Jot touches
@@ -1440,6 +1438,7 @@ static int undoCounter;
             JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
             if(currentStroke){
                 [self.delegate willMoveStrokeWithTouch:jotTouch];
+                // find the stroke that we're modifying, and then add an element and render it
                 [self addLineToAndRenderStroke:currentStroke
                                        toPoint:[touch locationInView:self]
                                        toWidth:[self.delegate widthForTouch:jotTouch]
@@ -1474,39 +1473,39 @@ static int undoCounter;
 
     if(!state) return;
 
-    if(![JotStylusManager sharedInstance].preferredStylus){
+    if(![JotStylusManager sharedInstance].isStylusConnected){
         for(UITouch* touch in touches){
             
             // now line to the end of the stroke
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
             JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
             if(currentStroke){
+                // move to this endpoint
+                [self touchesMoved:[NSSet setWithObject:touch] withEvent:event];
+                // now line to the end of the stroke
+                
                 [self addLineToAndRenderStroke:currentStroke
                                        toPoint:[touch locationInView:self]
                                        toWidth:[self.delegate widthForTouch:jotTouch]
                                        toColor:[self.delegate colorForTouch:jotTouch]
                                  andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
                 
-                // make sure to add the dot if its just
-                // a single tap
-                if([currentStroke.segments count] == 1){
-                    [self addLineToAndRenderStroke:currentStroke
-                                           toPoint:[touch locationInView:self]
-                                           toWidth:[self.delegate widthForTouch:jotTouch]
-                                           toColor:[self.delegate colorForTouch:jotTouch]
-                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-                }
-                
-                [self.delegate didEndStrokeWithTouch:jotTouch];
-                
                 // this stroke is now finished, so add it to our completed strokes stack
                 // and remove it from the current strokes, and reset our undo state if any
                 if([currentStroke.segments count] == 0){
                     NSLog(@"zero segments!");
+                }else if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
+                    NSLog(@"only a move to, ignore");
+                    // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
+                }else{
+                    [state.stackOfStrokes addObject:currentStroke];
                 }
-                [state.stackOfStrokes addObject:currentStroke];
                 [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
                 [state.stackOfUndoneStrokes removeAllObjects];
+                
+                [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
+                
+                [self.delegate didEndStrokeWithTouch:jotTouch];
             }
         }
     }
@@ -1516,7 +1515,7 @@ static int undoCounter;
 
     if(!state) return;
 
-    if(![JotStylusManager sharedInstance].preferredStylus){
+    if(![JotStylusManager sharedInstance].isStylusConnected){
         for(UITouch* touch in touches){
             // If appropriate, add code necessary to save the state of the application.
             // This application is not saving state.
