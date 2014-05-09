@@ -1397,17 +1397,11 @@ static int undoCounter;
  * the jot sdk is not enabled.
  */
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
-
-    NSLog(@"checking state");
-
     if(!state) return;
-    NSLog(@"have state");
 
     if(![JotStylusManager sharedInstance].isStylusConnected){
-        NSLog(@"no stylus");
         for (UITouch *touch in touches) {
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-            NSLog(@"got touch");
             if([self.delegate willBeginStrokeWithTouch:jotTouch]){
                 JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
                 newStroke.delegate = self;
@@ -1435,9 +1429,9 @@ static int undoCounter;
             // for this example, we'll simply draw every touch if
             // the jot sdk is not enabled
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+            [self.delegate willMoveStrokeWithTouch:jotTouch];
             JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
             if(currentStroke){
-                [self.delegate willMoveStrokeWithTouch:jotTouch];
                 // find the stroke that we're modifying, and then add an element and render it
                 [self addLineToAndRenderStroke:currentStroke
                                        toPoint:[touch locationInView:self]
@@ -1478,6 +1472,7 @@ static int undoCounter;
             
             // now line to the end of the stroke
             JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+            [self.delegate willEndStrokeWithTouch:jotTouch];
             JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
             if(currentStroke){
                 // move to this endpoint
