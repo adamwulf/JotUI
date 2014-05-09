@@ -10,10 +10,6 @@
 		66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F7D1828501B00B7442F /* JotViewStateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 66696F7E1828501B00B7442F /* JotViewStateProxy.m */; };
 		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		669B39BC1692B46B00F12F42 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39BB1692B46B00F12F42 /* SenTestingKit.framework */; };
-		669B39BF1692B46B00F12F42 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
-		669B39CA1692B46B00F12F42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 669B39C81692B46B00F12F42 /* InfoPlist.strings */; };
-		669B39CD1692B46B00F12F42 /* JotUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B39CC1692B46B00F12F42 /* JotUITests.m */; };
 		66AC155818079A72005315C8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
 		66AC156318079B27005315C8 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2F1766D133003F4F67 /* UIImage+Resize.m */; };
 		66AC156418079B27005315C8 /* UIImage+RoundedCorner.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F331766D220003F4F67 /* UIImage+RoundedCorner.m */; };
@@ -110,12 +106,7 @@
 		669B39B01692B46A00F12F42 /* JotUI-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "JotUI-Info.plist"; sourceTree = "<group>"; };
 		669B39B21692B46A00F12F42 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		669B39B41692B46A00F12F42 /* JotUI-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotUI-Prefix.pch"; sourceTree = "<group>"; };
-		669B39BA1692B46B00F12F42 /* JotUITests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JotUITests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		669B39BB1692B46B00F12F42 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		669B39C71692B46B00F12F42 /* JotUITests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "JotUITests-Info.plist"; sourceTree = "<group>"; };
-		669B39C91692B46B00F12F42 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		669B39CB1692B46B00F12F42 /* JotUITests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JotUITests.h; sourceTree = "<group>"; };
-		669B39CC1692B46B00F12F42 /* JotUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JotUITests.m; sourceTree = "<group>"; };
 		669B39D91692B50500F12F42 /* AbstractBezierPathElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractBezierPathElement.h; sourceTree = "<group>"; };
 		669B39DA1692B50500F12F42 /* AbstractBezierPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AbstractBezierPathElement.m; sourceTree = "<group>"; };
 		669B39DB1692B50500F12F42 /* CurveToPathElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CurveToPathElement.h; sourceTree = "<group>"; };
@@ -161,15 +152,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		669B39B61692B46B00F12F42 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				669B39BC1692B46B00F12F42 /* SenTestingKit.framework in Frameworks */,
-				669B39BF1692B46B00F12F42 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		66AC155118079A71005315C8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -201,7 +183,6 @@
 			children = (
 				669B39F21692B52800F12F42 /* JotUI.h */,
 				669B39AE1692B46A00F12F42 /* JotUI */,
-				669B39C51692B46B00F12F42 /* JotUITests */,
 				669B39AB1692B46A00F12F42 /* Frameworks */,
 				669B39AA1692B46A00F12F42 /* Products */,
 			);
@@ -210,7 +191,6 @@
 		669B39AA1692B46A00F12F42 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				669B39BA1692B46B00F12F42 /* JotUITests.octest */,
 				66AC155718079A71005315C8 /* JotUI.framework */,
 			);
 			name = Products;
@@ -243,25 +223,6 @@
 				669B39B01692B46A00F12F42 /* JotUI-Info.plist */,
 				669B39B11692B46A00F12F42 /* InfoPlist.strings */,
 				669B39B41692B46A00F12F42 /* JotUI-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		669B39C51692B46B00F12F42 /* JotUITests */ = {
-			isa = PBXGroup;
-			children = (
-				669B39CB1692B46B00F12F42 /* JotUITests.h */,
-				669B39CC1692B46B00F12F42 /* JotUITests.m */,
-				669B39C61692B46B00F12F42 /* Supporting Files */,
-			);
-			path = JotUITests;
-			sourceTree = "<group>";
-		};
-		669B39C61692B46B00F12F42 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				669B39C71692B46B00F12F42 /* JotUITests-Info.plist */,
-				669B39C81692B46B00F12F42 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -434,24 +395,6 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		669B39B91692B46B00F12F42 /* JotUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 669B39D31692B46B00F12F42 /* Build configuration list for PBXNativeTarget "JotUITests" */;
-			buildPhases = (
-				669B39B51692B46B00F12F42 /* Sources */,
-				669B39B61692B46B00F12F42 /* Frameworks */,
-				669B39B71692B46B00F12F42 /* Resources */,
-				669B39B81692B46B00F12F42 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = JotUITests;
-			productName = JotUITests;
-			productReference = 669B39BA1692B46B00F12F42 /* JotUITests.octest */;
-			productType = "com.apple.product-type.bundle";
-		};
 		66AC155618079A71005315C8 /* JotUI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 66AC156018079A72005315C8 /* Build configuration list for PBXNativeTarget "JotUI" */;
@@ -495,21 +438,12 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				669B39B91692B46B00F12F42 /* JotUITests */,
 				66AC155618079A71005315C8 /* JotUI */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		669B39B71692B46B00F12F42 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				669B39CA1692B46B00F12F42 /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		66AC155318079A71005315C8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -520,19 +454,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		669B39B81692B46B00F12F42 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
 		66AC154F18079A71005315C8 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -575,14 +496,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		669B39B51692B46B00F12F42 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				669B39CD1692B46B00F12F42 /* JotUITests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		66AC155018079A71005315C8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -626,14 +539,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				669B39B21692B46A00F12F42 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-		669B39C81692B46B00F12F42 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				669B39C91692B46B00F12F42 /* en */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -689,36 +594,6 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 				VALIDATE_PRODUCT = YES;
 				VALID_ARCHS = "armv7 armv7s arm64";
-			};
-			name = Release;
-		};
-		669B39D41692B46B00F12F42 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "JotUI/JotUI-Prefix.pch";
-				INFOPLIST_FILE = "JotUITests/JotUITests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Debug;
-		};
-		669B39D51692B46B00F12F42 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "JotUI/JotUI-Prefix.pch";
-				INFOPLIST_FILE = "JotUITests/JotUITests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
@@ -800,15 +675,6 @@
 			buildConfigurations = (
 				669B39CE1692B46B00F12F42 /* Debug */,
 				669B39CF1692B46B00F12F42 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		669B39D31692B46B00F12F42 /* Build configuration list for PBXNativeTarget "JotUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				669B39D41692B46B00F12F42 /* Debug */,
-				669B39D51692B46B00F12F42 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
