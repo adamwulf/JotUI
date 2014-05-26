@@ -1502,6 +1502,7 @@ static int undoCounter;
                 
                 [self.delegate didEndStrokeWithTouch:jotTouch];
             }
+            [JotTouch cleanJotTouchFor:touch];
         }
     }
 }
@@ -1519,6 +1520,7 @@ static int undoCounter;
                 [self.delegate didCancelStrokeWithTouch:jotTouch];
                 [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
             }
+            [JotTouch cleanJotTouchFor:touch];
         }
         // we need to erase the current stroke from the screen, so
         // clear the canvas and rerender all valid strokes
