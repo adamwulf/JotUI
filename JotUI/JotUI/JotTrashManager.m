@@ -97,5 +97,10 @@ static JotTrashManager* _instance = nil;
     }
 }
 
+#pragma mark - Profiling Helpers
+
+-(NSInteger) numberOfItemsInTrash{
+    return [objectsToDealloc count];
+}
 
 @end

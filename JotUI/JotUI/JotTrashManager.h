@@ -18,4 +18,6 @@
 
 -(void) addObjectToDealloc:(NSObject*)obj;
 
+-(NSInteger) numberOfItemsInTrash;
+
 @end
