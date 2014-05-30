@@ -8,6 +8,7 @@
 
 #import "JotTrashManager.h"
 #import <QuartzCore/CAAnimation.h>
+#import "JotGLTextureBackedFrameBuffer.h"
 
 /**
  * The trash manager will hold onto objects and slowly
@@ -20,6 +21,7 @@
 @implementation JotTrashManager{
     NSMutableArray* objectsToDealloc;
     NSTimeInterval maxTickDuration;
+    JotGLContext* backgroundContext;
 }
 
 static dispatch_queue_t _trashQueue;
@@ -44,13 +46,19 @@ static JotTrashManager* _instance = nil;
 
 +(JotTrashManager*) sharedInstace{
     if(!_instance){
-        _instance = [[JotTrashManager alloc]init];
+        _instance = [[JotTrashManager alloc] init];
     }
     return _instance;
 }
 
 
 #pragma mark - Public Interface
+
+-(void) setGLContext:(JotGLContext*)context{
+    dispatch_async([JotTrashManager trashQueue], ^{
+        backgroundContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:context.sharegroup];
+    });
+}
 
 /**
  * this will set the max amount of user time that
@@ -70,6 +78,10 @@ static JotTrashManager* _instance = nil;
  * for them, so releasing them will cause their dealloc
  */
 -(BOOL) tick{
+    if(!backgroundContext){
+        // not ready to dealloc if we dont have a context yet
+        return NO;
+    }
     NSUInteger countToDealloc = 0;
     @synchronized(self){
         countToDealloc = [objectsToDealloc count];
@@ -78,10 +90,20 @@ static JotTrashManager* _instance = nil;
         dispatch_async([JotTrashManager trashQueue], ^{
             @autoreleasepool {
                 @synchronized(self){
-                    double startTime = CACurrentMediaTime();
-                    while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
-                        @synchronized(self){
+                    if([objectsToDealloc count]){
+                        if([JotGLContext currentContext] != backgroundContext){
+                            [(JotGLContext*)[JotGLContext currentContext] flush];
+                            [JotGLContext setCurrentContext:backgroundContext];
+                        }
+                        double startTime = CACurrentMediaTime();
+                        while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
+                            __weak id ref = [objectsToDealloc lastObject];
                             [objectsToDealloc removeLastObject];
+                            @synchronized(ref){
+                                if(ref){
+                                    [objectsToDealloc insertObject:ref atIndex:0];
+                                }
+                            }
                         }
                     }
                 }

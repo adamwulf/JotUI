@@ -72,6 +72,4 @@
     [vbo unbind];
 }
 
-
-
 @end

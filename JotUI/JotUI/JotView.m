@@ -159,7 +159,6 @@ static JotGLContext *mainThreadContext;
 
     //
     // this view should accept Jot stylus touch events
-    [[JotStylusManager sharedInstance] registerView:self];
     [[JotTrashManager sharedInstace] setMaxTickDuration:kJotValidateUndoTimer * 1 / 20];
 
     // create a default empty state
@@ -179,6 +178,7 @@ static JotGLContext *mainThreadContext;
     if(!mainThreadContext){
         context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
         mainThreadContext = context;
+        [[JotTrashManager sharedInstace] setGLContext:mainThreadContext];
     }else{
         context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
     }
@@ -821,93 +821,95 @@ static JotGLContext *mainThreadContext;
  * strokes except for that undone/cancelled stroke
  */
 -(void) renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(GLuint)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect{
-    
-    CheckMainThread;
-    
-    if(!state) return;
-    
-//    NSLog(@"render all");
-
-    // set our current OpenGL context
-    if([JotGLContext currentContext] != renderContext){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:renderContext];
-    }
-
-    if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-        glEnable(GL_SCISSOR_TEST);
-        glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
-    }else{
-        // noop for scissors
-    }
-    
-    // hang onto the current texture
-    // so we can reset it after we draw
-    // the strokes
-    JotBrushTexture* keepThisTexture = brushTexture;
-    
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
-
-	//
-    // step 1:
-    // Clear the buffer
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-    
-    //
-    // step 2:
-    // load a texture and draw it into a quad
-    // that fills the screen
-    [state.backgroundTexture drawInContext:renderContext];
-    
-    if(!state.backgroundTexture){
-        NSLog(@"what");
-    }
-    
-    //
-    // ok, we're done rendering the background texture to the quad
-    //
-    
-    //
-    // step 3:
-    // draw all the strokes that we have in our undo-able stack
-    [self prepOpenGLStateForFBO:theFramebuffer];
-    // reset the texture so that we load the brush texture next
-    brushTexture = nil;
-    // now draw the strokes
-    
-    int c = 0;
-    
-    for(JotStroke* stroke in [state everyVisibleStroke]){
-        // make sure our texture is the correct one for this stroke
-        if(stroke.texture != brushTexture){
-            [self setBrushTexture:stroke.texture];
+    @autoreleasepool {
+        
+        CheckMainThread;
+        
+        if(!state) return;
+        
+        //    NSLog(@"render all");
+        
+        // set our current OpenGL context
+        if([JotGLContext currentContext] != renderContext){
+            [(JotGLContext*)[JotGLContext currentContext] flush];
+            [JotGLContext setCurrentContext:renderContext];
         }
         
-        // draw each stroke element
-        AbstractBezierPathElement* prevElement = nil;
-        for(AbstractBezierPathElement* element in stroke.segments){
-            [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:(GLuint)nil];
-            prevElement = element;
-            c++;
+        if(!CGRectEqualToRect(scissorRect, CGRectZero)){
+            glEnable(GL_SCISSOR_TEST);
+            glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
+        }else{
+            // noop for scissors
         }
-    }
-    [self unprepOpenGLState];
-    
-//    NSLog(@"done render all: %d", c);
-    
-    if(shouldPresent){
-        // step 4:
-        // ok, show it!
-        [self setNeedsPresentRenderBuffer];
-    }
-    
-    // now that we're done rendering strokes, reset the texture
-    // to the current brush
-    [self setBrushTexture:keepThisTexture];
-    
-    if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-        glDisable(GL_SCISSOR_TEST);
+        
+        // hang onto the current texture
+        // so we can reset it after we draw
+        // the strokes
+        JotBrushTexture* keepThisTexture = brushTexture;
+        
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
+        
+        //
+        // step 1:
+        // Clear the buffer
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        //
+        // step 2:
+        // load a texture and draw it into a quad
+        // that fills the screen
+        [state.backgroundTexture drawInContext:renderContext];
+        
+        if(!state.backgroundTexture){
+            NSLog(@"what");
+        }
+        
+        //
+        // ok, we're done rendering the background texture to the quad
+        //
+        
+        //
+        // step 3:
+        // draw all the strokes that we have in our undo-able stack
+        [self prepOpenGLStateForFBO:theFramebuffer];
+        // reset the texture so that we load the brush texture next
+        brushTexture = nil;
+        // now draw the strokes
+        
+        int c = 0;
+        
+        for(JotStroke* stroke in [state everyVisibleStroke]){
+            // make sure our texture is the correct one for this stroke
+            if(stroke.texture != brushTexture){
+                [self setBrushTexture:stroke.texture];
+            }
+            
+            // draw each stroke element
+            AbstractBezierPathElement* prevElement = nil;
+            for(AbstractBezierPathElement* element in stroke.segments){
+                [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:(GLuint)nil];
+                prevElement = element;
+                c++;
+            }
+        }
+        [self unprepOpenGLState];
+        
+        //    NSLog(@"done render all: %d", c);
+        
+        if(shouldPresent){
+            // step 4:
+            // ok, show it!
+            [self setNeedsPresentRenderBuffer];
+        }
+        
+        // now that we're done rendering strokes, reset the texture
+        // to the current brush
+        [self setBrushTexture:keepThisTexture];
+        
+        if(!CGRectEqualToRect(scissorRect, CGRectZero)){
+            glDisable(GL_SCISSOR_TEST);
+        }
     }
 }
 
@@ -1398,20 +1400,22 @@ static int undoCounter;
  */
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     if(!state) return;
-
+    
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for (UITouch *touch in touches) {
-            JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-            if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
-                newStroke.delegate = self;
-                [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
-                // find the stroke that we're modifying, and then add an element and render it
-                [self addLineToAndRenderStroke:newStroke
-                                       toPoint:[touch locationInView:self]
-                                       toWidth:[self.delegate widthForTouch:jotTouch]
-                                       toColor:[self.delegate colorForTouch:jotTouch]
-                                 andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+            @autoreleasepool {
+                JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+                if([self.delegate willBeginStrokeWithTouch:jotTouch]){
+                    JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
+                    newStroke.delegate = self;
+                    [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+                    // find the stroke that we're modifying, and then add an element and render it
+                    [self addLineToAndRenderStroke:newStroke
+                                           toPoint:[touch locationInView:self]
+                                           toWidth:[self.delegate widthForTouch:jotTouch]
+                                           toColor:[self.delegate colorForTouch:jotTouch]
+                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                }
             }
         }
     }
@@ -1423,41 +1427,43 @@ static int undoCounter;
 
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for (UITouch *touch in touches) {
-            // check for other brands of stylus,
-            // or process non-Jot touches
-            //
-            // for this example, we'll simply draw every touch if
-            // the jot sdk is not enabled
-            JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-            [self.delegate willMoveStrokeWithTouch:jotTouch];
-            JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
-            if(currentStroke){
-                // find the stroke that we're modifying, and then add an element and render it
-                [self addLineToAndRenderStroke:currentStroke
-                                       toPoint:[touch locationInView:self]
-                                       toWidth:[self.delegate widthForTouch:jotTouch]
-                                       toColor:[self.delegate colorForTouch:jotTouch]
-                                 andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-                if([currentStroke totalNumberOfBytes] > kJotMaxStrokeByteSize){ // 0.25Mb
-                    NSLog(@"stroke size: %ld", (long)[currentStroke totalNumberOfBytes]);
-                    
-                    // we'll split the stroke here
-                    [state.stackOfStrokes addObject:currentStroke];
-                    [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
-                    [state.stackOfUndoneStrokes removeAllObjects];
-                    [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
-                    
-                    // now make a new stroke to pick up where we left off
-                    JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
-                                                                                         andTexture:brushTexture
-                                                                                   andBufferManager:state.bufferManager];
-                    [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
-                    [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
-                    MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
-                    moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
-                    moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
-                    [newStroke addElement:moveTo];
-                };
+            @autoreleasepool {
+                // check for other brands of stylus,
+                // or process non-Jot touches
+                //
+                // for this example, we'll simply draw every touch if
+                // the jot sdk is not enabled
+                JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+                [self.delegate willMoveStrokeWithTouch:jotTouch];
+                JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
+                if(currentStroke){
+                    // find the stroke that we're modifying, and then add an element and render it
+                    [self addLineToAndRenderStroke:currentStroke
+                                           toPoint:[touch locationInView:self]
+                                           toWidth:[self.delegate widthForTouch:jotTouch]
+                                           toColor:[self.delegate colorForTouch:jotTouch]
+                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                    if([currentStroke totalNumberOfBytes] > kJotMaxStrokeByteSize){ // 0.25Mb
+                        NSLog(@"stroke size: %ld", (long)[currentStroke totalNumberOfBytes]);
+                        
+                        // we'll split the stroke here
+                        [state.stackOfStrokes addObject:currentStroke];
+                        [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                        [state.stackOfUndoneStrokes removeAllObjects];
+                        [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
+                        
+                        // now make a new stroke to pick up where we left off
+                        JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
+                                                                                             andTexture:brushTexture
+                                                                                       andBufferManager:state.bufferManager];
+                        [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+                        [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
+                        MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
+                        moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
+                        moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
+                        [newStroke addElement:moveTo];
+                    };
+                }
             }
         }
     }
@@ -1469,40 +1475,41 @@ static int undoCounter;
 
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for(UITouch* touch in touches){
-            
-            // now line to the end of the stroke
-            JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-            [self.delegate willEndStrokeWithTouch:jotTouch];
-            JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
-            if(currentStroke){
-                // move to this endpoint
-                [self touchesMoved:[NSSet setWithObject:touch] withEvent:event];
+            @autoreleasepool {
                 // now line to the end of the stroke
-                
-                [self addLineToAndRenderStroke:currentStroke
-                                       toPoint:[touch locationInView:self]
-                                       toWidth:[self.delegate widthForTouch:jotTouch]
-                                       toColor:[self.delegate colorForTouch:jotTouch]
-                                 andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-                
-                // this stroke is now finished, so add it to our completed strokes stack
-                // and remove it from the current strokes, and reset our undo state if any
-                if([currentStroke.segments count] == 0){
-                    NSLog(@"zero segments!");
-                }else if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
-                    NSLog(@"only a move to, ignore");
-                    // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
-                }else{
-                    [state.stackOfStrokes addObject:currentStroke];
+                JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+                [self.delegate willEndStrokeWithTouch:jotTouch];
+                JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
+                if(currentStroke){
+                    // move to this endpoint
+                    [self touchesMoved:[NSSet setWithObject:touch] withEvent:event];
+                    // now line to the end of the stroke
+                    
+                    [self addLineToAndRenderStroke:currentStroke
+                                           toPoint:[touch locationInView:self]
+                                           toWidth:[self.delegate widthForTouch:jotTouch]
+                                           toColor:[self.delegate colorForTouch:jotTouch]
+                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                    
+                    // this stroke is now finished, so add it to our completed strokes stack
+                    // and remove it from the current strokes, and reset our undo state if any
+                    if([currentStroke.segments count] == 0){
+                        NSLog(@"zero segments!");
+                    }else if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
+                        NSLog(@"only a move to, ignore");
+                        // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
+                    }else{
+                        [state.stackOfStrokes addObject:currentStroke];
+                    }
+                    [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                    [state.stackOfUndoneStrokes removeAllObjects];
+                    
+                    [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
+                    
+                    [self.delegate didEndStrokeWithTouch:jotTouch];
                 }
-                [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
-                [state.stackOfUndoneStrokes removeAllObjects];
-                
-                [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
-                
-                [self.delegate didEndStrokeWithTouch:jotTouch];
+                [JotTouch cleanJotTouchFor:touch];
             }
-            [JotTouch cleanJotTouchFor:touch];
         }
     }
 }
@@ -1510,17 +1517,19 @@ static int undoCounter;
 -(void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event{
 
     if(!state) return;
-
+    
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for(UITouch* touch in touches){
-            // If appropriate, add code necessary to save the state of the application.
-            // This application is not saving state.
-            JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-            if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
-                [self.delegate didCancelStrokeWithTouch:jotTouch];
-                [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+            @autoreleasepool {
+                // If appropriate, add code necessary to save the state of the application.
+                // This application is not saving state.
+                JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+                if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
+                    [self.delegate didCancelStrokeWithTouch:jotTouch];
+                    [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                }
+                [JotTouch cleanJotTouchFor:touch];
             }
-            [JotTouch cleanJotTouchFor:touch];
         }
         // we need to erase the current stroke from the screen, so
         // clear the canvas and rerender all valid strokes
@@ -1739,13 +1748,27 @@ static int undoCounter;
     }
     
     [self destroyFramebuffer];
-    [[JotStylusManager sharedInstance] unregisterView:self];
 
 	if([JotGLContext currentContext] == context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
 		[JotGLContext setCurrentContext:nil];
 	}
 }
+
+-(void) willMoveToSuperview:(UIView *)newSuperview{
+    if(self.superview && newSuperview){
+        // noop, we're already registered
+    }else if(self.superview && !newSuperview){
+        // unregister
+        [[JotStylusManager sharedInstance] unregisterView:self];
+    }else if(!self.superview && newSuperview){
+        // register
+        [[JotStylusManager sharedInstance] registerView:self];
+    }else if(!self.superview && !newSuperview){
+        // noop
+    }
+}
+
 
 #pragma mark - OpenGL
 

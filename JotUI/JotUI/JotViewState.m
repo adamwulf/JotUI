@@ -114,7 +114,6 @@
 // about CPU usage inside here
 
 -(void) loadTextureHelperWithGLContext:(JotGLContext*)glContext andInkImageFile:(NSString*)inkImageFile andPixelSize:(CGSize)fullPixelSize{
-    [(JotGLContext*)[JotGLContext currentContext] flush];
     JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
     [JotGLContext setCurrentContext:backgroundThreadContext];
     
@@ -130,11 +129,11 @@
         [self.backgroundFramebuffer clear];
     }
     [(JotGLContext*)[JotGLContext currentContext] flush];
+    [JotGLContext setCurrentContext:nil];
 }
 
 
 -(void) loadStrokesHelperWithGLContext:(JotGLContext*)glContext andStateInfoFile:(NSString*)stateInfoFile{
-    [(JotGLContext*)[JotGLContext currentContext] flush];
     JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
     [JotGLContext setCurrentContext:backgroundThreadContext];
     
@@ -162,8 +161,8 @@
         [self.stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
         [self.stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
     }
-    
     [(JotGLContext*)[JotGLContext currentContext] flush];
+    [JotGLContext setCurrentContext:nil];
 }
 
 

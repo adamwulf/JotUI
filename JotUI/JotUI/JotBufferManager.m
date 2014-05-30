@@ -57,8 +57,10 @@ static JotBufferManager* _instance = nil;
 #ifdef DEBUG
         if(kJotEnableCacheStats){
             dispatch_async(dispatch_get_main_queue(),^{
-                [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(printStats) userInfo:nil repeats:YES];
-                [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(resetCacheStats) userInfo:nil repeats:NO];
+                @autoreleasepool {
+                    [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(printStats) userInfo:nil repeats:YES];
+                    [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(resetCacheStats) userInfo:nil repeats:NO];
+                }
             });
         }
 #endif
@@ -167,6 +169,9 @@ static JotBufferManager* _instance = nil;
  * anything below will be kept.
  */
 -(NSInteger) maxCacheSizeFor:(NSInteger)cacheNumber{
+    
+    return 0;
+    
     if(cacheNumber <= 1){           // (.2k) * 1000 = 200k
         return 1000;
     }else if(cacheNumber <= 2){     // (.4k) * 1000 = 400k

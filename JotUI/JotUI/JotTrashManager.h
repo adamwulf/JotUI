@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "JotGLContext.h"
 
 @interface JotTrashManager : NSObject
 
@@ -19,5 +20,7 @@
 -(void) addObjectToDealloc:(NSObject*)obj;
 
 -(NSInteger) numberOfItemsInTrash;
+
+-(void) setGLContext:(JotGLContext*)context;
 
 @end
