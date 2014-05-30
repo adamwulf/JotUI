@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class JotBufferVBO;
+@class JotBufferVBO, OpenGLVBO;
 
 @interface JotBufferManager : NSObject
 
@@ -20,6 +20,8 @@
 
 -(void) recycleBuffer:(JotBufferVBO*)buffer;
 
--(void) resetCacheStats;
+-(void) openGLBufferHasDied:(OpenGLVBO*)vbo;
+
+-(NSDictionary*) cacheMemoryStats;
 
 @end

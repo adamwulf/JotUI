@@ -14,9 +14,14 @@
 
 @interface OpenGLVBO : NSObject
 
+@property (nonatomic, readonly) int fullByteSize;
+@property (nonatomic, readonly) int stepByteSize;
 @property (nonatomic, readonly) NSInteger numberOfSteps;
+@property (nonatomic, readonly) NSInteger cacheNumber;
 
--(id) initForCacheNumber:(NSInteger)_cacheNumber;
++(int) numberOfStepsForCacheNumber:(NSInteger)cacheNumber;
+
+-(id) initForCacheNumber:(NSInteger)cacheNumber;
 
 -(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData;
 

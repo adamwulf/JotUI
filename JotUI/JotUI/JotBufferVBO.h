@@ -15,6 +15,8 @@
 
 @interface JotBufferVBO : NSObject
 
+@property (nonatomic, readonly) int byteSize;
+
 -(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber;
 
 +(int) cacheNumberForBytes:(NSInteger)bytes;

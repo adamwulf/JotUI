@@ -10,6 +10,7 @@
 #import "JotUI/JotUI.h"
 #import "UIColor+JotHelper.h"
 #import "AbstractBezierPathElement-Protected.h"
+#import "JotBufferManager.h"
 #include <stddef.h>
 
 /**
@@ -40,6 +41,7 @@ static void * zeroedDataCache = nil;
 
 
 @synthesize numberOfSteps;
+@synthesize cacheNumber;
 
 -(id) initForCacheNumber:(NSInteger)_cacheNumber{
     if(self = [super init]){
@@ -75,6 +77,23 @@ static void * zeroedDataCache = nil;
     }
     return self;
 }
+
++(int) numberOfStepsForCacheNumber:(NSInteger)cacheNumber{
+    int stepMallocSize = cacheNumber * kJotBufferBucketSize;
+    int mallocSize = ceilf(stepMallocSize / ((float)kJotMemoryPageSize)) * kJotMemoryPageSize;
+    int numberOfSteps = floorf(mallocSize / stepMallocSize);
+    return numberOfSteps;
+}
+
+-(int) fullByteSize{
+    return (int) mallocSize;
+}
+
+-(int) stepByteSize{
+    return (int) stepMallocSize;
+}
+
+
 
 /**
  * this will update a single step of data inside the VBO.
@@ -136,7 +155,9 @@ static void * zeroedDataCache = nil;
 
 -(void) dealloc{
     if(vbo){
+        [[JotBufferManager sharedInstace] openGLBufferHasDied:self];
         glDeleteBuffers(1,&vbo);
+        
     }
 }
 

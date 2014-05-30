@@ -13,6 +13,9 @@
 #import "OpenGLVBO.h"
 #import "JotBufferVBO.h"
 
+#define kVBOCacheSize @"VBO Cache Size"
+#define kVBOCacheNumSizeFmt @"VBO[%d]"
+
 /**
  * the JotBufferManager will help allocate
  * and manage VBOs that we can use when
@@ -59,13 +62,16 @@ static JotBufferManager* _instance = nil;
             dispatch_async(dispatch_get_main_queue(),^{
                 @autoreleasepool {
                     [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(printStats) userInfo:nil repeats:YES];
-                    [NSTimer scheduledTimerWithTimeInterval:3 target:self selector:@selector(resetCacheStats) userInfo:nil repeats:NO];
                 }
             });
         }
 #endif
     }
     return self;
+}
+
+-(NSDictionary*) cacheMemoryStats{
+    return cacheStats;
 }
 
 +(JotBufferManager*) sharedInstace{
@@ -107,16 +113,11 @@ static JotBufferManager* _instance = nil;
     // look to see if/how many we have that are ready to use
     NSMutableArray* vboCache = [self arrayOfVBOsForCacheNumber:cacheNumberForData];
     JotBufferVBO* buffer = [vboCache firstObject];
-    NSMutableDictionary* stats = [cacheStats objectForKey:@(buffer.cacheNumber)];
     if(buffer){
         // if we have a buffer ready to use, then remove it from our cache,
         // update it's data, and return it
         [vboCache removeObjectAtIndex:0];
         [buffer updateBufferWithData:vertexData];
-        
-        // update used stat
-        int used = [[stats objectForKey:@"used"] intValue];
-        [stats setObject:@(used + 1) forKey:@"used"];
     }else{
         // we don't have any buffers of the size we need, so
         // fill our cache with buffers of the right size
@@ -130,20 +131,18 @@ static JotBufferManager* _instance = nil;
         [vboCache removeLastObject];
         
         // stats:
-        //
-        // count miss
-        int miss = [[stats objectForKey:@"miss"] intValue];
-        [stats setObject:@(miss + 1) forKey:@"miss"];
+        // track full memory size, and memory per cache number
+        int mem = [[cacheStats objectForKey:kVBOCacheSize] intValue];
+        mem += openGLVBO.fullByteSize;
+        [cacheStats setObject:@(mem) forKey:kVBOCacheSize];
 
-        int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
-        mem += buffer.cacheNumber * kJotBufferBucketSize;
-        [cacheStats setObject:@(mem) forKey:@"totalMem"];
+        NSString* cacheNumberKey = [NSString stringWithFormat:kVBOCacheNumSizeFmt, (int)cacheNumberForData];
+        mem = [[cacheStats objectForKey:cacheNumberKey] intValue];
+        mem += openGLVBO.fullByteSize;
+        [cacheStats setObject:@(mem) forKey:cacheNumberKey];
     }
     //
     // track how many buffers are in use:
-    int active = [[stats objectForKey:@"active"] intValue];
-    [stats setObject:@(active + 1) forKey:@"active"];
-    [self updateCacheStats];
     
     [(JotGLContext*)[JotGLContext currentContext] setNeedsFlush:YES];
 
@@ -151,9 +150,9 @@ static JotBufferManager* _instance = nil;
 }
 
 -(void) resetCacheStats{
-    int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
+    int mem = [[cacheStats objectForKey:kVBOCacheSize] intValue];
     [cacheStats removeAllObjects];
-    [cacheStats setObject:@(mem) forKey:@"totalMem"];
+    [cacheStats setObject:@(mem) forKey:kVBOCacheSize];
     NSLog(@"RESET CACHE STATS!!!");
 }
 
@@ -169,29 +168,27 @@ static JotBufferManager* _instance = nil;
  * anything below will be kept.
  */
 -(NSInteger) maxCacheSizeFor:(NSInteger)cacheNumber{
-    
-    return 0;
+    int steps = [OpenGLVBO numberOfStepsForCacheNumber:cacheNumber];
     
     if(cacheNumber <= 1){           // (.2k) * 1000 = 200k
-        return 1000;
+        return steps * 10;
     }else if(cacheNumber <= 2){     // (.4k) * 1000 = 400k
-        return 1000;
+        return steps * 10;
     }else if(cacheNumber <= 3){     // (.6k) * 1000 = 600k
-        return 1000;
+        return steps * 10;
     }else if(cacheNumber <= 5){     // (.8k + 1.0k) * 500 = 400 + 500 = 900k
-        return 500;
+        return steps * 5;
     }else if(cacheNumber <= 7){     // (1.2k + 1.4k) * 20 = 240k + 280k = 520k
-        return 20;
+        return steps * 2;
     }else if(cacheNumber <= 9){     // (1.6k + 1.8k) * 20 = 32k + 36k = 68k
-        return 20;
+        return steps * 2;
     }else if(cacheNumber <= 12){    // (2.0k + 2.2k + 2.4k) * 20 = = 40 + 44 + 48k = 112k
-        return 20;
+        return steps * 2;
     }else if(cacheNumber <= 15){    // (2.6k + 2.8k + 3.0k) * 20 = 52 + 56 + 60 = 168k
-        return 20;
+        return steps * 2;
     }else{
-        return 0;
+        return steps;
     }
-    
     // 200 + 400 + 600 + 900 + 520 + 68 + 112 + 168 == ~ 3Mb cache
 }
 
@@ -208,42 +205,22 @@ static JotBufferManager* _instance = nil;
         // we don't need this buffer anymore,
         // so send it off to the Trashmanager to dealloc
         [[JotTrashManager sharedInstace] addObjectToDealloc:buffer];
-        int mem = [[cacheStats objectForKey:@"totalMem"] intValue];
-        mem -= buffer.cacheNumber * 2;
-        [cacheStats setObject:@(mem) forKey:@"totalMem"];
-        
-        NSMutableDictionary* stats = [cacheStats objectForKey:@(buffer.cacheNumber)];
-        int active = [[stats objectForKey:@"active"] intValue];
-        [stats setObject:@(active - 1) forKey:@"active"];
     }else{
         // we can still use this buffer later
         [vboCache addObject:buffer];
     }
-    [self updateCacheStats];
 }
 
+-(void) openGLBufferHasDied:(OpenGLVBO *)vbo{
+    int mem = [[cacheStats objectForKey:kVBOCacheSize] intValue];
+    mem -= vbo.fullByteSize;
+    [cacheStats setObject:@(mem) forKey:kVBOCacheSize];
 
--(void) updateCacheStats{
-#ifdef DEBUG
-    if(kJotEnableCacheStats){
-        for(id key in [cacheOfVBOs allKeys]){
-            NSArray* vbos = [cacheOfVBOs objectForKey:key];
-            NSMutableDictionary* stats = [cacheStats objectForKey:key];
-            if(!stats){
-                stats = [NSMutableDictionary dictionary];
-                [cacheStats setObject:stats forKey:key];
-            }
-            double avg = [[stats objectForKey:@"avg"] doubleValue];
-            avg = avg - avg / 100 + [vbos count] / 100.0;
-            int max = [[stats objectForKey:@"max"] intValue];
-            [stats setObject:@(avg) forKey:@"avg"];
-            [stats setObject:@([vbos count]) forKey:@"current"];
-            [stats setObject:@(MAX(max, [vbos count])) forKey:@"max"];
-        }
-    }
-#endif
+    NSString* cacheNumberKey = [NSString stringWithFormat:kVBOCacheNumSizeFmt, (int)vbo.cacheNumber];
+    mem = [[cacheStats objectForKey:cacheNumberKey] intValue];
+    mem -= vbo.fullByteSize;
+    [cacheStats setObject:@(mem) forKey:cacheNumberKey];
 }
-
 
 #pragma mark - Private
 

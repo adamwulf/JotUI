@@ -40,6 +40,10 @@
     return self;
 }
 
+-(int) byteSize{
+    return [vbo stepByteSize];
+}
+
 +(int) cacheNumberForBytes:(NSInteger)bytes{
     return ceilf(bytes / kJotBufferBucketSize);
 }
