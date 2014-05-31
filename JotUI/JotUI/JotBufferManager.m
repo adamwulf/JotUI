@@ -13,9 +13,6 @@
 #import "OpenGLVBO.h"
 #import "JotBufferVBO.h"
 
-#define kVBOCacheSize @"VBO Cache Size"
-#define kVBOCacheNumSizeFmt @"VBO[%d]"
-
 /**
  * the JotBufferManager will help allocate
  * and manage VBOs that we can use when

@@ -8,6 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+#define kVBOCacheSize @"VBO Cache Size"
+#define kVBOCacheNumSizeFmt @"VBO[%d]"
+
+
 @class JotBufferVBO, OpenGLVBO;
 
 @interface JotBufferManager : NSObject
