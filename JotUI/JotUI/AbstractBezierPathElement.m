@@ -46,6 +46,10 @@ int printOglError(char *file, int line)
     return self;
 }
 
+-(int) fullByteSize{
+    @throw kAbstractMethodException;
+}
+
 /**
  * the length of the drawn segment. if it is a
  * curve, then it is the travelled distance along

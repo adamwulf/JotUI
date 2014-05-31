@@ -80,6 +80,11 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     return [CurveToPathElement elementWithStart:start andCurveTo:point andControl1:start andControl2:point];
 }
 
+-(int) fullByteSize{
+    return vbo.fullByteSize;
+}
+
+
 /**
  * the length along the curve of this element.
  * since it's a curve, this will be longer than

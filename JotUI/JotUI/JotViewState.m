@@ -107,6 +107,18 @@
     return self;
 }
 
+-(int) fullByteSize{
+    int strokeTotal = 0;
+    NSArray* allStrokes;
+    allStrokes = [NSArray arrayWithArray:stackOfUndoneStrokes];
+    allStrokes = [allStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes];
+    allStrokes = [allStrokes arrayByAddingObjectsFromArray:strokesBeingWrittenToBackingTexture];
+    for(JotStroke*stroke in allStrokes){
+        strokeTotal += stroke.fullByteSize;
+    }
+    return backgroundTexture.fullByteSize + strokeTotal;
+}
+
 #pragma mark - Load Helpers
 
 // These used to just be blocked used above in the initFromDictionary method,

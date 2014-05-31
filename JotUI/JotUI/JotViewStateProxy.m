@@ -43,6 +43,10 @@ dispatch_queue_t loadUnloadStateQueue;
     return self;
 }
 
+-(int) fullByteSize{
+    return jotViewState.fullByteSize;
+}
+
 -(void) loadStateAsynchronously:(BOOL)async withSize:(CGSize)pagePixelSize andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager{
     @synchronized(self){
         // if we're already loading our

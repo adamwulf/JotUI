@@ -109,6 +109,10 @@
     CGImageRelease(cgImage);
 }
 
+-(int) fullByteSize{
+    return texture.fullByteSize;
+}
+
 /**
  * the length along the curve of this element.
  * since it's a curve, this will be longer than

@@ -28,6 +28,10 @@
     return [[MoveToPathElement alloc] initWithMoveTo:point];
 }
 
+-(int) fullByteSize{
+    return 0;
+}
+
 /**
  * we're just 1 point, so we have zero length
  */

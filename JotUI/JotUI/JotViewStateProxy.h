@@ -25,6 +25,7 @@
 @property (nonatomic, readonly)  NSMutableDictionary* currentStrokes;
 @property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
 @property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
+@property (nonatomic, readonly) int fullByteSize;
 
 -(id) initWithInkPath:(NSString*)inkPath andPlistPath:(NSString*)plistPath;
 

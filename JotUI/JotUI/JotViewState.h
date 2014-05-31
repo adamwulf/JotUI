@@ -31,6 +31,7 @@
 @property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
 // opengl backing memory
 @property (nonatomic, readonly) JotBufferManager* bufferManager;
+@property (nonatomic, readonly) int fullByteSize;
 
 
 /**

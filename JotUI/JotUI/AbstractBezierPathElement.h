@@ -54,6 +54,7 @@ struct ColorlessVertex{
 @property (nonatomic, readonly) CGPoint endPoint;
 @property (nonatomic, readonly) CGRect bounds;
 @property (nonatomic, strong) JotBufferManager* bufferManager;
+@property (nonatomic, readonly) int fullByteSize;
 
 -(CGFloat) lengthOfElement;
 -(CGFloat) angleOfStart;

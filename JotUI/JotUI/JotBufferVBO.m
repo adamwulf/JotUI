@@ -40,7 +40,7 @@
     return self;
 }
 
--(int) byteSize{
+-(int) fullByteSize{
     return [vbo stepByteSize];
 }
 

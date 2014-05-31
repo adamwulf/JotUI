@@ -219,7 +219,7 @@ static JotBufferManager* _instance = nil;
 }
 
 -(void) openGLBufferHasDied:(OpenGLVBO *)openGLVBO{
-    @synchronized(cacheStats){        
+    @synchronized(cacheStats){
         int mem = [[cacheStats objectForKey:kVBOCacheSize] intValue];
         mem -= openGLVBO.fullByteSize;
         [cacheStats setObject:@(mem) forKey:kVBOCacheSize];
