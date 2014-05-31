@@ -136,10 +136,6 @@ static JotGLContext *mainThreadContext;
     return self;
 }
 
--(int) fullByteSize{
-    return self.contentScaleFactor * self.bounds.size.width * self.bounds.size.height * 4 + state.fullByteSize;
-}
-
 -(id) finishInit{
     
     // strokes have a max of .5Mb each

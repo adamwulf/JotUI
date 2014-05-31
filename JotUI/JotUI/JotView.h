@@ -31,7 +31,6 @@
 @property (nonatomic, strong) JotBrushTexture* brushTexture;
 @property (readonly) JotGLContext *context;
 @property (nonatomic) NSInteger maxStrokeSize;
-@property (nonatomic, readonly) int fullByteSize;
 
 // erase the screen
 - (IBAction) clear:(BOOL)shouldPresent;
