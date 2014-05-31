@@ -42,6 +42,7 @@ static void * zeroedDataCache = nil;
 
 @synthesize numberOfSteps;
 @synthesize cacheNumber;
+@synthesize vbo;
 
 -(id) initForCacheNumber:(NSInteger)_cacheNumber{
     if(self = [super init]){
@@ -157,7 +158,6 @@ static void * zeroedDataCache = nil;
     if(vbo){
         [[JotBufferManager sharedInstace] openGLBufferHasDied:self];
         glDeleteBuffers(1,&vbo);
-        
     }
 }
 

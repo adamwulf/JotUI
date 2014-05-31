@@ -71,7 +71,9 @@ static JotBufferManager* _instance = nil;
 }
 
 -(NSDictionary*) cacheMemoryStats{
-    return cacheStats;
+    @synchronized(cacheStats){
+        return [NSDictionary dictionaryWithDictionary:cacheStats];
+    }
 }
 
 +(JotBufferManager*) sharedInstace{
@@ -132,14 +134,7 @@ static JotBufferManager* _instance = nil;
         
         // stats:
         // track full memory size, and memory per cache number
-        int mem = [[cacheStats objectForKey:kVBOCacheSize] intValue];
-        mem += openGLVBO.fullByteSize;
-        [cacheStats setObject:@(mem) forKey:kVBOCacheSize];
-
-        NSString* cacheNumberKey = [NSString stringWithFormat:kVBOCacheNumSizeFmt, (int)cacheNumberForData];
-        mem = [[cacheStats objectForKey:cacheNumberKey] intValue];
-        mem += openGLVBO.fullByteSize;
-        [cacheStats setObject:@(mem) forKey:cacheNumberKey];
+        [[JotBufferManager sharedInstace] openGLBufferHasBeenBorn:openGLVBO];
     }
     //
     // track how many buffers are in use:
@@ -170,26 +165,25 @@ static JotBufferManager* _instance = nil;
 -(NSInteger) maxCacheSizeFor:(NSInteger)cacheNumber{
     int steps = [OpenGLVBO numberOfStepsForCacheNumber:cacheNumber];
     
-    if(cacheNumber <= 1){           // (.2k) * 1000 = 200k
+    if(cacheNumber <= 1){
         return steps * 10;
-    }else if(cacheNumber <= 2){     // (.4k) * 1000 = 400k
+    }else if(cacheNumber <= 2){
         return steps * 10;
-    }else if(cacheNumber <= 3){     // (.6k) * 1000 = 600k
+    }else if(cacheNumber <= 3){
         return steps * 10;
-    }else if(cacheNumber <= 5){     // (.8k + 1.0k) * 500 = 400 + 500 = 900k
+    }else if(cacheNumber <= 5){
         return steps * 5;
-    }else if(cacheNumber <= 7){     // (1.2k + 1.4k) * 20 = 240k + 280k = 520k
+    }else if(cacheNumber <= 7){
         return steps * 2;
-    }else if(cacheNumber <= 9){     // (1.6k + 1.8k) * 20 = 32k + 36k = 68k
+    }else if(cacheNumber <= 9){
         return steps * 2;
-    }else if(cacheNumber <= 12){    // (2.0k + 2.2k + 2.4k) * 20 = = 40 + 44 + 48k = 112k
+    }else if(cacheNumber <= 12){
         return steps * 2;
-    }else if(cacheNumber <= 15){    // (2.6k + 2.8k + 3.0k) * 20 = 52 + 56 + 60 = 168k
+    }else if(cacheNumber <= 15){
         return steps * 2;
     }else{
-        return steps;
+        return 0;
     }
-    // 200 + 400 + 600 + 900 + 520 + 68 + 112 + 168 == ~ 3Mb cache
 }
 
 /**
@@ -211,15 +205,34 @@ static JotBufferManager* _instance = nil;
     }
 }
 
--(void) openGLBufferHasDied:(OpenGLVBO *)vbo{
-    int mem = [[cacheStats objectForKey:kVBOCacheSize] intValue];
-    mem -= vbo.fullByteSize;
-    [cacheStats setObject:@(mem) forKey:kVBOCacheSize];
+-(void) openGLBufferHasBeenBorn:(OpenGLVBO *)openGLVBO{
+    @synchronized(cacheStats){
+        int mem = [[cacheStats objectForKey:kVBOCacheSize] intValue];
+        mem += openGLVBO.fullByteSize;
+        [cacheStats setObject:@(mem) forKey:kVBOCacheSize];
+        
+        NSString* cacheNumberKey = [NSString stringWithFormat:kVBOCacheNumSizeFmt, (int)openGLVBO.cacheNumber];
+        mem = [[cacheStats objectForKey:cacheNumberKey] intValue];
+        mem += openGLVBO.fullByteSize;
+        [cacheStats setObject:@(mem) forKey:cacheNumberKey];
+    }
+}
 
-    NSString* cacheNumberKey = [NSString stringWithFormat:kVBOCacheNumSizeFmt, (int)vbo.cacheNumber];
-    mem = [[cacheStats objectForKey:cacheNumberKey] intValue];
-    mem -= vbo.fullByteSize;
-    [cacheStats setObject:@(mem) forKey:cacheNumberKey];
+-(void) openGLBufferHasDied:(OpenGLVBO *)openGLVBO{
+    @synchronized(cacheStats){        
+        int mem = [[cacheStats objectForKey:kVBOCacheSize] intValue];
+        mem -= openGLVBO.fullByteSize;
+        [cacheStats setObject:@(mem) forKey:kVBOCacheSize];
+        
+        NSString* cacheNumberKey = [NSString stringWithFormat:kVBOCacheNumSizeFmt, (int)openGLVBO.cacheNumber];
+        mem = [[cacheStats objectForKey:cacheNumberKey] intValue];
+        mem -= openGLVBO.fullByteSize;
+        if(mem){
+            [cacheStats setObject:@(mem) forKey:cacheNumberKey];
+        }else{
+            [cacheStats removeObjectForKey:cacheNumberKey];
+        }
+    }
 }
 
 #pragma mark - Private

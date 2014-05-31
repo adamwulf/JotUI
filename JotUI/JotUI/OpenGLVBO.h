@@ -18,6 +18,7 @@
 @property (nonatomic, readonly) int stepByteSize;
 @property (nonatomic, readonly) NSInteger numberOfSteps;
 @property (nonatomic, readonly) NSInteger cacheNumber;
+@property (readonly) GLuint vbo;
 
 +(int) numberOfStepsForCacheNumber:(NSInteger)cacheNumber;
 

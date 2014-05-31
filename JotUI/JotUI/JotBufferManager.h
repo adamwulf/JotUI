@@ -20,7 +20,7 @@
 
 -(void) recycleBuffer:(JotBufferVBO*)buffer;
 
--(void) openGLBufferHasDied:(OpenGLVBO*)vbo;
+-(void) openGLBufferHasDied:(OpenGLVBO*)openGLVBO;
 
 -(NSDictionary*) cacheMemoryStats;
 
