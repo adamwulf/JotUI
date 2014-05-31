@@ -204,7 +204,7 @@ static JotBufferManager* _instance = nil;
     if([vboCache count] >= [self maxCacheSizeFor:buffer.cacheNumber]){
         // we don't need this buffer anymore,
         // so send it off to the Trashmanager to dealloc
-        [[JotTrashManager sharedInstace] addObjectToDealloc:buffer];
+        [[JotTrashManager sharedInstance] addObjectToDealloc:buffer];
     }else{
         // we can still use this buffer later
         [vboCache addObject:buffer];

@@ -12,11 +12,19 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 
+static int totalTextureBytes;
+
 @implementation JotGLTexture{
     CGSize fullPixelSize;
+    int fullByteSize;
 }
 
 @synthesize textureID;
+@synthesize fullByteSize;
+
++(int) totalTextureBytes{
+    return totalTextureBytes;
+}
 
 //
 // one option would be to load the dict +
@@ -67,6 +75,11 @@
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        
+        fullByteSize = fullPixelSize.width * fullPixelSize.height * 4;
+        @synchronized([JotGLTexture class]){
+            totalTextureBytes += fullByteSize;
+        }
         
         //
         // load the image data if we have some, or initialize to
@@ -353,6 +366,9 @@
 }
 
 -(void) dealloc{
+    @synchronized([JotGLTexture class]){
+        totalTextureBytes -= fullByteSize;
+    }
 	[self unload];
 }
 

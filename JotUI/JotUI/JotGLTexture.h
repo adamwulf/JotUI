@@ -16,6 +16,7 @@
 
 @property (readonly) GLuint textureID;
 @property (readonly) CGSize pixelSize;
+@property (readonly) int fullByteSize;
 
 -(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size;
 
@@ -23,6 +24,8 @@
 
 -(void) bind;
 -(void) unbind;
+
++(int) totalTextureBytes;
 
 -(void) drawInContext:(JotGLContext*)context;
 -(void) drawInContext:(JotGLContext*)context

@@ -159,7 +159,7 @@ static JotGLContext *mainThreadContext;
 
     //
     // this view should accept Jot stylus touch events
-    [[JotTrashManager sharedInstace] setMaxTickDuration:kJotValidateUndoTimer * 1 / 20];
+    [[JotTrashManager sharedInstance] setMaxTickDuration:kJotValidateUndoTimer * 1 / 20];
 
     // create a default empty state
     state = nil;
@@ -178,7 +178,7 @@ static JotGLContext *mainThreadContext;
     if(!mainThreadContext){
         context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
         mainThreadContext = context;
-        [[JotTrashManager sharedInstace] setGLContext:mainThreadContext];
+        [[JotTrashManager sharedInstance] setGLContext:mainThreadContext];
     }else{
         context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
     }
@@ -1149,7 +1149,7 @@ static int undoCounter;
         // let's throw it in the trash
         if([strokeToWriteToTexture.segments count] == 0){
             [state.strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
-            [[JotTrashManager sharedInstace] addObjectToDealloc:strokeToWriteToTexture];
+            [[JotTrashManager sharedInstance] addObjectToDealloc:strokeToWriteToTexture];
             prevElementForTextureWriting = nil;
         }
         
@@ -1166,7 +1166,7 @@ static int undoCounter;
         // only export if the trash manager is empty
         // that way we're exporting w/ low memory instead
         // of unknown memory
-        if(![[JotTrashManager sharedInstace] tick]){
+        if(![[JotTrashManager sharedInstance] tick]){
             // ok, the trash is empty, so now see if we need to export
             if([exportLaterInvocations count]){
                 NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];

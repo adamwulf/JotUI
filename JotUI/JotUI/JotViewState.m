@@ -263,10 +263,10 @@
 
 -(void)dealloc{
     if(backgroundFramebuffer){
-        [[JotTrashManager sharedInstace] addObjectToDealloc:backgroundFramebuffer];
+        [[JotTrashManager sharedInstance] addObjectToDealloc:backgroundFramebuffer];
     }
     if(backgroundTexture){
-        [[JotTrashManager sharedInstace] addObjectToDealloc:backgroundTexture];
+        [[JotTrashManager sharedInstance] addObjectToDealloc:backgroundTexture];
     }
 }
 

@@ -44,7 +44,7 @@ static JotTrashManager* _instance = nil;
     return _instance;
 }
 
-+(JotTrashManager*) sharedInstace{
++(JotTrashManager*) sharedInstance{
     if(!_instance){
         _instance = [[JotTrashManager alloc] init];
     }
@@ -123,6 +123,20 @@ static JotTrashManager* _instance = nil;
 
 -(NSInteger) numberOfItemsInTrash{
     return [objectsToDealloc count];
+}
+
+-(int) knownBytesInTrash{
+    NSMutableArray* objs;
+    @synchronized(self){
+        objs = [objectsToDealloc copy];
+    }
+    int bytes = 0;
+    for(NSObject*obj in objs){
+        if([obj respondsToSelector:@selector(fullByteSize)]){
+            bytes += (int) [obj performSelector:@selector(fullByteSize)];
+        }
+    }
+    return bytes;
 }
 
 @end

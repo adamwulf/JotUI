@@ -11,7 +11,7 @@
 
 @interface JotTrashManager : NSObject
 
-+(JotTrashManager*) sharedInstace;
++(JotTrashManager*) sharedInstance;
 
 -(void) setMaxTickDuration:(NSTimeInterval)tickSize;
 
@@ -19,8 +19,10 @@
 
 -(void) addObjectToDealloc:(NSObject*)obj;
 
+-(void) setGLContext:(JotGLContext*)context;
+
 -(NSInteger) numberOfItemsInTrash;
 
--(void) setGLContext:(JotGLContext*)context;
+-(int) knownBytesInTrash;
 
 @end
