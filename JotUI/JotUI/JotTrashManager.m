@@ -100,6 +100,12 @@ static JotTrashManager* _instance = nil;
                             __weak id ref = [objectsToDealloc lastObject];
                             [objectsToDealloc removeLastObject];
                             @synchronized(ref){
+                                // synchronising on ref will retain it if possible.
+                                // so if its still around,that means we didn't dealloc it
+                                // like we were asked to.
+                                // so insert it back into the trash. once the object is deallocd
+                                // it won't be able to be synchronized, because the weak ref will
+                                // be nil
                                 if(ref){
                                     [objectsToDealloc insertObject:ref atIndex:0];
                                 }
