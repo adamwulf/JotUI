@@ -13,6 +13,8 @@
 #import "PlistSaving.h"
 #import "JotBufferManager.h"
 
+typedef NSDictionary*(^StrokeDictionaryBlock)(void);
+
 @class SegmentSmoother, AbstractBezierPathElement;
 
 /**
@@ -59,5 +61,9 @@
 -(void) cancel;
 
 -(NSString*) uuid;
+
+
+
+-(StrokeDictionaryBlock) dictionaryMaker;
 
 @end

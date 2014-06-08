@@ -111,6 +111,24 @@
     return CGRectZero;
 }
 
+#pragma mark - Simple Copy
+
+-(StrokeDictionaryBlock) dictionaryMaker{
+    
+    NSArray* segmentsCopy = [NSArray arrayWithArray:segments];
+    SegmentSmoother* smootherCopy = self.segmentSmoother;
+    JotBrushTexture* textureCopy = self.texture;
+    
+    StrokeDictionaryBlock fixSegmentIntersections = ^() {
+        return [NSDictionary dictionaryWithObjectsAndKeys:@"JotStroke", @"class",
+                [segmentsCopy jotMapWithSelector:@selector(asDictionary)], @"segments",
+                [smootherCopy asDictionary], @"segmentSmoother",
+                [textureCopy asDictionary], @"texture", nil];
+    };
+    
+    return fixSegmentIntersections;
+}
+
 #pragma mark - PlistSaving
 
 -(NSDictionary*) asDictionary{

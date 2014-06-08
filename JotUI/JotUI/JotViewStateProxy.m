@@ -42,6 +42,9 @@ dispatch_queue_t loadUnloadStateQueue;
     }
     return self;
 }
+-(NSString*) stateInfoFile{
+    return plistPath;
+}
 
 -(int) fullByteSize{
     return jotViewState.fullByteSize;

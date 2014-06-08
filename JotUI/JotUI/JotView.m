@@ -24,7 +24,6 @@
 #import "SegmentSmoother.h"
 #import "JotFilledPathStroke.h"
 #import "MMWeakTimerTarget.h"
-
 #import <JotTouchSDK/JotStylusManager.h>
 
 
@@ -34,10 +33,13 @@
 
 dispatch_queue_t importExportImageQueue;
 dispatch_queue_t importExportStateQueue;
+dispatch_queue_t importExportSavedStrokesQueue;
 
 
 @interface JotView (){
     __weak NSObject<JotViewDelegate>* delegate;
+    
+    int strokesOnDisk;
     
 	JotGLContext *context;
     
@@ -138,6 +140,8 @@ static JotGLContext *mainThreadContext;
 
 -(id) finishInit{
     
+    strokesOnDisk = 0;
+    
     // strokes have a max of .5Mb each
     self.maxStrokeSize = 512*1024;
     
@@ -229,6 +233,13 @@ static JotGLContext *mainThreadContext;
         importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
     }
     return importExportStateQueue;
+}
+
++(dispatch_queue_t) importExportSavedStrokesQueue{
+    if(!importExportSavedStrokesQueue){
+        importExportSavedStrokesQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportSavedStrokesQueue", DISPATCH_QUEUE_SERIAL);
+    }
+    return importExportSavedStrokesQueue;
 }
 
 
@@ -1329,6 +1340,9 @@ static int undoCounter;
                 NSLog(@"only a move to, ignore");
                 // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
             }else{
+                
+                @throw [NSException exceptionWithName:@"JotException" reason:@"Jot not supported" userInfo:nil];
+                
                 [state.stackOfStrokes addObject:currentStroke];
             }
             [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
@@ -1499,6 +1513,20 @@ static int undoCounter;
                         NSLog(@"only a move to, ignore");
                         // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
                     }else{
+                        
+                        // export the stroke that we just pushed to the undo history
+                        StrokeDictionaryBlock currentStrokeDict = [currentStroke dictionaryMaker];
+                        dispatch_async([JotView importExportSavedStrokesQueue], ^{
+                            NSDictionary* dictionaryOfStroke = currentStrokeDict();
+                            
+                            NSString* directoryOfJotViewState = [state.stateInfoFile stringByDeletingLastPathComponent];
+                            NSString* strokeFile = [directoryOfJotViewState stringByAppendingPathComponent:[NSString stringWithFormat:@"drawn.%i.strokedata", strokesOnDisk]];
+                            [dictionaryOfStroke writeToFile:strokeFile atomically:YES];
+                            
+                            strokesOnDisk++;
+                        });
+                        
+                        
                         [state.stackOfStrokes addObject:currentStroke];
                     }
                     [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];

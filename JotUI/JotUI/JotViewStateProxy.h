@@ -26,6 +26,7 @@
 @property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
 @property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
 @property (nonatomic, readonly) int fullByteSize;
+@property (nonatomic, readonly) NSString* stateInfoFile;
 
 -(id) initWithInkPath:(NSString*)inkPath andPlistPath:(NSString*)plistPath;
 
