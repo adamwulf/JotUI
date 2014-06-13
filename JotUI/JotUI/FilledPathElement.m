@@ -166,7 +166,7 @@
                      andP3:CGPointApplyAffineTransform(p3, scaleTransform)
                      andP4:CGPointApplyAffineTransform(p4, scaleTransform)
             withResolution:texture.pixelSize
-                   andClip:NO
+                   andClip:nil
            andClippingSize:CGSizeZero
                    asErase:YES]; // erase
     
