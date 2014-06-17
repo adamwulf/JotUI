@@ -53,4 +53,9 @@
 
 -(void) wasSavedAtImmutableState:(JotViewImmutableState*)immutableState;
 
+
+// debug
+-(NSUInteger) currentStateUndoHash;
+-(NSUInteger) lastSavedUndoHash;
+
 @end

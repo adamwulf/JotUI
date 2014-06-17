@@ -67,7 +67,7 @@ dispatch_queue_t importExportStateQueue;
     NSTimer* validateUndoStateTimer;
     AbstractBezierPathElement* prevElementForTextureWriting;
     NSMutableArray* exportLaterInvocations;
-    BOOL isCurrentlyExporting;
+    NSUInteger isCurrentlyExporting;
 
     // a handle to the image used as the current brush texture
     __strong JotBrushTexture* brushTexture;
@@ -325,7 +325,31 @@ static JotGLContext *mainThreadContext;
     if(state != newState){
         state = newState;
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+        if([state hasEditsToSave]){
+            // be explicit about not letting us change the state of
+            // the drawable view if there are saves pending.
+            @throw [NSException exceptionWithName:@"JotViewException" reason:@"Changing JotView state with saves pending" userInfo:nil];
+        }
+        // at this point, we know that we've saved 100% of our
+        // state to disk, but for some reason still have saves
+        // pending.
+        //
+        // empty out this array - otherwise we'll try to save our
+        // new state during this old invocation.
+        //
+        // https://github.com/adamwulf/loose-leaf/issues/533
+        [exportLaterInvocations removeAllObjects];
     }
+}
+
+-(void) exportImageTo:(NSString*)inkPath
+       andThumbnailTo:(NSString*)thumbnailPath
+           andStateTo:(NSString*)plistPath
+           onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
+    
+    // ask to save, and send in our state object
+    // incase we need to defer saving until later
+    [self exportImageTo:inkPath andThumbnailTo:thumbnailPath andStateTo:plistPath andJotState:state onComplete:exportFinishBlock];
 }
 
 /**
@@ -338,9 +362,17 @@ static JotGLContext *mainThreadContext;
 -(void) exportImageTo:(NSString*)inkPath
        andThumbnailTo:(NSString*)thumbnailPath
            andStateTo:(NSString*)plistPath
+          andJotState:(JotViewStateProxy*)stateToBeSaved
            onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
     
     CheckMainThread;
+    
+    if(stateToBeSaved != state){
+        @throw [NSException exceptionWithName:@"InvalidJotViewStateDuringSaveException" reason:@"JotView is asked to save with the wrong state object" userInfo:nil];
+    }
+    if(!stateToBeSaved){
+        @throw [NSException exceptionWithName:@"InvalidJotViewStateDuringSaveException" reason:@"JotView is asked to save without a state object" userInfo:nil];
+    }
     
     if(!state){
         exportFinishBlock(nil, nil, nil);
@@ -348,30 +380,36 @@ static JotGLContext *mainThreadContext;
     }
     
     if((![state isReadyToExport] || isCurrentlyExporting)){
-        if(isCurrentlyExporting){
-//            NSLog(@"cant save, currently exporting");
-        }
-        //
-        // the issue here is that we want to export the drawn image to a file, but we're
-        // also in the middle of writing all the strokes to the backing texture.
-        //
-        // instead of try to be super smart, and export while we draw (yikes!), we're going to
-        // wait for all of the strokes to be written to the texture that need to be.
-        //
-        // then, the [validateUndoState] will re-call this export method with the same parameters
-        // when it's done, and we'll bypass this block and finish the export.
-        //
-        // copy block to heap
-        if(![exportLaterInvocations count]){
+        if(isCurrentlyExporting == [state undoHash]){
+            //
+            // we're already currently saving this undo hash,
+            // so we don't need to add another save to the
+            // exportLaterInvocation list
+            NSLog(@"already saving current undo hash for %@ at %lu", inkPath, (unsigned long) state.undoHash);
+            exportFinishBlock(nil, nil, nil);
+        }else if(![exportLaterInvocations count]){
+            //
+            // the issue here is that we want to export the drawn image to a file, but we're
+            // also in the middle of writing all the strokes to the backing texture.
+            //
+            // instead of try to be super smart, and export while we draw (yikes!), we're going to
+            // wait for all of the strokes to be written to the texture that need to be.
+            //
+            // then, the [validateUndoState] will re-call this export method with the same parameters
+            // when it's done, and we'll bypass this block and finish the export.
+            //
+            // copy block to heap
             void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = [exportFinishBlock copy];
-            NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:@selector(exportImageTo:andThumbnailTo:andStateTo:onComplete:)];
+            SEL exportMethodSelector = @selector(exportImageTo:andThumbnailTo:andStateTo:andJotState:onComplete:);
+            NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:exportMethodSelector];
             NSInvocation* saveInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
             [saveInvocation setTarget:self];
-            [saveInvocation setSelector:@selector(exportImageTo:andThumbnailTo:andStateTo:onComplete:)];
+            [saveInvocation setSelector:exportMethodSelector];
             [saveInvocation setArgument:&inkPath atIndex:2];
             [saveInvocation setArgument:&thumbnailPath atIndex:3];
             [saveInvocation setArgument:&plistPath atIndex:4];
-            [saveInvocation setArgument:&block atIndex:5];
+            [saveInvocation setArgument:&state atIndex:5];
+            [saveInvocation setArgument:&block atIndex:6];
             [saveInvocation retainArguments];
             [exportLaterInvocations addObject:saveInvocation];
         }else{
@@ -384,7 +422,7 @@ static JotGLContext *mainThreadContext;
     }
     
     @synchronized(self){
-        isCurrentlyExporting = YES;
+        isCurrentlyExporting = [state undoHash];
 //        NSLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
     }
     
@@ -404,8 +442,12 @@ static JotGLContext *mainThreadContext;
     // to the backing texture
     JotViewImmutableState* immutableState = [state immutableState];
     
-//    NSLog(@"saving begins with hash: %u vs %u", [immutableState undoHash], [self undoHash]);
+    NSLog(@"saving begins for %@ with hash: %lu vs %lu w/ last saved %lu",inkPath, (unsigned long)[immutableState undoHash], (unsigned long)[self undoHash], (unsigned long)state.lastSavedUndoHash);
     
+    
+    if([immutableState undoHash] != [state undoHash]){
+        NSLog(@"immutable state for %@ is not equal. %lu vs %lu",inkPath, (unsigned long)[immutableState undoHash], (unsigned long)[self undoHash]);
+    }
     
 //    [state.backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
 //        ink = image;
@@ -488,7 +530,7 @@ static JotGLContext *mainThreadContext;
                 // if anything has changed while we've been exporting
                 // then that'll be held in the exportLaterInvocations
                 // and will fire after we're done. (from validateUndoState).
-                isCurrentlyExporting = NO;
+                isCurrentlyExporting = 0;
             }
 //            NSLog(@"export ends: %p", self);
         }

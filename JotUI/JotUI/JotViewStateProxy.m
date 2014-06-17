@@ -73,6 +73,7 @@ dispatch_queue_t loadUnloadStateQueue;
                                                           andGLContext:context
                                                       andBufferManager:bufferManager];
                 lastSavedUndoHash = [jotViewState undoHash];
+                NSLog(@"loaded state proxy for %@ at %lu", inkPath, (unsigned long) lastSavedUndoHash);
                 @synchronized(self){
                     isLoadingState = NO;
                     if(shouldKeepStateLoaded){
@@ -85,6 +86,7 @@ dispatch_queue_t loadUnloadStateQueue;
                         // state after all, so just throw it away :(
                         jotViewState = nil;
                         lastSavedUndoHash = 0;
+                        NSLog(@"decided to keep state unloaded for %@ at %lu", inkPath, (unsigned long)lastSavedUndoHash);
                     }
                 }
             }else{
@@ -104,6 +106,7 @@ dispatch_queue_t loadUnloadStateQueue;
 
 -(void) wasSavedAtImmutableState:(JotViewImmutableState*)immutableState{
     lastSavedUndoHash = [immutableState undoHash];
+    NSLog(@"was told we saved our immutable state for %@ at %lu", inkPath, (unsigned long)lastSavedUndoHash);
 }
 
 -(void) unload{
@@ -119,8 +122,8 @@ dispatch_queue_t loadUnloadStateQueue;
                     // after it finishes
                     shouldKeepStateLoaded = NO;
                 }else if([strongSelf hasEditsToSave]){
-                    NSLog(@"what??");
-                    @throw [NSException exceptionWithName:@"UnloadedEditedPageExceptoin" reason:@"The page has been asked to unload, but as edits pending save" userInfo:nil];
+                    NSLog(@"what?? %lu %lu", (unsigned long)[strongSelf.jotViewState undoHash], (unsigned long)[strongSelf lastSavedUndoHash]);
+                    @throw [NSException exceptionWithName:@"UnloadedEditedPageException" reason:@"The page has been asked to unload, but has edits pending save" userInfo:nil];
                 }
                 if(!isLoadingState && jotViewState){
                     jotViewState = nil;
@@ -156,6 +159,9 @@ dispatch_queue_t loadUnloadStateQueue;
 }
 
 -(JotViewImmutableState*) immutableState{
+    if(lastSavedUndoHash != 1 && [self undoHash] == 1){
+        NSLog(@"what!!!");
+    }
     return [jotViewState immutableState];
 }
 
@@ -188,6 +194,13 @@ dispatch_queue_t loadUnloadStateQueue;
  */
 -(BOOL) hasEditsToSave{
     return [self.jotViewState undoHash] != lastSavedUndoHash;
+}
+
+-(NSUInteger) currentStateUndoHash{
+    return [self.jotViewState undoHash];
+}
+-(NSUInteger) lastSavedUndoHash{
+    return lastSavedUndoHash;
 }
 
 
