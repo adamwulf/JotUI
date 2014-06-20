@@ -68,13 +68,13 @@
         // we need to delete the files of any strokes that were
         // written to the disk and aren't in our state dictionary any more.
         // to do that, loop over the directory and compare to the files we just wrote.
-        NSArray* contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:stateDirectory error:nil];
-        for(NSString* item in contents){
-            NSString* fileInDir = [stateDirectory stringByAppendingPathComponent:item];
-            if(![fileNamesOfStrokes containsObject:fileInDir] && [[fileInDir pathExtension] isEqualToString:kJotStrokeFileExt]){
-                [[NSFileManager defaultManager] removeItemAtPath:fileInDir error:nil];
-            }
-        }
+//        NSArray* contents = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:stateDirectory error:nil];
+//        for(NSString* item in contents){
+//            NSString* fileInDir = [stateDirectory stringByAppendingPathComponent:item];
+//            if(![fileNamesOfStrokes containsObject:fileInDir] && [[fileInDir pathExtension] isEqualToString:kJotStrokeFileExt]){
+//                [[NSFileManager defaultManager] removeItemAtPath:fileInDir error:nil];
+//            }
+//        }
         
         [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfStrokes"];
         [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfUndoneStrokes"];
