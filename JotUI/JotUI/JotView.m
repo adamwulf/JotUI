@@ -1705,10 +1705,12 @@ static int undoCounter;
         [JotGLContext setCurrentContext:self.context];
     }
 
-    JotStroke* stroke = [state.stackOfStrokes lastObject];
+    JotStroke* stroke = [state.currentStrokes objectForKey:@([state.currentStrokes count]-1)];
     BOOL strokeHasColor = [[stroke.segments lastObject] color] != nil;
     BOOL elementsHaveColor = [[elements firstObject] color] != nil;
-    if(!stroke || strokeHasColor != elementsHaveColor || [stroke.segments count] > 50 || [stroke isKindOfClass:[JotFilledPathStroke class]]){
+
+    
+    if(!stroke || strokeHasColor != elementsHaveColor || [stroke totalNumberOfBytes] > kJotMaxStrokeByteSize || [stroke isKindOfClass:[JotFilledPathStroke class]]){
         if(stroke && strokeHasColor != elementsHaveColor){
             //
             // https://github.com/adamwulf/loose-leaf/issues/249
@@ -1720,7 +1722,7 @@ static int undoCounter;
 //            NSLog(@"fixed!!!!");
         }
         stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
-        [state.stackOfStrokes addObject:stroke];
+        [state.currentStrokes setObject:stroke forKey:@([state.currentStrokes count])];
     }
     [stroke.texture bind];
 
@@ -1746,6 +1748,15 @@ static int undoCounter;
     }
     if(needsPresent){
         [self setNeedsPresentRenderBuffer];
+    }
+}
+
+-(void) doneAddingElements{
+    if([state.currentStrokes count]){
+        [state.stackOfStrokes addObjectsFromArray:[state.currentStrokes allValues]];
+        [state.currentStrokes removeAllObjects];
+    }else{
+        [self forceAddEmptyStroke];
     }
 }
 
