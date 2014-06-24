@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "AbstractBezierPathElement.h"
 
-@class JotTouch;
+@class JotTouch, JotStroke;
 
 @protocol JotViewDelegate <NSObject>
 
@@ -78,12 +78,12 @@
 /**
  * the stroke for the input touch has been cancelled.
  */
-- (void) didCancelStrokeWithTouch:(JotTouch*)touch;
+- (void) didCancelStroke:(JotStroke*)stroke withTouch:(JotTouch*)touch;
 
 /**
  * the stroke for the input touch will been cancelled.
  */
-- (void) willCancelStrokeWithTouch:(JotTouch*)touch;
+- (void) willCancelStroke:(JotStroke*)stroke withTouch:(JotTouch*)touch;
 
 @optional
 

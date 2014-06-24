@@ -29,7 +29,6 @@
 
 
 #define kJotValidateUndoTimer .06
-#define kJotMaxStrokeByteSize 256*1024
 
 
 dispatch_queue_t importExportImageQueue;
@@ -1229,6 +1228,7 @@ static int undoCounter;
     for(id key in [state.currentStrokes allKeys]){
         JotStroke* aStroke = [state.currentStrokes objectForKey:key];
         if(aStroke == stroke){
+            [self.delegate willCancelStroke:aStroke withTouch:nil];
             [state.currentStrokes removeObjectForKey:key];
             if([aStroke.segments count] > 1 || ![[aStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
                 CGFloat scale = [[UIScreen mainScreen] scale];
@@ -1236,6 +1236,7 @@ static int undoCounter;
                 bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
                 [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
             }
+            [self.delegate didCancelStroke:aStroke withTouch:nil];
             return;
         }
     }
@@ -1320,6 +1321,7 @@ static int undoCounter;
             if([currentStroke totalNumberOfBytes] > kJotMaxStrokeByteSize){ // 0.25Mb
                 NSLog(@"stroke size: %ld", (long)[currentStroke totalNumberOfBytes]);
                 
+                [self addUndoLevel];
                 // we'll split the stroke here
                 [state.stackOfStrokes addObject:currentStroke];
                 [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
@@ -1365,14 +1367,12 @@ static int undoCounter;
             
             // this stroke is now finished, so add it to our completed strokes stack
             // and remove it from the current strokes, and reset our undo state if any
-            if([currentStroke.segments count] == 0){
-                NSLog(@"zero segments!");
-            }else if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
+            if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
                 NSLog(@"only a move to, ignore");
                 // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
-            }else{
-                [state.stackOfStrokes addObject:currentStroke];
+                [currentStroke empty];
             }
+            [state.stackOfStrokes addObject:currentStroke];
             [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
             [state.stackOfUndoneStrokes removeAllObjects];
 
@@ -1396,7 +1396,6 @@ static int undoCounter;
         // If appropriate, add code necessary to save the state of the application.
         // This application is not saving state.
         if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
-            [self.delegate didCancelStrokeWithTouch:jotTouch];
             [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
         }
     }
@@ -1535,14 +1534,13 @@ static int undoCounter;
                     
                     // this stroke is now finished, so add it to our completed strokes stack
                     // and remove it from the current strokes, and reset our undo state if any
-                    if([currentStroke.segments count] == 0){
-                        NSLog(@"zero segments!");
-                    }else if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
+                    if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
                         NSLog(@"only a move to, ignore");
                         // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
-                    }else{
-                        [state.stackOfStrokes addObject:currentStroke];
+                        // just save an empty stroke to the stack
+                        [currentStroke empty];
                     }
+                    [state.stackOfStrokes addObject:currentStroke];
                     [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
                     [state.stackOfUndoneStrokes removeAllObjects];
                     
@@ -1567,7 +1565,6 @@ static int undoCounter;
                 // This application is not saving state.
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
-                    [self.delegate didCancelStrokeWithTouch:jotTouch];
                     [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
                 }
                 [JotTouch cleanJotTouchFor:touch];
@@ -1686,6 +1683,33 @@ static int undoCounter;
     // calc final size of the backing texture
     CGFloat scale = [[UIScreen mainScreen] scale];
     return CGSizeMake(initialFrameSize.width * scale, initialFrameSize.height * scale);
+}
+
+-(NSInteger) maxCurrentStrokeByteSize{
+    NSInteger maxSize = 0;
+    for(JotStroke* stroke in [state.currentStrokes allValues]){
+        NSInteger strokeSize = [stroke fullByteSize];
+        if(strokeSize > maxSize){
+            maxSize = strokeSize;
+        }
+    }
+    return maxSize;
+}
+
+// add an undo level, and create
+// fresh empty strokes for any current
+// strokes.
+// if no current strokes, then add an
+// empty stroke to the stack
+-(void) addUndoLevel{
+
+    
+    // stub
+    
+    // eventually this should do a lot of the work that
+    // jotStylusTouchMoved and jotStylusTouchEnded do
+    // when a new stroke is pushed to the stack
+    
 }
 
 /**

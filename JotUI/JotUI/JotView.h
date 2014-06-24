@@ -19,6 +19,7 @@
 #import "JotUI/JotViewStateProxyDelegate.h"
 #import <JotTouchSDK/JotStylusManager.h>
 
+#define kJotMaxStrokeByteSize 256*1024
 
 @class JotViewImmutableState;
 
@@ -37,6 +38,12 @@
 
 -(BOOL) canUndo;
 -(BOOL) canRedo;
+
+// add an undo level. if there are no current strokes,
+// then add an empty stroke to the stack. if there are
+// current strokes, replace them with empty strokes and
+// add them to the stack
+-(void) addUndoLevel;
 
 // undo the last stroke, if possible
 - (IBAction) undo;
@@ -68,7 +75,7 @@
 -(void) slowDownFPS;
 -(void) speedUpFPS;
 
-
+-(NSInteger) maxCurrentStrokeByteSize;
 -(void) addElements:(NSArray*)elements;
 -(void) doneAddingElements;
 

@@ -58,6 +58,11 @@
  */
 -(void) cancel;
 
+/**
+ * removes all segments, use with caution
+ */
+-(void) empty;
+
 -(NSString*) uuid;
 
 @end

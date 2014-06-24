@@ -101,6 +101,9 @@
     [self.delegate jotStrokeWasCancelled:self];
 }
 
+-(void) empty{
+    [segments removeAllObjects];
+}
 
 -(CGRect) bounds{
     if([self.segments count]){
