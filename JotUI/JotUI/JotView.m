@@ -1780,6 +1780,7 @@ static int undoCounter;
     }else{
         [self forceAddEmptyStroke];
     }
+    [state.stackOfUndoneStrokes removeAllObjects];
 }
 
 /**
