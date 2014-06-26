@@ -22,7 +22,7 @@
 @property (readonly) JotViewState* jotViewState;
 @property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
 @property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
-@property (nonatomic, readonly)  NSMutableDictionary* currentStrokes;
+@property (nonatomic, strong)  JotStroke* currentStroke;
 @property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
 @property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
 @property (nonatomic, readonly) int fullByteSize;

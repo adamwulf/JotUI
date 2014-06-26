@@ -25,7 +25,7 @@
 @property (nonatomic, strong) JotGLTexture* backgroundTexture;
 @property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
 // backing strokes
-@property (nonatomic, readonly)  NSMutableDictionary* currentStrokes;
+@property (nonatomic, strong)  JotStroke* currentStroke;
 @property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
 @property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
 @property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;

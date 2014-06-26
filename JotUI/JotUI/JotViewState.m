@@ -37,7 +37,7 @@
     
     // this dictionary will hold all of the in progress
     // stroke objects
-    __strong NSMutableDictionary* currentStrokes;
+    __strong JotStroke* currentStroke;
     // these arrays will act as stacks for our undo state
     __strong NSMutableArray* stackOfStrokes;
     __strong NSMutableArray* stackOfUndoneStrokes;
@@ -48,7 +48,7 @@
 @synthesize delegate;
 @synthesize backgroundTexture;
 @synthesize backgroundFramebuffer;
-@synthesize currentStrokes;
+@synthesize currentStroke;
 @synthesize stackOfStrokes;
 @synthesize stackOfUndoneStrokes;
 @synthesize strokesBeingWrittenToBackingTexture;
@@ -57,7 +57,7 @@
 -(id) init{
     if(self = [super init]){
         // setup our storage for our undo/redo strokes
-        currentStrokes = [NSMutableDictionary dictionary];
+        currentStroke = nil;
         stackOfStrokes = [NSMutableArray array];
         stackOfUndoneStrokes = [NSMutableArray array];
         strokesBeingWrittenToBackingTexture = [NSMutableArray array];
@@ -184,7 +184,10 @@
 
 
 -(NSArray*) everyVisibleStroke{
-    return [self.strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[self.stackOfStrokes arrayByAddingObjectsFromArray:[self.currentStrokes allValues]]];
+    if(self.currentStroke){
+        return [self.strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[self.stackOfStrokes arrayByAddingObject:self.currentStroke]];
+    }
+    return [self.strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:self.stackOfStrokes];
 }
 
 
@@ -225,9 +228,9 @@
 -(BOOL) isReadyToExport{
     [self tick];
     if([strokesBeingWrittenToBackingTexture count] ||
-       [currentStrokes count] ||
+       currentStroke ||
        [stackOfStrokes count] > kJotDefaultUndoLimit){
-        if([currentStrokes count]){
+        if(currentStroke){
 //            NSLog(@"cant save, currently drawing");
         }else if([strokesBeingWrittenToBackingTexture count]){
 //            NSLog(@"can't save, writing to texture");
@@ -256,8 +259,8 @@
     for(JotStroke* stroke in self.stackOfStrokes){
         hashVal = prime * hashVal + [stroke hash];
     }
-    for(JotStroke* stroke in self.currentStrokes){
-        hashVal = prime * hashVal + [stroke hash];
+    if(self.currentStroke){
+        hashVal = prime * hashVal + [self.currentStroke hash];
     }
     return hashVal;
 }

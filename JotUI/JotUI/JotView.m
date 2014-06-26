@@ -1225,20 +1225,18 @@ static int undoCounter;
 
     CheckMainThread;
     
-    for(id key in [state.currentStrokes allKeys]){
-        JotStroke* aStroke = [state.currentStrokes objectForKey:key];
-        if(aStroke == stroke){
-            [self.delegate willCancelStroke:aStroke withTouch:nil];
-            [state.currentStrokes removeObjectForKey:key];
-            if([aStroke.segments count] > 1 || ![[aStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
-                CGFloat scale = [[UIScreen mainScreen] scale];
-                CGRect bounds = [stroke bounds];
-                bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
-                [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
-            }
-            [self.delegate didCancelStroke:aStroke withTouch:nil];
-            return;
+    JotStroke* aStroke = state.currentStroke;
+    if(aStroke == stroke){
+        [self.delegate willCancelStroke:aStroke withTouch:nil];
+        state.currentStroke = nil;
+        if([aStroke.segments count] > 1 || ![[aStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
+            CGFloat scale = [[UIScreen mainScreen] scale];
+            CGRect bounds = [stroke bounds];
+            bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
+            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
         }
+        [self.delegate didCancelStroke:aStroke withTouch:nil];
+        return;
     }
 }
 
@@ -1288,7 +1286,10 @@ static int undoCounter;
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
             JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
             newStroke.delegate = self;
-            [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+            if(state.currentStroke){
+                @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
+            }
+            state.currentStroke = newStroke;
             // find the stroke that we're modifying, and then add an element and render it
             [self addLineToAndRenderStroke:newStroke
                                    toPoint:[jotTouch locationInView:self]
@@ -1324,7 +1325,7 @@ static int undoCounter;
                 [self addUndoLevel];
                 // we'll split the stroke here
                 [state.stackOfStrokes addObject:currentStroke];
-                [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                state.currentStroke = nil;
                 [state.stackOfUndoneStrokes removeAllObjects];
                 [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
 
@@ -1332,7 +1333,7 @@ static int undoCounter;
                 JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
                                                                                      andTexture:brushTexture
                                                                                andBufferManager:state.bufferManager];
-                [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+                state.currentStroke = newStroke;
                 [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
                 MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
                 moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
@@ -1373,7 +1374,7 @@ static int undoCounter;
                 [currentStroke empty];
             }
             [state.stackOfStrokes addObject:currentStroke];
-            [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+            state.currentStroke = nil;
             [state.stackOfUndoneStrokes removeAllObjects];
 
             [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
@@ -1396,7 +1397,7 @@ static int undoCounter;
         // If appropriate, add code necessary to save the state of the application.
         // This application is not saving state.
         if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
-            [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+            state.currentStroke = nil;
         }
     }
     // we need to erase the current stroke from the screen, so
@@ -1449,7 +1450,7 @@ static int undoCounter;
                 if([self.delegate willBeginStrokeWithTouch:jotTouch]){
                     JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
                     newStroke.delegate = self;
-                    [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+                    state.currentStroke = newStroke;
                     // find the stroke that we're modifying, and then add an element and render it
                     [self addLineToAndRenderStroke:newStroke
                                            toPoint:[touch locationInView:self]
@@ -1489,7 +1490,7 @@ static int undoCounter;
                         
                         // we'll split the stroke here
                         [state.stackOfStrokes addObject:currentStroke];
-                        [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                        state.currentStroke = nil;
                         [state.stackOfUndoneStrokes removeAllObjects];
                         [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
                         
@@ -1497,7 +1498,7 @@ static int undoCounter;
                         JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
                                                                                              andTexture:brushTexture
                                                                                        andBufferManager:state.bufferManager];
-                        [state.currentStrokes setObject:newStroke forKey:@(jotTouch.touch.hash)];
+                        state.currentStroke = newStroke;
                         [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
                         MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
                         moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
@@ -1541,7 +1542,7 @@ static int undoCounter;
                         [currentStroke empty];
                     }
                     [state.stackOfStrokes addObject:currentStroke];
-                    [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                    state.currentStroke = nil;
                     [state.stackOfUndoneStrokes removeAllObjects];
                     
                     [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
@@ -1565,7 +1566,7 @@ static int undoCounter;
                 // This application is not saving state.
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
-                    [state.currentStrokes removeObjectForKey:@(jotTouch.touch.hash)];
+                    state.currentStroke = nil;
                 }
                 [JotTouch cleanJotTouchFor:touch];
             }
@@ -1661,7 +1662,7 @@ static int undoCounter;
     // reset undo state
     [state.stackOfUndoneStrokes removeAllObjects];
     [state.stackOfStrokes removeAllObjects];
-    [state.currentStrokes removeAllObjects];
+    state.currentStroke = nil;
 }
 
 
@@ -1686,14 +1687,7 @@ static int undoCounter;
 }
 
 -(NSInteger) maxCurrentStrokeByteSize{
-    NSInteger maxSize = 0;
-    for(JotStroke* stroke in [state.currentStrokes allValues]){
-        NSInteger strokeSize = [stroke fullByteSize];
-        if(strokeSize > maxSize){
-            maxSize = strokeSize;
-        }
-    }
-    return maxSize;
+    return [state.currentStroke fullByteSize];
 }
 
 // add an undo level, and create
@@ -1703,6 +1697,7 @@ static int undoCounter;
 // empty stroke to the stack
 -(void) addUndoLevel{
 
+    
     
     // stub
     
@@ -1729,7 +1724,7 @@ static int undoCounter;
         [JotGLContext setCurrentContext:self.context];
     }
 
-    JotStroke* stroke = [state.currentStrokes objectForKey:@([state.currentStrokes count]-1)];
+    JotStroke* stroke = state.currentStroke;
     BOOL strokeHasColor = [[stroke.segments lastObject] color] != nil;
     BOOL elementsHaveColor = [[elements firstObject] color] != nil;
 
@@ -1745,8 +1740,11 @@ static int undoCounter;
             // backing texture.
 //            NSLog(@"fixed!!!!");
         }
+        if(state.currentStroke){
+            @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
+        }
         stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
-        [state.currentStrokes setObject:stroke forKey:@([state.currentStrokes count])];
+        state.currentStroke = stroke;
     }
     [stroke.texture bind];
 
@@ -1776,9 +1774,9 @@ static int undoCounter;
 }
 
 -(void) doneAddingElements{
-    if([state.currentStrokes count]){
-        [state.stackOfStrokes addObjectsFromArray:[state.currentStrokes allValues]];
-        [state.currentStrokes removeAllObjects];
+    if(state.currentStroke){
+        [state.stackOfStrokes addObject:state.currentStroke];
+        state.currentStroke = nil;
     }else{
         [self forceAddEmptyStroke];
     }

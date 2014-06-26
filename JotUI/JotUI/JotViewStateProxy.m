@@ -166,9 +166,13 @@ dispatch_queue_t loadUnloadStateQueue;
     return [jotViewState bufferManager];
 }
 
--(NSMutableDictionary*) currentStrokes{
-    return [jotViewState currentStrokes];
+-(JotStroke*) currentStroke{
+    return [jotViewState currentStroke];
 }
+-(void) setCurrentStroke:(JotStroke *)currentStroke{
+    [jotViewState setCurrentStroke:currentStroke];
+}
+
 -(NSMutableArray*) stackOfStrokes{
     return [jotViewState stackOfStrokes];
 }
