@@ -70,6 +70,15 @@ static JotStrokeManager* _instance = nil;
     return nil;
 }
 
+-(void) replaceStroke:(JotStroke*)oldStroke withStroke:(JotStroke*)newStroke{
+    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
+        if(strokeCache[i].stroke == oldStroke){
+            [oldStroke autorelease];
+            strokeCache[i].stroke = [newStroke retain];
+        }
+    }
+}
+
 -(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture andBufferManager:(JotBufferManager*)bufferManager{
     JotStroke* ret = [self getStrokeForTouchHash:touch];
     if(!ret){
@@ -94,6 +103,7 @@ static JotStrokeManager* _instance = nil;
             strokeCache[i].touchHash = 0;
             [strokeCache[i].stroke cancel];
             [strokeCache[i].stroke autorelease];
+            strokeCache[i].stroke = nil;
             return YES;
         }
     }
@@ -105,6 +115,7 @@ static JotStrokeManager* _instance = nil;
         if(strokeCache[i].touchHash == touch.hash){
             strokeCache[i].touchHash = 0;
             [strokeCache[i].stroke autorelease];
+            strokeCache[i].stroke = nil;
             return;
         }
     }

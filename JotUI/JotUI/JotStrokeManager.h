@@ -25,6 +25,13 @@
  */
 -(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture andBufferManager:(JotBufferManager*)bufferManager;
 
+
+/**
+ * replaces the stroke for one touch hash
+ * with another stroke
+ */
+-(void) replaceStroke:(JotStroke*)oldStroke withStroke:(JotStroke*)newStroke;
+
 /**
  * returns true if a stroke exists and has
  * been cancelled
@@ -33,9 +40,9 @@
 
 
 /**
- * returns true if a stroke exists and has
- * been cancelled
+ * remove a stroke from being tracked
  */
 -(void) removeStrokeForTouch:(UITouch*)touch;
+
 
 @end

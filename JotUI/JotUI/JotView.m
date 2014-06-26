@@ -1319,27 +1319,6 @@ static int undoCounter;
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-            if([currentStroke totalNumberOfBytes] > kJotMaxStrokeByteSize){ // 0.25Mb
-                NSLog(@"stroke size: %ld", (long)[currentStroke totalNumberOfBytes]);
-                
-                [self addUndoLevel];
-                // we'll split the stroke here
-                [state.stackOfStrokes addObject:currentStroke];
-                state.currentStroke = nil;
-                [state.stackOfUndoneStrokes removeAllObjects];
-                [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
-
-                // now make a new stroke to pick up where we left off
-                JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
-                                                                                     andTexture:brushTexture
-                                                                               andBufferManager:state.bufferManager];
-                state.currentStroke = newStroke;
-                [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
-                MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
-                moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
-                moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
-                [newStroke addElement:moveTo];
-            };
         }
     }
 }
@@ -1485,26 +1464,6 @@ static int undoCounter;
                                            toWidth:[self.delegate widthForTouch:jotTouch]
                                            toColor:[self.delegate colorForTouch:jotTouch]
                                      andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-                    if([currentStroke totalNumberOfBytes] > kJotMaxStrokeByteSize){ // 0.25Mb
-                        NSLog(@"stroke size: %ld", (long)[currentStroke totalNumberOfBytes]);
-                        
-                        // we'll split the stroke here
-                        [state.stackOfStrokes addObject:currentStroke];
-                        state.currentStroke = nil;
-                        [state.stackOfUndoneStrokes removeAllObjects];
-                        [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
-                        
-                        // now make a new stroke to pick up where we left off
-                        JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch
-                                                                                             andTexture:brushTexture
-                                                                                       andBufferManager:state.bufferManager];
-                        state.currentStroke = newStroke;
-                        [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
-                        MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
-                        moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
-                        moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
-                        [newStroke addElement:moveTo];
-                    };
                 }
             }
         }
@@ -1696,15 +1655,40 @@ static int undoCounter;
 // if no current strokes, then add an
 // empty stroke to the stack
 -(void) addUndoLevel{
+    
+    JotStroke* currentStroke = state.currentStroke;
+    
+    if(currentStroke){
+        // we have a currentStroke, so we need to
+        // make an empty stroke to pick up where this
+        // one will leave off.
+        [state.stackOfStrokes addObject:currentStroke];
+        
+        // now make a new stroke to pick up where we left off
+        JotStroke* newStroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:state.bufferManager];
+        [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
+        // make sure it starts with the same size and color as where we ended
+        MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
+        moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
+        moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
+        [newStroke addElement:moveTo];
+        
+        // set it as our new current stroke
+        state.currentStroke = newStroke;
+        
+        // update the stroke manager to make sure
+        // it knows about the new stroke, and forgets
+        // the old stroke
+        [[JotStrokeManager sharedInstace] replaceStroke:currentStroke withStroke:newStroke];
+    }else{
+        // there is no current stroke, so just add an empty stroke
+        // to our undo stack
+        [self forceAddEmptyStroke];
+    }
 
-    
-    
-    // stub
-    
-    // eventually this should do a lot of the work that
-    // jotStylusTouchMoved and jotStylusTouchEnded do
-    // when a new stroke is pushed to the stack
-    
+    // since we've added an undo level, we need to
+    // remove all undone strokes.
+    [state.stackOfUndoneStrokes removeAllObjects];
 }
 
 /**
@@ -1729,7 +1713,7 @@ static int undoCounter;
     BOOL elementsHaveColor = [[elements firstObject] color] != nil;
 
     
-    if(!stroke || strokeHasColor != elementsHaveColor || [stroke totalNumberOfBytes] > kJotMaxStrokeByteSize || [stroke isKindOfClass:[JotFilledPathStroke class]]){
+    if(!stroke || strokeHasColor != elementsHaveColor || [stroke isKindOfClass:[JotFilledPathStroke class]]){
         if(stroke && strokeHasColor != elementsHaveColor){
             //
             // https://github.com/adamwulf/loose-leaf/issues/249
