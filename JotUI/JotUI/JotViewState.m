@@ -259,6 +259,9 @@
     for(JotStroke* stroke in self.stackOfStrokes){
         hashVal = prime * hashVal + [stroke hash];
     }
+    for(JotStroke* stroke in self.stackOfUndoneStrokes){
+        hashVal = prime * hashVal + [stroke hash];
+    }
     if(self.currentStroke){
         hashVal = prime * hashVal + [self.currentStroke hash];
     }
