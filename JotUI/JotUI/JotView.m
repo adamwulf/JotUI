@@ -441,18 +441,6 @@ static JotGLContext *mainThreadContext;
     // to the backing texture
     JotViewImmutableState* immutableState = [state immutableState];
     
-    NSLog(@"saving begins for %@ with hash: %lu vs %lu w/ last saved %lu",inkPath, (unsigned long)[immutableState undoHash], (unsigned long)[self undoHash], (unsigned long)state.lastSavedUndoHash);
-    
-    
-    if([immutableState undoHash] != [state undoHash]){
-        NSLog(@"immutable state for %@ is not equal. %lu vs %lu",inkPath, (unsigned long)[immutableState undoHash], (unsigned long)[self undoHash]);
-    }
-    
-//    [state.backgroundFramebuffer exportTextureOnComplete:^(UIImage* image){
-//        ink = image;
-//        dispatch_semaphore_signal(sema2);
-//    }];
-    
     [self exportInkTextureOnComplete:^(UIImage* image){
         ink = image;
         dispatch_semaphore_signal(sema2);
