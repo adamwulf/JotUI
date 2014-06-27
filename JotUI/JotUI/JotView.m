@@ -1566,6 +1566,19 @@ static int undoCounter;
     }
 }
 
+// helper method to pop the most recent stroke
+// off the stack and forget it entirely. it will
+// not be able to be redone.
+-(void) undoAndForget{
+    if([self canUndo]){
+        CGFloat scale = [[UIScreen mainScreen] scale];
+        CGRect bounds = [[state.stackOfStrokes lastObject] bounds];
+        bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
+        [state.stackOfStrokes removeLastObject];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
+    }
+}
+
 /**
  * if we have undone strokes, then move the most recent
  * undo back to the completed strokes list, then rerender
@@ -1686,9 +1699,11 @@ static int undoCounter;
     }else{
         [self forceAddEmptyStroke];
     }
-    [state.stackOfUndoneStrokes removeAllObjects];
 }
 
+-(void) clearUndoneStrokes{
+    [state.stackOfUndoneStrokes removeAllObjects];
+}
 
 /**
  * this will add all of the input elements to a stroke,
