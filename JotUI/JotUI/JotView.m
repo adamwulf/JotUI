@@ -1642,7 +1642,7 @@ static int undoCounter;
 // strokes.
 // if no current strokes, then add an
 // empty stroke to the stack
--(void) addUndoLevel{
+-(void) addUndoLevelAndContinueStroke{
     
     JotStroke* currentStroke = state.currentStroke;
     
@@ -1678,6 +1678,17 @@ static int undoCounter;
     // remove all undone strokes.
     [state.stackOfUndoneStrokes removeAllObjects];
 }
+
+-(void) addUndoLevelAndFinishStroke{
+    if(state.currentStroke){
+        [state.stackOfStrokes addObject:state.currentStroke];
+        state.currentStroke = nil;
+    }else{
+        [self forceAddEmptyStroke];
+    }
+    [state.stackOfUndoneStrokes removeAllObjects];
+}
+
 
 /**
  * this will add all of the input elements to a stroke,
@@ -1745,15 +1756,7 @@ static int undoCounter;
     }
 }
 
--(void) doneAddingElements{
-    if(state.currentStroke){
-        [state.stackOfStrokes addObject:state.currentStroke];
-        state.currentStroke = nil;
-    }else{
-        [self forceAddEmptyStroke];
-    }
-    [state.stackOfUndoneStrokes removeAllObjects];
-}
+
 
 /**
  * this will add an empty stroke to the jotview,

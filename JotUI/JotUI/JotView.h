@@ -43,7 +43,7 @@
 // then add an empty stroke to the stack. if there are
 // current strokes, replace them with empty strokes and
 // add them to the stack
--(void) addUndoLevel;
+-(void) addUndoLevelAndContinueStroke;
 
 // undo the last stroke, if possible
 - (IBAction) undo;
@@ -77,7 +77,7 @@
 
 -(NSInteger) maxCurrentStrokeByteSize;
 -(void) addElements:(NSArray*)elements;
--(void) doneAddingElements;
+-(void) addUndoLevelAndFinishStroke;
 
 -(void) forceAddEmptyStroke;
 -(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 andSize:(CGSize)size;
