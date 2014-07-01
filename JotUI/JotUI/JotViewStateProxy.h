@@ -27,7 +27,7 @@
 @property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
 @property (nonatomic, readonly) int fullByteSize;
 
--(id) initWithInkPath:(NSString*)inkPath andPlistPath:(NSString*)plistPath;
+-(id) initWithDelegate:(NSObject<JotViewStateProxyDelegate>*)delegate;
 
 -(BOOL) isStateLoaded;
 

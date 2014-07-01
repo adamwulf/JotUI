@@ -13,10 +13,6 @@
 dispatch_queue_t loadUnloadStateQueue;
 
 @implementation JotViewStateProxy{
-    // paths to save/load state
-    NSString* inkPath;
-    NSString* plistPath;
-
     // ideal state
     BOOL shouldKeepStateLoaded;
     BOOL isLoadingState;
@@ -35,10 +31,9 @@ dispatch_queue_t loadUnloadStateQueue;
 @synthesize delegate;
 @synthesize jotViewState;
 
--(id) initWithInkPath:(NSString*)_inkPath andPlistPath:(NSString*)_plistPath{
+-(id) initWithDelegate:(NSObject<JotViewStateProxyDelegate> *)_delegate{
     if(self = [super init]){
-        inkPath = _inkPath;
-        plistPath = _plistPath;
+        self.delegate = _delegate;
     }
     return self;
 }
@@ -48,6 +43,7 @@ dispatch_queue_t loadUnloadStateQueue;
 }
 
 -(void) loadStateAsynchronously:(BOOL)async withSize:(CGSize)pagePixelSize andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager{
+    NSLog(@"loading: %@", delegate.jotViewStatePlistPath);
     @synchronized(self){
         // if we're already loading our
         // state, then bail early
@@ -67,8 +63,8 @@ dispatch_queue_t loadUnloadStateQueue;
     void (^block2)() = ^(void) {
         @autoreleasepool {
             if(!jotViewState){
-                jotViewState = [[JotViewState alloc] initWithImageFile:inkPath
-                                                          andStateFile:plistPath
+                jotViewState = [[JotViewState alloc] initWithImageFile:delegate.jotViewStateInkPath
+                                                          andStateFile:delegate.jotViewStatePlistPath
                                                            andPageSize:pagePixelSize
                                                           andGLContext:context
                                                       andBufferManager:bufferManager];
@@ -156,9 +152,6 @@ dispatch_queue_t loadUnloadStateQueue;
 }
 
 -(JotViewImmutableState*) immutableState{
-    if(lastSavedUndoHash != 1 && [self undoHash] == 1){
-        NSLog(@"what!!!");
-    }
     return [jotViewState immutableState];
 }
 

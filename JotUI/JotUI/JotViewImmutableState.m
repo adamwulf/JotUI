@@ -80,6 +80,12 @@
         [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfUndoneStrokes"];
         [stateDict setObject:[NSNumber numberWithBool:YES] forKey:@"hasConverted"];
     }
+    
+    if(![stateDict writeToFile:plistPath atomically:YES]){
+        NSLog(@"couldn't write plist file");
+    }else{
+        NSLog(@"wrote jot immutable state for hash: %lu at %@", (unsigned long)[self undoHash], plistPath);
+    }
 //    unsigned long long size = [[[NSFileManager defaultManager] attributesOfItemAtPath:plistPath error:nil] fileSize];
 //    NSLog(@"file size: %llu in %f", size, -[now timeIntervalSinceNow]);
 }

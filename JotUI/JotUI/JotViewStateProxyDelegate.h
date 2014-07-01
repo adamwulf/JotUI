@@ -10,7 +10,11 @@
 
 @class JotViewStateProxy;
 
-@protocol JotViewStateProxyDelegate <JotStrokeDelegate>
+@protocol JotViewStateProxyDelegate
+
+@property (nonatomic, readonly) NSString* jotViewStateInkPath;
+
+@property (nonatomic, readonly) NSString* jotViewStatePlistPath;
 
 -(void) didLoadState:(JotViewStateProxy*)state;
 
