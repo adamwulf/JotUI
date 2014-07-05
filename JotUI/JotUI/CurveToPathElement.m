@@ -635,6 +635,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     self = [super initFromDictionary:dictionary];
     if (self) {
+        boundsCache.origin = JotCGNotFoundPoint;
         curveTo = CGPointMake([[dictionary objectForKey:@"curveTo.x"] floatValue], [[dictionary objectForKey:@"curveTo.y"] floatValue]);
         ctrl1 = CGPointMake([[dictionary objectForKey:@"ctrl1.x"] floatValue], [[dictionary objectForKey:@"ctrl1.y"] floatValue]);
         ctrl2 = CGPointMake([[dictionary objectForKey:@"ctrl2.x"] floatValue], [[dictionary objectForKey:@"ctrl2.y"] floatValue]);
