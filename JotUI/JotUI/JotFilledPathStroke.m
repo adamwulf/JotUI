@@ -28,7 +28,7 @@
 }
 
 -(CGRect) bounds{
-    return [path bounds];
+    return [[segments firstObject] bounds];
 }
 
 -(JotGLTexture*) texture{

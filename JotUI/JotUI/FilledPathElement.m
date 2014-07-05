@@ -123,7 +123,9 @@
 }
 
 -(CGRect) bounds{
-    return [path bounds];
+    CGPoint origin = CGPointMake(MIN(p1.x, MIN(p2.x, MIN(p3.x, p4.x))), MIN(p1.y, MIN(p2.y, MIN(p3.x, p4.y))));
+    CGPoint maxP = CGPointMake(MAX(p1.x, MAX(p2.x, MAX(p3.x, p4.x))), MAX(p1.y, MAX(p2.y, MAX(p3.x, p4.y))));
+    return CGRectMake(origin.x, origin.y, maxP.x - origin.x, maxP.y - origin.y);
 }
 
 
