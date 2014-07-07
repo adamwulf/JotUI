@@ -43,7 +43,6 @@ dispatch_queue_t loadUnloadStateQueue;
 }
 
 -(void) loadStateAsynchronously:(BOOL)async withSize:(CGSize)pagePixelSize andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager{
-    NSLog(@"loading: %@", delegate.jotViewStatePlistPath);
     @synchronized(self){
         // if we're already loading our
         // state, then bail early
