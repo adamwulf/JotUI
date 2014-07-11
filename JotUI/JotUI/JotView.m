@@ -1483,7 +1483,6 @@ static int undoCounter;
                     // this stroke is now finished, so add it to our completed strokes stack
                     // and remove it from the current strokes, and reset our undo state if any
                     if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
-                        NSLog(@"only a move to, ignore");
                         // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
                         // just save an empty stroke to the stack
                         [currentStroke empty];
