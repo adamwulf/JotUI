@@ -259,9 +259,11 @@
     for(JotStroke* stroke in self.stackOfStrokes){
         hashVal = prime * hashVal + [stroke hash];
     }
+    hashVal = prime * hashVal + 4409; // a prime from http://www.bigprimes.net/archive/prime/6/
     for(JotStroke* stroke in self.stackOfUndoneStrokes){
         hashVal = prime * hashVal + [stroke hash];
     }
+    hashVal = prime * hashVal + 4409; // a prime from http://www.bigprimes.net/archive/prime/6/
     if(self.currentStroke){
         hashVal = prime * hashVal + [self.currentStroke hash];
     }
