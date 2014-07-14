@@ -1147,7 +1147,7 @@ static int undoCounter;
     if([state.strokesBeingWrittenToBackingTexture count]){
         undoCounter++;
         if(undoCounter % 3 == 0){
-            NSLog(@"strokes waiting to write: %lu", (unsigned long)[state.strokesBeingWrittenToBackingTexture count]);
+//            NSLog(@"strokes waiting to write: %lu", (unsigned long)[state.strokesBeingWrittenToBackingTexture count]);
             undoCounter = 0;
         }
         JotBrushTexture* keepThisTexture = brushTexture;
