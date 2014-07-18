@@ -384,7 +384,6 @@ static JotGLContext *mainThreadContext;
             // we're already currently saving this undo hash,
             // so we don't need to add another save to the
             // exportLaterInvocation list
-            NSLog(@"already saving current undo hash for %@ at %lu", inkPath, (unsigned long) state.undoHash);
             exportFinishBlock(nil, nil, nil);
         }else if(![exportLaterInvocations count]){
             //
@@ -411,12 +410,10 @@ static JotGLContext *mainThreadContext;
             [saveInvocation setArgument:&block atIndex:6];
             [saveInvocation retainArguments];
             [exportLaterInvocations addObject:saveInvocation];
-            NSLog(@"saving invocation for later");
         }else{
             // we have to call the export finish block, no matter what.
             // so call the block and send nil b/c we're not actually done
             // exporting.
-            NSLog(@"already have saved invocation, notifying");
             exportFinishBlock(nil, nil, nil);
         }
         return;
