@@ -110,6 +110,19 @@ static JotStrokeManager* _instance = nil;
     return NO;
 }
 
+-(BOOL) cancelStroke:(JotStroke*)stroke{
+    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
+        if(strokeCache[i].stroke == stroke){
+            strokeCache[i].touchHash = 0;
+            [strokeCache[i].stroke cancel];
+            [strokeCache[i].stroke autorelease];
+            strokeCache[i].stroke = nil;
+            return YES;
+        }
+    }
+    return NO;
+}
+
 -(void) removeStrokeForTouch:(UITouch*)touch{
     for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
         if(strokeCache[i].touchHash == touch.hash){

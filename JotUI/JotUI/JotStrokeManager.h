@@ -38,6 +38,11 @@
  */
 -(BOOL) cancelStrokeForTouch:(UITouch*)touch;
 
+/**
+ * cancels a stroke
+ */
+-(BOOL) cancelStroke:(JotStroke*)stroke;
+
 
 /**
  * remove a stroke from being tracked
