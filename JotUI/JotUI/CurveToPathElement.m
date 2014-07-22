@@ -291,6 +291,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     
     if(!numberOfVertices){
         NSLog(@"nil buffer");
+        dataVertexBuffer = [NSData data];
         return nil;
     }
     
@@ -427,7 +428,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // we're only allowed to create vbo
     // on the main thread.
     // if we need a vbo, then create it
-    if(!vbo && dataVertexBuffer){
+    if(!vbo && dataVertexBuffer.length){
         if(!self.bufferManager){
             NSLog(@"what");
         }
@@ -452,7 +453,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  * depending on which was created/bound in this method+thread
  */
 -(BOOL) bind{
-    if(!dataVertexBuffer){
+    if(!dataVertexBuffer.length){
         NSLog(@"refusing to bind, we have no data");
         return NO;
     }
@@ -665,9 +666,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
     [dict setObject:[NSNumber numberWithFloat:ctrl2.x] forKey:@"ctrl2.x"];
     [dict setObject:[NSNumber numberWithFloat:ctrl2.y] forKey:@"ctrl2.y"];
     [dict setObject:[NSNumber numberWithBool:vertexBufferShouldContainColor] forKey:@"vertexBufferShouldContainColor"];
-    if(dataVertexBuffer){
-        [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
-    }
+    [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
     [dict setObject:[NSNumber numberWithFloat:numberOfBytesOfVertexData] forKey:@"numberOfBytesOfVertexData"];
     return [NSDictionary dictionaryWithDictionary:dict];
 }

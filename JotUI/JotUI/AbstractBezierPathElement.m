@@ -175,6 +175,7 @@ int printOglError(char *file, int line)
             [NSNumber numberWithFloat:startPoint.x], @"startPoint.x",
             [NSNumber numberWithFloat:startPoint.y], @"startPoint.y",
             [NSNumber numberWithFloat:width], @"width",
+            [NSNumber numberWithFloat:extraLengthWithoutDot], @"extraLengthWithoutDot",
             (color ? [color asDictionary] : [NSDictionary dictionary]), @"color",
             [NSNumber numberWithFloat:scaleOfVertexBuffer], @"scaleOfVertexBuffer", nil];
 }
@@ -184,6 +185,7 @@ int printOglError(char *file, int line)
     if (self) {
         startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
         width = [[dictionary objectForKey:@"width"] floatValue];
+        extraLengthWithoutDot = [[dictionary objectForKey:@"extraLengthWithoutDot"] floatValue];
         color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
         scaleOfVertexBuffer = [[dictionary objectForKey:@"scaleOfVertexBuffer"] floatValue];
     }
