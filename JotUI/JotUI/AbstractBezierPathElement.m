@@ -38,6 +38,7 @@ int printOglError(char *file, int line)
 @synthesize width;
 @synthesize color;
 @synthesize bufferManager;
+@synthesize extraLengthWithoutDot;
 
 -(id) initWithStart:(CGPoint)point{
     if(self = [super init]){
@@ -93,15 +94,22 @@ int printOglError(char *file, int line)
  * the ideal number of steps we should take along
  * this line to render it with vertex points
  */
--(NSInteger) numberOfSteps{
-    return MAX(floorf([self lengthOfElement] / kBrushStepSize), 1);
+-(NSInteger) numberOfStepsGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
+    NSInteger ret = MAX(floorf(([self lengthOfElement] + previousElement.extraLengthWithoutDot) / kBrushStepSize), 0);
+    // if we are beginning the stroke, then we have 1 more
+    // dot to begin the stroke. otherwise we skip the first dot
+    // and pick up after kBrushStepSize
+    if([previousElement isKindOfClass:[MoveToPathElement class]]){
+        ret += 1;
+    }
+    return ret;
 }
 
 /**
  * returns the total number of vertices for this element
  */
--(NSInteger) numberOfVertices{
-    return [self numberOfSteps] * [self numberOfVerticesPerStep];
+-(NSInteger) numberOfVerticesGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
+    return [self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep];
 }
 
 -(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
@@ -149,10 +157,12 @@ int printOglError(char *file, int line)
     @throw kAbstractMethodException;
 }
 
--(void) draw{
+-(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
     if([self bind]){
         // VBO
-        glDrawArrays(GL_POINTS, 0, (int) ([self numberOfSteps] * [self numberOfVerticesPerStep]));
+        if([self numberOfStepsGivenPreviousElement:previousElement]){
+            glDrawArrays(GL_POINTS, 0, (int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep]));
+        }
         [self unbind];
     }
 }

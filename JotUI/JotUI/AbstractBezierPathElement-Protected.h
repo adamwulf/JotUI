@@ -22,14 +22,15 @@ int printOglError(char *file, int line);
 
 @property (nonatomic, strong) UIColor* color;
 @property (nonatomic, assign) CGFloat width;
+@property (nonatomic, assign) CGFloat extraLengthWithoutDot;
 
 -(id) initWithStart:(CGPoint)point;
 
 -(NSInteger) numberOfVerticesPerStep;
 
--(NSInteger) numberOfSteps;
+-(NSInteger) numberOfStepsGivenPreviousElement:(AbstractBezierPathElement *)previousElement;
 
--(NSInteger) numberOfVertices;
+-(NSInteger) numberOfVerticesGivenPreviousElement:(AbstractBezierPathElement *)previousElement;
 
 -(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
 
@@ -43,7 +44,7 @@ int printOglError(char *file, int line);
 
 -(void) unbind;
 
--(void) draw;
+-(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement;
 
 -(void) loadDataIntoVBOIfNeeded;
 

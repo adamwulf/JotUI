@@ -15,6 +15,7 @@
 #import <OpenGLES/ES1/glext.h>
 #import "JotBufferManager.h"
 #import "JotBufferVBO.h"
+#import "MoveToPathElement.h"
 
 
 #define kDivideStepBy 5
@@ -181,7 +182,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 
 -(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
     // find out how many steps we can put inside this segment length
-    NSInteger numberOfVertices = [self numberOfVertices];
+    NSInteger numberOfVertices = [self numberOfVerticesGivenPreviousElement:previousElement];
     NSInteger numberOfBytes;
     if([self shouldContainVertexColorDataGivenPreviousElement:previousElement]){
         numberOfBytes = numberOfVertices*sizeof(struct ColorfulVertex);
@@ -254,16 +255,12 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     vertexBufferShouldContainColor = [self shouldContainVertexColorDataGivenPreviousElement:previousElement];
     
     // find out how many steps we can put inside this segment length
-    NSInteger numberOfVertices = [self numberOfVertices];
+    NSInteger numberOfVertices = [self numberOfVerticesGivenPreviousElement:previousElement];
     numberOfBytesOfVertexData = [self numberOfBytesGivenPreviousElement:previousElement];
     
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;
-    void* vertexBuffer = malloc(numberOfBytesOfVertexData);
-    if(!vertexBuffer){
-        @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
-    }
-
+    
     // save our scale, we're only going to cache a vertex
     // buffer for 1 scale at a time
     scaleOfVertexBuffer = scale;
@@ -278,8 +275,31 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     //
     // this'll help make the segment join its neighboring segments
     // without any artifacts of the start/end double drawing
-    CGFloat realStepSize = [self lengthOfElement] / numberOfVertices;
+    CGFloat realLength = [self lengthOfElement];
+    CGFloat realStepSize = kBrushStepSize; // numberOfVertices ? realLength / numberOfVertices : 0;
+    CGFloat lengthPlusPrevExtra = realLength + previousElement.extraLengthWithoutDot;
+    NSInteger divisionOfBrushStroke = floorf(lengthPlusPrevExtra / kBrushStepSize);
+    // our extra length is whatever's leftover after chopping our length + previous extra
+    // into kBrushStepSize sized segments.
+    //
+    // ie, if previous extra was .3, our length is 3.3, and our brush size is 2, then
+    // our extra is:
+    // divisionOfBrushStroke = floor(3.3 + .3) / 2 => floor(1.8) => 1
+    // our extra = (3.6 - 1 * 2) => 1.6
+    self.extraLengthWithoutDot = (lengthPlusPrevExtra - divisionOfBrushStroke * kBrushStepSize);
+    NSLog(@"realStepSize len: %f vert: %ld (prevextra: %f myextra: %f)", realLength, (long)numberOfVertices, previousElement.extraLengthWithoutDot, self.extraLengthWithoutDot);
     
+    if(!numberOfVertices){
+        NSLog(@"nil buffer");
+        return nil;
+    }
+    
+    void* vertexBuffer = malloc(numberOfBytesOfVertexData);
+    if(!vertexBuffer){
+        @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
+    }
+    
+
     //
     // now setup what we need to calculate the changes in width
     // along the stroke
@@ -297,6 +317,11 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     bez[2] = ctrl2;
     bez[3] = curveTo;
     
+    // track if we're the first element in a stroke. we know this
+    // if we follow a moveTo. This way we know if we should
+    // include the first dot in the stroke.
+    BOOL isFirstElementInStroke = [previousElement isKindOfClass:[MoveToPathElement class]];
+    
     //
     // calculate points along the curve that are realStepSize
     // length along the curve. since this is fairly intensive for
@@ -310,7 +335,14 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         
         // calculate the point that is realStepSize distance
         // along the curve * which step we're on
-        subdivideBezierAtLength(bez, leftBez, rightBez, realStepSize*step, .1, subBezierlengthCache);
+        //
+        // if we're the first non-move to element on a line, then we should also
+        // have the dot at the beginning of our element. otherwise, we should only
+        // add an element after kBrushStepSize (including whatever distance was
+        // leftover)
+        CGFloat distToDot = realStepSize*step + (isFirstElementInStroke ? 0 : kBrushStepSize - previousElement.extraLengthWithoutDot);
+        NSLog(@" dot at %f", distToDot);
+        subdivideBezierAtLength(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
         CGPoint point = rightBez[0];
         
         GLfloat calcColor[4];
@@ -420,6 +452,10 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  * depending on which was created/bound in this method+thread
  */
 -(BOOL) bind{
+    if(!dataVertexBuffer){
+        NSLog(@"refusing to bind, we have no data");
+        return NO;
+    }
     // we're only allowed to create vbo
     // on the main thread.
     // if we need a vbo, then create it
@@ -461,7 +497,9 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 }
 
 -(void) unbind{
-    [vbo unbind];
+    if(vbo.fullByteSize){
+        [vbo unbind];
+    }
 }
 
 
@@ -627,7 +665,9 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
     [dict setObject:[NSNumber numberWithFloat:ctrl2.x] forKey:@"ctrl2.x"];
     [dict setObject:[NSNumber numberWithFloat:ctrl2.y] forKey:@"ctrl2.y"];
     [dict setObject:[NSNumber numberWithBool:vertexBufferShouldContainColor] forKey:@"vertexBufferShouldContainColor"];
-    [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
+    if(dataVertexBuffer){
+        [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
+    }
     [dict setObject:[NSNumber numberWithFloat:numberOfBytesOfVertexData] forKey:@"numberOfBytesOfVertexData"];
     return [NSDictionary dictionaryWithDictionary:dict];
 }
