@@ -287,10 +287,10 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // divisionOfBrushStroke = floor(3.3 + .3) / 2 => floor(1.8) => 1
     // our extra = (3.6 - 1 * 2) => 1.6
     self.extraLengthWithoutDot = (lengthPlusPrevExtra - divisionOfBrushStroke * kBrushStepSize);
-    NSLog(@"realStepSize len: %f vert: %ld (prevextra: %f myextra: %f)", realLength, (long)numberOfVertices, previousElement.extraLengthWithoutDot, self.extraLengthWithoutDot);
+//    NSLog(@"realStepSize len: %f vert: %ld (prevextra: %f myextra: %f)", realLength, (long)numberOfVertices, previousElement.extraLengthWithoutDot, self.extraLengthWithoutDot);
     
     if(!numberOfVertices){
-        NSLog(@"nil buffer");
+//        NSLog(@"nil buffer");
         dataVertexBuffer = [NSData data];
         return nil;
     }
@@ -342,7 +342,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         // add an element after kBrushStepSize (including whatever distance was
         // leftover)
         CGFloat distToDot = realStepSize*step + (isFirstElementInStroke ? 0 : kBrushStepSize - previousElement.extraLengthWithoutDot);
-        NSLog(@" dot at %f", distToDot);
+//        NSLog(@" dot at %f", distToDot);
         subdivideBezierAtLength(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
         CGPoint point = rightBez[0];
         
@@ -454,7 +454,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  */
 -(BOOL) bind{
     if(!dataVertexBuffer.length){
-        NSLog(@"refusing to bind, we have no data");
+//        NSLog(@"refusing to bind, we have no data");
         return NO;
     }
     // we're only allowed to create vbo
