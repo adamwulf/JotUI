@@ -402,25 +402,25 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 
 -(void) validateVertexData:(struct ColorfulVertex)vertex{
     if(vertex.Color[0] < 0 || vertex.Color[0] > 1){
-        NSLog(@"what?!");
+        NSLog(@"what?!1");
     }
     if(vertex.Color[1] < 0 || vertex.Color[1] > 1){
-        NSLog(@"what?!");
+        NSLog(@"what?!2");
     }
     if(vertex.Color[2] < 0 || vertex.Color[2] > 1){
-        NSLog(@"what?!");
+        NSLog(@"what?!3");
     }
     if(vertex.Color[3] < 0 || vertex.Color[3] > 1){
-        NSLog(@"what?!");
+        NSLog(@"what?!4");
     }
     if(vertex.Size < 1 || vertex.Size > 360){
-        NSLog(@"what?!");
+        NSLog(@"what?!5");
     }
     if(vertex.Position[0] < -50 || vertex.Position[0] > 1600){
-        NSLog(@"what?!");
+        NSLog(@"what?!6");
     }
     if(vertex.Position[1] < -50 || vertex.Position[1] > 2080){
-        NSLog(@"what?!");
+        NSLog(@"what?!7");
     }
 }
 
