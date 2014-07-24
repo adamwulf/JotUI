@@ -19,6 +19,7 @@
 
 
 #define kDivideStepBy 5
+#define kAbsoluteMinWidth 5.0
 
 @implementation CurveToPathElement{
     CGRect boundsCache;
@@ -204,6 +205,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
                 NSLog(@"what?!!");
             }
             CGFloat stepWidth = self.width * scaleOfVertexBuffer;
+            if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
             CGFloat alpha = colorComponents[3] / (stepWidth / kDivideStepBy);
             if(alpha > 1) alpha = 1;
             
@@ -333,6 +335,8 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         
         // current width
         CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
+        // ensure min width for dots
+        if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
         
         // calculate the point that is realStepSize distance
         // along the curve * which step we're on
@@ -382,16 +386,14 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             coloredVertexBuffer[step].Color[1] = calcColor[1];
             coloredVertexBuffer[step].Color[2] = calcColor[2];
             coloredVertexBuffer[step].Color[3] = calcColor[3];
-            CGFloat steppedWidth = prevWidth + widthDiff * t;
-            coloredVertexBuffer[step].Size = steppedWidth*scaleOfVertexBuffer;
+            coloredVertexBuffer[step].Size = stepWidth;
             [self validateVertexData:coloredVertexBuffer[step]];
         }else{
             struct ColorlessVertex* colorlessVertexBuffer = (struct ColorlessVertex*)vertexBuffer;
             // set colors to the array
             colorlessVertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
             colorlessVertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
-            CGFloat steppedWidth = prevWidth + widthDiff * t;
-            colorlessVertexBuffer[step].Size = steppedWidth*scaleOfVertexBuffer;
+            colorlessVertexBuffer[step].Size = stepWidth;
         }
     }
     
