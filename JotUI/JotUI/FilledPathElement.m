@@ -154,9 +154,8 @@
 }
 
 
--(void) draw{
+-(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
     [self bind];
-    
     
     [texture drawInContext:(JotGLContext*)[JotGLContext currentContext]
                       atT1:CGPointMake(0, 1)
