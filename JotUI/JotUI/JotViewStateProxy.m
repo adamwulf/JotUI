@@ -106,20 +106,24 @@ dispatch_queue_t loadUnloadStateQueue;
     dispatch_async(([JotViewStateProxy loadUnloadStateQueue]), ^{
         @autoreleasepool {
             @synchronized(strongSelf){
-                shouldKeepStateLoaded = NO;
-                if(isLoadingState){
-                    // hrm, need to unload the state that
-                    // never loaded in the first place.
-                    // tell the state to immediately unload
-                    // after it finishes
+                if([self isStateLoaded]){
                     shouldKeepStateLoaded = NO;
-                }else if([strongSelf hasEditsToSave]){
-                    NSLog(@"what?? %lu %lu", (unsigned long)[strongSelf.jotViewState undoHash], (unsigned long)[strongSelf lastSavedUndoHash]);
-                    @throw [NSException exceptionWithName:@"UnloadedEditedPageException" reason:@"The page has been asked to unload, but has edits pending save" userInfo:nil];
-                }
-                if(!isLoadingState && jotViewState){
-                    jotViewState = nil;
-                    [strongSelf.delegate didUnloadState:strongSelf];
+                    if(isLoadingState){
+                        // hrm, need to unload the state that
+                        // never loaded in the first place.
+                        // tell the state to immediately unload
+                        // after it finishes
+                        shouldKeepStateLoaded = NO;
+                    }else if([strongSelf hasEditsToSave]){
+                        NSLog(@"what?? %lu %lu", (unsigned long)[strongSelf.jotViewState undoHash], (unsigned long)[strongSelf lastSavedUndoHash]);
+                        @throw [NSException exceptionWithName:@"UnloadedEditedPageException" reason:@"The page has been asked to unload, but has edits pending save" userInfo:nil];
+                    }
+                    if(!isLoadingState && jotViewState){
+                        jotViewState = nil;
+                        [strongSelf.delegate didUnloadState:strongSelf];
+                    }
+                }else{
+                    NSLog(@"unloading a state proxy that's already unloaded");
                 }
             }
         }
