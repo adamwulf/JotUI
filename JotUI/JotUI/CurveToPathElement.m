@@ -19,7 +19,7 @@
 
 
 #define kDivideStepBy 5
-#define kAbsoluteMinWidth 5.0
+#define kAbsoluteMinWidth 3.0
 
 @implementation CurveToPathElement{
     CGRect boundsCache;
