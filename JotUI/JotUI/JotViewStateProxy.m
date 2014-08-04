@@ -62,11 +62,17 @@ dispatch_queue_t loadUnloadStateQueue;
     void (^block2)() = ^(void) {
         @autoreleasepool {
             if(!jotViewState){
+                if(!shouldKeepStateLoaded){
+                    NSLog(@"will waste some time loading a JotViewState that we don't need...");
+                }
                 jotViewState = [[JotViewState alloc] initWithImageFile:delegate.jotViewStateInkPath
                                                           andStateFile:delegate.jotViewStatePlistPath
                                                            andPageSize:pagePixelSize
                                                           andGLContext:context
                                                       andBufferManager:bufferManager];
+                if(!shouldKeepStateLoaded){
+                    NSLog(@"wasted some time loading a JotViewState that we didn't need...");
+                }
                 lastSavedUndoHash = [jotViewState undoHash];
                 @synchronized(self){
                     isLoadingState = NO;
