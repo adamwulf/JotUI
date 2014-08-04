@@ -128,13 +128,15 @@ static JotTrashManager* _instance = nil;
 #pragma mark - Profiling Helpers
 
 -(NSInteger) numberOfItemsInTrash{
-    return [objectsToDealloc count];
+    @synchronized(self){
+        return [objectsToDealloc count];
+    }
 }
 
 -(int) knownBytesInTrash{
-    NSMutableArray* objs;
+    NSArray* objs;
     @synchronized(self){
-        objs = [objectsToDealloc copy];
+        objs = [NSArray arrayWithArray:objectsToDealloc];
     }
     int bytes = 0;
     for(NSObject*obj in objs){
