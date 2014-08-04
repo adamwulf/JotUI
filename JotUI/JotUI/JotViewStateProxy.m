@@ -96,7 +96,7 @@ static dispatch_queue_t loadUnloadStateQueue;
                 }
             }else if(!shouldKeepStateLoaded){
                 @synchronized(self){
-                    NSLog(@"saved an excess load");
+//                    NSLog(@"saved an excess load");
                     isLoadingState = NO;
                 }
             }else{
@@ -150,7 +150,7 @@ static dispatch_queue_t loadUnloadStateQueue;
                 }
             });
         }else{
-            NSLog(@"saved an extra unload");
+//            NSLog(@"saved an extra unload");
         }
     }
 }
