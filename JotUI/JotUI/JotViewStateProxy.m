@@ -10,7 +10,7 @@
 #import <JotUI/JotUI.h>
 #import "JotViewState.h"
 
-dispatch_queue_t loadUnloadStateQueue;
+static dispatch_queue_t loadUnloadStateQueue;
 
 @implementation JotViewStateProxy{
     // ideal state
@@ -61,7 +61,12 @@ dispatch_queue_t loadUnloadStateQueue;
 
     void (^block2)() = ^(void) {
         @autoreleasepool {
-            if(!jotViewState){
+            BOOL shouldLoadState = NO;
+            @synchronized(self){
+                shouldLoadState = !jotViewState && shouldKeepStateLoaded;
+            }
+            
+            if(shouldLoadState){
                 if(!shouldKeepStateLoaded){
                     NSLog(@"will waste some time loading a JotViewState that we don't need...");
                 }
@@ -73,10 +78,9 @@ dispatch_queue_t loadUnloadStateQueue;
                 if(!shouldKeepStateLoaded){
                     NSLog(@"wasted some time loading a JotViewState that we didn't need...");
                 }
-                lastSavedUndoHash = [jotViewState undoHash];
                 @synchronized(self){
-                    isLoadingState = NO;
                     if(shouldKeepStateLoaded){
+                        lastSavedUndoHash = [jotViewState undoHash];
                         // nothing changed in our goals since we started
                         // to load state, so notify our delegate
                         [self.delegate didLoadState:self];
@@ -84,9 +88,16 @@ dispatch_queue_t loadUnloadStateQueue;
                         // when loading state, we were actually
                         // told that we didn't really need the
                         // state after all, so just throw it away :(
+                        [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
                         jotViewState = nil;
                         lastSavedUndoHash = 0;
                     }
+                    isLoadingState = NO;
+                }
+            }else if(!shouldKeepStateLoaded){
+                @synchronized(self){
+                    NSLog(@"saved an excess load");
+                    isLoadingState = NO;
                 }
             }else{
                 @synchronized(self){
@@ -109,31 +120,39 @@ dispatch_queue_t loadUnloadStateQueue;
 
 -(void) unload{
     JotViewStateProxy* strongSelf = self;
-    dispatch_async(([JotViewStateProxy loadUnloadStateQueue]), ^{
-        @autoreleasepool {
-            @synchronized(strongSelf){
-                if([self isStateLoaded]){
-                    shouldKeepStateLoaded = NO;
-                    if(isLoadingState){
-                        // hrm, need to unload the state that
-                        // never loaded in the first place.
-                        // tell the state to immediately unload
-                        // after it finishes
-                        shouldKeepStateLoaded = NO;
-                    }else if([strongSelf hasEditsToSave]){
-                        NSLog(@"what?? %lu %lu", (unsigned long)[strongSelf.jotViewState undoHash], (unsigned long)[strongSelf lastSavedUndoHash]);
-                        @throw [NSException exceptionWithName:@"UnloadedEditedPageException" reason:@"The page has been asked to unload, but has edits pending save" userInfo:nil];
+    @synchronized(self){
+        shouldKeepStateLoaded = NO;
+        if([self isStateLoaded] && !isLoadingState){
+            dispatch_async(([JotViewStateProxy loadUnloadStateQueue]), ^{
+                @autoreleasepool {
+                    @synchronized(strongSelf){
+                        if([self isStateLoaded]){
+                            shouldKeepStateLoaded = NO;
+                            if(isLoadingState){
+                                // hrm, need to unload the state that
+                                // never loaded in the first place.
+                                // tell the state to immediately unload
+                                // after it finishes
+                                shouldKeepStateLoaded = NO;
+                            }else if([strongSelf hasEditsToSave]){
+                                NSLog(@"what?? %lu %lu", (unsigned long)[strongSelf.jotViewState undoHash], (unsigned long)[strongSelf lastSavedUndoHash]);
+                                @throw [NSException exceptionWithName:@"UnloadedEditedPageException" reason:@"The page has been asked to unload, but has edits pending save" userInfo:nil];
+                            }
+                            if(!isLoadingState && jotViewState){
+                                [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
+                                jotViewState = nil;
+                                [strongSelf.delegate didUnloadState:strongSelf];
+                            }
+                        }else{
+                            NSLog(@"unloading a state proxy that's already unloaded");
+                        }
                     }
-                    if(!isLoadingState && jotViewState){
-                        jotViewState = nil;
-                        [strongSelf.delegate didUnloadState:strongSelf];
-                    }
-                }else{
-                    NSLog(@"unloading a state proxy that's already unloaded");
                 }
-            }
+            });
+        }else{
+            NSLog(@"saved an extra unload");
         }
-    });
+    }
 }
 
 -(BOOL) isStateLoaded{
