@@ -78,20 +78,30 @@ static dispatch_queue_t loadUnloadStateQueue;
                 if(!shouldKeepStateLoaded){
                     NSLog(@"wasted some time loading a JotViewState that we didn't need...");
                 }
+                BOOL shouldNotify = NO;
                 @synchronized(self){
                     if(shouldKeepStateLoaded){
                         lastSavedUndoHash = [jotViewState undoHash];
-                        // nothing changed in our goals since we started
-                        // to load state, so notify our delegate
-                        [self.delegate didLoadState:self];
+                        shouldNotify = YES;
                     }else{
+                        shouldNotify = NO;
                         // when loading state, we were actually
                         // told that we didn't really need the
                         // state after all, so just throw it away :(
-                        [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
+                    }
+                }
+                if(shouldNotify){
+                    // nothing changed in our goals since we started
+                    // to load state, so notify our delegate
+                    [self.delegate didLoadState:self];
+                }else{
+                    [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
+                    @synchronized(self){
                         jotViewState = nil;
                         lastSavedUndoHash = 0;
                     }
+                }
+                @synchronized(self){
                     isLoadingState = NO;
                 }
             }else if(!shouldKeepStateLoaded){
