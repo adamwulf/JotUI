@@ -186,7 +186,7 @@ static JotGLContext *mainThreadContext;
         return nil;
     }
     
-    [self setBrushTexture:[JotDefaultBrushTexture sharedInstace]];
+    [self setBrushTexture:[JotDefaultBrushTexture sharedInstance]];
 
     // Set the view's scale factor
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
@@ -1271,7 +1271,7 @@ static int undoCounter;
     
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-            JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
+            JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
             newStroke.delegate = self;
             if(state.currentStroke){
                 @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
@@ -1298,7 +1298,7 @@ static int undoCounter;
 
     for(JotTouch* jotTouch in touches){
         [self.delegate willMoveStrokeWithTouch:jotTouch];
-        JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
+        JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
         if(currentStroke){
             // find the stroke that we're modifying, and then add an element and render it
             [self addLineToAndRenderStroke:currentStroke
@@ -1321,7 +1321,7 @@ static int undoCounter;
 
     for(JotTouch* jotTouch in touches){
         [self.delegate willEndStrokeWithTouch:jotTouch];
-        JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
+        JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
         if(currentStroke){
             // move to this endpoint
             [self jotStylusTouchMoved:touches];
@@ -1343,7 +1343,7 @@ static int undoCounter;
             state.currentStroke = nil;
             [state.stackOfUndoneStrokes removeAllObjects];
 
-            [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
+            [[JotStrokeManager sharedInstance] removeStrokeForTouch:jotTouch.touch];
             
             [self.delegate didEndStrokeWithTouch:jotTouch];
         }
@@ -1362,7 +1362,7 @@ static int undoCounter;
     for(JotTouch* jotTouch in touches){
         // If appropriate, add code necessary to save the state of the application.
         // This application is not saving state.
-        if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
+        if([[JotStrokeManager sharedInstance] cancelStrokeForTouch:jotTouch.touch]){
             state.currentStroke = nil;
         }
     }
@@ -1414,7 +1414,7 @@ static int undoCounter;
             @autoreleasepool {
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-                    JotStroke* newStroke = [[JotStrokeManager sharedInstace] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
+                    JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
                     newStroke.delegate = self;
                     state.currentStroke = newStroke;
                     // find the stroke that we're modifying, and then add an element and render it
@@ -1443,7 +1443,7 @@ static int undoCounter;
                 // the jot sdk is not enabled
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 [self.delegate willMoveStrokeWithTouch:jotTouch];
-                JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
+                JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
                 if(currentStroke){
                     // find the stroke that we're modifying, and then add an element and render it
                     [self addLineToAndRenderStroke:currentStroke
@@ -1467,7 +1467,7 @@ static int undoCounter;
                 // now line to the end of the stroke
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 [self.delegate willEndStrokeWithTouch:jotTouch];
-                JotStroke* currentStroke = [[JotStrokeManager sharedInstace] getStrokeForTouchHash:jotTouch.touch];
+                JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
                 if(currentStroke){
                     // move to this endpoint
                     [self touchesMoved:[NSSet setWithObject:touch] withEvent:event];
@@ -1490,7 +1490,7 @@ static int undoCounter;
                     state.currentStroke = nil;
                     [state.stackOfUndoneStrokes removeAllObjects];
                     
-                    [[JotStrokeManager sharedInstace] removeStrokeForTouch:jotTouch.touch];
+                    [[JotStrokeManager sharedInstance] removeStrokeForTouch:jotTouch.touch];
                     
                     [self.delegate didEndStrokeWithTouch:jotTouch];
                 }
@@ -1510,7 +1510,7 @@ static int undoCounter;
                 // If appropriate, add code necessary to save the state of the application.
                 // This application is not saving state.
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-                if([[JotStrokeManager sharedInstace] cancelStrokeForTouch:jotTouch.touch]){
+                if([[JotStrokeManager sharedInstance] cancelStrokeForTouch:jotTouch.touch]){
                     state.currentStroke = nil;
                 }
                 [JotTouch cleanJotTouchFor:touch];
@@ -1678,7 +1678,7 @@ static int undoCounter;
         // update the stroke manager to make sure
         // it knows about the new stroke, and forgets
         // the old stroke
-        [[JotStrokeManager sharedInstace] replaceStroke:currentStroke withStroke:newStroke];
+        [[JotStrokeManager sharedInstance] replaceStroke:currentStroke withStroke:newStroke];
     }else{
         // there is no current stroke, so just add an empty stroke
         // to our undo stack

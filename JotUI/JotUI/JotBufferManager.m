@@ -73,7 +73,7 @@ static JotBufferManager* _instance = nil;
     }
 }
 
-+(JotBufferManager*) sharedInstace{
++(JotBufferManager*) sharedInstance{
     if(!_instance){
         _instance = [[JotBufferManager alloc]init];
     }
@@ -131,7 +131,7 @@ static JotBufferManager* _instance = nil;
         
         // stats:
         // track full memory size, and memory per cache number
-        [[JotBufferManager sharedInstace] openGLBufferHasBeenBorn:openGLVBO];
+        [[JotBufferManager sharedInstance] openGLBufferHasBeenBorn:openGLVBO];
     }
     //
     // track how many buffers are in use:

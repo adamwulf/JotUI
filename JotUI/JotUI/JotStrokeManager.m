@@ -45,7 +45,7 @@ static JotStrokeManager* _instance = nil;
     return _instance;
 }
 
-+(JotStrokeManager*) sharedInstace{
++(JotStrokeManager*) sharedInstance{
     if(!_instance){
         _instance = [[JotStrokeManager alloc]init];
     }

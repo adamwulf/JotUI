@@ -69,7 +69,7 @@ static JotDefaultBrushTexture* _instance = nil;
     return _instance;
 }
 
-+(JotBrushTexture*) sharedInstace{
++(JotBrushTexture*) sharedInstance{
     if(!_instance){
         _instance = [[JotDefaultBrushTexture alloc] init];
     }

@@ -11,7 +11,7 @@
 
 @interface JotStrokeManager : NSObject
 
-+(JotStrokeManager*) sharedInstace;
++(JotStrokeManager*) sharedInstance;
 
 /**
  * return a stroke for the input touch only

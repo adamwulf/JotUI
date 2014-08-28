@@ -111,12 +111,12 @@
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     NSString* className = [dictionary objectForKey:@"class"];
     Class clz = NSClassFromString(className);
-    return [clz sharedInstace];
+    return [clz sharedInstance];
 }
 
 #pragma mark - Singleton
 
-+(JotBrushTexture*) sharedInstace{
++(JotBrushTexture*) sharedInstance{
     @throw kAbstractMethodException;
 }
 
