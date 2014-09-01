@@ -40,7 +40,8 @@
  */
 -(id) initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
-            andPageSize:(CGSize)fullPixelSize
+            andPageSize:(CGSize)fullPtSize
+               andScale:(CGFloat)scale
            andGLContext:(JotGLContext*)glContext
        andBufferManager:(JotBufferManager*)bufferManager;
 

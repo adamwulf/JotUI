@@ -1638,10 +1638,12 @@ static int undoCounter;
     return [state undoHash];
 }
 
--(CGSize) pagePixelSize{
-    // calc final size of the backing texture
-    CGFloat scale = [[UIScreen mainScreen] scale];
-    return CGSizeMake(initialFrameSize.width * scale, initialFrameSize.height * scale);
+-(CGSize) pagePtSize{
+    return initialFrameSize;
+}
+
+-(CGFloat) scale{
+    return [[UIScreen mainScreen] scale];
 }
 
 -(NSInteger) maxCurrentStrokeByteSize{

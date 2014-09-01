@@ -253,6 +253,11 @@
         p4 = CGPointMake([[dictionary objectForKey:@"p4.x"] floatValue], [[dictionary objectForKey:@"p4.y"] floatValue]);
         sizeOfTexture = CGSizeMake([[dictionary objectForKey:@"sizeOfTexture.width"] floatValue], [[dictionary objectForKey:@"sizeOfTexture.height"] floatValue]);
         
+//        CGFloat currentScale = [[dictionary objectForKey:@"scale"] floatValue];
+        // we can ignore the scale that's sent in because
+        // we set the scaleTransform on demand, and keep all pts
+        // of this element in pts instead of pxs
+
         NSUInteger prime = 31;
         hashCache = 1;
         hashCache = prime * hashCache + p1.x;

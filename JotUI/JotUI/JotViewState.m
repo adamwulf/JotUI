@@ -67,7 +67,8 @@
 
 -(id) initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
-            andPageSize:(CGSize)fullPixelSize
+            andPageSize:(CGSize)fullPtSize
+               andScale:(CGFloat)scale
            andGLContext:(JotGLContext*)glContext
        andBufferManager:(JotBufferManager*)_bufferManager{
     if(self = [self init]){
@@ -82,7 +83,7 @@
         // into Open GL
         dispatch_async([JotView importExportImageQueue], ^{
             @autoreleasepool {
-                [self loadTextureHelperWithGLContext:glContext andInkImageFile:inkImageFile andPixelSize:fullPixelSize];
+                [self loadTextureHelperWithGLContext:glContext andInkImageFile:inkImageFile andPixelSize:CGSizeMake(fullPtSize.width*scale, fullPtSize.height*scale)];
                 [JotGLContext setCurrentContext:nil];
                 dispatch_semaphore_signal(sema1);
             }
@@ -92,7 +93,7 @@
         // information for our page state
         dispatch_async([JotView importExportStateQueue], ^{
             @autoreleasepool {
-                [self loadStrokesHelperWithGLContext:glContext andStateInfoFile:stateInfoFile];
+                [self loadStrokesHelperWithGLContext:glContext andStateInfoFile:stateInfoFile andScale:scale];
                 [JotGLContext setCurrentContext:nil];
                 dispatch_semaphore_signal(sema2);
             }
@@ -145,7 +146,7 @@
 }
 
 
--(void) loadStrokesHelperWithGLContext:(JotGLContext*)glContext andStateInfoFile:(NSString*)stateInfoFile{
+-(void) loadStrokesHelperWithGLContext:(JotGLContext*)glContext andStateInfoFile:(NSString*)stateInfoFile andScale:(CGFloat)scale{
     JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
     [JotGLContext setCurrentContext:backgroundThreadContext];
     
@@ -162,6 +163,7 @@
             }
             // pass in the buffer manager to use
             [obj setObject:bufferManager forKey:@"bufferManager"];
+            [obj setObject:[NSNumber numberWithFloat:scale] forKey:@"scale"];
             
             NSString* className = [obj objectForKey:@"class"];
             Class class = NSClassFromString(className);

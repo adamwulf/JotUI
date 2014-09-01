@@ -42,7 +42,7 @@ static dispatch_queue_t loadUnloadStateQueue;
     return jotViewState.fullByteSize;
 }
 
--(void) loadStateAsynchronously:(BOOL)async withSize:(CGSize)pagePixelSize andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager{
+-(void) loadStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager{
     @synchronized(self){
         // if we're already loading our
         // state, then bail early
@@ -72,7 +72,8 @@ static dispatch_queue_t loadUnloadStateQueue;
                 }
                 jotViewState = [[JotViewState alloc] initWithImageFile:delegate.jotViewStateInkPath
                                                           andStateFile:delegate.jotViewStatePlistPath
-                                                           andPageSize:pagePixelSize
+                                                           andPageSize:pagePtSize
+                                                              andScale:scale
                                                           andGLContext:context
                                                       andBufferManager:bufferManager];
                 if(!shouldKeepStateLoaded){

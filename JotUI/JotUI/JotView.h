@@ -32,6 +32,10 @@
 @property (nonatomic, strong) JotBrushTexture* brushTexture;
 @property (readonly) JotGLContext *context;
 @property (nonatomic) NSInteger maxStrokeSize;
+// the pixel size of a page
+@property (readonly) CGSize pagePtSize;
+@property (readonly) CGFloat scale;
+
 
 // erase the screen
 - (IBAction) clear:(BOOL)shouldPresent;
@@ -61,9 +65,6 @@
 // if this value is the same as when this view was exported,
 // then nothing has changed that would affect the output image
 -(NSUInteger) undoHash;
-
-// the pixel size of a page
--(CGSize) pagePixelSize;
 
 // this will export both the ink and the thumbnail image
 -(void) exportImageTo:(NSString*)inkPath

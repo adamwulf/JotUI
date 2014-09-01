@@ -69,6 +69,8 @@
         segments = [NSMutableArray arrayWithArray:[[dictionary objectForKey:@"segments"] jotMap:^id(id obj, NSUInteger index){
             NSString* className = [obj objectForKey:@"class"];
             Class class = NSClassFromString(className);
+            // pass in target scale
+            [obj setObject:[dictionary objectForKey:@"scale"] forKey:@"scale"];
             AbstractBezierPathElement* segment =  [[class alloc] initFromDictionary:obj];
             [self updateHashWithObject:segment];
             return segment;
