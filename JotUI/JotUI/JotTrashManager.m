@@ -136,8 +136,10 @@ static JotTrashManager* _instance = nil;
 -(int) knownBytesInTrash{
     NSArray* objs;
     @synchronized(self){
-        if(objectsToDealloc){
-            objs = [NSArray arrayWithArray:objectsToDealloc];
+        @synchronized(objectsToDealloc){
+            if(objectsToDealloc){
+                objs = [objectsToDealloc copy];
+            }
         }
     }
     int bytes = 0;
