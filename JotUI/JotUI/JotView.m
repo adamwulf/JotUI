@@ -866,6 +866,7 @@ static JotGLContext *mainThreadContext;
         if(!CGRectEqualToRect(scissorRect, CGRectZero)){
             glEnable(GL_SCISSOR_TEST);
             glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
+            NSLog(@"scissored %f %f %f %f", scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
         }else{
             // noop for scissors
         }
@@ -1570,10 +1571,14 @@ static int undoCounter;
 -(void) undoAndForget{
     if([self canUndo]){
         CGFloat scale = [[UIScreen mainScreen] scale];
-        CGRect bounds = [[state.stackOfStrokes lastObject] bounds];
+        JotStroke* lastKnownStroke = [state.stackOfStrokes lastObject];
+        CGRect bounds = [lastKnownStroke bounds];
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
         [state.stackOfStrokes removeLastObject];
-        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
+        if([lastKnownStroke.segments count] && !CGSizeEqualToSize(bounds.size, CGSizeZero)){
+            // don't bother re-rendering if the stroke was empty to begin with
+            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
+        }
     }
 }
 
