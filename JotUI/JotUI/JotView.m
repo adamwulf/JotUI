@@ -1255,10 +1255,10 @@ static int undoCounter;
                            toWidth:30
                            toColor:[UIColor blueColor]
                      andSmoothness:0.7];
-    [state.stackOfStrokes addObject:newStroke];
+    
+    [state forceAddStroke:newStroke];
     
     [self.delegate didEndStrokeWithTouch:nil];
-
 }
 
 /**
@@ -1340,9 +1340,7 @@ static int undoCounter;
                 // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
                 [currentStroke empty];
             }
-            [state.stackOfStrokes addObject:currentStroke];
-            state.currentStroke = nil;
-            [state.stackOfUndoneStrokes removeAllObjects];
+            [state finishCurrentStroke];
 
             [[JotStrokeManager sharedInstance] removeStrokeForTouch:jotTouch.touch];
             
@@ -1487,9 +1485,7 @@ static int undoCounter;
                         // just save an empty stroke to the stack
                         [currentStroke empty];
                     }
-                    [state.stackOfStrokes addObject:currentStroke];
-                    state.currentStroke = nil;
-                    [state.stackOfUndoneStrokes removeAllObjects];
+                    [state finishCurrentStroke];
                     
                     [[JotStrokeManager sharedInstance] removeStrokeForTouch:jotTouch.touch];
                     
@@ -1543,11 +1539,11 @@ static int undoCounter;
 }
 
 -(BOOL) canUndo{
-    return [state.stackOfStrokes count] > 0;
+    return [state canUndo];
 }
 
 -(BOOL) canRedo{
-    return [state.stackOfUndoneStrokes count] > 0;
+    return [state canRedo];
 }
 
 /**
@@ -1555,12 +1551,11 @@ static int undoCounter;
  * stack, and then rerender all other completed strokes
  */
 -(IBAction) undo{
-    if([self canUndo]){
+    JotStroke* undoneStroke = [state undo];
+    if(undoneStroke){
         CGFloat scale = [[UIScreen mainScreen] scale];
-        CGRect bounds = [[state.stackOfStrokes lastObject] bounds];
+        CGRect bounds = [undoneStroke bounds];
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
-        [state.stackOfUndoneStrokes addObject:[state.stackOfStrokes lastObject]];
-        [state.stackOfStrokes removeLastObject];
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
 }
@@ -1569,12 +1564,11 @@ static int undoCounter;
 // off the stack and forget it entirely. it will
 // not be able to be redone.
 -(void) undoAndForget{
-    if([self canUndo]){
+    JotStroke* lastKnownStroke = [state undoAndForget];
+    if(lastKnownStroke){
         CGFloat scale = [[UIScreen mainScreen] scale];
-        JotStroke* lastKnownStroke = [state.stackOfStrokes lastObject];
         CGRect bounds = [lastKnownStroke bounds];
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
-        [state.stackOfStrokes removeLastObject];
         if([lastKnownStroke.segments count] && !CGSizeEqualToSize(bounds.size, CGSizeZero)){
             // don't bother re-rendering if the stroke was empty to begin with
             [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
@@ -1587,12 +1581,11 @@ static int undoCounter;
  * undo back to the completed strokes list, then rerender
  */
 -(IBAction) redo{
-    if([self canRedo]){
+    JotStroke* redoneStroke = [state redo];
+    if(redoneStroke){
         CGFloat scale = [[UIScreen mainScreen] scale];
-        CGRect bounds = [[state.stackOfUndoneStrokes lastObject] bounds];
+        CGRect bounds = [redoneStroke bounds];
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
-        [state.stackOfStrokes addObject:[state.stackOfUndoneStrokes lastObject]];
-        [state.stackOfUndoneStrokes removeLastObject];
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
 }
@@ -1623,9 +1616,7 @@ static int undoCounter;
     }
     
     // reset undo state
-    [state.stackOfUndoneStrokes removeAllObjects];
-    [state.stackOfStrokes removeAllObjects];
-    state.currentStroke = nil;
+    [state clearAllStrokes];
 }
 
 
@@ -1661,53 +1652,11 @@ static int undoCounter;
 // if no current strokes, then add an
 // empty stroke to the stack
 -(void) addUndoLevelAndContinueStroke{
-    
-    JotStroke* currentStroke = state.currentStroke;
-    
-    if(currentStroke){
-        // we have a currentStroke, so we need to
-        // make an empty stroke to pick up where this
-        // one will leave off.
-        [state.stackOfStrokes addObject:currentStroke];
-        
-        // now make a new stroke to pick up where we left off
-        JotStroke* newStroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:state.bufferManager];
-        [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
-        // make sure it starts with the same size and color as where we ended
-        MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
-        moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
-        moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
-        [newStroke addElement:moveTo];
-        
-        // set it as our new current stroke
-        state.currentStroke = newStroke;
-        
-        // update the stroke manager to make sure
-        // it knows about the new stroke, and forgets
-        // the old stroke
-        [[JotStrokeManager sharedInstance] replaceStroke:currentStroke withStroke:newStroke];
-    }else{
-        // there is no current stroke, so just add an empty stroke
-        // to our undo stack
-        [self forceAddEmptyStroke];
-    }
-
-    // since we've added an undo level, we need to
-    // remove all undone strokes.
-    [state.stackOfUndoneStrokes removeAllObjects];
+    [state addUndoLevelAndContinueStrokeWithBrush:brushTexture];
 }
 
 -(void) addUndoLevelAndFinishStroke{
-    if(state.currentStroke){
-        [state.stackOfStrokes addObject:state.currentStroke];
-        state.currentStroke = nil;
-    }else{
-        [self forceAddEmptyStroke];
-    }
-}
-
--(void) clearUndoneStrokes{
-    [state.stackOfUndoneStrokes removeAllObjects];
+    [state addUndoLevelAndFinishStrokeWithBrush:brushTexture];
 }
 
 /**
@@ -1789,8 +1738,7 @@ static int undoCounter;
  * when to save
  */
 -(void) forceAddEmptyStroke{
-    JotStroke* stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
-    [state.stackOfStrokes addObject:stroke];
+    [state forceAddEmptyStrokeWithBrush:brushTexture];
 }
 
 -(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 andSize:(CGSize)size{
@@ -1798,7 +1746,7 @@ static int undoCounter;
     size.width = ceilf(size.width);
     size.height = ceilf(size.height);
     JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path andP1:p1 andP2:p2 andP3:p3 andP4:p4 andSize:size];
-    [state.stackOfStrokes addObject:stroke];
+    [state forceAddStroke:stroke];
     
     JotBrushTexture* keepThisTexture = brushTexture;
     [self setBrushTexture:stroke.texture];

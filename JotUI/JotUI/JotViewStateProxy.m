@@ -186,10 +186,6 @@ static dispatch_queue_t loadUnloadStateQueue;
     return [jotViewState tick];
 }
 
--(NSMutableArray*) strokesBeingWrittenToBackingTexture{
-    return [jotViewState strokesBeingWrittenToBackingTexture];
-}
-
 -(JotViewImmutableState*) immutableState{
     return [jotViewState immutableState];
 }
@@ -203,13 +199,6 @@ static dispatch_queue_t loadUnloadStateQueue;
 }
 -(void) setCurrentStroke:(JotStroke *)currentStroke{
     [jotViewState setCurrentStroke:currentStroke];
-}
-
--(NSMutableArray*) stackOfStrokes{
-    return [jotViewState stackOfStrokes];
-}
--(NSMutableArray*) stackOfUndoneStrokes{
-    return [jotViewState stackOfUndoneStrokes];
 }
 
 -(JotGLTextureBackedFrameBuffer*) backgroundFramebuffer{
@@ -236,7 +225,53 @@ static dispatch_queue_t loadUnloadStateQueue;
     return lastSavedUndoHash;
 }
 
+#pragma mark - Undo Redo
 
+-(BOOL) canUndo{
+    return [self.jotViewState canUndo];
+}
+
+-(BOOL) canRedo{
+    return [self.jotViewState canRedo];
+}
+
+-(JotStroke*) undo{
+    return [self.jotViewState undo];
+}
+
+-(JotStroke*) redo{
+    return [self.jotViewState redo];
+}
+
+-(JotStroke*) undoAndForget{
+    return [self.jotViewState undoAndForget];
+}
+
+-(void) finishCurrentStroke{
+    [self.jotViewState finishCurrentStroke];
+}
+
+-(void) forceAddStroke:(JotStroke*)stroke{
+    [self.jotViewState forceAddStroke:stroke];
+}
+
+-(void) addUndoLevelAndFinishStrokeWithBrush:(JotBrushTexture*)brushTexture{
+    [self.jotViewState addUndoLevelAndFinishStrokeWithBrush:brushTexture];
+}
+
+-(void) forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture{
+    [self.jotViewState forceAddEmptyStrokeWithBrush:brushTexture];
+}
+
+-(void) clearAllStrokes{
+    [self.jotViewState clearAllStrokes];
+}
+
+-(void) addUndoLevelAndContinueStrokeWithBrush:(JotBrushTexture*)brushTexture{
+    [self.jotViewState addUndoLevelAndContinueStrokeWithBrush:brushTexture];
+}
+
+#pragma mark - Dealloc
 
 -(void) dealloc{
     if([self hasEditsToSave]){

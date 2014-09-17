@@ -23,8 +23,6 @@
 @property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
 @property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
 @property (nonatomic, strong)  JotStroke* currentStroke;
-@property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
-@property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
 @property (nonatomic, readonly) int fullByteSize;
 
 -(id) initWithDelegate:(NSObject<JotViewStateProxyDelegate>*)delegate;
@@ -53,8 +51,41 @@
 
 -(void) wasSavedAtImmutableState:(JotViewImmutableState*)immutableState;
 
+#pragma mark - Undo Redo
 
-// debug
+-(BOOL) canUndo;
+
+-(BOOL) canRedo;
+
+-(JotStroke*) undo;
+
+-(JotStroke*) redo;
+
+// same as undo, except the undone
+// stroke is not added to the redo stack
+-(JotStroke*) undoAndForget;
+
+// closes the current stroke and adds it to the
+// undo stack
+-(void) finishCurrentStroke;
+
+
+-(void) addUndoLevelAndFinishStrokeWithBrush:(JotBrushTexture*)brushTexture;
+
+-(void) forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture;
+
+// adds the input stroke to the undo stack
+// w/o clearing the undone strokes
+-(void) forceAddStroke:(JotStroke*)stroke;
+
+-(void) clearAllStrokes;
+
+// returns the new stroke that is the continuation
+// of the currentStroke
+-(void) addUndoLevelAndContinueStrokeWithBrush:(JotBrushTexture*)brushTexture;
+
+#pragma mark - Debug
+
 -(NSUInteger) currentStateUndoHash;
 -(NSUInteger) lastSavedUndoHash;
 

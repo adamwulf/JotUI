@@ -55,9 +55,6 @@
 // undo and forget the last stroke, if possible. stroke cannot be redone.
 -(void) undoAndForget;
 
-// forget all undone strokes
--(void) clearUndoneStrokes;
-
 // redo the last undo, if any
 - (IBAction) redo;
 

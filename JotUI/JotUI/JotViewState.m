@@ -17,6 +17,9 @@
 #import <OpenGLES/ES1/glext.h>
 #import "JotView.h"
 #import "JotTrashManager.h"
+#import "SegmentSmoother.h"
+#import "AbstractBezierPathElement.h"
+#import "AbstractBezierPathElement-Protected.h"
 
 #define kJotDefaultUndoLimit 10
 
@@ -49,9 +52,6 @@
 @synthesize backgroundTexture;
 @synthesize backgroundFramebuffer;
 @synthesize currentStroke;
-@synthesize stackOfStrokes;
-@synthesize stackOfUndoneStrokes;
-@synthesize strokesBeingWrittenToBackingTexture;
 @synthesize bufferManager;
 
 -(id) init{
@@ -172,8 +172,10 @@
             return stroke;
         };
         
-        [self.stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
-        [self.stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+        @synchronized(self){
+            [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
+            [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+        }
     }
     [(JotGLContext*)[JotGLContext currentContext] flush];
     [JotGLContext setCurrentContext:nil];
@@ -184,12 +186,13 @@
 
 #pragma mark - Public Methods
 
-
 -(NSArray*) everyVisibleStroke{
-    if(self.currentStroke){
-        return [self.strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[self.stackOfStrokes arrayByAddingObject:self.currentStroke]];
+    @synchronized(self){
+        if(self.currentStroke){
+            return [strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:[stackOfStrokes arrayByAddingObject:currentStroke]];
+        }
+        return [strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:stackOfStrokes];
     }
-    return [self.strokesBeingWrittenToBackingTexture arrayByAddingObjectsFromArray:self.stackOfStrokes];
 }
 
 
@@ -201,12 +204,12 @@
 
 
 -(void) tick{
-    if([self.stackOfStrokes count] > kJotDefaultUndoLimit){
-        while([self.stackOfStrokes count] > kJotDefaultUndoLimit){
-//            NSLog(@"== eating strokes");
-            
-            [self.strokesBeingWrittenToBackingTexture addObject:[self.stackOfStrokes objectAtIndex:0]];
-            [self.stackOfStrokes removeObjectAtIndex:0];
+    @synchronized(self){
+        if([stackOfStrokes count] > kJotDefaultUndoLimit){
+            while([stackOfStrokes count] > kJotDefaultUndoLimit){
+                [strokesBeingWrittenToBackingTexture addObject:[stackOfStrokes objectAtIndex:0]];
+                [stackOfStrokes removeObjectAtIndex:0];
+            }
         }
     }
 }
@@ -258,18 +261,151 @@
 -(NSUInteger) undoHash{
     NSUInteger prime = 31;
     NSUInteger hashVal = 1;
-    for(JotStroke* stroke in self.stackOfStrokes){
-        hashVal = prime * hashVal + [stroke hash];
-    }
-    hashVal = prime * hashVal + 4409; // a prime from http://www.bigprimes.net/archive/prime/6/
-    for(JotStroke* stroke in self.stackOfUndoneStrokes){
-        hashVal = prime * hashVal + [stroke hash];
-    }
-    hashVal = prime * hashVal + 4409; // a prime from http://www.bigprimes.net/archive/prime/6/
-    if(self.currentStroke){
-        hashVal = prime * hashVal + [self.currentStroke hash];
+    @synchronized(self){
+        for(JotStroke* stroke in stackOfStrokes){
+            hashVal = prime * hashVal + [stroke hash];
+        }
+        hashVal = prime * hashVal + 4409; // a prime from http://www.bigprimes.net/archive/prime/6/
+        for(JotStroke* stroke in stackOfUndoneStrokes){
+            hashVal = prime * hashVal + [stroke hash];
+        }
+        hashVal = prime * hashVal + 4409; // a prime from http://www.bigprimes.net/archive/prime/6/
+        if(self.currentStroke){
+            hashVal = prime * hashVal + [self.currentStroke hash];
+        }
     }
     return hashVal;
+}
+
+#pragma mark - Undo Redo
+
+-(BOOL) canUndo{
+    @synchronized(self){
+        return [stackOfStrokes count] > 0;
+    }
+}
+
+-(BOOL) canRedo{
+    @synchronized(self){
+        return [stackOfUndoneStrokes count] > 0;
+    }
+}
+
+-(JotStroke*) undo{
+    @synchronized(self){
+        if([self canUndo]){
+            JotStroke* undoneStroke = [stackOfStrokes lastObject];
+            [stackOfUndoneStrokes addObject:undoneStroke];
+            [stackOfStrokes removeObject:undoneStroke];
+            return undoneStroke;
+        }
+        return nil;
+    }
+}
+
+-(JotStroke*) redo{
+    @synchronized(self){
+        if([self canRedo]){
+            JotStroke* redoneStroke = [stackOfUndoneStrokes lastObject];
+            [stackOfStrokes addObject:redoneStroke];
+            [stackOfUndoneStrokes removeObject:redoneStroke];
+            return redoneStroke;
+        }
+        return nil;
+    }
+}
+
+-(JotStroke*) undoAndForget{
+    @synchronized(self){
+        if([self canUndo]){
+            JotStroke* lastKnownStroke = [stackOfStrokes lastObject];
+            [stackOfStrokes removeObject:lastKnownStroke];
+            // don't add to the undone stack
+            return lastKnownStroke;
+        }
+        return nil;
+    }
+}
+
+-(void) forceAddStroke:(JotStroke*)stroke{
+    @synchronized(self){
+        [stackOfStrokes addObject:stroke];
+    }
+}
+
+-(void) finishCurrentStroke{
+    @synchronized(self){
+        if(currentStroke){
+            [stackOfStrokes addObject:currentStroke];
+            currentStroke = nil;
+        }
+        [stackOfUndoneStrokes removeAllObjects];
+    }
+}
+
+-(void) addUndoLevelAndFinishStrokeWithBrush:(JotBrushTexture*)brushTexture{
+    @synchronized(self){
+        if(currentStroke){
+            [stackOfStrokes addObject:currentStroke];
+            currentStroke = nil;
+        }else{
+            [self forceAddEmptyStrokeWithBrush:brushTexture];
+        }
+        [stackOfUndoneStrokes removeAllObjects];
+    }
+}
+
+-(void) forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture{
+    JotStroke* stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:bufferManager];
+    @synchronized(self){
+        [self forceAddStroke:stroke];
+    }
+}
+
+
+-(void) clearAllStrokes{
+    @synchronized(self){
+        [stackOfUndoneStrokes removeAllObjects];
+        [stackOfStrokes removeAllObjects];
+        currentStroke = nil;
+    }
+}
+
+-(void) addUndoLevelAndContinueStrokeWithBrush:(JotBrushTexture*)brushTexture{
+    @synchronized(self){
+        if(currentStroke){
+            // we have a currentStroke, so we need to
+            // make an empty stroke to pick up where this
+            // one will leave off.
+            [stackOfStrokes addObject:currentStroke];
+            
+            // now make a new stroke to pick up where we left off
+            JotStroke* newStroke = [[JotStroke alloc] initWithTexture:currentStroke.texture andBufferManager:bufferManager];
+            [newStroke.segmentSmoother copyStateFrom:currentStroke.segmentSmoother];
+            // make sure it starts with the same size and color as where we ended
+            MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
+            moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
+            moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
+            [newStroke addElement:moveTo];
+            
+            // set it as our new current stroke
+            JotStroke* oldCurrentStroke = currentStroke;
+            currentStroke = newStroke;
+            
+            // update the stroke manager to make sure
+            // it knows about the new stroke, and forgets
+            // the old stroke
+            [[JotStrokeManager sharedInstance] replaceStroke:oldCurrentStroke withStroke:newStroke];
+        }else{
+            // there is no current stroke, so just add an empty stroke
+            // to our undo stack
+            [self forceAddEmptyStrokeWithBrush:brushTexture];
+        }
+        
+        // since we've added an undo level, we need to
+        // remove all undone strokes.
+        [stackOfUndoneStrokes removeAllObjects];
+    }
 }
 
 

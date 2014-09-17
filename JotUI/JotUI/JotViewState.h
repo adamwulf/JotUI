@@ -13,6 +13,7 @@
 #import "JotStrokeDelegate.h"
 #import "JotGLContext.h"
 #import "JotBufferManager.h"
+#import "JotBrushTexture.h"
 
 #define kJotStrokeFileExt @"strokedata"
 
@@ -26,9 +27,6 @@
 @property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
 // backing strokes
 @property (nonatomic, strong)  JotStroke* currentStroke;
-@property (nonatomic, readonly)  NSMutableArray* stackOfStrokes;
-@property (nonatomic, readonly)  NSMutableArray* stackOfUndoneStrokes;
-@property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
 // opengl backing memory
 @property (nonatomic, readonly) JotBufferManager* bufferManager;
 @property (nonatomic, readonly) int fullByteSize;
@@ -84,5 +82,30 @@
  * then nothing has changed that would affect the output image
  */
 -(NSUInteger) undoHash;
+
+
+#pragma mark - Undo Redo
+
+-(BOOL) canUndo;
+
+-(BOOL) canRedo;
+
+-(JotStroke*) undo;
+
+-(JotStroke*) redo;
+
+-(JotStroke*) undoAndForget;
+
+-(void) finishCurrentStroke;
+
+-(void) addUndoLevelAndFinishStrokeWithBrush:(JotBrushTexture*)brushTexture;
+
+-(void) addUndoLevelAndContinueStrokeWithBrush:(JotBrushTexture*)brushTexture;
+
+-(void) forceAddStroke:(JotStroke*)stroke;
+
+-(void) forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture;
+
+-(void) clearAllStrokes;
 
 @end
