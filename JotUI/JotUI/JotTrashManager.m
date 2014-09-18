@@ -97,23 +97,9 @@ static JotTrashManager* _instance = nil;
                         }
                         double startTime = CACurrentMediaTime();
                         while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
-                            __weak id ref = [objectsToDealloc lastObject];
+                            // this array should be the last retain for these objects,
+                            // so removing them will release them and cause them to dealloc
                             [objectsToDealloc removeLastObject];
-                            @synchronized(ref){
-                                // remake a
-                                __strong id refStr = ref;
-                                @synchronized(refStr){
-                                    // synchronising on ref will retain it if possible.
-                                    // so if its still around,that means we didn't dealloc it
-                                    // like we were asked to.
-                                    // so insert it back into the trash. once the object is deallocd
-                                    // it won't be able to be synchronized, because the weak ref will
-                                    // be nil
-                                    if(refStr){
-                                        [objectsToDealloc insertObject:refStr atIndex:0];
-                                    }
-                                }
-                            }
                         }
                     }
                 }
@@ -140,10 +126,8 @@ static JotTrashManager* _instance = nil;
 -(int) knownBytesInTrash{
     NSArray* objs;
     @synchronized(self){
-        @synchronized(objectsToDealloc){
-            if(objectsToDealloc){
-                objs = [objectsToDealloc copy];
-            }
+        if(objectsToDealloc){
+            objs = [NSArray arrayWithArray:objectsToDealloc];
         }
     }
     int bytes = 0;
