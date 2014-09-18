@@ -27,6 +27,7 @@
 @property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
 // backing strokes
 @property (nonatomic, strong)  JotStroke* currentStroke;
+@property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
 // opengl backing memory
 @property (nonatomic, readonly) JotBufferManager* bufferManager;
 @property (nonatomic, readonly) int fullByteSize;

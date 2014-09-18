@@ -53,6 +53,7 @@
 @synthesize backgroundFramebuffer;
 @synthesize currentStroke;
 @synthesize bufferManager;
+@synthesize strokesBeingWrittenToBackingTexture;
 
 -(id) init{
     if(self = [super init]){

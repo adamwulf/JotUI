@@ -42,6 +42,10 @@ static dispatch_queue_t loadUnloadStateQueue;
     return jotViewState.fullByteSize;
 }
 
+-(NSMutableArray*) strokesBeingWrittenToBackingTexture{
+    return jotViewState.strokesBeingWrittenToBackingTexture;
+}
+
 -(void) loadStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager{
     @synchronized(self){
         // if we're already loading our
