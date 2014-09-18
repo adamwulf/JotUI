@@ -866,7 +866,6 @@ static JotGLContext *mainThreadContext;
         if(!CGRectEqualToRect(scissorRect, CGRectZero)){
             glEnable(GL_SCISSOR_TEST);
             glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
-            NSLog(@"scissored %f %f %f %f", scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
         }else{
             // noop for scissors
         }
