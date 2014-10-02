@@ -193,6 +193,17 @@ static JotBufferManager* _instance = nil;
 -(void) recycleBuffer:(JotBufferVBO*)buffer{
     NSMutableArray* vboCache = [self arrayOfVBOsForCacheNumber:buffer.cacheNumber];
     if([vboCache count] >= [self maxCacheSizeFor:buffer.cacheNumber]){
+        JotBufferVBO* oldBuff = buffer;
+        for(NSInteger i=0;i<[vboCache count];i++){
+            JotBufferVBO* buffInCache = [vboCache objectAtIndex:i];
+            if(buffer.allocOrder < buffInCache.allocOrder){
+                [vboCache replaceObjectAtIndex:i withObject:buffer];
+                buffer = buffInCache;
+            }
+        }
+        if(oldBuff != buffer){
+            NSLog(@"throwing away %d instead of %d",(int) buffer.allocOrder,(int) oldBuff.allocOrder);
+        }
         // we don't need this buffer anymore,
         // so send it off to the Trashmanager to dealloc
         [[JotTrashManager sharedInstance] addObjectToDealloc:buffer];

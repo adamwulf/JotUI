@@ -500,7 +500,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 }
 
 -(void) unbind{
-    if(vbo.fullByteSize){
+    if(dataVertexBuffer.length){
         [vbo unbind];
     }
 }

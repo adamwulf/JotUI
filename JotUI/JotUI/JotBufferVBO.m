@@ -11,6 +11,8 @@
 #import "JotBufferManager.h"
 #import "JotUI.h"
 
+static NSUInteger staticAllocOrder = 0;
+
 /**
  * a JotBufferVBO represents a single VBO
  * on the GPU. This may or may not be backed
@@ -25,7 +27,11 @@
     OpenGLVBO* vbo;
     // this is the stepNumber inside the OpenGL vbo where our memory is stored
     NSInteger stepNumber;
+    // this tracks how early the jotVBO was created
+    NSUInteger allocOrder;
 }
+
+@synthesize allocOrder;
 
 -(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber{
     if(self = [super init]){
@@ -36,6 +42,12 @@
 
         // update our backing store with our initial data
         [vbo updateStep:stepNumber withBufferWithData:vertexData];
+        
+        // this ensures that the alloc order for all JotVBOs
+        // increments as new VBOs are created. this way,
+        // we can always keep only the oldest VBOs in cache
+        staticAllocOrder++;
+        allocOrder = staticAllocOrder;
     }
     return self;
 }

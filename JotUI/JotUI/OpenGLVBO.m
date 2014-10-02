@@ -75,6 +75,8 @@ static void * zeroedDataCache = nil;
             // initialize the buffer to zero'd data
             glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
         }
+        // unbind after alloc
+        glBindBuffer(GL_ARRAY_BUFFER,0);
     }
     return self;
 }
@@ -105,6 +107,7 @@ static void * zeroedDataCache = nil;
     GLintptr offset = stepNumber*stepMallocSize;
     GLsizeiptr len = vertexData.length;
     glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
 }
 
 

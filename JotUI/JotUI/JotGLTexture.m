@@ -364,6 +364,7 @@ static int totalTextureBytes;
     [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
     [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
 
+    [self unbind];
 }
 
 -(void) dealloc{
