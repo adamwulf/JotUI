@@ -351,6 +351,7 @@ static int totalTextureBytes;
     
     // cleanup
     if(clippingPath){
+        [clipping unbind];
         glDisable(GL_STENCIL_TEST);
         glDisable(GL_ALPHA_TEST);
         glDeleteRenderbuffersOES(1, &stencil_rb);
