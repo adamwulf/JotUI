@@ -16,6 +16,7 @@
 #import "JotBufferManager.h"
 #import "JotBufferVBO.h"
 #import "MoveToPathElement.h"
+#import "JotUI.h"
 
 
 #define kDivideStepBy 5
@@ -66,6 +67,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         hashCache = prime * hashCache + ctrl2.y;
         
         boundsCache.origin = JotCGNotFoundPoint;
+        CheckBoundGLBuffer;
     }
     return self;
 }
@@ -399,6 +401,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     
     dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytesOfVertexData];
     
+    CheckBoundGLBuffer;
     return (struct ColorfulVertex*) dataVertexBuffer.bytes;
 }
 
@@ -436,6 +439,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         }
         vbo = [self.bufferManager bufferWithData:dataVertexBuffer];
     }
+    CheckBoundGLBuffer;
 }
 
 /**
@@ -670,6 +674,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
     [dict setObject:[NSNumber numberWithBool:vertexBufferShouldContainColor] forKey:@"vertexBufferShouldContainColor"];
     [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
     [dict setObject:[NSNumber numberWithFloat:numberOfBytesOfVertexData] forKey:@"numberOfBytesOfVertexData"];
+    CheckBoundGLBuffer;
     return [NSDictionary dictionaryWithDictionary:dict];
 }
 
@@ -709,6 +714,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         hashCache = prime * hashCache + ctrl1.y;
         hashCache = prime * hashCache + ctrl2.x;
         hashCache = prime * hashCache + ctrl2.y;
+        CheckBoundGLBuffer;
     }
     return self;
 }

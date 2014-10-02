@@ -133,6 +133,7 @@ static int totalTextureBytes;
         
         JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
         [context flush];
+        CheckBoundGLBuffer;
     }
     
     return self;
@@ -365,6 +366,7 @@ static int totalTextureBytes;
     [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
 
     [self unbind];
+    CheckBoundGLBuffer;
 }
 
 -(void) dealloc{

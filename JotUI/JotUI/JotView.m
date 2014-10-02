@@ -319,6 +319,7 @@ static JotGLContext *mainThreadContext;
  * This method must be called at least one time after initialization
  */
 -(void) loadState:(JotViewStateProxy*)newState{
+    NSLog(@"loading jotview state: %@", newState.delegate.jotViewStateInkPath);
     CheckMainThread;
     if(state != newState){
         state = newState;
@@ -337,6 +338,7 @@ static JotGLContext *mainThreadContext;
         //
         // https://github.com/adamwulf/loose-leaf/issues/533
         [exportLaterInvocations removeAllObjects];
+        CheckBoundGLBuffer;
     }
 }
 
@@ -348,6 +350,7 @@ static JotGLContext *mainThreadContext;
     // ask to save, and send in our state object
     // incase we need to defer saving until later
     [self exportImageTo:inkPath andThumbnailTo:thumbnailPath andStateTo:plistPath andJotState:state onComplete:exportFinishBlock];
+    CheckBoundGLBuffer;
 }
 
 /**
@@ -368,13 +371,12 @@ static JotGLContext *mainThreadContext;
     if(stateToBeSaved != state){
         @throw [NSException exceptionWithName:@"InvalidJotViewStateDuringSaveException" reason:@"JotView is asked to save with the wrong state object" userInfo:nil];
     }
-    if(!stateToBeSaved){
-        @throw [NSException exceptionWithName:@"InvalidJotViewStateDuringSaveException" reason:@"JotView is asked to save without a state object" userInfo:nil];
-    }
-    
     if(!state){
         exportFinishBlock(nil, nil, nil);
         return;
+    }
+    if(!stateToBeSaved){
+        @throw [NSException exceptionWithName:@"InvalidJotViewStateDuringSaveException" reason:@"JotView is asked to save without a state object" userInfo:nil];
     }
     
     if((![state isReadyToExport] || isCurrentlyExporting)){
@@ -516,6 +518,7 @@ static JotGLContext *mainThreadContext;
                 // then that'll be held in the exportLaterInvocations
                 // and will fire after we're done. (from validateUndoState).
                 isCurrentlyExporting = 0;
+                CheckBoundGLBuffer;
             }
 //            NSLog(@"export ends: %p", self);
         }
@@ -645,6 +648,7 @@ static JotGLContext *mainThreadContext;
             // so pass the newly generated image to the completion block
             exportFinishBlock(image);
             CGImageRelease(cgImage);
+            CheckBoundGLBuffer;
         }
     });
 }
@@ -740,6 +744,7 @@ static JotGLContext *mainThreadContext;
     // available in the background thread's
     // context
     [context flush];
+    CheckBoundGLBuffer;
 
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
@@ -831,6 +836,7 @@ static JotGLContext *mainThreadContext;
             // so pass the newly generated image to the completion block
             exportFinishBlock(image);
             CGImageRelease(cgImage);
+            CheckBoundGLBuffer;
         }
     });
 }
@@ -937,6 +943,7 @@ static JotGLContext *mainThreadContext;
         if(!CGRectEqualToRect(scissorRect, CGRectZero)){
             glDisable(GL_SCISSOR_TEST);
         }
+        CheckBoundGLBuffer;
     }
 }
 
@@ -977,6 +984,7 @@ static JotGLContext *mainThreadContext;
     if([self.context needsFlush]){
         [self.context flush];
     }
+    CheckBoundGLBuffer;
 }
 
 -(void) setNeedsPresentRenderBuffer{
@@ -1031,6 +1039,7 @@ static JotGLContext *mainThreadContext;
     
     // Display the buffer
     [self setNeedsPresentRenderBuffer];
+    CheckBoundGLBuffer;
     return YES;
 }
 
@@ -1081,6 +1090,7 @@ static JotGLContext *mainThreadContext;
     if(frameBuffer){
         [self unprepOpenGLState];
     }
+    CheckBoundGLBuffer;
 }
 
 /**
@@ -1102,6 +1112,8 @@ static JotGLContext *mainThreadContext;
     [context glEnableClientState:GL_COLOR_ARRAY];
     [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
     [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+
+    CheckBoundGLBuffer;
 }
 
 /**
@@ -1202,6 +1214,7 @@ static int undoCounter;
             }
         }
     }
+    CheckBoundGLBuffer;
 }
 
 
@@ -1224,6 +1237,7 @@ static int undoCounter;
         [self.delegate didCancelStroke:aStroke withTouch:nil];
         return;
     }
+    CheckBoundGLBuffer;
 }
 
 #pragma mark - JotPalmRejectionDelegate
@@ -1257,6 +1271,7 @@ static int undoCounter;
     [state forceAddStroke:newStroke];
     
     [self.delegate didEndStrokeWithTouch:nil];
+    CheckBoundGLBuffer;
 }
 
 /**
@@ -1284,6 +1299,7 @@ static int undoCounter;
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
         }
     }
+    CheckBoundGLBuffer;
 }
 
 /**
@@ -1307,6 +1323,7 @@ static int undoCounter;
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
         }
     }
+    CheckBoundGLBuffer;
 }
 
 /**
@@ -1345,6 +1362,7 @@ static int undoCounter;
             [self.delegate didEndStrokeWithTouch:jotTouch];
         }
     }
+    CheckBoundGLBuffer;
 }
 
 /**
@@ -1366,6 +1384,7 @@ static int undoCounter;
     // we need to erase the current stroke from the screen, so
     // clear the canvas and rerender all valid strokes
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+    CheckBoundGLBuffer;
 }
 
 
@@ -1376,7 +1395,7 @@ static int undoCounter;
     if([self.delegate respondsToSelector:@selector(jotSuggestsToDisableGestures)]){
         [self.delegate jotSuggestsToDisableGestures];
     }
-    
+    CheckBoundGLBuffer;
 }
 -(void)jotSuggestsToEnableGestures{
     
@@ -1385,6 +1404,7 @@ static int undoCounter;
     if([self.delegate respondsToSelector:@selector(jotSuggestsToEnableGestures)]){
         [self.delegate jotSuggestsToEnableGestures];
     }
+    CheckBoundGLBuffer;
 }
 
 
@@ -1424,6 +1444,7 @@ static int undoCounter;
             }
         }
     }
+    CheckBoundGLBuffer;
 }
 
 -(void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -1452,6 +1473,7 @@ static int undoCounter;
             }
         }
     }
+    CheckBoundGLBuffer;
 }
 
 -(void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -1493,6 +1515,7 @@ static int undoCounter;
             }
         }
     }
+    CheckBoundGLBuffer;
 }
 
 -(void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -1515,6 +1538,7 @@ static int undoCounter;
         // clear the canvas and rerender all valid strokes
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     }
+    CheckBoundGLBuffer;
 }
 
 
@@ -1556,6 +1580,7 @@ static int undoCounter;
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
+    CheckBoundGLBuffer;
 }
 
 // helper method to pop the most recent stroke
@@ -1572,6 +1597,7 @@ static int undoCounter;
             [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
         }
     }
+    CheckBoundGLBuffer;
 }
 
 /**
@@ -1586,6 +1612,7 @@ static int undoCounter;
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
+    CheckBoundGLBuffer;
 }
 
 
@@ -1615,6 +1642,7 @@ static int undoCounter;
     
     // reset undo state
     [state clearAllStrokes];
+    CheckBoundGLBuffer;
 }
 
 
@@ -1721,6 +1749,7 @@ static int undoCounter;
     if(needsPresent){
         [self setNeedsPresentRenderBuffer];
     }
+    CheckBoundGLBuffer;
 }
 
 
@@ -1737,6 +1766,7 @@ static int undoCounter;
  */
 -(void) forceAddEmptyStroke{
     [state forceAddEmptyStrokeWithBrush:brushTexture];
+    CheckBoundGLBuffer;
 }
 
 -(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 andSize:(CGSize)size{
@@ -1751,6 +1781,7 @@ static int undoCounter;
     [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:YES];
     [self setNeedsPresentRenderBuffer];
     [self setBrushTexture:keepThisTexture];
+    CheckBoundGLBuffer;
 }
 
 #pragma mark - dealloc
@@ -1770,6 +1801,7 @@ static int undoCounter;
         [(JotGLContext*)[JotGLContext currentContext] flush];
 		[JotGLContext setCurrentContext:nil];
 	}
+    CheckBoundGLBuffer;
 }
 
 -(void) willMoveToSuperview:(UIView *)newSuperview{
@@ -1850,7 +1882,12 @@ static int undoCounter;
     // context
     [context flush];
 
-    return [[JotGLTexture alloc] initForTextureID:canvastexture withSize:fullSize];
+    
+    JotGLTexture* ret = [[JotGLTexture alloc] initForTextureID:canvastexture withSize:fullSize];
+
+    CheckBoundGLBuffer;
+
+    return ret;
 }
 
 
@@ -1899,6 +1936,7 @@ static int undoCounter;
     [(JotGLContext*)[JotGLContext currentContext] flush];
     
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+    CheckBoundGLBuffer;
 }
 
 

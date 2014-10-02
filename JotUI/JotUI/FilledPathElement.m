@@ -60,6 +60,7 @@
         
         scaleToDraw = 1.0;
         scaleTransform = CGAffineTransformIdentity;
+        CheckBoundGLBuffer;
     }
     return self;
 }
@@ -107,6 +108,7 @@
     // so pass the newly generated image to the completion block
     texture = [[JotGLTexture alloc] initForImage:image withSize:image.size];
     CGImageRelease(cgImage);
+    CheckBoundGLBuffer;
 }
 
 -(int) fullByteSize{
@@ -179,6 +181,7 @@
     // will also need to set the blend mode to make it erase instead of
     // draw, once i have the location in the right place
     [self unbind];
+    CheckBoundGLBuffer;
 }
 
 
@@ -239,6 +242,7 @@
     [dict setObject:[NSNumber numberWithFloat:sizeOfTexture.width] forKey:@"sizeOfTexture.width"];
     [dict setObject:[NSNumber numberWithFloat:sizeOfTexture.height] forKey:@"sizeOfTexture.height"];
 
+    CheckBoundGLBuffer;
     return [NSDictionary dictionaryWithDictionary:dict];
 }
 
@@ -270,6 +274,7 @@
         hashCache = prime * hashCache + p4.y;
 
         [self generateTextureFromPath];
+        CheckBoundGLBuffer;
     }
     return self;
 }

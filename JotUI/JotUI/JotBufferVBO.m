@@ -48,6 +48,7 @@ static NSUInteger staticAllocOrder = 0;
         // we can always keep only the oldest VBOs in cache
         staticAllocOrder++;
         allocOrder = staticAllocOrder;
+        CheckBoundGLBuffer;
     }
     return self;
 }

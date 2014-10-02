@@ -43,6 +43,7 @@ int printOglError(char *file, int line)
 -(id) initWithStart:(CGPoint)point{
     if(self = [super init]){
         startPoint = point;
+        CheckBoundGLBuffer;
     }
     return self;
 }
@@ -165,6 +166,7 @@ int printOglError(char *file, int line)
         }
         [self unbind];
     }
+    CheckBoundGLBuffer;
 }
 
 
@@ -188,6 +190,7 @@ int printOglError(char *file, int line)
         extraLengthWithoutDot = [[dictionary objectForKey:@"extraLengthWithoutDot"] floatValue];
         color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
         scaleOfVertexBuffer = [[dictionary objectForKey:@"scaleOfVertexBuffer"] floatValue];
+        CheckBoundGLBuffer;
     }
     return self;
 }

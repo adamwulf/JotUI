@@ -7,6 +7,7 @@
 //
 
 #import "JotGLContext.h"
+#import "JotUI.h"
 #import <UIKit/UIKit.h>
 
 /**
@@ -162,5 +163,14 @@
         glBlendFunc(blend_sfactor, blend_dfactor);
     }
 }
+
+
++ (BOOL) setCurrentContext:(EAGLContext*) context{
+    CheckBoundGLBuffer;
+    BOOL ret = [super setCurrentContext:context];
+    CheckBoundGLBuffer;
+    return ret;
+}
+
 
 @end
