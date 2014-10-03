@@ -319,7 +319,7 @@ static JotGLContext *mainThreadContext;
  * This method must be called at least one time after initialization
  */
 -(void) loadState:(JotViewStateProxy*)newState{
-    NSLog(@"loading jotview state: %@", newState.delegate.jotViewStateInkPath);
+//    NSLog(@"loading jotview state: %@", newState.delegate.jotViewStateInkPath);
     CheckMainThread;
     if(state != newState){
         state = newState;
@@ -724,9 +724,12 @@ static JotGLContext *mainThreadContext;
     
     glViewport(0, 0, fullSize.width, fullSize.height);
     
+    printOpenGLError();
+    
     // step 1:
     // Clear the buffer
 	glClearColor(0.0, 0.0, 0.0, 0.0);
+    printOpenGLError();
 	glClear(GL_COLOR_BUFFER_BIT);
     
     // step 2:
@@ -1695,6 +1698,13 @@ static int undoCounter;
  */
 -(void) addElements:(NSArray*)elements{
     if(!state) return;
+    
+    elements = self.delegate ? [self.delegate willAddElementsToStroke:elements fromPreviousElement:nil] : elements;
+
+    if(![elements count]){
+        NSLog(@"no elements");
+        return;
+    }
     
     BOOL needsPresent = NO;
     if([JotGLContext currentContext] != self.context){
