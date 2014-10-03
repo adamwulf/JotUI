@@ -53,7 +53,12 @@ static JotBufferManager* _instance = nil;
     if((self = [super init])){
         cacheOfVBOs = [NSMutableDictionary dictionary];
         cacheStats = [NSMutableDictionary dictionary];
-        
+        dispatch_async(dispatch_get_main_queue(),^{
+            for(int i=1;i<65;i++){
+                // prime the arrays
+                [self arrayOfVBOsForCacheNumber:i];
+            }
+        });
 #ifdef DEBUG
         if(kJotEnableCacheStats){
             dispatch_async(dispatch_get_main_queue(),^{
@@ -124,6 +129,12 @@ static JotBufferManager* _instance = nil;
         for(int stepNumber=0;stepNumber<openGLVBO.numberOfSteps;stepNumber++){
             buffer = [[JotBufferVBO alloc] initWithData:vertexData andOpenGLVBO:openGLVBO andStepNumber:stepNumber];
             [vboCache addObject:buffer];
+            if([vboCache count] >= [self maxCacheSizeFor:buffer.cacheNumber]){
+                // don't build and hold buffers that are above our limit
+                int saved = (int) (openGLVBO.numberOfSteps - stepNumber - 1);
+                if(saved) NSLog(@"saved building %d extra buffers", saved);
+                break;
+            }
         }
         // now use the last of those newly created buffers
         buffer = [vboCache lastObject];
@@ -260,7 +271,7 @@ static JotBufferManager* _instance = nil;
 -(NSMutableArray*) arrayOfVBOsForCacheNumber:(NSInteger)size{
     NSMutableArray* arr = [cacheOfVBOs objectForKey:@(size)];
     if(!arr){
-        arr = [NSMutableArray array];
+        arr = [NSMutableArray arrayWithCapacity:[self maxCacheSizeFor:size]];
         [cacheOfVBOs setObject:arr forKey:@(size)];
     }
     return arr;
