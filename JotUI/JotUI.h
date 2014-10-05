@@ -9,7 +9,11 @@
 #ifndef JotUI_h
 #define JotUI_h
 
+#ifdef ANYTHING
 #define CheckBoundGLBuffer if([JotGLContext currentContext]){GLint currBuff; glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &currBuff); if(currBuff != 0){ @throw [NSException exceptionWithName:@"GLBoundBufferException" reason:[NSString stringWithFormat:@"current buffer is %d", currBuff] userInfo:nil]; }}
+#else
+#define CheckBoundGLBuffer ;
+#endif
 
 
 #define CheckMainThread if(![NSThread isMainThread]){ NSAssert(NO, @"needs to be on main thread"); }
