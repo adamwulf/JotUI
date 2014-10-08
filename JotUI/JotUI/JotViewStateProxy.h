@@ -28,6 +28,7 @@
 -(id) initWithDelegate:(NSObject<JotViewStateProxyDelegate>*)delegate;
 
 -(BOOL) isStateLoaded;
+-(BOOL) isStateLoading;
 
 -(BOOL) isReadyToExport;
 

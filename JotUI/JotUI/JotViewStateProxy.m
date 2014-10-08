@@ -156,6 +156,7 @@ static dispatch_queue_t loadUnloadStateQueue;
                             if(!isLoadingState && jotViewState){
                                 [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
                                 jotViewState = nil;
+                                lastSavedUndoHash = 0;
                                 [strongSelf.delegate didUnloadState:strongSelf];
                             }
                         }else{
@@ -172,6 +173,9 @@ static dispatch_queue_t loadUnloadStateQueue;
 
 -(BOOL) isStateLoaded{
     return jotViewState != nil;
+}
+-(BOOL) isStateLoading{
+    return isLoadingState;
 }
 
 -(BOOL) isReadyToExport{
@@ -219,7 +223,7 @@ static dispatch_queue_t loadUnloadStateQueue;
  * currently saved hash
  */
 -(BOOL) hasEditsToSave{
-    return [self.jotViewState undoHash] != lastSavedUndoHash;
+    return self.jotViewState && [self.jotViewState undoHash] != lastSavedUndoHash;
 }
 
 -(NSUInteger) currentStateUndoHash{

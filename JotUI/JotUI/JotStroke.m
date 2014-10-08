@@ -59,10 +59,11 @@
 
 -(int) fullByteSize{
     int totalBytes = 0;
-    if(segments && [segments count]){
-        NSArray* segs = [NSArray arrayWithArray:segments];
-        for(AbstractBezierPathElement* ele in segs){
-            totalBytes += ele.fullByteSize;
+    @synchronized(segments){
+        if(segments && [segments count]){
+            for(AbstractBezierPathElement* ele in segments){
+                totalBytes += ele.fullByteSize;
+            }
         }
     }
     return totalBytes;
