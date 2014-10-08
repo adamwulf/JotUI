@@ -13,6 +13,7 @@
 @class JotViewState;
 
 @interface JotViewStateProxy : NSObject{
+    NSUInteger lastSavedUndoHash;
     __weak NSObject<JotViewStateProxyDelegate>* delegate;
 }
 

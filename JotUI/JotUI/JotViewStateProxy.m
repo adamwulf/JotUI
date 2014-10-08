@@ -17,7 +17,6 @@ static dispatch_queue_t loadUnloadStateQueue;
     BOOL shouldKeepStateLoaded;
     BOOL isLoadingState;
     
-    NSUInteger lastSavedUndoHash;
     JotViewState* jotViewState;
 }
 
