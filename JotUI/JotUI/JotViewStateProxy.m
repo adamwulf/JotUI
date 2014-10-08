@@ -16,6 +16,7 @@ static dispatch_queue_t loadUnloadStateQueue;
     // ideal state
     BOOL shouldKeepStateLoaded;
     BOOL isLoadingState;
+    BOOL isForgetful;
     
     JotViewState* jotViewState;
 }
@@ -29,6 +30,7 @@ static dispatch_queue_t loadUnloadStateQueue;
 
 @synthesize delegate;
 @synthesize jotViewState;
+@synthesize isForgetful;
 
 -(id) initWithDelegate:(NSObject<JotViewStateProxyDelegate> *)_delegate{
     if(self = [super init]){
@@ -222,6 +224,9 @@ static dispatch_queue_t loadUnloadStateQueue;
  * currently saved hash
  */
 -(BOOL) hasEditsToSave{
+    if(self.isForgetful){
+        return NO;
+    }
     return self.jotViewState && [self.jotViewState undoHash] != lastSavedUndoHash;
 }
 

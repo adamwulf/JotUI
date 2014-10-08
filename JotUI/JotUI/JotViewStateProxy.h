@@ -7,8 +7,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <JotUI/JotUI.h>
 #import "JotViewStateProxyDelegate.h"
+#import "JotGLTextureBackedFrameBuffer.h"
+#import "JotStroke.h"
+#import "JotViewImmutableState.h"
 
 @class JotViewState;
 
@@ -25,6 +27,7 @@
 @property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
 @property (nonatomic, strong)  JotStroke* currentStroke;
 @property (nonatomic, readonly) int fullByteSize;
+@property (nonatomic, assign) BOOL isForgetful;
 
 -(id) initWithDelegate:(NSObject<JotViewStateProxyDelegate>*)delegate;
 

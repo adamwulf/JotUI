@@ -377,6 +377,12 @@ static JotGLContext *mainThreadContext;
         return;
     }
     
+    if(state.isForgetful){
+        NSLog(@"forget: skipping export for forgetful jotview");
+        exportFinishBlock(nil, nil, nil);
+        return;
+    }
+    
     if((![state isReadyToExport] || isCurrentlyExporting)){
         if(isCurrentlyExporting == [state undoHash]){
             //
@@ -491,6 +497,11 @@ static JotGLContext *mainThreadContext;
             
             exportFinishBlock(ink, thumb, immutableState);
             
+            if(state.isForgetful){
+                NSLog(@"forget: skipping export write to disk for forgetful jotview");
+                return;
+            }
+            
             if(ink){
                 // we have the backing ink texture to save
                 // so write it to disk
@@ -562,6 +573,12 @@ static JotGLContext *mainThreadContext;
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
         @autoreleasepool {
+            if(state.isForgetful){
+                NSLog(@"forget: skipping export for forgetful jotview");
+                exportFinishBlock(nil);
+                return;
+            }
+
             JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
             [JotGLContext setCurrentContext:subContext];
             glViewport(0, 0, fullTexture.pixelSize.width, fullTexture.pixelSize.height);
@@ -744,7 +761,12 @@ static JotGLContext *mainThreadContext;
     // the rest can be done in Core Graphics in a background thread
     dispatch_async(importExportImageQueue, ^{
         @autoreleasepool {
-            
+            if(state.isForgetful){
+                NSLog(@"forget: skipping export for forgetful jotview");
+                exportFinishBlock(nil);
+                return;
+            }
+
             JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
             [JotGLContext setCurrentContext:subContext];
             glViewport(0, 0, fullSize.width, fullSize.height);

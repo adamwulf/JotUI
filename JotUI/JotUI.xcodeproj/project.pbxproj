@@ -68,7 +68,7 @@
 		66F1F1F818079BD700B8CE3B /* AbstractBezierPathElement-Protected.h in Headers */ = {isa = PBXBuildFile; fileRef = 6695B6D0174D497B0069E61F /* AbstractBezierPathElement-Protected.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1F918079BD700B8CE3B /* MoveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FA18079BD700B8CE3B /* CurveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39DB1692B50500F12F42 /* CurveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 6622F9D11774E72400C06825 /* JotViewState.h */; };
+		66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */ = {isa = PBXBuildFile; fileRef = 6622F9D11774E72400C06825 /* JotViewState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FC18079BD700B8CE3B /* JotViewImmutableState.h in Headers */ = {isa = PBXBuildFile; fileRef = 66AA82E617761C2300F26904 /* JotViewImmutableState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FD18079BD700B8CE3B /* JotView.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B3A2F1692B68F00F12F42 /* JotView.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -386,9 +386,9 @@
 				66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */,
 				66C6AAEB18A2E78E0036F4BB /* FilledPathElement.h in Headers */,
 				66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */,
+				66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */,
 				66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */,
 				66F1F1FF18079BD700B8CE3B /* JotViewDelegate.h in Headers */,
-				66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

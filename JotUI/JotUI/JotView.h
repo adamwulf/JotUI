@@ -17,6 +17,7 @@
 #import "JotUI/JotGLTextureBackedFrameBuffer.h"
 #import "JotUI/JotBrushTexture.h"
 #import "JotUI/JotViewStateProxyDelegate.h"
+#import "JotUI/JotViewState.h"
 #import <JotTouchSDK/JotStylusManager.h>
 
 #define kJotMaxStrokeByteSize 256*1024
