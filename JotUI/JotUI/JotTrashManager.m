@@ -124,16 +124,12 @@ static JotTrashManager* _instance = nil;
 }
 
 -(int) knownBytesInTrash{
-    NSArray* objs;
-    @synchronized(self){
-        if(objectsToDealloc){
-            objs = [NSArray arrayWithArray:objectsToDealloc];
-        }
-    }
     int bytes = 0;
-    for(NSObject*obj in objs){
-        if([obj respondsToSelector:@selector(fullByteSize)]){
-            bytes += (int) [obj performSelector:@selector(fullByteSize)];
+    @synchronized(self){
+        for(NSObject*obj in objectsToDealloc){
+            if([obj respondsToSelector:@selector(fullByteSize)]){
+                bytes += (int) [obj performSelector:@selector(fullByteSize)];
+            }
         }
     }
     return bytes;
