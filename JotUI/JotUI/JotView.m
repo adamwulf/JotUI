@@ -498,6 +498,9 @@ static JotGLContext *mainThreadContext;
             exportFinishBlock(ink, thumb, immutableState);
             
             if(state.isForgetful){
+                @synchronized(self){
+                    isCurrentlyExporting = 0;
+                }
                 NSLog(@"forget: skipping export write to disk for forgetful jotview");
                 return;
             }

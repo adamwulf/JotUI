@@ -180,8 +180,6 @@
     }
     [(JotGLContext*)[JotGLContext currentContext] flush];
     printOpenGLError();
-    [JotGLContext setCurrentContext:nil];
-    printOpenGLError();
 }
 
 
