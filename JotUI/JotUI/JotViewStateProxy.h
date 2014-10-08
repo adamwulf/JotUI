@@ -19,8 +19,6 @@
     __weak NSObject<JotViewStateProxyDelegate>* delegate;
 }
 
-+(dispatch_queue_t) loadUnloadStateQueue;
-
 @property (nonatomic, weak) NSObject<JotViewStateProxyDelegate>* delegate;
 @property (readonly) JotViewState* jotViewState;
 @property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;

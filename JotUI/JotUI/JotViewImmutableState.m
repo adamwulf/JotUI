@@ -47,6 +47,9 @@
  * this file can be loaded into a JotViewState object
  */
 -(void) writeToDisk:(NSString*)plistPath{
+    if(![JotView isImportExportStateQueue]){
+        @throw [NSException exceptionWithName:@"InconsistentQueueException" reason:@"writing immutable jotViewState in wrong queue" userInfo:nil];
+    }
     if(![[stateDict objectForKey:@"hasConverted"] boolValue]){
         // write each stroke to disk to its own file. this is because the
         // vertex buffer for each stroke can be fairly large. writing it

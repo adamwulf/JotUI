@@ -215,18 +215,33 @@ static JotGLContext *mainThreadContext;
 
 #pragma mark - Dispatch Queues
 
+static const void *const kImportExportImageQueueIdentifier = &kImportExportImageQueueIdentifier;
+
+static const void *const kImportExportStateQueueIdentifier = &kImportExportStateQueueIdentifier;
+
 +(dispatch_queue_t) importExportImageQueue{
     if(!importExportImageQueue){
         importExportImageQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportImageQueue", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_set_specific(importExportImageQueue, kImportExportImageQueueIdentifier, (void *)kImportExportImageQueueIdentifier, NULL);
     }
     return importExportImageQueue;
 }
 
++(BOOL) isImportExportImageQueue{
+    return dispatch_get_specific(kImportExportImageQueueIdentifier) != NULL;
+}
+
+
 +(dispatch_queue_t) importExportStateQueue{
     if(!importExportStateQueue){
         importExportStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_set_specific(importExportStateQueue, kImportExportStateQueueIdentifier, (void *)kImportExportStateQueueIdentifier, NULL);
     }
     return importExportStateQueue;
+}
+
++(BOOL) isImportExportStateQueue{
+    return dispatch_get_specific(kImportExportStateQueueIdentifier) != NULL;
 }
 
 

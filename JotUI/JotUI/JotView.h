@@ -74,8 +74,10 @@
 -(void) loadState:(JotViewStateProxy*)newState;
 
 +(dispatch_queue_t) importExportImageQueue;
++(BOOL) isImportExportImageQueue;
 
 +(dispatch_queue_t) importExportStateQueue;
++(BOOL) isImportExportStateQueue;
 
 -(void) slowDownFPS;
 -(void) speedUpFPS;
