@@ -287,7 +287,7 @@ static dispatch_queue_t loadUnloadStateQueue;
 
 -(void) dealloc{
     if([self hasEditsToSave]){
-        NSLog(@"oh no %d", [self hasEditsToSave]);
+        NSLog(@"oh no2 %d", [self hasEditsToSave]);
     }
 }
 

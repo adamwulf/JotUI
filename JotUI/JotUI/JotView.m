@@ -841,7 +841,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
             
             if(!bitmapContext){
-                NSLog(@"oh no");
+                NSLog(@"oh no1");
             }
             
             // flip vertical for our drawn content, since OpenGL is opposite core graphics
