@@ -202,7 +202,7 @@ static JotBufferManager* _instance = nil;
             }
         }
         if(oldBuff != buffer){
-            NSLog(@"throwing away %d instead of %d",(int) buffer.allocOrder,(int) oldBuff.allocOrder);
+//            NSLog(@"throwing away %d instead of %d",(int) buffer.allocOrder,(int) oldBuff.allocOrder);
         }
         // we don't need this buffer anymore,
         // so send it off to the Trashmanager to dealloc
