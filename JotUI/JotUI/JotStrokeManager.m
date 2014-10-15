@@ -134,4 +134,15 @@ static JotStrokeManager* _instance = nil;
     }
 }
 
+-(void) cancelAllStrokes{
+    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
+        if(strokeCache[i].stroke){
+            strokeCache[i].touchHash = 0;
+            [strokeCache[i].stroke cancel];
+            [strokeCache[i].stroke autorelease];
+            strokeCache[i].stroke = nil;
+        }
+    }
+}
+
 @end

@@ -50,4 +50,9 @@
 -(void) removeStrokeForTouch:(UITouch*)touch;
 
 
+/**
+ * cancels all active strokes
+ */
+-(void) cancelAllStrokes;
+
 @end
