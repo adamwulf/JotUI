@@ -111,12 +111,14 @@
 
 -(int) fullByteSize{
     int strokeTotal = 0;
-    NSArray* allStrokes;
-    allStrokes = [NSArray arrayWithArray:stackOfUndoneStrokes];
-    allStrokes = [allStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes];
-    allStrokes = [allStrokes arrayByAddingObjectsFromArray:strokesBeingWrittenToBackingTexture];
-    for(JotStroke*stroke in allStrokes){
-        strokeTotal += stroke.fullByteSize;
+    @synchronized(self){
+        NSArray* allStrokes;
+        allStrokes = [NSArray arrayWithArray:stackOfUndoneStrokes];
+        allStrokes = [allStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes];
+        allStrokes = [allStrokes arrayByAddingObjectsFromArray:strokesBeingWrittenToBackingTexture];
+        for(JotStroke*stroke in allStrokes){
+            strokeTotal += stroke.fullByteSize;
+        }
     }
     return backgroundTexture.fullByteSize + strokeTotal;
 }
@@ -227,13 +229,14 @@
         @throw [NSException exceptionWithName:@"InvalidStateForExport" reason:@"the state is not ready to export, so it cannot generate an immutable state" userInfo:nil];
     }
     NSMutableDictionary* stateDict = [NSMutableDictionary dictionary];
-    [stateDict setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
-    [stateDict setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
-    // we need to also send in the hash value for our current undo state.
-    // the ImmutableState object won't be able to calculate it, so we need to
-    // send it in for it
-    [stateDict setObject:[NSNumber numberWithUnsignedInteger:[self undoHash]] forKey:@"undoHash"];
-
+    @synchronized(self){
+        [stateDict setObject:[stackOfStrokes copy] forKey:@"stackOfStrokes"];
+        [stateDict setObject:[stackOfUndoneStrokes copy] forKey:@"stackOfUndoneStrokes"];
+        // we need to also send in the hash value for our current undo state.
+        // the ImmutableState object won't be able to calculate it, so we need to
+        // send it in for it
+        [stateDict setObject:[NSNumber numberWithUnsignedInteger:[self undoHash]] forKey:@"undoHash"];
+    }
     return [[JotViewImmutableState alloc] initWithDictionary:stateDict];
 }
 
