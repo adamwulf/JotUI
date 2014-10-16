@@ -95,7 +95,6 @@
         dispatch_async([JotView importExportStateQueue], ^{
             @autoreleasepool {
                 [self loadStrokesHelperWithGLContext:glContext andStateInfoFile:stateInfoFile andScale:scale];
-                [JotGLContext setCurrentContext:nil];
                 dispatch_semaphore_signal(sema2);
             }
         });
@@ -186,8 +185,7 @@
             [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
         }
     }
-    [(JotGLContext*)[JotGLContext currentContext] flush];
-    printOpenGLError();
+    [(JotGLContext*)[JotGLContext currentContext] finish];
 }
 
 

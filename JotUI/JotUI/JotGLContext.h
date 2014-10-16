@@ -23,6 +23,8 @@
 
 -(void) flush;
 
+-(void) finish;
+
 -(void) prepOpenGLBlendModeForColor:(UIColor*)color;
 
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor;

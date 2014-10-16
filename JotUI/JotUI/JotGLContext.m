@@ -79,6 +79,10 @@
     needsFlush = NO;
     glFlush();
 }
+-(void) finish{
+    needsFlush = NO;
+    glFinish();
+}
 
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha{
     if(red != lastRed || green != lastGreen || blue != lastBlue || alpha != lastAlpha){
