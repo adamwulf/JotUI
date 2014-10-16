@@ -47,7 +47,7 @@ static dispatch_queue_t loadUnloadStateQueue;
     return jotViewState.strokesBeingWrittenToBackingTexture;
 }
 
--(void) loadStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager{
+-(void) loadJotStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager{
     @synchronized(self){
         // if we're already loading our
         // state, then bail early
