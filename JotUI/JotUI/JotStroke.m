@@ -83,8 +83,9 @@
             NSLog(@"gotcha!");
         }
     }
-    
-    [segments addObject:element];
+    @synchronized(segments){
+        [segments addObject:element];
+    }
     [self updateHashWithObject:element];
 }
 
@@ -95,7 +96,9 @@
  * dealloc situation
  */
 -(void) removeElementAtIndex:(NSInteger)index{
-    [segments removeObjectAtIndex:index];
+    @synchronized(segments){
+        [segments removeObjectAtIndex:index];
+    }
 }
 
 -(void) cancel{
@@ -103,14 +106,18 @@
 }
 
 -(void) empty{
-    [segments removeAllObjects];
+    @synchronized(segments){
+        [segments removeAllObjects];
+    }
 }
 
 -(CGRect) bounds{
     if([self.segments count]){
         CGRect bounds = [[self.segments objectAtIndex:0] bounds];
-        for(AbstractBezierPathElement* ele in self.segments){
-            bounds = CGRectUnion(bounds, ele.bounds);
+        @synchronized(segments){
+            for(AbstractBezierPathElement* ele in self.segments){
+                bounds = CGRectUnion(bounds, ele.bounds);
+            }
         }
         return bounds;
     }
@@ -120,10 +127,12 @@
 #pragma mark - PlistSaving
 
 -(NSDictionary*) asDictionary{
-    return [NSDictionary dictionaryWithObjectsAndKeys:@"JotStroke", @"class",
-            [self.segments jotMapWithSelector:@selector(asDictionary)], @"segments",
-            [self.segmentSmoother asDictionary], @"segmentSmoother",
-            [self.texture asDictionary], @"texture", nil];
+    @synchronized(segments){
+        return [NSDictionary dictionaryWithObjectsAndKeys:@"JotStroke", @"class",
+                [self.segments jotMapWithSelector:@selector(asDictionary)], @"segments",
+                [self.segmentSmoother asDictionary], @"segmentSmoother",
+                [self.texture asDictionary], @"texture", nil];
+    }
 }
 
 -(id) initFromDictionary:(NSDictionary*)dictionary{

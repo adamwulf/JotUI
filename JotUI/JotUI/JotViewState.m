@@ -112,7 +112,7 @@
     int strokeTotal = 0;
     @synchronized(self){
         NSArray* allStrokes;
-        allStrokes = [NSArray arrayWithArray:stackOfUndoneStrokes];
+        allStrokes = [NSArray arrayWithArray:stackOfStrokes];
         allStrokes = [allStrokes arrayByAddingObjectsFromArray:stackOfUndoneStrokes];
         allStrokes = [allStrokes arrayByAddingObjectsFromArray:strokesBeingWrittenToBackingTexture];
         for(JotStroke*stroke in allStrokes){
@@ -240,17 +240,19 @@
 
 -(BOOL) isReadyToExport{
     [self tick];
-    if([strokesBeingWrittenToBackingTexture count] ||
-       currentStroke ||
-       [stackOfStrokes count] > kJotDefaultUndoLimit){
-        if(currentStroke){
-//            NSLog(@"cant save, currently drawing");
-        }else if([strokesBeingWrittenToBackingTexture count]){
-//            NSLog(@"can't save, writing to texture");
-        }else if([stackOfStrokes count] > kJotDefaultUndoLimit){
-//            NSLog(@"can't save, more strokes than undo");
+    @synchronized(self){
+        if([strokesBeingWrittenToBackingTexture count] ||
+           currentStroke ||
+           [stackOfStrokes count] > kJotDefaultUndoLimit){
+            if(currentStroke){
+    //            NSLog(@"cant save, currently drawing");
+            }else if([strokesBeingWrittenToBackingTexture count]){
+    //            NSLog(@"can't save, writing to texture");
+            }else if([stackOfStrokes count] > kJotDefaultUndoLimit){
+    //            NSLog(@"can't save, more strokes than undo");
+            }
+            return NO;
         }
-        return NO;
     }
     return YES;
 }
