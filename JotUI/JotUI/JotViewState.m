@@ -150,12 +150,15 @@
     [JotGLContext setCurrentContext:nil];
 }
 
+static JotGLContext* backgroundThreadContext = nil;
 
 -(void) loadStrokesHelperWithGLContext:(JotGLContext*)glContext andStateInfoFile:(NSString*)stateInfoFile andScale:(CGFloat)scale{
     if(![JotView isImportExportStateQueue]){
         @throw [NSException exceptionWithName:@"InconsistentQueueException" reason:@"loading jotViewState in wrong queue" userInfo:nil];
     }
-    JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+    if(!backgroundThreadContext){
+        backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+    }
     [JotGLContext setCurrentContext:backgroundThreadContext];
     
     // load the file
@@ -186,6 +189,7 @@
         }
     }
     [(JotGLContext*)[JotGLContext currentContext] finish];
+    [JotGLContext setCurrentContext:nil];
 }
 
 
