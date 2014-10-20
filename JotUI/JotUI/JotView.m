@@ -379,7 +379,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
            andStateTo:(NSString*)plistPath
           andJotState:(JotViewStateProxy*)stateToBeSaved
            onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
-    
+    dispatch_async([JotView importExportStateQueue], ^(void) {
+        exportFinishBlock(nil, nil, nil);
+    });
+    return;
+
     CheckMainThread;
     
     if(stateToBeSaved != state){
@@ -579,6 +583,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(!exportFinishBlock) return;
 
+    dispatch_async(importExportImageQueue, ^(void) {
+        exportFinishBlock(nil);
+    });
+    return;
+
     JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
     [JotGLContext setCurrentContext:subContext];
     
@@ -714,6 +723,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(!exportFinishBlock) return;
     
+    dispatch_async(importExportImageQueue, ^(void) {
+        exportFinishBlock(nil);
+    });
+    return;
+
     JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
     [JotGLContext setCurrentContext:subContext];
 
@@ -1031,6 +1045,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         }
 
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+        glFinish();
         if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES){
             NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
             NSLog(@"%@", str);
