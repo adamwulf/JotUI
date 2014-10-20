@@ -218,6 +218,7 @@ static JotGLContext *mainThreadContext;
     // clear out context until we need it later
     [JotGLContext popCurrentContext];
 
+    [JotGLContext validateEmptyContextStack];
     return self;
 }
 
@@ -702,6 +703,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             exportFinishBlock(image);
             CGImageRelease(cgImage);
             [JotGLContext popCurrentContext];
+            [JotGLContext validateEmptyContextStack];
         }
     });
 }
@@ -904,6 +906,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             CGImageRelease(cgImage);
             
             [JotGLContext popCurrentContext];
+            [JotGLContext validateEmptyContextStack];
         }
     });
 }
@@ -1100,7 +1103,10 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // add the segment to the stroke if we can
     AbstractBezierPathElement* addedElement = [currentStroke.segmentSmoother addPoint:end andSmoothness:smoothFactor];
     // a new element wasn't possible, so just bail here.
-    if(!addedElement) return NO;
+    if(!addedElement){
+        [JotGLContext popCurrentContext];
+        return NO;
+    }
     // ok, we have the new element, set its color/width/rotation
     addedElement.color = color;
     addedElement.width = width;
@@ -1219,7 +1225,8 @@ static int undoCounter;
  * our backing texture
  */
 -(void) validateUndoState:(NSTimer *)timer{
-    
+    [JotGLContext validateEmptyContextStack];
+
     CheckMainThread;
 
     // ticking the state will make sure that the state is valid,
@@ -1293,6 +1300,7 @@ static int undoCounter;
             }
         }
     }
+    [JotGLContext validateEmptyContextStack];
 }
 
 
@@ -1375,6 +1383,7 @@ static int undoCounter;
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
         }
     }
+    [JotGLContext validateEmptyContextStack];
 }
 
 /**
@@ -1399,6 +1408,7 @@ static int undoCounter;
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
         }
     }
+    [JotGLContext validateEmptyContextStack];
 }
 
 /**
@@ -1438,6 +1448,7 @@ static int undoCounter;
             [self.delegate didEndStrokeWithTouch:jotTouch];
         }
     }
+    [JotGLContext validateEmptyContextStack];
 }
 
 /**
@@ -1460,6 +1471,7 @@ static int undoCounter;
     // we need to erase the current stroke from the screen, so
     // clear the canvas and rerender all valid strokes
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+    [JotGLContext validateEmptyContextStack];
 }
 
 
@@ -1519,6 +1531,7 @@ static int undoCounter;
             }
         }
     }
+    [JotGLContext validateEmptyContextStack];
 }
 
 -(void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -1548,6 +1561,7 @@ static int undoCounter;
             }
         }
     }
+    [JotGLContext validateEmptyContextStack];
 }
 
 -(void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -1590,6 +1604,7 @@ static int undoCounter;
             }
         }
     }
+    [JotGLContext validateEmptyContextStack];
 }
 
 -(void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event{
@@ -1613,6 +1628,7 @@ static int undoCounter;
         // clear the canvas and rerender all valid strokes
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     }
+    [JotGLContext validateEmptyContextStack];
 }
 
 
@@ -1720,6 +1736,7 @@ static int undoCounter;
     // reset undo state
     [state clearAllStrokes];
     [JotGLContext popCurrentContext];
+    [JotGLContext validateEmptyContextStack];
 }
 
 
