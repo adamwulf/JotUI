@@ -59,6 +59,7 @@ static int totalTextureBytes;
 
 -(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size{
     if(self = [super init]){
+        JotGLContext* currContext = (JotGLContext*) [JotGLContext currentContext];
         fullPixelSize = size;
         
         // unload the old texture
@@ -101,6 +102,9 @@ static int totalTextureBytes;
             CGContextTranslateCTM (cgContext, 0, fullPixelSize.height);
             CGContextScaleCTM (cgContext, 1.0, -1.0);
             CGColorSpaceRelease( colorSpace );
+            if(currContext != [JotGLContext currentContext]){
+                NSLog(@"freak out");
+            }
             CGContextClearRect( cgContext, CGRectMake( 0, 0, fullPixelSize.width, fullPixelSize.height ) );
             
             // draw the new background in aspect-fill mode
@@ -110,10 +114,16 @@ static int totalTextureBytes;
             CGFloat ratio = MAX(horizontalRatio, verticalRatio); //AspectFill
             CGSize aspectFillSize = CGSizeMake(backgroundSize.width * ratio, backgroundSize.height * ratio);
             
+            if(currContext != [JotGLContext currentContext]){
+                NSLog(@"freak out");
+            }
             CGContextDrawImage( cgContext,  CGRectMake((fullPixelSize.width-aspectFillSize.width)/2,
                                                        (fullPixelSize.height-aspectFillSize.height)/2,
                                                        aspectFillSize.width,
                                                        aspectFillSize.height), imageToLoad.CGImage );
+            if(currContext != [JotGLContext currentContext]){
+                NSLog(@"freak out");
+            }
             // ok, initialize the data
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
             

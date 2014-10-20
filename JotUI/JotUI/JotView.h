@@ -28,10 +28,12 @@
 
 @interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>
 
++(JotGLContext*) mainThreadContext;
+
 @property (readonly) JotViewStateProxy* state;
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;
 @property (nonatomic, strong) JotBrushTexture* brushTexture;
-@property (readonly) JotGLContext *context;
+//@property (readonly) JotGLContext *context;
 @property (nonatomic) NSInteger maxStrokeSize;
 // the pixel size of a page
 @property (readonly) CGSize pagePtSize;

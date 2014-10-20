@@ -85,7 +85,6 @@
         dispatch_async([JotView importExportImageQueue], ^{
             @autoreleasepool {
                 [self loadTextureHelperWithGLContext:glContext andInkImageFile:inkImageFile andPixelSize:CGSizeMake(fullPtSize.width*scale, fullPtSize.height*scale)];
-                [JotGLContext setCurrentContext:nil];
                 dispatch_semaphore_signal(sema1);
             }
         });
@@ -137,7 +136,9 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
     if(!backgroundLoadTexturesThreadContext){
         backgroundLoadTexturesThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
     }
+    NSLog(@"2changing from %p", [JotGLContext currentContext]);
     [JotGLContext setCurrentContext:backgroundLoadTexturesThreadContext];
+    NSLog(@"2changing to %p", [JotGLContext currentContext]);
     
     // load image from disk
     UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
@@ -163,8 +164,10 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
     if(!backgroundLoadStrokesThreadContext){
         backgroundLoadStrokesThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
     }
+    NSLog(@"3changing from %p", [JotGLContext currentContext]);
     [JotGLContext setCurrentContext:backgroundLoadStrokesThreadContext];
-    
+    NSLog(@"3changing to %p", [JotGLContext currentContext]);
+
     // load the file
     NSDictionary* stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
     
