@@ -1976,11 +1976,40 @@ static int undoCounter;
 -(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clipPath andClippingSize:(CGSize)clipSize{
     
     CheckMainThread;
-    
-    [JotGLContext pushCurrentContext:context];
-    
+    glFinish();
+    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+        return [NSThread isMainThread];
+    }];
+    [JotGLContext pushCurrentContext:subContext];
     // render it to the backing texture
-    [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID toContext:context];
+    [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID toContext:subContext];
+    // Setup OpenGL states
+    glMatrixMode(GL_PROJECTION);
+    // Setup the view port in Pixels
+    glMatrixMode(GL_MODELVIEW);
+    glDisable(GL_DITHER);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    // Set a blending function appropriate for premultiplied alpha pixel data
+    [subContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+    glEnable(GL_POINT_SPRITE_OES);
+    glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+    CGRect frame = self.layer.bounds;
+    CGFloat scale = self.contentScaleFactor;
+    
+    initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
+    
+    glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
+    glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
+    
+    if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
+    {
+        NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+        NSLog(@"%@", str);
+        @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
+    }
+
+
 
     //
     // step 1:
@@ -1992,7 +2021,7 @@ static int undoCounter;
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [texture drawInContext:context
+    [texture drawInContext:subContext
                       atT1:p1
                      andT2:p2
                      andT3:p3
@@ -2007,13 +2036,14 @@ static int undoCounter;
                  asErase:NO];
 
     [self unprepOpenGLState];
+    glFinish();
+    [JotGLContext popCurrentContext];
     //
     // we just drew to the backing texture, so be sure
     // to flush all openGL commands, so that when we rebind
     // it'll use the updated texture and won't have any
     // issues of unsynchronized textures.
-    [(JotGLContext*)[JotGLContext currentContext] flush];
-    
+    [JotGLContext pushCurrentContext:context];
     [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     [JotGLContext popCurrentContext];

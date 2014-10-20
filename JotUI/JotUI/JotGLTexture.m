@@ -224,6 +224,8 @@ static int totalTextureBytes;
     JotGLTexture* clipping;
     GLuint stencil_rb;
     
+    [JotGLContext validateContextMatches:context];
+    
     if(clippingPath){
         
         CGSize pathSize = clippingPath.bounds.size;
