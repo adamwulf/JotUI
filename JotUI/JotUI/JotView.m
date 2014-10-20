@@ -176,11 +176,15 @@ static JotGLContext *mainThreadContext;
                                     [NSNumber numberWithBool:YES], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
     
     if(!mainThreadContext){
-        context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1];
+        context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 andValidateThreadWith:^BOOL{
+            return [NSThread isMainThread];
+        }];
         mainThreadContext = context;
         [[JotTrashManager sharedInstance] setGLContext:mainThreadContext];
     }else{
-        context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
+        context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+            return [NSThread isMainThread];
+        }];
     }
     
     if (!context || ![JotGLContext setCurrentContext:context]) {
@@ -210,6 +214,9 @@ static JotGLContext *mainThreadContext;
     
 	[self destroyFramebuffer];
 	[self createFramebuffer];
+    
+    // clear out context until we need it later
+    [JotGLContext setCurrentContext:nil];
 
     return self;
 }
@@ -589,7 +596,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     });
     return;
 
-    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
+    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+        return [NSThread isMainThread];
+    }];
     [JotGLContext setCurrentContext:subContext];
     
     JotGLTexture* fullTexture = [self generateTexture];
@@ -599,7 +608,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 
     //
     // the rest can be done in Core Graphics in a background thread
-    dispatch_async(importExportImageQueue, ^{
+    dispatch_async([JotView importExportImageQueue], ^{
         @autoreleasepool {
             if(state.isForgetful){
                 NSLog(@"forget: skipping export for forgetful jotview");
@@ -607,7 +616,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 return;
             }
 
-            JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
+            JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+                return [JotView isImportExportImageQueue];
+            }];
             [JotGLContext setCurrentContext:subContext];
             glViewport(0, 0, fullTexture.pixelSize.width, fullTexture.pixelSize.height);
 
@@ -729,7 +740,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     });
     return;
 
-    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
+    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+        return [NSThread isMainThread];
+    }];
     [JotGLContext setCurrentContext:subContext];
 
     CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
@@ -793,7 +806,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     [JotGLContext setCurrentContext:nil];
     
     // the rest can be done in Core Graphics in a background thread
-    dispatch_async(importExportImageQueue, ^{
+    dispatch_async([JotView importExportImageQueue], ^{
         @autoreleasepool {
             if(state.isForgetful){
                 NSLog(@"forget: skipping export for forgetful jotview");
@@ -801,7 +814,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 return;
             }
 
-            JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup];
+            JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+                return [JotView isImportExportImageQueue];
+            }];
             [JotGLContext setCurrentContext:subContext];
             glViewport(0, 0, fullSize.width, fullSize.height);
 
@@ -1077,7 +1092,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 - (BOOL) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
     
     CheckMainThread;
-    [JotGLContext setCurrentContext:context];
     
     // fetch the current and previous elements
     // of the stroke. these will help us
@@ -1099,7 +1113,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 
     // let our delegate have an opportunity to modify the element array
     NSArray* elements = [self.delegate willAddElementsToStroke:[NSArray arrayWithObject:addedElement] fromPreviousElement:previousElement];
-    
+
+    // now we render to ourselves
+    [JotGLContext setCurrentContext:context];
     // prepend the previous element, so that each of our new elements has a previous element to
     // render with
     elements = [[NSArray arrayWithObject:(previousElement ? previousElement : [NSNull null])] arrayByAddingObjectsFromArray:elements];
@@ -1112,6 +1128,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     // Display the buffer
     [self setNeedsPresentRenderBuffer];
+    [JotGLContext setCurrentContext:nil];
     return YES;
 }
 
@@ -1136,6 +1153,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     CheckMainThread;
     
     if(!state) return;
+    
+    JotGLContext* currContext = [JotGLContext currentContext];
+    if(renderContext != currContext){
+        NSLog(@"what");
+    }
     
     if(frameBuffer){
         // draw the stroke element
@@ -1173,14 +1195,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  */
 -(void) prepOpenGLStateForFBO:(GLuint)frameBuffer toContext:(JotGLContext*)renderContext{
     CheckMainThread;
-    // set to current context
-    if([JotGLContext currentContext] != renderContext){
-        NSLog(@"1changing from %p", [JotGLContext currentContext]);
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:renderContext];
-        NSLog(@"1changing to %p", [JotGLContext currentContext]);
-    }
-    
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
     
     [renderContext glEnableClientState:GL_VERTEX_ARRAY];
@@ -1826,6 +1840,7 @@ static int undoCounter;
     if(needsPresent){
         [self setNeedsPresentRenderBuffer];
     }
+    [JotGLContext setCurrentContext:nil];
 }
 
 
@@ -1858,6 +1873,7 @@ static int undoCounter;
     [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:YES toContext:context];
     [self setNeedsPresentRenderBuffer];
     [self setBrushTexture:keepThisTexture];
+    [JotGLContext setCurrentContext:nil];
 }
 
 #pragma mark - dealloc
@@ -2003,6 +2019,7 @@ static int undoCounter;
     
     [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+    [JotGLContext setCurrentContext:nil];
 }
 
 

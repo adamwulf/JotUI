@@ -7,6 +7,7 @@
 //
 
 #import "JotGLContext.h"
+#import "JotUI.h"
 #import <UIKit/UIKit.h>
 
 /**
@@ -43,19 +44,31 @@
     GLenum vertex_pointer_type;
     GLsizei vertex_pointer_stride;
     GLvoid* vertex_pointer_pointer;
+    
+    BOOL(^validateThreadBlock)();
 }
 
--(id) initWithAPI:(EAGLRenderingAPI)api{
+-(BOOL) validateThread{
+    return validateThreadBlock();
+}
+
++(BOOL) setCurrentContext:(JotGLContext *)context{
+    if(context && !context.validateThread){ NSAssert(NO, @"context is set on wrong thread"); };
+    return [super setCurrentContext:context];
+}
+
+-(id) initWithAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
     if(self = [super initWithAPI:api]){
         lastRed = -1;
         lastBlue = -1;
         lastGreen = -1;
         lastAlpha = -1;
+        validateThreadBlock = _validateThreadBlock;
     }
     return self;
 }
 
--(id) initWithAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup{
+-(id) initWithAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
     if(self = [super initWithAPI:api sharegroup:sharegroup]){
         lastRed = -1;
         lastBlue = -1;
@@ -63,6 +76,7 @@
         lastAlpha = -1;
         blend_dfactor = GL_ZERO;
         blend_sfactor = GL_ZERO;
+        validateThreadBlock = _validateThreadBlock;
     }
     return self;
 }

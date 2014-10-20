@@ -83,9 +83,9 @@ dispatch_queue_t importExportTextureQueue;
     // something below here is wrong.
     // and/or how this interacts later
     // with other threads
-//    [texture bind];
-//    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-//    glClearColor(0.0, 0.0, 0.0, 0.0);
+    [texture bind];
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+    glClearColor(0.0, 0.0, 0.0, 0.0);
 //    glClear(GL_COLOR_BUFFER_BIT);
 
     if(currBoundFrBuff){

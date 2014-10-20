@@ -27,11 +27,18 @@
 static dispatch_queue_t _trashQueue;
 static JotTrashManager* _instance = nil;
 
+static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
+
 +(dispatch_queue_t) trashQueue{
     if(!_trashQueue){
         _trashQueue = dispatch_queue_create("com.milestonemade.looseleaf.jotTrashQueue", DISPATCH_QUEUE_SERIAL);
+        dispatch_queue_set_specific(_trashQueue, kJotTrashQueueIdentifier, (void *)kJotTrashQueueIdentifier, NULL);
     }
     return _trashQueue;
+}
+
++(BOOL) isTrashManagerQueue{
+    return dispatch_get_specific(kJotTrashQueueIdentifier) != NULL;
 }
 
 -(id) init{
@@ -56,7 +63,9 @@ static JotTrashManager* _instance = nil;
 
 -(void) setGLContext:(JotGLContext*)context{
     dispatch_async([JotTrashManager trashQueue], ^{
-        backgroundContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:context.sharegroup];
+        backgroundContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:context.sharegroup andValidateThreadWith:^BOOL{
+            return [JotTrashManager isTrashManagerQueue];
+        }];
     });
 }
 
@@ -101,6 +110,7 @@ static JotTrashManager* _instance = nil;
                             // so removing them will release them and cause them to dealloc
                             [objectsToDealloc removeLastObject];
                         }
+                        [JotGLContext setCurrentContext:nil];
                     }
                 }
             }
