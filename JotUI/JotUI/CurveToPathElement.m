@@ -432,7 +432,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // if we need a vbo, then create it
     if(!vbo && dataVertexBuffer.length){
         if(!self.bufferManager){
-            NSLog(@"what");
+            NSLog(@"what1");
         }
         vbo = [self.bufferManager bufferWithData:dataVertexBuffer];
     }
@@ -481,7 +481,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             if(vert.Position[0] < 0 ||
                vert.Position[1] < 0 ||
                vert.Size < 1){
-                NSLog(@"what");
+                NSLog(@"what2");
             }
         }
     }else if(dataVertexBuffer){
@@ -491,7 +491,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             if(vert.Position[0] < 0 ||
                vert.Position[1] < 0 ||
                vert.Size < 1){
-                NSLog(@"what");
+                NSLog(@"what3");
             }
         }
     }

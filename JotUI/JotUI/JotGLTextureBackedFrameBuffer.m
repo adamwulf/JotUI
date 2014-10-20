@@ -75,15 +75,16 @@ dispatch_queue_t importExportTextureQueue;
 }
 
 -(void) clear{
-//    GLint currBoundFrBuff = -1;
-//    glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+    GLint currBoundFrBuff = -1;
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
 //
 //    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
 //    glClearColor(0.0, 0.0, 0.0, 0.0);
 //    glClear(GL_COLOR_BUFFER_BIT);
 //
 //    glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
-//    glFinish();
+    glFinish();
+    NSLog(@"clear");
 }
 
 -(void) unload{

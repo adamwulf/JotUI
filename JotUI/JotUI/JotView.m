@@ -947,7 +947,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         [state.backgroundTexture drawInContext:renderContext];
         
         if(!state.backgroundTexture){
-            NSLog(@"what");
+            NSLog(@"what5");
         }
         
         //
@@ -1357,7 +1357,7 @@ static int undoCounter;
     CheckMainThread;
     
     if(!state) return;
-    
+    [self setBrushTexture:brushTexture];
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
             JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
@@ -1384,6 +1384,7 @@ static int undoCounter;
     CheckMainThread;
     
     if(!state) return;
+    [self setBrushTexture:brushTexture];
 
     for(JotTouch* jotTouch in touches){
         [self.delegate willMoveStrokeWithTouch:jotTouch];
@@ -1407,6 +1408,7 @@ static int undoCounter;
     CheckMainThread;
     
     if(!state) return;
+    [self setBrushTexture:brushTexture];
 
     for(JotTouch* jotTouch in touches){
         [self.delegate willEndStrokeWithTouch:jotTouch];
@@ -1445,6 +1447,7 @@ static int undoCounter;
     CheckMainThread;
     
     if(!state) return;
+    [self setBrushTexture:brushTexture];
 
     for(JotTouch* jotTouch in touches){
         // If appropriate, add code necessary to save the state of the application.
@@ -1495,7 +1498,8 @@ static int undoCounter;
  */
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     if(!state) return;
-    
+    [self setBrushTexture:brushTexture];
+
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for (UITouch *touch in touches) {
             @autoreleasepool {
@@ -1519,6 +1523,7 @@ static int undoCounter;
 -(void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
 
     if(!state) return;
+    [self setBrushTexture:brushTexture];
 
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for (UITouch *touch in touches) {
@@ -1547,6 +1552,7 @@ static int undoCounter;
 -(void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
 
     if(!state) return;
+    [self setBrushTexture:brushTexture];
 
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for(UITouch* touch in touches){
@@ -1588,7 +1594,8 @@ static int undoCounter;
 -(void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event{
     CheckMainThread;
     if(!state) return;
-    
+    [self setBrushTexture:brushTexture];
+
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for(UITouch* touch in touches){
             @autoreleasepool {
@@ -1622,6 +1629,8 @@ static int undoCounter;
     if(brushTexture != brushImage){
         [brushTexture unbind];
         brushTexture = brushImage;
+        [brushTexture bind];
+    }else{
         [brushTexture bind];
     }
 }
@@ -1840,6 +1849,7 @@ static int undoCounter;
     // make sure size is rounded up
     size.width = ceilf(size.width);
     size.height = ceilf(size.height);
+    [JotGLContext setCurrentContext:context];
     JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path andP1:p1 andP2:p2 andP3:p3 andP4:p4 andSize:size];
     [state forceAddStroke:stroke];
     
@@ -1858,7 +1868,7 @@ static int undoCounter;
 - (void) dealloc
 {
     if(isCurrentlyExporting){
-        NSLog(@"what");
+        NSLog(@"what6");
     }
     [self destroyFramebuffer];
 }
