@@ -152,6 +152,7 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
         [self.backgroundFramebuffer clear];
     }
     [(JotGLContext*)[JotGLContext currentContext] flush];
+    glFinish();
     [JotGLContext setCurrentContext:nil];
 }
 

@@ -44,6 +44,7 @@ dispatch_queue_t importExportTextureQueue;
         if(framebufferID){
             // generate FBO
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+            [texture bind];
             // associate texture with FBO
             glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
         }
@@ -78,11 +79,20 @@ dispatch_queue_t importExportTextureQueue;
     GLint currBoundFrBuff = -1;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
 //
+    //
+    // something below here is wrong.
+    // and/or how this interacts later
+    // with other threads
+//    [texture bind];
 //    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
 //    glClearColor(0.0, 0.0, 0.0, 0.0);
 //    glClear(GL_COLOR_BUFFER_BIT);
-//
-//    glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
+
+    if(currBoundFrBuff){
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
+    }else{
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+    }
     glFinish();
     NSLog(@"clear");
 }
