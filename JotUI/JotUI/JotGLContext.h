@@ -15,6 +15,14 @@
 
 @property (assign) BOOL needsFlush;
 
++(BOOL) pushCurrentContext:(JotGLContext*)context;
+
++(BOOL) popCurrentContext;
+
++(void) validateEmptyContextStack;
+
++(void) validateContextMatches:(JotGLContext*)context;
+
 -(id) initWithAPI:(EAGLRenderingAPI)api __attribute__((unavailable("Must use initWithAPI:andValidateThreadWith: instead.")));
 
 -(id) initWithAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup __attribute__((unavailable("Must use initWithAPI:sharegroup:andValidateThreadWith: instead.")));

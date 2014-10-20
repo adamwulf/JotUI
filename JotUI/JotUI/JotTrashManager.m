@@ -100,17 +100,14 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
             @autoreleasepool {
                 @synchronized(self){
                     if([objectsToDealloc count]){
-                        if([JotGLContext currentContext] != backgroundContext){
-                            [(JotGLContext*)[JotGLContext currentContext] flush];
-                            [JotGLContext setCurrentContext:backgroundContext];
-                        }
+                        [JotGLContext pushCurrentContext:backgroundContext];
                         double startTime = CACurrentMediaTime();
                         while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
                             // this array should be the last retain for these objects,
                             // so removing them will release them and cause them to dealloc
                             [objectsToDealloc removeLastObject];
                         }
-                        [JotGLContext setCurrentContext:nil];
+                        [JotGLContext popCurrentContext];
                     }
                 }
             }

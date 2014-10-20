@@ -52,9 +52,46 @@
     return validateThreadBlock();
 }
 
+
 +(BOOL) setCurrentContext:(JotGLContext *)context{
     if(context && !context.validateThread){ NSAssert(NO, @"context is set on wrong thread"); };
     return [super setCurrentContext:context];
+}
+
++(BOOL) pushCurrentContext:(JotGLContext*)context{
+    NSMutableArray* stackOfContexts = [[[NSThread currentThread] threadDictionary] objectForKey:@"stackOfContexts"];
+    if(!stackOfContexts){
+        if(!stackOfContexts){
+            stackOfContexts = [[NSMutableArray alloc] init];
+            [[[NSThread currentThread] threadDictionary] setObject:stackOfContexts forKey:@"stackOfContexts"];
+        }
+    }
+    [stackOfContexts addObject:context];
+    [(JotGLContext*)[JotGLContext currentContext] flush];
+    return [JotGLContext setCurrentContext:context];
+}
+
++(BOOL) popCurrentContext{
+    NSMutableArray* stackOfContexts = [[[NSThread currentThread] threadDictionary] objectForKey:@"stackOfContexts"];
+    if(!stackOfContexts || [stackOfContexts count] == 0){
+        @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"Cannot pop a GLContext from empty stack" userInfo:nil];
+    }
+    [stackOfContexts removeLastObject];
+    JotGLContext* previousContext = [stackOfContexts lastObject];
+    return [JotGLContext setCurrentContext:previousContext]; // ok if its nil
+}
+
++(void) validateEmptyContextStack{
+    NSMutableArray* stackOfContexts = [[[NSThread currentThread] threadDictionary] objectForKey:@"stackOfContexts"];
+    if([stackOfContexts count] != 0){
+        @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"JotGLContext stack must be empty" userInfo:nil];
+    }
+}
+
++(void) validateContextMatches:(JotGLContext *)context{
+    if(context != [JotGLContext currentContext]){
+        @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"mismatched current context" userInfo:nil];
+    }
 }
 
 -(id) initWithAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThreadBlock{

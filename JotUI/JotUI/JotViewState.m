@@ -138,9 +138,7 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
             return [JotView isImportExportImageQueue];
         }];
     }
-    NSLog(@"2changing from %p", [JotGLContext currentContext]);
-    [JotGLContext setCurrentContext:backgroundLoadTexturesThreadContext];
-    NSLog(@"2changing to %p", [JotGLContext currentContext]);
+    [JotGLContext pushCurrentContext:backgroundLoadTexturesThreadContext];
     
     // load image from disk
     UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
@@ -155,7 +153,7 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
     }
     [(JotGLContext*)[JotGLContext currentContext] flush];
     glFinish();
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
 }
 
 static JotGLContext* backgroundLoadStrokesThreadContext = nil;
@@ -169,9 +167,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
             return [JotView isImportExportStateQueue];
         }];
     }
-    NSLog(@"3changing from %p", [JotGLContext currentContext]);
-    [JotGLContext setCurrentContext:backgroundLoadStrokesThreadContext];
-    NSLog(@"3changing to %p", [JotGLContext currentContext]);
+    [JotGLContext pushCurrentContext:backgroundLoadStrokesThreadContext];
 
     // load the file
     NSDictionary* stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
@@ -201,10 +197,8 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         }
     }
     [(JotGLContext*)[JotGLContext currentContext] finish];
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
 }
-
-
 
 
 #pragma mark - Public Methods

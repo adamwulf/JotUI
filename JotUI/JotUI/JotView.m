@@ -187,7 +187,7 @@ static JotGLContext *mainThreadContext;
         }];
     }
     
-    if (!context || ![JotGLContext setCurrentContext:context]) {
+    if (!context || ![JotGLContext pushCurrentContext:context]) {
         return nil;
     }
     
@@ -216,7 +216,7 @@ static JotGLContext *mainThreadContext;
 	[self createFramebuffer];
     
     // clear out context until we need it later
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
 
     return self;
 }
@@ -599,12 +599,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
     }];
-    [JotGLContext setCurrentContext:subContext];
+    [JotGLContext pushCurrentContext:subContext];
     
     JotGLTexture* fullTexture = [self generateTexture];
     CGSize exportSize = CGSizeMake(ceilf(initialViewport.width / 2), ceilf(initialViewport.height / 2));
 
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
 
     //
     // the rest can be done in Core Graphics in a background thread
@@ -619,7 +619,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
                 return [JotView isImportExportImageQueue];
             }];
-            [JotGLContext setCurrentContext:subContext];
+            [JotGLContext pushCurrentContext:subContext];
             glViewport(0, 0, fullTexture.pixelSize.width, fullTexture.pixelSize.height);
 
             GLuint exportFramebuffer;
@@ -701,7 +701,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // so pass the newly generated image to the completion block
             exportFinishBlock(image);
             CGImageRelease(cgImage);
-            [JotGLContext setCurrentContext:nil];
+            [JotGLContext popCurrentContext];
         }
     });
 }
@@ -743,7 +743,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
     }];
-    [JotGLContext setCurrentContext:subContext];
+    [JotGLContext pushCurrentContext:subContext];
 
     CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
@@ -803,7 +803,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // context
     [subContext flush];
 
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
     
     // the rest can be done in Core Graphics in a background thread
     dispatch_async([JotView importExportImageQueue], ^{
@@ -817,7 +817,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
                 return [JotView isImportExportImageQueue];
             }];
-            [JotGLContext setCurrentContext:subContext];
+            [JotGLContext pushCurrentContext:subContext];
             glViewport(0, 0, fullSize.width, fullSize.height);
 
             GLuint exportFramebuffer;
@@ -903,7 +903,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             exportFinishBlock(image);
             CGImageRelease(cgImage);
             
-            [JotGLContext setCurrentContext:nil];
+            [JotGLContext popCurrentContext];
         }
     });
 }
@@ -930,10 +930,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         //    NSLog(@"render all");
         
         // set our current OpenGL context
-        if([JotGLContext currentContext] != renderContext){
-            [(JotGLContext*)[JotGLContext currentContext] flush];
-            [JotGLContext setCurrentContext:renderContext];
-        }
+        [JotGLContext pushCurrentContext:renderContext];
         
         if(!CGRectEqualToRect(scissorRect, CGRectZero)){
             glEnable(GL_SCISSOR_TEST);
@@ -1011,7 +1008,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             glDisable(GL_SCISSOR_TEST);
         }
         
-        [JotGLContext setCurrentContext:nil];
+        [JotGLContext popCurrentContext];
     }
 }
 
@@ -1038,10 +1035,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(!state) return;
 
-    if([JotGLContext currentContext] != self.context){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:self.context];
-    }
+    [JotGLContext pushCurrentContext:self.context];
     
     if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
         GLint currBoundFrBuff = -1;
@@ -1068,10 +1062,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     if([self.context needsFlush]){
         [self.context flush];
     }
-    if([JotGLContext currentContext] != context){
-        NSLog(@"freak out");
-    }
-    [JotGLContext setCurrentContext:nil];
+
+    [JotGLContext validateContextMatches:context];
+    [JotGLContext popCurrentContext];
 }
 
 -(void) setNeedsPresentRenderBuffer{
@@ -1092,7 +1085,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 - (BOOL) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
     
     CheckMainThread;
-    
+    // now we render to ourselves
+    [JotGLContext pushCurrentContext:context];
+
     // fetch the current and previous elements
     // of the stroke. these will help us
     // step over their length for drawing
@@ -1114,8 +1109,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // let our delegate have an opportunity to modify the element array
     NSArray* elements = [self.delegate willAddElementsToStroke:[NSArray arrayWithObject:addedElement] fromPreviousElement:previousElement];
 
-    // now we render to ourselves
-    [JotGLContext setCurrentContext:context];
     // prepend the previous element, so that each of our new elements has a previous element to
     // render with
     elements = [[NSArray arrayWithObject:(previousElement ? previousElement : [NSNull null])] arrayByAddingObjectsFromArray:elements];
@@ -1128,7 +1121,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     // Display the buffer
     [self setNeedsPresentRenderBuffer];
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
     return YES;
 }
 
@@ -1137,7 +1130,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  * this renders a single stroke segment to the glcontext.
  *
  * this assumes that this has been called:
- * [JotGLContext setCurrentContext:context];
+ * [JotGLContext pushCurrentContext:];
  * glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
  *
  * and also assumes that this will be called after
@@ -1154,10 +1147,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(!state) return;
     
-    JotGLContext* currContext = [JotGLContext currentContext];
-    if(renderContext != currContext){
-        NSLog(@"what");
-    }
+    [JotGLContext validateContextMatches:renderContext];
     
     if(frameBuffer){
         // draw the stroke element
@@ -1238,10 +1228,7 @@ static int undoCounter;
     [state tick];
 
     if([state.strokesBeingWrittenToBackingTexture count]){
-        if([JotGLContext currentContext] != context){
-            [(JotGLContext*)[JotGLContext currentContext] flush];
-            [JotGLContext setCurrentContext:context];
-        }
+        [JotGLContext pushCurrentContext:context];
         
         undoCounter++;
         if(undoCounter % 3 == 0){
@@ -1292,7 +1279,7 @@ static int undoCounter;
         // it'll use the updated texture and won't have any
         // issues of unsynchronized textures.
         [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:nil];
+        [JotGLContext popCurrentContext];
     }else if([state isReadyToExport]){
         // only export if the trash manager is empty
         // that way we're exporting w/ low memory instead
@@ -1712,8 +1699,7 @@ static int undoCounter;
     if(!state) return;
 
     // set our context
-    [(JotGLContext*)[JotGLContext currentContext] flush];
-	[JotGLContext setCurrentContext:context];
+	[JotGLContext pushCurrentContext:context];
 	
 	// Clear the buffer
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
@@ -1733,6 +1719,7 @@ static int undoCounter;
     
     // reset undo state
     [state clearAllStrokes];
+    [JotGLContext popCurrentContext];
 }
 
 
@@ -1788,10 +1775,7 @@ static int undoCounter;
     if(!state) return;
     
     BOOL needsPresent = NO;
-    if([JotGLContext currentContext] != self.context){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:self.context];
-    }
+    [JotGLContext pushCurrentContext:self.context];
 
     JotStroke* stroke = state.currentStroke;
     BOOL strokeHasColor = [[stroke.segments lastObject] color] != nil;
@@ -1840,7 +1824,7 @@ static int undoCounter;
     if(needsPresent){
         [self setNeedsPresentRenderBuffer];
     }
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
 }
 
 
@@ -1864,7 +1848,7 @@ static int undoCounter;
     // make sure size is rounded up
     size.width = ceilf(size.width);
     size.height = ceilf(size.height);
-    [JotGLContext setCurrentContext:context];
+    [JotGLContext pushCurrentContext:context];
     JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path andP1:p1 andP2:p2 andP3:p3 andP4:p4 andSize:size];
     [state forceAddStroke:stroke];
     
@@ -1873,7 +1857,7 @@ static int undoCounter;
     [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:YES toContext:context];
     [self setNeedsPresentRenderBuffer];
     [self setBrushTexture:keepThisTexture];
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
 }
 
 #pragma mark - dealloc
@@ -1909,10 +1893,7 @@ static int undoCounter;
 -(JotGLTexture*) generateTexture{
     CheckMainThread;
     
-    if([JotGLContext currentContext] != context){
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:context];
-    }
+    [JotGLContext pushCurrentContext:context];
     
     CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     
@@ -1967,7 +1948,7 @@ static int undoCounter;
     // context
     [context flush];
 
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
 
     return [[JotGLTexture alloc] initForTextureID:canvastexture withSize:fullSize];
 }
@@ -1979,9 +1960,8 @@ static int undoCounter;
     
     CheckMainThread;
     
-    if([JotGLContext currentContext] != context){
-        [JotGLContext setCurrentContext:context];
-    }
+    [JotGLContext pushCurrentContext:context];
+    
     // render it to the backing texture
     [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID toContext:context];
 
@@ -2019,7 +1999,7 @@ static int undoCounter;
     
     [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
-    [JotGLContext setCurrentContext:nil];
+    [JotGLContext popCurrentContext];
 }
 
 
