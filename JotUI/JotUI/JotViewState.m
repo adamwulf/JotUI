@@ -128,12 +128,16 @@
 // but I've moved them into methods so that instruments can give me better detail
 // about CPU usage inside here
 
+static JotGLContext* backgroundLoadTexturesThreadContext = nil;
+
 -(void) loadTextureHelperWithGLContext:(JotGLContext*)glContext andInkImageFile:(NSString*)inkImageFile andPixelSize:(CGSize)fullPixelSize{
     if(![JotView isImportExportImageQueue]){
         @throw [NSException exceptionWithName:@"InconsistentQueueException" reason:@"loading texture in wrong queue" userInfo:nil];
     }
-    JotGLContext* backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
-    [JotGLContext setCurrentContext:backgroundThreadContext];
+    if(!backgroundLoadTexturesThreadContext){
+        backgroundLoadTexturesThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+    }
+    [JotGLContext setCurrentContext:backgroundLoadTexturesThreadContext];
     
     // load image from disk
     UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
@@ -150,16 +154,16 @@
     [JotGLContext setCurrentContext:nil];
 }
 
-static JotGLContext* backgroundThreadContext = nil;
+static JotGLContext* backgroundLoadStrokesThreadContext = nil;
 
 -(void) loadStrokesHelperWithGLContext:(JotGLContext*)glContext andStateInfoFile:(NSString*)stateInfoFile andScale:(CGFloat)scale{
     if(![JotView isImportExportStateQueue]){
         @throw [NSException exceptionWithName:@"InconsistentQueueException" reason:@"loading jotViewState in wrong queue" userInfo:nil];
     }
-    if(!backgroundThreadContext){
-        backgroundThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
+    if(!backgroundLoadStrokesThreadContext){
+        backgroundLoadStrokesThreadContext = [[JotGLContext alloc] initWithAPI:glContext.API sharegroup:glContext.sharegroup];
     }
-    [JotGLContext setCurrentContext:backgroundThreadContext];
+    [JotGLContext setCurrentContext:backgroundLoadStrokesThreadContext];
     
     // load the file
     NSDictionary* stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
