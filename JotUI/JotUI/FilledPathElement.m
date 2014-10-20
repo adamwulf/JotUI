@@ -70,43 +70,43 @@
 
 
 -(void) generateTextureFromPath{
-//    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-//    CGContextRef bitmapContext = CGBitmapContextCreate(NULL, sizeOfTexture.width, sizeOfTexture.height, 8, sizeOfTexture.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
-//    if(!bitmapContext){
-//        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
-//    }
-//    
-//    UIGraphicsPushContext(bitmapContext);
-//    
-//    CGContextClearRect(bitmapContext, CGRectMake(0, 0, sizeOfTexture.width, sizeOfTexture.height));
-//    
-//    // flip vertical for our drawn content, since OpenGL is opposite core graphics
-//    CGContextTranslateCTM(bitmapContext, 0, sizeOfTexture.height);
-//    CGContextScaleCTM(bitmapContext, 1.0, -1.0);
-//    
-//    //
-//    // ok, now render our actual content
-//    CGContextClearRect(bitmapContext, CGRectMake(0.0, 0.0, sizeOfTexture.width, sizeOfTexture.height));
-//    [[UIColor whiteColor] setFill];
-//    [path fill];
-//    
-//    // Retrieve the UIImage from the current context
-//    CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
-//    if(!cgImage){
-//        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
-//    }
-//    
-//    UIImage* image = [UIImage imageWithCGImage:cgImage scale:1.0 orientation:UIImageOrientationUp];
-//    
-//    // Clean up
-//    CFRelease(colorspace);
-//    UIGraphicsPopContext();
-//    CGContextRelease(bitmapContext);
-//    
-//    // ok, we're done exporting and cleaning up
-//    // so pass the newly generated image to the completion block
-//    texture = [[JotGLTexture alloc] initForImage:image withSize:image.size];
-//    CGImageRelease(cgImage);
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGContextRef bitmapContext = CGBitmapContextCreate(NULL, sizeOfTexture.width, sizeOfTexture.height, 8, sizeOfTexture.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
+    if(!bitmapContext){
+        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+    }
+    
+    UIGraphicsPushContext(bitmapContext);
+    
+    CGContextClearRect(bitmapContext, CGRectMake(0, 0, sizeOfTexture.width, sizeOfTexture.height));
+    
+    // flip vertical for our drawn content, since OpenGL is opposite core graphics
+    CGContextTranslateCTM(bitmapContext, 0, sizeOfTexture.height);
+    CGContextScaleCTM(bitmapContext, 1.0, -1.0);
+    
+    //
+    // ok, now render our actual content
+    CGContextClearRect(bitmapContext, CGRectMake(0.0, 0.0, sizeOfTexture.width, sizeOfTexture.height));
+    [[UIColor whiteColor] setFill];
+    [path fill];
+    
+    // Retrieve the UIImage from the current context
+    CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
+    if(!cgImage){
+        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+    }
+    
+    UIImage* image = [UIImage imageWithCGImage:cgImage scale:1.0 orientation:UIImageOrientationUp];
+    
+    // Clean up
+    CFRelease(colorspace);
+    UIGraphicsPopContext();
+    CGContextRelease(bitmapContext);
+    
+    // ok, we're done exporting and cleaning up
+    // so pass the newly generated image to the completion block
+    texture = [[JotGLTexture alloc] initForImage:image withSize:image.size];
+    CGImageRelease(cgImage);
 }
 
 -(int) fullByteSize{
