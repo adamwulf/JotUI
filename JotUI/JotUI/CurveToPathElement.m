@@ -195,32 +195,32 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 
 
 -(void) calculateAndCacheColorComponents{
-//    if(!hasCalculatedColorComponents){
-//        hasCalculatedColorComponents = YES;
-//        // save color components, because we'll use these
-//        // when we bind, since our colors won't be in the VBO
-//        if(self.color){
-//            [self.color getRGBAComponents:colorComponents];
-//            if(colorComponents[3] / (self.width / kDivideStepBy) < 0){
-//                NSLog(@"what?!!");
-//            }
-//            CGFloat stepWidth = self.width * scaleOfVertexBuffer;
-//            if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
-//            CGFloat alpha = colorComponents[3] / (stepWidth / kDivideStepBy);
-//            if(alpha > 1) alpha = 1;
-//            
-//            // set alpha first, because we'll premultiply immediately after
-//            colorComponents[3] = alpha;
-//            colorComponents[0] = colorComponents[0] * colorComponents[3];
-//            colorComponents[1] = colorComponents[1] * colorComponents[3];
-//            colorComponents[2] = colorComponents[2] * colorComponents[3];
-//        }else{
-//            colorComponents[0] = 0;
-//            colorComponents[1] = 0;
-//            colorComponents[2] = 0;
-//            colorComponents[3] = 1.0;
-//        }
-//    }
+    if(!hasCalculatedColorComponents){
+        hasCalculatedColorComponents = YES;
+        // save color components, because we'll use these
+        // when we bind, since our colors won't be in the VBO
+        if(self.color){
+            [self.color getRGBAComponents:colorComponents];
+            if(colorComponents[3] / (self.width / kDivideStepBy) < 0){
+                NSLog(@"what?!!");
+            }
+            CGFloat stepWidth = self.width * scaleOfVertexBuffer;
+            if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
+            CGFloat alpha = colorComponents[3] / (stepWidth / kDivideStepBy);
+            if(alpha > 1) alpha = 1;
+            
+            // set alpha first, because we'll premultiply immediately after
+            colorComponents[3] = alpha;
+            colorComponents[0] = colorComponents[0] * colorComponents[3];
+            colorComponents[1] = colorComponents[1] * colorComponents[3];
+            colorComponents[2] = colorComponents[2] * colorComponents[3];
+        }else{
+            colorComponents[0] = 0;
+            colorComponents[1] = 0;
+            colorComponents[2] = 0;
+            colorComponents[3] = 1.0;
+        }
+    }
 }
 
 /**
@@ -232,211 +232,210 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  * for the new scale.
  */
 -(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
-//    // if we have a buffer generated and cached,
-//    // then just return that
-//    if(dataVertexBuffer && scaleOfVertexBuffer == scale){
-//        return (struct ColorfulVertex*) dataVertexBuffer.bytes;
-//    }
-//    
-//    // now find the differences in color between
-//    // the previous stroke and this stroke
-//    GLfloat prevColor[4], myColor[4];
-//    prevColor[0] = prevColor[1] = prevColor[2] = prevColor[3] = 0;
-//    myColor[0] = myColor[1] = myColor[2] = myColor[3] = 0;
-//    GLfloat colorSteps[4];
-//    [previousElement.color getRGBAComponents:prevColor];
-//    [self.color getRGBAComponents:myColor];
-//    colorSteps[0] = myColor[0] - prevColor[0];
-//    colorSteps[1] = myColor[1] - prevColor[1];
-//    colorSteps[2] = myColor[2] - prevColor[2];
-//    colorSteps[3] = myColor[3] - prevColor[3];
-//    
-//    
-//    // check if we'll be saving the color information inside of our VBO
-//    // or if we'll set it during the bind instead
-//    vertexBufferShouldContainColor = [self shouldContainVertexColorDataGivenPreviousElement:previousElement];
-//    
-//    // find out how many steps we can put inside this segment length
-//    NSInteger numberOfVertices = [self numberOfVerticesGivenPreviousElement:previousElement];
-//    numberOfBytesOfVertexData = [self numberOfBytesGivenPreviousElement:previousElement];
-//    
-//    // malloc the memory for our buffer, if needed
-//    dataVertexBuffer = nil;
-//    
-//    // save our scale, we're only going to cache a vertex
-//    // buffer for 1 scale at a time
-//    scaleOfVertexBuffer = scale;
-//    
-//    if(!vertexBufferShouldContainColor){
-//        [self calculateAndCacheColorComponents];
-//    }
-//    
-//    // since kBrushStepSize doesn't exactly divide into our segment length,
-//    // let's find a step size that /does/ exactly divide into our segment length
-//    // that's very very close to our idealStepSize of kBrushStepSize
-//    //
-//    // this'll help make the segment join its neighboring segments
-//    // without any artifacts of the start/end double drawing
-//    CGFloat realLength = [self lengthOfElement];
-//    CGFloat realStepSize = kBrushStepSize; // numberOfVertices ? realLength / numberOfVertices : 0;
-//    CGFloat lengthPlusPrevExtra = realLength + previousElement.extraLengthWithoutDot;
-//    NSInteger divisionOfBrushStroke = floorf(lengthPlusPrevExtra / kBrushStepSize);
-//    // our extra length is whatever's leftover after chopping our length + previous extra
-//    // into kBrushStepSize sized segments.
-//    //
-//    // ie, if previous extra was .3, our length is 3.3, and our brush size is 2, then
-//    // our extra is:
-//    // divisionOfBrushStroke = floor(3.3 + .3) / 2 => floor(1.8) => 1
-//    // our extra = (3.6 - 1 * 2) => 1.6
-//    self.extraLengthWithoutDot = (lengthPlusPrevExtra - divisionOfBrushStroke * kBrushStepSize);
-////    NSLog(@"realStepSize len: %f vert: %ld (prevextra: %f myextra: %f)", realLength, (long)numberOfVertices, previousElement.extraLengthWithoutDot, self.extraLengthWithoutDot);
-//    
-//    if(!numberOfVertices){
-////        NSLog(@"nil buffer");
-//        dataVertexBuffer = [NSData data];
-//        return nil;
-//    }
-//    
-//    void* vertexBuffer = malloc(numberOfBytesOfVertexData);
-//    if(!vertexBuffer){
-//        @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
-//    }
-//    
-//
-//    //
-//    // now setup what we need to calculate the changes in width
-//    // along the stroke
-//    CGFloat prevWidth = previousElement.width;
-//    CGFloat widthDiff = self.width - prevWidth;
-//    
-//    
-//    // setup a simple point array to represent our
-//    // bezier. this'll be what we use to subdivide
-//    // later on
-//    CGPoint rightBez[4], leftBez[4];
-//    CGPoint bez[4];
-//    bez[0] = startPoint;
-//    bez[1] = ctrl1;
-//    bez[2] = ctrl2;
-//    bez[3] = curveTo;
-//    
-//    // track if we're the first element in a stroke. we know this
-//    // if we follow a moveTo. This way we know if we should
-//    // include the first dot in the stroke.
-//    BOOL isFirstElementInStroke = [previousElement isKindOfClass:[MoveToPathElement class]];
-//    
-//    //
-//    // calculate points along the curve that are realStepSize
-//    // length along the curve. since this is fairly intensive for
-//    // the CPU, we'll cache the results
-//    for(int step = 0; step < numberOfVertices; step+=[self numberOfVerticesPerStep]) {
-//        // 0 <= t < 1 representing where we are in the stroke element
-//        CGFloat t = (CGFloat)step / (CGFloat)numberOfVertices;
-//        
-//        // current width
-//        CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
-//        // ensure min width for dots
-//        if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
-//        
-//        // calculate the point that is realStepSize distance
-//        // along the curve * which step we're on
-//        //
-//        // if we're the first non-move to element on a line, then we should also
-//        // have the dot at the beginning of our element. otherwise, we should only
-//        // add an element after kBrushStepSize (including whatever distance was
-//        // leftover)
-//        CGFloat distToDot = realStepSize*step + (isFirstElementInStroke ? 0 : kBrushStepSize - previousElement.extraLengthWithoutDot);
-////        NSLog(@" dot at %f", distToDot);
-//        subdivideBezierAtLength(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
-//        CGPoint point = rightBez[0];
-//        
-//        GLfloat calcColor[4];
-//        // set colors to the array
-//        if(!self.color){
-//            // eraser
-//            calcColor[0] = 0;
-//            calcColor[1] = 0;
-//            calcColor[2] = 0;
-//            calcColor[3] = 1.0;
-//        }else{
-//            // normal brush
-//            // interpolate between starting and ending color
-//            calcColor[0] = prevColor[0] + colorSteps[0] * t;
-//            calcColor[1] = prevColor[1] + colorSteps[1] * t;
-//            calcColor[2] = prevColor[2] + colorSteps[2] * t;
-//            calcColor[3] = prevColor[3] + colorSteps[3] * t;
-//            
-//            calcColor[3] = calcColor[3] / (stepWidth / kDivideStepBy);
-//            if(calcColor[3] > 1){
-//                calcColor[3] = 1;
-//            }
-//
-//            // premultiply alpha
-//            calcColor[0] = calcColor[0] * calcColor[3];
-//            calcColor[1] = calcColor[1] * calcColor[3];
-//            calcColor[2] = calcColor[2] * calcColor[3];
-//        }
-//        // Convert locations from screen Points to GL points (screen pixels)
-//        if(vertexBufferShouldContainColor){
-//            struct ColorfulVertex* coloredVertexBuffer = (struct ColorfulVertex*)vertexBuffer;
-//            // set colors to the array
-//            coloredVertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
-//            coloredVertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
-//            coloredVertexBuffer[step].Color[0] = calcColor[0];
-//            coloredVertexBuffer[step].Color[1] = calcColor[1];
-//            coloredVertexBuffer[step].Color[2] = calcColor[2];
-//            coloredVertexBuffer[step].Color[3] = calcColor[3];
-//            coloredVertexBuffer[step].Size = stepWidth;
-//            [self validateVertexData:coloredVertexBuffer[step]];
-//        }else{
-//            struct ColorlessVertex* colorlessVertexBuffer = (struct ColorlessVertex*)vertexBuffer;
-//            // set colors to the array
-//            colorlessVertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
-//            colorlessVertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
-//            colorlessVertexBuffer[step].Size = stepWidth;
-//        }
-//    }
-//    
-//    dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytesOfVertexData];
-//    
-//    return (struct ColorfulVertex*) dataVertexBuffer.bytes;
-    return nil;
+    // if we have a buffer generated and cached,
+    // then just return that
+    if(dataVertexBuffer && scaleOfVertexBuffer == scale){
+        return (struct ColorfulVertex*) dataVertexBuffer.bytes;
+    }
+    
+    // now find the differences in color between
+    // the previous stroke and this stroke
+    GLfloat prevColor[4], myColor[4];
+    prevColor[0] = prevColor[1] = prevColor[2] = prevColor[3] = 0;
+    myColor[0] = myColor[1] = myColor[2] = myColor[3] = 0;
+    GLfloat colorSteps[4];
+    [previousElement.color getRGBAComponents:prevColor];
+    [self.color getRGBAComponents:myColor];
+    colorSteps[0] = myColor[0] - prevColor[0];
+    colorSteps[1] = myColor[1] - prevColor[1];
+    colorSteps[2] = myColor[2] - prevColor[2];
+    colorSteps[3] = myColor[3] - prevColor[3];
+    
+    
+    // check if we'll be saving the color information inside of our VBO
+    // or if we'll set it during the bind instead
+    vertexBufferShouldContainColor = [self shouldContainVertexColorDataGivenPreviousElement:previousElement];
+    
+    // find out how many steps we can put inside this segment length
+    NSInteger numberOfVertices = [self numberOfVerticesGivenPreviousElement:previousElement];
+    numberOfBytesOfVertexData = [self numberOfBytesGivenPreviousElement:previousElement];
+    
+    // malloc the memory for our buffer, if needed
+    dataVertexBuffer = nil;
+    
+    // save our scale, we're only going to cache a vertex
+    // buffer for 1 scale at a time
+    scaleOfVertexBuffer = scale;
+    
+    if(!vertexBufferShouldContainColor){
+        [self calculateAndCacheColorComponents];
+    }
+    
+    // since kBrushStepSize doesn't exactly divide into our segment length,
+    // let's find a step size that /does/ exactly divide into our segment length
+    // that's very very close to our idealStepSize of kBrushStepSize
+    //
+    // this'll help make the segment join its neighboring segments
+    // without any artifacts of the start/end double drawing
+    CGFloat realLength = [self lengthOfElement];
+    CGFloat realStepSize = kBrushStepSize; // numberOfVertices ? realLength / numberOfVertices : 0;
+    CGFloat lengthPlusPrevExtra = realLength + previousElement.extraLengthWithoutDot;
+    NSInteger divisionOfBrushStroke = floorf(lengthPlusPrevExtra / kBrushStepSize);
+    // our extra length is whatever's leftover after chopping our length + previous extra
+    // into kBrushStepSize sized segments.
+    //
+    // ie, if previous extra was .3, our length is 3.3, and our brush size is 2, then
+    // our extra is:
+    // divisionOfBrushStroke = floor(3.3 + .3) / 2 => floor(1.8) => 1
+    // our extra = (3.6 - 1 * 2) => 1.6
+    self.extraLengthWithoutDot = (lengthPlusPrevExtra - divisionOfBrushStroke * kBrushStepSize);
+//    NSLog(@"realStepSize len: %f vert: %ld (prevextra: %f myextra: %f)", realLength, (long)numberOfVertices, previousElement.extraLengthWithoutDot, self.extraLengthWithoutDot);
+    
+    if(!numberOfVertices){
+//        NSLog(@"nil buffer");
+        dataVertexBuffer = [NSData data];
+        return nil;
+    }
+    
+    void* vertexBuffer = malloc(numberOfBytesOfVertexData);
+    if(!vertexBuffer){
+        @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
+    }
+    
+
+    //
+    // now setup what we need to calculate the changes in width
+    // along the stroke
+    CGFloat prevWidth = previousElement.width;
+    CGFloat widthDiff = self.width - prevWidth;
+    
+    
+    // setup a simple point array to represent our
+    // bezier. this'll be what we use to subdivide
+    // later on
+    CGPoint rightBez[4], leftBez[4];
+    CGPoint bez[4];
+    bez[0] = startPoint;
+    bez[1] = ctrl1;
+    bez[2] = ctrl2;
+    bez[3] = curveTo;
+    
+    // track if we're the first element in a stroke. we know this
+    // if we follow a moveTo. This way we know if we should
+    // include the first dot in the stroke.
+    BOOL isFirstElementInStroke = [previousElement isKindOfClass:[MoveToPathElement class]];
+    
+    //
+    // calculate points along the curve that are realStepSize
+    // length along the curve. since this is fairly intensive for
+    // the CPU, we'll cache the results
+    for(int step = 0; step < numberOfVertices; step+=[self numberOfVerticesPerStep]) {
+        // 0 <= t < 1 representing where we are in the stroke element
+        CGFloat t = (CGFloat)step / (CGFloat)numberOfVertices;
+        
+        // current width
+        CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
+        // ensure min width for dots
+        if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
+        
+        // calculate the point that is realStepSize distance
+        // along the curve * which step we're on
+        //
+        // if we're the first non-move to element on a line, then we should also
+        // have the dot at the beginning of our element. otherwise, we should only
+        // add an element after kBrushStepSize (including whatever distance was
+        // leftover)
+        CGFloat distToDot = realStepSize*step + (isFirstElementInStroke ? 0 : kBrushStepSize - previousElement.extraLengthWithoutDot);
+//        NSLog(@" dot at %f", distToDot);
+        subdivideBezierAtLength(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
+        CGPoint point = rightBez[0];
+        
+        GLfloat calcColor[4];
+        // set colors to the array
+        if(!self.color){
+            // eraser
+            calcColor[0] = 0;
+            calcColor[1] = 0;
+            calcColor[2] = 0;
+            calcColor[3] = 1.0;
+        }else{
+            // normal brush
+            // interpolate between starting and ending color
+            calcColor[0] = prevColor[0] + colorSteps[0] * t;
+            calcColor[1] = prevColor[1] + colorSteps[1] * t;
+            calcColor[2] = prevColor[2] + colorSteps[2] * t;
+            calcColor[3] = prevColor[3] + colorSteps[3] * t;
+            
+            calcColor[3] = calcColor[3] / (stepWidth / kDivideStepBy);
+            if(calcColor[3] > 1){
+                calcColor[3] = 1;
+            }
+
+            // premultiply alpha
+            calcColor[0] = calcColor[0] * calcColor[3];
+            calcColor[1] = calcColor[1] * calcColor[3];
+            calcColor[2] = calcColor[2] * calcColor[3];
+        }
+        // Convert locations from screen Points to GL points (screen pixels)
+        if(vertexBufferShouldContainColor){
+            struct ColorfulVertex* coloredVertexBuffer = (struct ColorfulVertex*)vertexBuffer;
+            // set colors to the array
+            coloredVertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
+            coloredVertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
+            coloredVertexBuffer[step].Color[0] = calcColor[0];
+            coloredVertexBuffer[step].Color[1] = calcColor[1];
+            coloredVertexBuffer[step].Color[2] = calcColor[2];
+            coloredVertexBuffer[step].Color[3] = calcColor[3];
+            coloredVertexBuffer[step].Size = stepWidth;
+            [self validateVertexData:coloredVertexBuffer[step]];
+        }else{
+            struct ColorlessVertex* colorlessVertexBuffer = (struct ColorlessVertex*)vertexBuffer;
+            // set colors to the array
+            colorlessVertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
+            colorlessVertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
+            colorlessVertexBuffer[step].Size = stepWidth;
+        }
+    }
+    
+    dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytesOfVertexData];
+    
+    return (struct ColorfulVertex*) dataVertexBuffer.bytes;
 }
 
 -(void) validateVertexData:(struct ColorfulVertex)vertex{
-//    if(vertex.Color[0] < 0 || vertex.Color[0] > 1){
-//        NSLog(@"what?!1");
-//    }
-//    if(vertex.Color[1] < 0 || vertex.Color[1] > 1){
-//        NSLog(@"what?!2");
-//    }
-//    if(vertex.Color[2] < 0 || vertex.Color[2] > 1){
-//        NSLog(@"what?!3");
-//    }
-//    if(vertex.Color[3] < 0 || vertex.Color[3] > 1){
-//        NSLog(@"what?!4");
-//    }
-//    if(vertex.Size < 1 || vertex.Size > 360){
-//        NSLog(@"what?!5");
-//    }
-//    if(vertex.Position[0] < -50 || vertex.Position[0] > 1600){
-//        NSLog(@"what?!6");
-//    }
-//    if(vertex.Position[1] < -50 || vertex.Position[1] > 2080){
-//        NSLog(@"what?!7");
-//    }
+    if(vertex.Color[0] < 0 || vertex.Color[0] > 1){
+        NSLog(@"what?!1");
+    }
+    if(vertex.Color[1] < 0 || vertex.Color[1] > 1){
+        NSLog(@"what?!2");
+    }
+    if(vertex.Color[2] < 0 || vertex.Color[2] > 1){
+        NSLog(@"what?!3");
+    }
+    if(vertex.Color[3] < 0 || vertex.Color[3] > 1){
+        NSLog(@"what?!4");
+    }
+    if(vertex.Size < 1 || vertex.Size > 360){
+        NSLog(@"what?!5");
+    }
+    if(vertex.Position[0] < -50 || vertex.Position[0] > 1600){
+        NSLog(@"what?!6");
+    }
+    if(vertex.Position[1] < -50 || vertex.Position[1] > 2080){
+        NSLog(@"what?!7");
+    }
 }
 
 -(void) loadDataIntoVBOIfNeeded{
-//    // we're only allowed to create vbo
-//    // on the main thread.
-//    // if we need a vbo, then create it
-//    if(!vbo && dataVertexBuffer.length){
-//        if(!self.bufferManager){
-//            NSLog(@"what");
-//        }
-//        vbo = [self.bufferManager bufferWithData:dataVertexBuffer];
-//    }
+    // we're only allowed to create vbo
+    // on the main thread.
+    // if we need a vbo, then create it
+    if(!vbo && dataVertexBuffer.length){
+        if(!self.bufferManager){
+            NSLog(@"what");
+        }
+        vbo = [self.bufferManager bufferWithData:dataVertexBuffer];
+    }
 }
 
 /**
@@ -456,62 +455,62 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  * depending on which was created/bound in this method+thread
  */
 -(BOOL) bind{
-//    if(!dataVertexBuffer.length){
-////        NSLog(@"refusing to bind, we have no data");
-//        return NO;
-//    }
-//    // we're only allowed to create vbo
-//    // on the main thread.
-//    // if we need a vbo, then create it
-//    [self loadDataIntoVBOIfNeeded];
-//    if(vertexBufferShouldContainColor){
-//        [vbo bind];
-//    }else{
-//        // by this point, we've cached our components into
-//        // colorComponents, even if self.color is nil we've
-//        // set it appropriately
-//        [vbo bindForColor:colorComponents];
-//    }
-///**
-// * debugging code to validate vertex data when binding
-// *
-//    if(vertexBufferShouldContainColor && dataVertexBuffer){
-//        struct ColorfulVertex* data = (struct ColorfulVertex*) [dataVertexBuffer bytes];
-//        for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
-//            struct ColorfulVertex vert = data[i];
-//            if(vert.Position[0] < 0 ||
-//               vert.Position[1] < 0 ||
-//               vert.Size < 1){
-//                NSLog(@"what");
-//            }
-//        }
-//    }else if(dataVertexBuffer){
-//        struct ColorlessVertex* data = (struct ColorlessVertex*) [dataVertexBuffer bytes];
-//        for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
-//            struct ColorlessVertex vert = data[i];
-//            if(vert.Position[0] < 0 ||
-//               vert.Position[1] < 0 ||
-//               vert.Size < 1){
-//                NSLog(@"what");
-//            }
-//        }
-//    }
-//*/
+    if(!dataVertexBuffer.length){
+//        NSLog(@"refusing to bind, we have no data");
+        return NO;
+    }
+    // we're only allowed to create vbo
+    // on the main thread.
+    // if we need a vbo, then create it
+    [self loadDataIntoVBOIfNeeded];
+    if(vertexBufferShouldContainColor){
+        [vbo bind];
+    }else{
+        // by this point, we've cached our components into
+        // colorComponents, even if self.color is nil we've
+        // set it appropriately
+        [vbo bindForColor:colorComponents];
+    }
+/**
+ * debugging code to validate vertex data when binding
+ *
+    if(vertexBufferShouldContainColor && dataVertexBuffer){
+        struct ColorfulVertex* data = (struct ColorfulVertex*) [dataVertexBuffer bytes];
+        for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
+            struct ColorfulVertex vert = data[i];
+            if(vert.Position[0] < 0 ||
+               vert.Position[1] < 0 ||
+               vert.Size < 1){
+                NSLog(@"what");
+            }
+        }
+    }else if(dataVertexBuffer){
+        struct ColorlessVertex* data = (struct ColorlessVertex*) [dataVertexBuffer bytes];
+        for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
+            struct ColorlessVertex vert = data[i];
+            if(vert.Position[0] < 0 ||
+               vert.Position[1] < 0 ||
+               vert.Size < 1){
+                NSLog(@"what");
+            }
+        }
+    }
+*/
     return YES;
 }
 
 -(void) unbind{
-//    if(dataVertexBuffer.length){
-//        [vbo unbind];
-//    }
+    if(dataVertexBuffer.length){
+        [vbo unbind];
+    }
 }
 
 
 -(void) dealloc{
-//    if(vbo){
-//        [self.bufferManager recycleBuffer:vbo];
-//        vbo = nil;
-//    }
+    if(vbo){
+        [self.bufferManager recycleBuffer:vbo];
+        vbo = nil;
+    }
 }
 
 /**

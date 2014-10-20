@@ -158,13 +158,13 @@ int printOglError(char *file, int line)
 }
 
 -(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
-//    if([self bind]){
-//        // VBO
-//        if([self numberOfStepsGivenPreviousElement:previousElement]){
-//            glDrawArrays(GL_POINTS, 0, (int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep]));
-//        }
-//        [self unbind];
-//    }
+    if([self bind]){
+        // VBO
+        if([self numberOfStepsGivenPreviousElement:previousElement]){
+            glDrawArrays(GL_POINTS, 0, (int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep]));
+        }
+        [self unbind];
+    }
 }
 
 
