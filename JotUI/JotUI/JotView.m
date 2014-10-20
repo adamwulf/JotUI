@@ -92,6 +92,7 @@ dispatch_queue_t importExportStateQueue;
 @implementation JotView
 
 @synthesize delegate;
+@synthesize context;
 @synthesize maxStrokeSize;
 @synthesize state;
 
@@ -918,10 +919,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             [(JotGLContext*)[JotGLContext currentContext] flush];
             [JotGLContext setCurrentContext:renderContext];
         }
-        if(context != [JotGLContext currentContext]){
-            NSLog(@"maybe here's the problem...");
-        }
-
+        
         if(!CGRectEqualToRect(scissorRect, CGRectZero)){
             glEnable(GL_SCISSOR_TEST);
             glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
@@ -1025,11 +1023,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(!state) return;
 
-    if([JotGLContext currentContext] != context){
-        NSLog(@"1changing from %p", [JotGLContext currentContext]);
+    if([JotGLContext currentContext] != self.context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:context];
-        NSLog(@"1changing to %p", [JotGLContext currentContext]);
+        [JotGLContext setCurrentContext:self.context];
     }
     
     if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
@@ -1054,8 +1050,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         needsPresentRenderBuffer = NO;
     }
     slowtoggle = !slowtoggle;
-    if([context needsFlush]){
-        [context flush];
+    if([self.context needsFlush]){
+        [self.context flush];
     }
     if([JotGLContext currentContext] != context){
         NSLog(@"freak out");
@@ -1081,6 +1077,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 - (BOOL) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
     
     CheckMainThread;
+    [JotGLContext setCurrentContext:context];
     
     // fetch the current and previous elements
     // of the stroke. these will help us
@@ -1228,10 +1225,8 @@ static int undoCounter;
 
     if([state.strokesBeingWrittenToBackingTexture count]){
         if([JotGLContext currentContext] != context){
-            NSLog(@"1changing from %p", [JotGLContext currentContext]);
             [(JotGLContext*)[JotGLContext currentContext] flush];
             [JotGLContext setCurrentContext:context];
-            NSLog(@"1changing to %p", [JotGLContext currentContext]);
         }
         
         undoCounter++;
@@ -1691,10 +1686,8 @@ static int undoCounter;
     if(!state) return;
 
     // set our context
-    NSLog(@"1changing from %p", [JotGLContext currentContext]);
     [(JotGLContext*)[JotGLContext currentContext] flush];
-    [JotGLContext setCurrentContext:context];
-    NSLog(@"1changing to %p", [JotGLContext currentContext]);
+	[JotGLContext setCurrentContext:context];
 	
 	// Clear the buffer
 	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
@@ -1767,11 +1760,9 @@ static int undoCounter;
     if(!state) return;
     
     BOOL needsPresent = NO;
-    if([JotGLContext currentContext] != context){
-        NSLog(@"1changing from %p", [JotGLContext currentContext]);
+    if([JotGLContext currentContext] != self.context){
         [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext setCurrentContext:context];
-        NSLog(@"1changing to %p", [JotGLContext currentContext]);
+        [JotGLContext setCurrentContext:self.context];
     }
 
     JotStroke* stroke = state.currentStroke;
