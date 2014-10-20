@@ -36,25 +36,32 @@ dispatch_queue_t importExportTextureQueue;
 
 -(id) initForTexture:(JotGLTexture*)_texture{
     if(self = [super init]){
-//        glGenFramebuffersOES(1, &framebufferID);
-//        texture = _texture;
-//        if(framebufferID){
-//            // generate FBO
-//            glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-//            // associate texture with FBO
-//            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
-//        }
-//        // check if it worked (probably worth doing :) )
-//        GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-//        if (status != GL_FRAMEBUFFER_COMPLETE_OES)
-//        {
-//            // didn't work
-//            NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-//            NSLog(@"%@", str);
-//            @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-//            return nil;
-//        }
+        GLint currBoundFrBuff = -1;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+
+        glGenFramebuffersOES(1, &framebufferID);
+        texture = _texture;
+        if(framebufferID){
+            // generate FBO
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+            // associate texture with FBO
+            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
+        }
+        // check if it worked (probably worth doing :) )
+        GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+        if (status != GL_FRAMEBUFFER_COMPLETE_OES)
+        {
+            // rebind to the buffer we began with
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
+            // didn't work
+            NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+            NSLog(@"%@", str);
+            @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
+            return nil;
+        }
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
     }
+    glFinish();
     return self;
 }
 
@@ -68,18 +75,25 @@ dispatch_queue_t importExportTextureQueue;
 }
 
 -(void) clear{
+//    GLint currBoundFrBuff = -1;
+//    glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+//
 //    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
 //    glClearColor(0.0, 0.0, 0.0, 0.0);
 //    glClear(GL_COLOR_BUFFER_BIT);
+//
+//    glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
+//    glFinish();
 }
 
 -(void) unload{
-//    glDeleteFramebuffersOES(1, &framebufferID);
-//    framebufferID = 0;
+    glDeleteFramebuffersOES(1, &framebufferID);
+    framebufferID = 0;
 }
 
 -(void) dealloc{
-//    [self unload];
+    [self unload];
 }
+
 
 @end

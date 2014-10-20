@@ -1269,6 +1269,9 @@ static int undoCounter;
         [self unprepOpenGLState];
 
         [self setBrushTexture:keepThisTexture];
+        // rebind primary framebuffer
+        [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
+
         //
         // we just drew to the backing texture, so be sure
         // to flush all openGL commands, so that when we rebind
@@ -1698,6 +1701,8 @@ static int undoCounter;
     // clear the background
     [state.backgroundFramebuffer clear];
 
+    // rebind primary framebuffer
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
     if(shouldPresent){
         // Display the buffer
         [self setNeedsPresentRenderBuffer];
@@ -1986,6 +1991,7 @@ static int undoCounter;
     // issues of unsynchronized textures.
     [(JotGLContext*)[JotGLContext currentContext] flush];
     
+    [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
 }
 
