@@ -8,8 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import "JotGLTexture.h"
+#import "DeleteAssets.h"
 
-@interface JotGLTextureBackedFrameBuffer : NSObject{
+@interface JotGLTextureBackedFrameBuffer : NSObject<DeleteAssets>{
     GLuint framebufferID;
 }
 

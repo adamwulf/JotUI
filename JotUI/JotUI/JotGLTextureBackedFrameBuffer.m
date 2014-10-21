@@ -94,23 +94,22 @@ dispatch_queue_t importExportTextureQueue;
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if(currBoundFrBuff){
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
-    }else{
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
-    }
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
     [texture unbind];
     glFinish();
     [JotGLContext popCurrentContext];
 }
 
--(void) unload{
+-(void) deleteAssets{
+    if(![JotGLContext currentContext]){
+        NSLog(@"nope");
+    }
     glDeleteFramebuffersOES(1, &framebufferID);
     framebufferID = 0;
 }
 
 -(void) dealloc{
-    [self unload];
+    [self deleteAssets];
 }
 
 

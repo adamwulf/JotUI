@@ -9,8 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "JotGLContext.h"
+#import "DeleteAssets.h"
 
-@interface JotGLTexture : NSObject{
+@interface JotGLTexture : NSObject<DeleteAssets>{
     GLuint textureID;
 }
 

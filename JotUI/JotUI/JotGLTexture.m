@@ -63,7 +63,7 @@ static int totalTextureBytes;
         fullPixelSize = size;
         
         // unload the old texture
-        [self unload];
+        [self deleteAssets];
         
         // create a new texture in OpenGL
         glGenTextures(1, &textureID);
@@ -160,7 +160,7 @@ static int totalTextureBytes;
     return fullPixelSize;
 }
 
--(void) unload{
+-(void) deleteAssets{
     if (textureID){
         glDeleteTextures(1, &textureID);
         textureID = 0;
@@ -389,7 +389,7 @@ static int totalTextureBytes;
     @synchronized([JotGLTexture class]){
         totalTextureBytes -= fullByteSize;
     }
-	[self unload];
+	[self deleteAssets];
 }
 
 @end

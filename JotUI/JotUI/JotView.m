@@ -317,6 +317,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  * Clean up any buffers we have allocated.
  */
 - (void)destroyFramebuffer{
+    [JotGLContext pushCurrentContext:context];
     if(viewFramebuffer){
         glDeleteFramebuffersOES(1, &viewFramebuffer);
         viewFramebuffer = 0;
@@ -329,6 +330,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 		glDeleteRenderbuffersOES(1, &depthRenderbuffer);
 		depthRenderbuffer = 0;
 	}
+    [JotGLContext popCurrentContext];
 }
 
 
@@ -1709,10 +1711,6 @@ static int undoCounter;
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-    
-    // clear the background
-    [state.backgroundFramebuffer clear];
-
     // rebind primary framebuffer
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
     if(shouldPresent){
@@ -1995,8 +1993,6 @@ static int undoCounter;
         NSLog(@"%@", str);
         @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
     }
-
-
 
     //
     // step 1:

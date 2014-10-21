@@ -105,6 +105,10 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
                         while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
                             // this array should be the last retain for these objects,
                             // so removing them will release them and cause them to dealloc
+                            id obj = [objectsToDealloc lastObject];
+                            if([obj respondsToSelector:@selector(deleteAssets)]){
+                                [obj deleteAssets];
+                            }
                             [objectsToDealloc removeLastObject];
                         }
                         [JotGLContext popCurrentContext];

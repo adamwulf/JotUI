@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 66018A4719F61F4400228A0D /* DeleteAssets.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F7D1828501B00B7442F /* JotViewStateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 66696F7E1828501B00B7442F /* JotViewStateProxy.m */; };
 		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -77,6 +78,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		66018A4719F61F4400228A0D /* DeleteAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteAssets.h; sourceTree = "<group>"; };
 		6622F9D11774E72400C06825 /* JotViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewState.h; sourceTree = "<group>"; };
 		6622F9D21774E72400C06825 /* JotViewState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewState.m; sourceTree = "<group>"; };
 		662681F4179B73FA0039A75B /* JotBufferVBO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBufferVBO.h; sourceTree = "<group>"; };
@@ -294,6 +296,7 @@
 				662681F5179B73FA0039A75B /* JotBufferVBO.m */,
 				66D9827F17B1679400007732 /* OpenGLVBO.h */,
 				66D9828017B1679400007732 /* OpenGLVBO.m */,
+				66018A4719F61F4400228A0D /* DeleteAssets.h */,
 			);
 			name = Managers;
 			sourceTree = "<group>";
@@ -385,6 +388,7 @@
 				66F1F1FD18079BD700B8CE3B /* JotView.h in Headers */,
 				66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */,
 				66C6AAEB18A2E78E0036F4BB /* FilledPathElement.h in Headers */,
+				66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */,
 				66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */,
 				66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */,
 				66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */,
