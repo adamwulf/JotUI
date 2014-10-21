@@ -388,10 +388,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
            andStateTo:(NSString*)plistPath
           andJotState:(JotViewStateProxy*)stateToBeSaved
            onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
-    dispatch_async([JotView importExportStateQueue], ^(void) {
-        exportFinishBlock(nil, nil, nil);
-    });
-    return;
 
     CheckMainThread;
     
@@ -592,11 +588,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(!exportFinishBlock) return;
 
-    dispatch_async(importExportImageQueue, ^(void) {
-        exportFinishBlock(nil);
-    });
-    return;
-
     JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
     }];
@@ -731,16 +722,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     CheckMainThread;
     
     if(!state){
-        exportFinishBlock(nil);
+        if(exportFinishBlock) exportFinishBlock(nil);
         return;
     }
     
     if(!exportFinishBlock) return;
     
-    dispatch_async(importExportImageQueue, ^(void) {
-        exportFinishBlock(nil);
-    });
-    return;
 
     JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
