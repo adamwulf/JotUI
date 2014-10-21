@@ -265,7 +265,7 @@ static int totalTextureBytes;
     [context glDisableClientState:GL_COLOR_ARRAY];
     [context glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
     [context glEnableClientState:GL_TEXTURE_COORD_ARRAY];
-    [context glColor4f:1 and:1 and:1 and:1];
+    [context glColor4f:1 and:0 and:0 and:1];
 
     GLint currBoundRendBuff = -1;
     glGetIntegerv(GL_RENDERBUFFER_BINDING_OES, &currBoundRendBuff);

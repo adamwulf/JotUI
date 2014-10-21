@@ -101,7 +101,7 @@ dispatch_queue_t importExportTextureQueue;
 }
 
 -(void) deleteAssets{
-    if(![JotGLContext currentContext]){
+    if(framebufferID && ![JotGLContext currentContext]){
         NSLog(@"nope");
     }
     glDeleteFramebuffersOES(1, &framebufferID);

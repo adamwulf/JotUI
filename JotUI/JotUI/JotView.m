@@ -590,10 +590,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(!exportFinishBlock) return;
 
-    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
-        return [NSThread isMainThread];
-    }];
-    [JotGLContext pushCurrentContext:subContext];
+    [JotGLContext pushCurrentContext:context];
     
     JotGLTexture* fullTexture = [self generateTexture];
     CGSize exportSize = CGSizeMake(ceilf(initialViewport.width / 2), ceilf(initialViewport.height / 2));
@@ -731,10 +728,10 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     if(!exportFinishBlock) return;
     
 
-    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
-        return [NSThread isMainThread];
-    }];
-    [JotGLContext pushCurrentContext:subContext];
+//    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+//        return [NSThread isMainThread];
+//    }];
+    [JotGLContext pushCurrentContext:context];
 
     CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
@@ -781,7 +778,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [state.backgroundTexture drawInContext:subContext];
+    [state.backgroundTexture drawInContext:context];
     
     glDeleteFramebuffersOES(1, &exportFramebuffer);
 
@@ -792,7 +789,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // the pixels to the texture so they're
     // available in the background thread's
     // context
-    [subContext flush];
+    [context flush];
 
     [JotGLContext popCurrentContext];
     
