@@ -76,6 +76,7 @@
 -(void) returnTextureForReuse:(JotGLTexture*)texture{
     @synchronized(self){
         [cachedTextures addObject:texture];
+        NSLog(@"texture returned, have %d in cache", (int) [cachedTextures count]);
     }
 }
 

@@ -18,6 +18,7 @@
 #import "JotUI/JotBrushTexture.h"
 #import "JotUI/JotViewStateProxyDelegate.h"
 #import "JotUI/JotViewState.h"
+#import "JotUI/JotTextureCache.h"
 #import <JotTouchSDK/JotStylusManager.h>
 
 #define kJotMaxStrokeByteSize 256*1024
@@ -90,7 +91,7 @@
 -(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 andSize:(CGSize)size;
 
 -(JotGLTexture*) generateTexture;
--(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clipPath andClippingSize:(CGSize)clipSize;
+-(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clipPath andClippingSize:(CGSize)clipSize withTextureSize:(CGSize)textureSize;
 
 #pragma mark - debug
 -(void) drawLongLine;

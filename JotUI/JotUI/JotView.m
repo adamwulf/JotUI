@@ -594,6 +594,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     [JotGLContext pushCurrentContext:context];
     
     JotGLTexture* fullTexture = [self generateTexture];
+    CGSize usefulTextureSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     CGSize exportSize = CGSizeMake(ceilf(initialViewport.width / 2), ceilf(initialViewport.height / 2));
 
     [JotGLContext popCurrentContext];
@@ -612,7 +613,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 return [JotView isImportExportImageQueue];
             }];
             [JotGLContext pushCurrentContext:subContext];
-            glViewport(0, 0, fullTexture.pixelSize.width, fullTexture.pixelSize.height);
+            glViewport(0, 0, usefulTextureSize.width, usefulTextureSize.height);
 
             GLuint exportFramebuffer;
             glGenFramebuffersOES(1, &exportFramebuffer);
@@ -628,14 +629,14 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 
             // read the image from OpenGL and push it into a data buffer
             int x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
-            NSInteger dataLength = fullTexture.pixelSize.width * fullTexture.pixelSize.height * 4;
-            GLubyte *data = calloc(fullTexture.pixelSize.height * fullTexture.pixelSize.width, 4);
+            NSInteger dataLength = usefulTextureSize.width * usefulTextureSize.height * 4;
+            GLubyte *data = calloc(usefulTextureSize.height * usefulTextureSize.width, 4);
             if(!data){
                 @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
             }
             // Read pixel data from the framebuffer
             glPixelStorei(GL_PACK_ALIGNMENT, 4);
-            glReadPixels(x, y, fullTexture.pixelSize.width, fullTexture.pixelSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            glReadPixels(x, y, usefulTextureSize.width, usefulTextureSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
             
             printOpenGLError();
             
@@ -650,8 +651,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // otherwise, use kCGImageAlphaPremultipliedLast
             CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
             CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-            CGImageRef iref = CGImageCreate(fullTexture.pixelSize.width, fullTexture.pixelSize.height, 8, 32,
-                                            fullTexture.pixelSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+            CGImageRef iref = CGImageCreate(usefulTextureSize.width, usefulTextureSize.height, 8, 32,
+                                            usefulTextureSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                             kCGImageAlphaPremultipliedLast,
                                             ref, NULL, true, kCGRenderingIntentDefault);
             
@@ -736,6 +737,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 //    }];
     [JotGLContext pushCurrentContext:context];
 
+    
     CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     
@@ -743,23 +745,16 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     glGenFramebuffersOES(1, &exportFramebuffer);
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-    GLuint canvastexture;
     
     // create the texture
-    glGenTextures(1, &canvastexture);
-    glBindTexture(GL_TEXTURE_2D, canvastexture);
-    
-    //
-    // http://stackoverflow.com/questions/5835656/glframebuffertexture2d-fails-on-iphone-for-certain-texture-sizes
-    // these are required for non power of 2 textures on iPad 1 version of OpenGL1.1
-    // otherwise, the glCheckFramebufferStatusOES will be GL_FRAMEBUFFER_UNSUPPORTED_OES
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
+    // maxTextureSize
+    CGSize maxTextureSize = [UIScreen mainScreen].bounds.size;
+    maxTextureSize.width *= [UIScreen mainScreen].scale;
+    maxTextureSize.height *= [UIScreen mainScreen].scale;
+    JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:context ofSize:maxTextureSize];
+    [canvasTexture bind];
+
+    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
     
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
     if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
@@ -767,9 +762,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 		NSLog(@"%@", str);
         @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
     }
-    
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     
     glViewport(0, 0, fullSize.width, fullSize.height);
     
@@ -801,6 +793,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         @autoreleasepool {
             if(state.isForgetful){
                 NSLog(@"forget: skipping export for forgetful jotview");
+                [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
                 exportFinishBlock(nil);
                 return;
             }
@@ -814,7 +807,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             GLuint exportFramebuffer;
             glGenFramebuffersOES(1, &exportFramebuffer);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
+            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
             GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
                 NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
@@ -834,7 +827,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
             
             // now we're done, delete our buffers
-            glDeleteTextures(1, &canvastexture);
+            [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
             glDeleteFramebuffersOES(1, &exportFramebuffer);
             
             
@@ -1897,6 +1890,12 @@ static int undoCounter;
     
     [JotGLContext pushCurrentContext:context];
     
+    CGSize maxTextureSize = [UIScreen mainScreen].bounds.size;
+    maxTextureSize.width *= [UIScreen mainScreen].scale;
+    maxTextureSize.height *= [UIScreen mainScreen].scale;
+    
+    NSLog(@"drawing %f %f onto %f %f", initialViewport.width, initialViewport.height, maxTextureSize.width, maxTextureSize.height);
+    
     CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     
 	GLuint exportFramebuffer;
@@ -1906,7 +1905,7 @@ static int undoCounter;
     
     // create the texture
     // that we'll draw all of our content to
-    JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:context ofSize:fullSize];
+    JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:context ofSize:maxTextureSize];
     [canvasTexture bind];
 
     // bind the texture to the framebuffer
@@ -1948,7 +1947,7 @@ static int undoCounter;
 
 
 
--(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clipPath andClippingSize:(CGSize)clipSize{
+-(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clipPath andClippingSize:(CGSize)clipSize withTextureSize:(CGSize)textureSize{
     
     CheckMainThread;
     glFinish();
@@ -2006,7 +2005,7 @@ static int undoCounter;
             withResolution:state.backgroundTexture.pixelSize
                    andClip:clipPath
            andClippingSize:clipSize
-                 asErase:NO];
+                   asErase:NO];
 
     [self unprepOpenGLState];
     glFinish();
