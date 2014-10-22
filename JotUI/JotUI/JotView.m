@@ -24,6 +24,7 @@
 #import "SegmentSmoother.h"
 #import "JotFilledPathStroke.h"
 #import "MMWeakTimerTarget.h"
+#import "JotTextureCache.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -641,6 +642,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // now we've read our data out from gl into *data
             // so delete the export framebuffer
             glDeleteFramebuffersOES(1, &exportFramebuffer);
+            
+            [[JotTextureCache sharedManager] returnTextureForReuse:fullTexture];
             
             // Create a CGImage with the pixel data from OpenGL
             // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
@@ -1900,23 +1903,14 @@ static int undoCounter;
     
     glGenFramebuffersOES(1, &exportFramebuffer);
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-    GLuint canvastexture;
     
     // create the texture
-    glGenTextures(1, &canvastexture);
-    glBindTexture(GL_TEXTURE_2D, canvastexture);
-    
-    //
-    // http://stackoverflow.com/questions/5835656/glframebuffertexture2d-fails-on-iphone-for-certain-texture-sizes
-    // these are required for non power of 2 textures on iPad 1 version of OpenGL1.1
-    // otherwise, the glCheckFramebufferStatusOES will be GL_FRAMEBUFFER_UNSUPPORTED_OES
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,  fullSize.width, fullSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvastexture, 0);
+    // that we'll draw all of our content to
+    JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:context ofSize:fullSize];
+    [canvasTexture bind];
+
+    // bind the texture to the framebuffer
+    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
     
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
     if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
@@ -1924,9 +1918,6 @@ static int undoCounter;
 		NSLog(@"%@", str);
         @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
     }
-    
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     
     // set viewport to round up to the pixel, if needed
     glViewport(0, 0, fullSize.width, fullSize.height);
@@ -1936,6 +1927,8 @@ static int undoCounter;
     // export texture
     [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
     
+    // now all of the content has been pushed to the texture,
+    // so delete the framebuffer
     glDeleteFramebuffersOES(1, &exportFramebuffer);
     
     // reset back to exact viewport
@@ -1949,7 +1942,7 @@ static int undoCounter;
 
     [JotGLContext popCurrentContext];
 
-    return [[JotGLTexture alloc] initForTextureID:canvastexture withSize:fullSize];
+    return canvasTexture;
 }
 
 

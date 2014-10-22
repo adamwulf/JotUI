@@ -11,6 +11,8 @@
 		66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F7D1828501B00B7442F /* JotViewStateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 66696F7E1828501B00B7442F /* JotViewStateProxy.m */; };
 		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		668D19E319F8652100A65DCF /* JotTextureCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 668D19E119F8652100A65DCF /* JotTextureCache.h */; };
+		668D19E419F8652100A65DCF /* JotTextureCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 668D19E219F8652100A65DCF /* JotTextureCache.m */; };
 		66AC155818079A72005315C8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
 		66AC156318079B27005315C8 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2F1766D133003F4F67 /* UIImage+Resize.m */; };
 		66AC156418079B27005315C8 /* UIImage+RoundedCorner.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F331766D220003F4F67 /* UIImage+RoundedCorner.m */; };
@@ -99,6 +101,8 @@
 		66696F7D1828501B00B7442F /* JotViewStateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxy.h; sourceTree = "<group>"; };
 		66696F7E1828501B00B7442F /* JotViewStateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewStateProxy.m; sourceTree = "<group>"; };
 		66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxyDelegate.h; sourceTree = "<group>"; };
+		668D19E119F8652100A65DCF /* JotTextureCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotTextureCache.h; sourceTree = "<group>"; };
+		668D19E219F8652100A65DCF /* JotTextureCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotTextureCache.m; sourceTree = "<group>"; };
 		668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMWeakTimerTarget.h; sourceTree = "<group>"; };
 		668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMWeakTimerTarget.m; sourceTree = "<group>"; };
 		6691EED3179B7097007BBD15 /* JotBufferManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBufferManager.h; sourceTree = "<group>"; };
@@ -288,6 +292,8 @@
 		66A790161772516F0092A28A /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				668D19E119F8652100A65DCF /* JotTextureCache.h */,
+				668D19E219F8652100A65DCF /* JotTextureCache.m */,
 				66A79017177251960092A28A /* JotTrashManager.h */,
 				66A79018177251960092A28A /* JotTrashManager.m */,
 				6691EED3179B7097007BBD15 /* JotBufferManager.h */,
@@ -375,6 +381,7 @@
 				66F1F1EF18079BD700B8CE3B /* JotGLTexture.h in Headers */,
 				66F1F1F018079BD700B8CE3B /* JotGLTextureBackedFrameBuffer.h in Headers */,
 				66F1F1F118079BD700B8CE3B /* JotGLContext.h in Headers */,
+				668D19E319F8652100A65DCF /* JotTextureCache.h in Headers */,
 				66F1F1F218079BD700B8CE3B /* JotStroke.h in Headers */,
 				66F1F1F318079BD700B8CE3B /* JotStrokeDelegate.h in Headers */,
 				66F1F1F418079BD700B8CE3B /* JotStrokeManager.h in Headers */,
@@ -530,6 +537,7 @@
 				66AC157918079B27005315C8 /* JotViewState.m in Sources */,
 				66AC157A18079B27005315C8 /* JotViewImmutableState.m in Sources */,
 				66AC157B18079B27005315C8 /* JotView.m in Sources */,
+				668D19E419F8652100A65DCF /* JotTextureCache.m in Sources */,
 				66C6AAE818A2E4D50036F4BB /* JotFilledPathStroke.m in Sources */,
 				66AC157C18079B27005315C8 /* MMWeakTimerTarget.m in Sources */,
 				66C6AAEC18A2E78E0036F4BB /* FilledPathElement.m in Sources */,
