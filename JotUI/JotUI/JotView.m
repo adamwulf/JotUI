@@ -1894,7 +1894,7 @@ static int undoCounter;
     maxTextureSize.width *= [UIScreen mainScreen].scale;
     maxTextureSize.height *= [UIScreen mainScreen].scale;
     
-    NSLog(@"drawing %f %f onto %f %f", initialViewport.width, initialViewport.height, maxTextureSize.width, maxTextureSize.height);
+//    NSLog(@"drawing %f %f onto %f %f", initialViewport.width, initialViewport.height, maxTextureSize.width, maxTextureSize.height);
     
     CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     
