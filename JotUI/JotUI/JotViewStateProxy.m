@@ -223,10 +223,15 @@ static dispatch_queue_t loadUnloadStateQueue;
  * drawable view's hash does not equal to our
  * currently saved hash
  */
+static BOOL shouldPrint = NO;
++(void) shouldPrintHasEdits:(BOOL)_shouldPrint{
+    shouldPrint = _shouldPrint;
+}
 -(BOOL) hasEditsToSave{
     if(self.isForgetful){
         return NO;
     }
+    if(shouldPrint) NSLog(@"checking hasEditsToSave: %p %lu %lu",self.jotViewState, (unsigned long) self.jotViewState.undoHash, (unsigned long)lastSavedUndoHash);
     return self.jotViewState && [self.jotViewState undoHash] != lastSavedUndoHash;
 }
 

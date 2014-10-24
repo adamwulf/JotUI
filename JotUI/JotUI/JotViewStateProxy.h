@@ -27,6 +27,8 @@
 @property (nonatomic, readonly) int fullByteSize;
 @property (nonatomic, assign) BOOL isForgetful;
 
++(void) shouldPrintHasEdits:(BOOL)_shouldPrint;
+
 -(id) initWithDelegate:(NSObject<JotViewStateProxyDelegate>*)delegate;
 
 -(BOOL) isStateLoaded;
