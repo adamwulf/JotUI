@@ -13,6 +13,8 @@
 		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		668D19E319F8652100A65DCF /* JotTextureCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 668D19E119F8652100A65DCF /* JotTextureCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		668D19E419F8652100A65DCF /* JotTextureCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 668D19E219F8652100A65DCF /* JotTextureCache.m */; };
+		66A64EF419FB5B8E0026305B /* NSMutableArray+RemoveSingle.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A64EF219FB5B8E0026305B /* NSMutableArray+RemoveSingle.h */; };
+		66A64EF519FB5B8E0026305B /* NSMutableArray+RemoveSingle.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A64EF319FB5B8E0026305B /* NSMutableArray+RemoveSingle.m */; };
 		66AC155818079A72005315C8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
 		66AC156318079B27005315C8 /* UIImage+Resize.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F2F1766D133003F4F67 /* UIImage+Resize.m */; };
 		66AC156418079B27005315C8 /* UIImage+RoundedCorner.m in Sources */ = {isa = PBXBuildFile; fileRef = 66BF7F331766D220003F4F67 /* UIImage+RoundedCorner.m */; };
@@ -126,6 +128,8 @@
 		66A32026170242D200692C71 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		66A340251694FF5E0093E81A /* UIColor+JotHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+JotHelper.h"; sourceTree = "<group>"; };
 		66A340261694FF5E0093E81A /* UIColor+JotHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+JotHelper.m"; sourceTree = "<group>"; };
+		66A64EF219FB5B8E0026305B /* NSMutableArray+RemoveSingle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+RemoveSingle.h"; sourceTree = "<group>"; };
+		66A64EF319FB5B8E0026305B /* NSMutableArray+RemoveSingle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+RemoveSingle.m"; sourceTree = "<group>"; };
 		66A79017177251960092A28A /* JotTrashManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotTrashManager.h; sourceTree = "<group>"; };
 		66A79018177251960092A28A /* JotTrashManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotTrashManager.m; sourceTree = "<group>"; };
 		66AA213516FCE26600E86922 /* JotTouchSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotTouchSDK.framework; path = ../JotTouchSDK/JotTouchSDK.framework; sourceTree = "<group>"; };
@@ -285,6 +289,8 @@
 				66A340261694FF5E0093E81A /* UIColor+JotHelper.m */,
 				66BF7F2A17667C19003F4F67 /* NSArray+JotMapReduce.h */,
 				66BF7F2B17667C19003F4F67 /* NSArray+JotMapReduce.m */,
+				66A64EF219FB5B8E0026305B /* NSMutableArray+RemoveSingle.h */,
+				66A64EF319FB5B8E0026305B /* NSMutableArray+RemoveSingle.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -387,6 +393,7 @@
 				66F1F1F518079BD700B8CE3B /* JotImmutableStroke.h in Headers */,
 				66F1F1F618079BD700B8CE3B /* SegmentSmoother.h in Headers */,
 				66F1F1F718079BD700B8CE3B /* AbstractBezierPathElement.h in Headers */,
+				66A64EF419FB5B8E0026305B /* NSMutableArray+RemoveSingle.h in Headers */,
 				66F1F1F818079BD700B8CE3B /* AbstractBezierPathElement-Protected.h in Headers */,
 				66F1F1F918079BD700B8CE3B /* MoveToPathElement.h in Headers */,
 				66F1F1FA18079BD700B8CE3B /* CurveToPathElement.h in Headers */,
@@ -511,6 +518,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				66A64EF519FB5B8E0026305B /* NSMutableArray+RemoveSingle.m in Sources */,
 				66AC156318079B27005315C8 /* UIImage+Resize.m in Sources */,
 				66AC156418079B27005315C8 /* UIImage+RoundedCorner.m in Sources */,
 				66AC156518079B27005315C8 /* UIImage+Alpha.m in Sources */,

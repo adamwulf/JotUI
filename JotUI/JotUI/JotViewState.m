@@ -20,6 +20,7 @@
 #import "SegmentSmoother.h"
 #import "AbstractBezierPathElement.h"
 #import "AbstractBezierPathElement-Protected.h"
+#import "NSMutableArray+RemoveSingle.h"
 
 #define kJotDefaultUndoLimit 10
 
@@ -316,7 +317,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         if([self canUndo]){
             JotStroke* undoneStroke = [stackOfStrokes lastObject];
             [stackOfUndoneStrokes addObject:undoneStroke];
-            [stackOfStrokes removeObject:undoneStroke];
+            [stackOfStrokes removeSingleObject:undoneStroke];
             return undoneStroke;
         }
         return nil;
@@ -328,7 +329,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         if([self canRedo]){
             JotStroke* redoneStroke = [stackOfUndoneStrokes lastObject];
             [stackOfStrokes addObject:redoneStroke];
-            [stackOfUndoneStrokes removeObject:redoneStroke];
+            [stackOfUndoneStrokes removeSingleObject:redoneStroke];
             return redoneStroke;
         }
         return nil;
@@ -339,7 +340,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
     @synchronized(self){
         if([self canUndo]){
             JotStroke* lastKnownStroke = [stackOfStrokes lastObject];
-            [stackOfStrokes removeObject:lastKnownStroke];
+            [stackOfStrokes removeSingleObject:lastKnownStroke];
             // don't add to the undone stack
             return lastKnownStroke;
         }

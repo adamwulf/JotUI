@@ -25,6 +25,7 @@
 #import "JotFilledPathStroke.h"
 #import "MMWeakTimerTarget.h"
 #import "JotTextureCache.h"
+#import "NSMutableArray+RemoveSingle.h"
 
 #import <JotTouchSDK/JotStylusManager.h>
 
@@ -1251,7 +1252,7 @@ static int undoCounter;
         // now that we're done with the stroke,
         // let's throw it in the trash
         if([strokeToWriteToTexture.segments count] == 0){
-            [state.strokesBeingWrittenToBackingTexture removeObject:strokeToWriteToTexture];
+            [state.strokesBeingWrittenToBackingTexture removeSingleObject:strokeToWriteToTexture];
             [[JotTrashManager sharedInstance] addObjectToDealloc:strokeToWriteToTexture];
             prevElementForTextureWriting = nil;
         }
@@ -1277,7 +1278,7 @@ static int undoCounter;
             // ok, the trash is empty, so now see if we need to export
             if([exportLaterInvocations count]){
                 NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
-                [exportLaterInvocations removeObject:invokation];
+                [exportLaterInvocations removeSingleObject:invokation];
                 [invokation invoke];
             }
         }

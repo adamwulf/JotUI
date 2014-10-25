@@ -88,6 +88,7 @@ static dispatch_queue_t loadUnloadStateQueue;
                 @synchronized(self){
                     if(shouldKeepStateLoaded){
                         lastSavedUndoHash = [jotViewState undoHash];
+                        NSLog(@"jotproxy load: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
                         shouldNotify = YES;
                     }else{
                         shouldNotify = NO;
@@ -105,6 +106,7 @@ static dispatch_queue_t loadUnloadStateQueue;
                     @synchronized(self){
                         jotViewState = nil;
                         lastSavedUndoHash = 0;
+                        NSLog(@"jotproxy noload: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
                     }
                 }
                 @synchronized(self){
@@ -132,6 +134,8 @@ static dispatch_queue_t loadUnloadStateQueue;
 
 -(void) wasSavedAtImmutableState:(JotViewImmutableState*)immutableState{
     lastSavedUndoHash = [immutableState undoHash];
+    lastSavedUndoHash = [immutableState undoHash];
+    NSLog(@"jotproxy saved: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
 }
 
 -(void) unload{
@@ -158,6 +162,7 @@ static dispatch_queue_t loadUnloadStateQueue;
                                 [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
                                 jotViewState = nil;
                                 lastSavedUndoHash = 0;
+                                NSLog(@"jotproxy unload: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
                                 [strongSelf.delegate didUnloadState:strongSelf];
                             }
                         }else{
@@ -231,7 +236,7 @@ static BOOL shouldPrint = NO;
     if(self.isForgetful){
         return NO;
     }
-    if(shouldPrint) NSLog(@"checking hasEditsToSave: %p %lu %lu",self.jotViewState, (unsigned long) self.jotViewState.undoHash, (unsigned long)lastSavedUndoHash);
+    if(shouldPrint) NSLog(@"checking hasEditsToSave: %p %lu %lu",self, (unsigned long) self.jotViewState.undoHash, (unsigned long)lastSavedUndoHash);
     return self.jotViewState && [self.jotViewState undoHash] != lastSavedUndoHash;
 }
 
