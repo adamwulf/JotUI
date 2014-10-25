@@ -36,7 +36,7 @@
     NSInteger numberOfSteps;
 }
 
-static int zeroedCacheNumber = -1;
+static NSInteger zeroedCacheNumber = -1;
 static void * zeroedDataCache = nil;
 
 
@@ -65,6 +65,7 @@ static void * zeroedDataCache = nil;
                 if(zeroedDataCache){
                     free(zeroedDataCache);
                 }
+                zeroedCacheNumber = cacheNumber;
                 zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
                 if(!zeroedDataCache){
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't calloc" userInfo:nil];
