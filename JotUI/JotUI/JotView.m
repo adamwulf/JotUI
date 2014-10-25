@@ -732,12 +732,32 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(!exportFinishBlock) return;
     
+    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+        return [NSThread isMainThread];
+    }];
+    [JotGLContext pushCurrentContext:subContext];
+    
+    // Setup OpenGL states
+    glMatrixMode(GL_PROJECTION);
+    
+    // Setup the view port in Pixels
+    glMatrixMode(GL_MODELVIEW);
+    
+    glDisable(GL_DITHER);
+    glEnable(GL_TEXTURE_2D);
+    
+    glEnable(GL_BLEND);
+    // Set a blending function appropriate for premultiplied alpha pixel data
+    [subContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+    
+    glEnable(GL_POINT_SPRITE_OES);
+    glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+    
+    glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
+    glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
 
-//    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
-//        return [NSThread isMainThread];
-//    }];
-    [JotGLContext pushCurrentContext:context];
-
+    
+    
     
     CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
@@ -752,7 +772,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     CGSize maxTextureSize = [UIScreen mainScreen].bounds.size;
     maxTextureSize.width *= [UIScreen mainScreen].scale;
     maxTextureSize.height *= [UIScreen mainScreen].scale;
-    JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:context ofSize:maxTextureSize];
+    JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:subContext ofSize:maxTextureSize];
     [canvasTexture bind];
 
     glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
@@ -774,7 +794,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
-    [state.backgroundTexture drawInContext:context];
+    [state.backgroundTexture drawInContext:subContext];
     
     glDeleteFramebuffersOES(1, &exportFramebuffer);
 
@@ -785,8 +805,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // the pixels to the texture so they're
     // available in the background thread's
     // context
-    [context flush];
-
+    [subContext flush];
     [JotGLContext popCurrentContext];
     
     // the rest can be done in Core Graphics in a background thread
@@ -2019,6 +2038,8 @@ static int undoCounter;
     [JotGLContext pushCurrentContext:context];
     [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+//    [subContext flush];
+//    [subContext finish];
     [JotGLContext popCurrentContext];
 }
 
