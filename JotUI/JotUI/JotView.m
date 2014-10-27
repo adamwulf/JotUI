@@ -1988,6 +1988,7 @@ static int undoCounter;
     if(needsPresent){
         [self setNeedsPresentRenderBuffer];
     }
+    [stroke.texture unbind];
     [stroke unlock];
     [JotGLContext popCurrentContext];
 }
