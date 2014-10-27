@@ -202,7 +202,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         if(self.color){
             [self.color getRGBAComponents:colorComponents];
             if(colorComponents[3] / (self.width / kDivideStepBy) < 0){
-                NSLog(@"what?!!");
+                DebugLog(@"what?!!");
             }
             CGFloat stepWidth = self.width * scaleOfVertexBuffer;
             if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
@@ -289,10 +289,10 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // divisionOfBrushStroke = floor(3.3 + .3) / 2 => floor(1.8) => 1
     // our extra = (3.6 - 1 * 2) => 1.6
     self.extraLengthWithoutDot = (lengthPlusPrevExtra - divisionOfBrushStroke * kBrushStepSize);
-//    NSLog(@"realStepSize len: %f vert: %ld (prevextra: %f myextra: %f)", realLength, (long)numberOfVertices, previousElement.extraLengthWithoutDot, self.extraLengthWithoutDot);
+//    DebugLog(@"realStepSize len: %f vert: %ld (prevextra: %f myextra: %f)", realLength, (long)numberOfVertices, previousElement.extraLengthWithoutDot, self.extraLengthWithoutDot);
     
     if(!numberOfVertices){
-//        NSLog(@"nil buffer");
+//        DebugLog(@"nil buffer");
         dataVertexBuffer = [NSData data];
         return nil;
     }
@@ -346,7 +346,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         // add an element after kBrushStepSize (including whatever distance was
         // leftover)
         CGFloat distToDot = realStepSize*step + (isFirstElementInStroke ? 0 : kBrushStepSize - previousElement.extraLengthWithoutDot);
-//        NSLog(@" dot at %f", distToDot);
+//        DebugLog(@" dot at %f", distToDot);
         subdivideBezierAtLength(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
         CGPoint point = rightBez[0];
         
@@ -404,25 +404,25 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 
 -(void) validateVertexData:(struct ColorfulVertex)vertex{
     if(vertex.Color[0] < 0 || vertex.Color[0] > 1){
-        NSLog(@"what?!1");
+        DebugLog(@"what?!1");
     }
     if(vertex.Color[1] < 0 || vertex.Color[1] > 1){
-        NSLog(@"what?!2");
+        DebugLog(@"what?!2");
     }
     if(vertex.Color[2] < 0 || vertex.Color[2] > 1){
-        NSLog(@"what?!3");
+        DebugLog(@"what?!3");
     }
     if(vertex.Color[3] < 0 || vertex.Color[3] > 1){
-        NSLog(@"what?!4");
+        DebugLog(@"what?!4");
     }
     if(vertex.Size < 1 || vertex.Size > 360){
-        NSLog(@"what?!5");
+        DebugLog(@"what?!5");
     }
     if(vertex.Position[0] < -50 || vertex.Position[0] > 1600){
-        NSLog(@"what?!6");
+        DebugLog(@"what?!6");
     }
     if(vertex.Position[1] < -50 || vertex.Position[1] > 2080){
-        NSLog(@"what?!7");
+        DebugLog(@"what?!7");
     }
 }
 
@@ -432,7 +432,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // if we need a vbo, then create it
     if(!vbo && dataVertexBuffer.length){
         if(!self.bufferManager){
-            NSLog(@"what1");
+            DebugLog(@"what1");
         }
         vbo = [self.bufferManager bufferWithData:dataVertexBuffer];
     }
@@ -456,7 +456,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  */
 -(BOOL) bind{
     if(!dataVertexBuffer.length){
-//        NSLog(@"refusing to bind, we have no data");
+//        DebugLog(@"refusing to bind, we have no data");
         return NO;
     }
     // we're only allowed to create vbo
@@ -481,7 +481,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             if(vert.Position[0] < 0 ||
                vert.Position[1] < 0 ||
                vert.Size < 1){
-                NSLog(@"what2");
+                DebugLog(@"what2");
             }
         }
     }else if(dataVertexBuffer){
@@ -491,7 +491,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             if(vert.Position[0] < 0 ||
                vert.Position[1] < 0 ||
                vert.Size < 1){
-                NSLog(@"what3");
+                DebugLog(@"what3");
             }
         }
     }

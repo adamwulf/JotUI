@@ -22,7 +22,7 @@ int printOglError(char *file, int line)
     glErr = glGetError();
     if (glErr != GL_NO_ERROR)
     {
-        NSLog(@"glError in file %s @ line %d: %d\n",
+        DebugLog(@"glError in file %s @ line %d: %d\n",
                file, line, glErr);
         retCode = glErr;
     }

@@ -145,7 +145,7 @@ static JotBufferManager* _instance = nil;
     int mem = [[cacheStats objectForKey:kVBOCacheSize] intValue];
     [cacheStats removeAllObjects];
     [cacheStats setObject:@(mem) forKey:kVBOCacheSize];
-    NSLog(@"RESET CACHE STATS!!!");
+    DebugLog(@"RESET CACHE STATS!!!");
 }
 
 /**
@@ -202,7 +202,7 @@ static JotBufferManager* _instance = nil;
             }
         }
         if(oldBuff != buffer){
-//            NSLog(@"throwing away %d instead of %d",(int) buffer.allocOrder,(int) oldBuff.allocOrder);
+//            DebugLog(@"throwing away %d instead of %d",(int) buffer.allocOrder,(int) oldBuff.allocOrder);
         }
         // we don't need this buffer anymore,
         // so send it off to the Trashmanager to dealloc
@@ -248,7 +248,7 @@ static JotBufferManager* _instance = nil;
 -(void) printStats{
 #ifdef DEBUG
     if(kJotEnableCacheStats){
-        NSLog(@"cache stats: %@", cacheStats);
+        DebugLog(@"cache stats: %@", cacheStats);
     }
 #endif
 }

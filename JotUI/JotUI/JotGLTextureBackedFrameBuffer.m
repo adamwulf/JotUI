@@ -57,7 +57,7 @@ dispatch_queue_t importExportTextureQueue;
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
             // didn't work
             NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-            NSLog(@"%@", str);
+            DebugLog(@"%@", str);
             @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             return nil;
         }
@@ -102,7 +102,7 @@ dispatch_queue_t importExportTextureQueue;
 
 -(void) deleteAssets{
     if(framebufferID && ![JotGLContext currentContext]){
-        NSLog(@"nope");
+        DebugLog(@"nope");
     }
     glDeleteFramebuffersOES(1, &framebufferID);
     framebufferID = 0;

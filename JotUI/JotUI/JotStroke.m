@@ -78,13 +78,13 @@
     element.bufferManager = self.bufferManager;
     NSInteger numOfElementBytes = [element numberOfBytesGivenPreviousElement:[segments lastObject]];
     int numOfCacheBytes = [JotBufferVBO cacheNumberForBytes:numOfElementBytes] * kJotBufferBucketSize;
-//    NSLog(@"number of element bytes: %d", numOfElementBytes);
+//    DebugLog(@"number of element bytes: %d", numOfElementBytes);
     totalNumberOfBytes += numOfElementBytes + numOfCacheBytes;
     
     if([segments count]){
         if((element.color && ![[segments lastObject] color]) ||
            (!element.color && [[segments lastObject] color])){
-            NSLog(@"gotcha!");
+            DebugLog(@"gotcha!");
         }
     }
     @synchronized(segments){

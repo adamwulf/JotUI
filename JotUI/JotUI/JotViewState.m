@@ -253,11 +253,11 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
            currentStroke ||
            [stackOfStrokes count] > kJotDefaultUndoLimit){
             if(currentStroke){
-    //            NSLog(@"cant save, currently drawing");
+    //            DebugLog(@"cant save, currently drawing");
             }else if([strokesBeingWrittenToBackingTexture count]){
-    //            NSLog(@"can't save, writing to texture");
+    //            DebugLog(@"can't save, writing to texture");
             }else if([stackOfStrokes count] > kJotDefaultUndoLimit){
-    //            NSLog(@"can't save, more strokes than undo");
+    //            DebugLog(@"can't save, more strokes than undo");
             }
             return NO;
         }

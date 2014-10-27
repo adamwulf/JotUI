@@ -85,10 +85,10 @@
     }
     
     if(![stateDict writeToFile:plistPath atomically:YES]){
-        NSLog(@"couldn't write plist file");
+        DebugLog(@"couldn't write plist file");
     }
 //    unsigned long long size = [[[NSFileManager defaultManager] attributesOfItemAtPath:plistPath error:nil] fileSize];
-//    NSLog(@"file size: %llu in %f", size, -[now timeIntervalSinceNow]);
+//    DebugLog(@"file size: %llu in %f", size, -[now timeIntervalSinceNow]);
 }
 
 /**

@@ -36,11 +36,11 @@
         if([cachedTextures count]){
             JotGLTexture* reusedTexture = [cachedTextures lastObject];
             [cachedTextures removeLastObject];
-//            NSLog(@"JotTextureCache: reused texture of size: %f %f", fullSize.width, fullSize.height);
+//            DebugLog(@"JotTextureCache: reused texture of size: %f %f", fullSize.width, fullSize.height);
             return reusedTexture;
         }
     
-//    NSLog(@"JotTextureCache: building texture of size: %f %f", fullSize.width, fullSize.height);
+//    DebugLog(@"JotTextureCache: building texture of size: %f %f", fullSize.width, fullSize.height);
     
         [JotGLContext pushCurrentContext:context];
         
@@ -82,10 +82,10 @@
             [texture unbind];
         });
         if([cachedTextures containsObject:texture]){
-            NSLog(@"what");
+            DebugLog(@"what");
         }
         [cachedTextures addObject:texture];
-//        NSLog(@"texture returned, have %d in cache", (int) [cachedTextures count]);
+//        DebugLog(@"texture returned, have %d in cache", (int) [cachedTextures count]);
     }
 }
 

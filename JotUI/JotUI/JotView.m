@@ -304,7 +304,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
 	{
         NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-		NSLog(@"%@", str);
+		DebugLog(@"%@", str);
         @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
 		return NO;
 	}
@@ -409,7 +409,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     }
     
     if(state.isForgetful){
-        NSLog(@"forget: skipping export for forgetful jotview");
+        DebugLog(@"forget: skipping export for forgetful jotview");
         exportFinishBlock(nil, nil, nil);
         return;
     }
@@ -457,7 +457,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     @synchronized(self){
         isCurrentlyExporting = [state undoHash];
-//        NSLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
+//        DebugLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
     }
     
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -532,7 +532,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 @synchronized(self){
                     isCurrentlyExporting = 0;
                 }
-                NSLog(@"forget: skipping export write to disk for forgetful jotview");
+                DebugLog(@"forget: skipping export write to disk for forgetful jotview");
                 return;
             }
             
@@ -540,12 +540,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // we have the backing ink texture to save
                 // so write it to disk
                 [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
-                //            NSLog(@"writing ink to disk");
+                //            DebugLog(@"writing ink to disk");
             }else{
                 // the backing texture either hasn't changed, or
                 // doesn't have anything written to it at all
                 // so skip writing a blank PNG to disk
-                //            NSLog(@"skipping writing ink, nothing changed");
+                //            DebugLog(@"skipping writing ink, nothing changed");
             }
             
             [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
@@ -554,7 +554,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // and write it to disk
             [immutableState writeToDisk:plistPath];
             
-            //        NSLog(@"export complete");
+            //        DebugLog(@"export complete");
             @synchronized(self){
                 // we only ever want to export one at a time.
                 // if anything has changed while we've been exporting
@@ -562,7 +562,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // and will fire after we're done. (from validateUndoState).
                 isCurrentlyExporting = 0;
             }
-//            NSLog(@"export ends: %p", self);
+//            DebugLog(@"export ends: %p", self);
         }
     });
 }
@@ -594,7 +594,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     if(!exportFinishBlock) return;
     
     if(![imageTextureLock tryLock]){
-        NSLog(@"gotcha");
+        DebugLog(@"gotcha");
     }
 
 //    [JotGLContext pushCurrentContext:context];
@@ -614,7 +614,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     dispatch_async([JotView importExportImageQueue], ^{
         @autoreleasepool {
             if(state.isForgetful){
-                NSLog(@"forget: skipping export for forgetful jotview");
+                DebugLog(@"forget: skipping export for forgetful jotview");
                 exportFinishBlock(nil);
                 [imageTextureLock unlock];
                 return;
@@ -666,7 +666,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
                 NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                NSLog(@"%@", str);
+                DebugLog(@"%@", str);
                 @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             }
             
@@ -740,7 +740,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
                 NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                NSLog(@"%@", str);
+                DebugLog(@"%@", str);
                 @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             }
             // step 3:
@@ -786,7 +786,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
             
             if(!bitmapContext){
-                NSLog(@"oh no1");
+                DebugLog(@"oh no1");
             }
             
             // flip vertical for our drawn content, since OpenGL is opposite core graphics
@@ -858,14 +858,14 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(!exportFinishBlock) return;
     if(![inkTextureLock tryLock]){
-        NSLog(@"gotcha");
+        DebugLog(@"gotcha");
     }
     
     // the rest can be done in Core Graphics in a background thread
     dispatch_async([JotView importExportImageQueue], ^{
         @autoreleasepool {
             if(state.isForgetful){
-                NSLog(@"forget: skipping export for forgetful jotview");
+                DebugLog(@"forget: skipping export for forgetful jotview");
                 exportFinishBlock(nil);
                 [inkTextureLock unlock];
                 return;
@@ -917,7 +917,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
                 NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                NSLog(@"%@", str);
+                DebugLog(@"%@", str);
                 @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             }
             
@@ -979,7 +979,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
                 NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                NSLog(@"%@", str);
+                DebugLog(@"%@", str);
                 @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             }
             // step 3:
@@ -1025,7 +1025,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
             
             if(!bitmapContext){
-                NSLog(@"oh no1");
+                DebugLog(@"oh no1");
             }
             
             // flip vertical for our drawn content, since OpenGL is opposite core graphics
@@ -1087,7 +1087,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         
         if(!state) return;
         
-        //    NSLog(@"render all");
+        //    DebugLog(@"render all");
         
         // set our current OpenGL context
         [JotGLContext pushCurrentContext:renderContext];
@@ -1114,7 +1114,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         [state.backgroundTexture drawInContext:renderContext];
         
         if(!state.backgroundTexture){
-            NSLog(@"what5");
+            DebugLog(@"what5");
         }
         
         //
@@ -1144,7 +1144,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         }
         [self unprepOpenGLState];
         
-        //    NSLog(@"done render all: %d", c);
+        //    DebugLog(@"done render all: %d", c);
         
         if(shouldPresent){
             // step 4:
@@ -1191,16 +1191,16 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         GLint currBoundRendBuff = -1;
         glGetIntegerv(GL_RENDERBUFFER_BINDING_OES, &currBoundRendBuff);
         if(currBoundFrBuff != viewFramebuffer){
-            NSLog(@"gotcha");
+            DebugLog(@"gotcha");
         }
         if(currBoundRendBuff != viewRenderbuffer){
-            NSLog(@"gotcha");
+            DebugLog(@"gotcha");
         }
 
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
         if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES){
             NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-            NSLog(@"%@", str);
+            DebugLog(@"%@", str);
         }
         [context presentRenderbuffer:GL_RENDERBUFFER_OES];
         needsPresentRenderBuffer = NO;
@@ -1390,7 +1390,7 @@ static int undoCounter;
                 
                 undoCounter++;
                 if(undoCounter % 3 == 0){
-                    //            NSLog(@"strokes waiting to write: %lu", (unsigned long)[state.strokesBeingWrittenToBackingTexture count]);
+                    //            DebugLog(@"strokes waiting to write: %lu", (unsigned long)[state.strokesBeingWrittenToBackingTexture count]);
                     undoCounter = 0;
                 }
                 // get the stroke that we need to make permanent
@@ -1456,11 +1456,11 @@ static int undoCounter;
             }
             [JotGLContext validateEmptyContextStack];
         }else{
-            NSLog(@"skipping writing to ink texture during export2");
+            DebugLog(@"skipping writing to ink texture during export2");
             [inkTextureLock unlock];
         }
     }else{
-        NSLog(@"skipping writing to ink texture during export");
+        DebugLog(@"skipping writing to ink texture during export");
     }
 }
 
@@ -1599,7 +1599,7 @@ static int undoCounter;
             // this stroke is now finished, so add it to our completed strokes stack
             // and remove it from the current strokes, and reset our undo state if any
             if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
-                NSLog(@"only a move to, ignore");
+                DebugLog(@"only a move to, ignore");
                 // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
                 [currentStroke empty];
             }
@@ -1954,7 +1954,7 @@ static int undoCounter;
             // or add pen elements to an eraser stroke! otherwise this
             // will create artifacts when saving these strokes to the
             // backing texture.
-//            NSLog(@"fixed!!!!");
+//            DebugLog(@"fixed!!!!");
         }
         if(state.currentStroke){
             @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
@@ -1975,13 +1975,13 @@ static int undoCounter;
             CGRect myBounds = self.bounds;
             if(prevElement && ((!prevElement.color && element.color) ||
                                (prevElement.color && !element.color))){
-                NSLog(@"gotcha!");
+                DebugLog(@"gotcha!");
             }
             if(CGRectIntersectsRect(myBounds, eleBounds)){
                 needsPresent = YES;
                 [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:viewFramebuffer toContext:context];
             }else{
-                NSLog(@"gotcha?");
+                DebugLog(@"gotcha?");
             }
         }
     }
@@ -2032,7 +2032,7 @@ static int undoCounter;
 - (void) dealloc
 {
     if(isCurrentlyExporting){
-        NSLog(@"what6");
+        DebugLog(@"what6");
     }
     [self destroyFramebuffer];
 }
@@ -2063,7 +2063,7 @@ static int undoCounter;
     maxTextureSize.width *= [UIScreen mainScreen].scale;
     maxTextureSize.height *= [UIScreen mainScreen].scale;
     
-//    NSLog(@"drawing %f %f onto %f %f", initialViewport.width, initialViewport.height, maxTextureSize.width, maxTextureSize.height);
+//    DebugLog(@"drawing %f %f onto %f %f", initialViewport.width, initialViewport.height, maxTextureSize.width, maxTextureSize.height);
     
     CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
     
@@ -2083,7 +2083,7 @@ static int undoCounter;
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
     if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
         NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-		NSLog(@"%@", str);
+		DebugLog(@"%@", str);
         @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
     }
     
@@ -2148,7 +2148,7 @@ static int undoCounter;
     if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
     {
         NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-        NSLog(@"%@", str);
+        DebugLog(@"%@", str);
         @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
     }
 

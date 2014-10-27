@@ -110,7 +110,7 @@ static int totalTextureBytes;
             CGContextScaleCTM (cgContext, 1.0, -1.0);
             CGColorSpaceRelease( colorSpace );
             if(currContext != [JotGLContext currentContext]){
-                NSLog(@"freak out");
+                DebugLog(@"freak out");
             }
             CGContextClearRect( cgContext, CGRectMake( 0, 0, fullPixelSize.width, fullPixelSize.height ) );
             
@@ -122,14 +122,14 @@ static int totalTextureBytes;
             CGSize aspectFillSize = CGSizeMake(backgroundSize.width * ratio, backgroundSize.height * ratio);
             
             if(currContext != [JotGLContext currentContext]){
-                NSLog(@"freak out");
+                DebugLog(@"freak out");
             }
             CGContextDrawImage( cgContext,  CGRectMake((fullPixelSize.width-aspectFillSize.width)/2,
                                                        (fullPixelSize.height-aspectFillSize.height)/2,
                                                        aspectFillSize.width,
                                                        aspectFillSize.height), imageToLoad.CGImage );
             if(currContext != [JotGLContext currentContext]){
-                NSLog(@"freak out");
+                DebugLog(@"freak out");
             }
             // ok, initialize the data
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
@@ -183,18 +183,18 @@ static int totalTextureBytes;
 -(void) bind{
     printOpenGLError();
     if(![lock tryLock]){
-        NSLog(@"gotcha");
+        DebugLog(@"gotcha");
     }
     if(contextOfBinding != nil && contextOfBinding != [JotGLContext currentContext]){
-        NSLog(@"gotcha");
+        DebugLog(@"gotcha");
     }
     lockCount++;
     contextOfBinding = (JotGLContext*) [JotGLContext currentContext];
-    NSLog(@"locked %p (%d)", self, self.textureID);
+    DebugLog(@"locked %p (%d)", self, self.textureID);
     if(textureID){
         glBindTexture(GL_TEXTURE_2D, textureID);
     }else{
-        NSLog(@"what4");
+        DebugLog(@"what4");
     }
     printOpenGLError();
 }
@@ -203,9 +203,9 @@ static int totalTextureBytes;
     printOpenGLError();
     glBindTexture(GL_TEXTURE_2D, 0);
     glFlush();
-    NSLog(@"unlocked %p (%d)", self, self.textureID);
+    DebugLog(@"unlocked %p (%d)", self, self.textureID);
     if(contextOfBinding != [JotGLContext currentContext]){
-        NSLog(@"gotcha");
+        DebugLog(@"gotcha");
     }
     lockCount--;
     if(lockCount == 0){
@@ -313,7 +313,7 @@ static int totalTextureBytes;
         [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
         // setup stencil buffers
         glGenRenderbuffersOES(1, &stencil_rb);
-//        NSLog(@"new renderbuffer: %d", stencil_rb);
+//        DebugLog(@"new renderbuffer: %d", stencil_rb);
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, stencil_rb);
         glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, size.width, size.height);
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, stencil_rb);
@@ -323,7 +323,7 @@ static int totalTextureBytes;
         if (status != GL_FRAMEBUFFER_COMPLETE_OES){
             // didn't work
             NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-            NSLog(@"%@", str);
+            DebugLog(@"%@", str);
             @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
         }
 
