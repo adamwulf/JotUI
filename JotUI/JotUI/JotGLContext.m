@@ -86,6 +86,7 @@
     }
     JotGLContext* contextThatIsLeaving = [stackOfContexts lastObject];
     [stackOfContexts removeLastObject];
+    [contextThatIsLeaving flush];
     [[contextThatIsLeaving lock] unlock];
     JotGLContext* previousContext = [stackOfContexts lastObject];
     return [JotGLContext setCurrentContext:previousContext]; // ok if its nil

@@ -30,6 +30,8 @@
     NSInteger totalNumberOfBytes;
     // buffer manager to use for this stroke
     JotBufferManager* bufferManager;
+    // lock
+    NSRecursiveLock* lock;
 }
 
 @synthesize segments;
@@ -53,6 +55,7 @@
     if(self = [super init]){
         segments = [NSMutableArray array];
         hashCache = 1;
+        lock = [[NSRecursiveLock alloc] init];
     }
     return self;
 }
@@ -71,6 +74,7 @@
 
 
 -(void) addElement:(AbstractBezierPathElement*)element{
+    [self lock];
     element.bufferManager = self.bufferManager;
     NSInteger numOfElementBytes = [element numberOfBytesGivenPreviousElement:[segments lastObject]];
     int numOfCacheBytes = [JotBufferVBO cacheNumberForBytes:numOfElementBytes] * kJotBufferBucketSize;
@@ -87,6 +91,7 @@
         [segments addObject:element];
     }
     [self updateHashWithObject:element];
+    [self unlock];
 }
 
 /**
@@ -96,9 +101,11 @@
  * dealloc situation
  */
 -(void) removeElementAtIndex:(NSInteger)index{
+    [self lock];
     @synchronized(segments){
         [segments removeObjectAtIndex:index];
     }
+    [self unlock];
 }
 
 -(void) cancel{
@@ -178,5 +185,12 @@
     return self == object || [self hash] == [object hash];
 }
 
+-(void) lock{
+    [lock lock];
+}
+
+-(void) unlock{
+    [lock unlock];
+}
 
 @end

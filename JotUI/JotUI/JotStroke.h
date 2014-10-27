@@ -65,4 +65,7 @@
 
 -(NSString*) uuid;
 
+-(void) lock;
+-(void) unlock;
+
 @end

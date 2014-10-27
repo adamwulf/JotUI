@@ -67,9 +67,8 @@
         // we have to flush here to push all
         // the pixels to the texture so they're
         // available in the background thread's
-        // context
-        [context flush];
-        
+        // context.
+        // popping the context will flush
         [JotGLContext popCurrentContext];
     }
 

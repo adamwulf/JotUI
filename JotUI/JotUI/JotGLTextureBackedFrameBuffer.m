@@ -63,7 +63,7 @@ dispatch_queue_t importExportTextureQueue;
         }
         glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
     }
-    glFinish();
+    glFlush();
     return self;
 }
 
@@ -97,7 +97,6 @@ dispatch_queue_t importExportTextureQueue;
 
     glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
     [texture unbind];
-    glFinish();
     [JotGLContext popCurrentContext];
 }
 

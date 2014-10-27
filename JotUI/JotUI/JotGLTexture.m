@@ -192,9 +192,7 @@ static int totalTextureBytes;
     contextOfBinding = (JotGLContext*) [JotGLContext currentContext];
     NSLog(@"locked %p (%d)", self, self.textureID);
     if(textureID){
-        glFinish();
         glBindTexture(GL_TEXTURE_2D, textureID);
-        glFinish();
     }else{
         NSLog(@"what4");
     }
@@ -203,9 +201,8 @@ static int totalTextureBytes;
 
 -(void) unbind{
     printOpenGLError();
-    glFinish();
     glBindTexture(GL_TEXTURE_2D, 0);
-    glFinish();
+    glFlush();
     NSLog(@"unlocked %p (%d)", self, self.textureID);
     if(contextOfBinding != [JotGLContext currentContext]){
         NSLog(@"gotcha");

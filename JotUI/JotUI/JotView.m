@@ -607,6 +607,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 //    [fullTexture unbind];
 //    [JotGLContext popCurrentContext];
 
+    NSArray* strokesAtTimeOfExport = [state everyVisibleStroke];
+    
     //
     // the rest can be done in Core Graphics in a background thread
     dispatch_async([JotView importExportImageQueue], ^{
@@ -688,23 +690,35 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // available in the background thread's
             // context
             [secondSubContext flush];
-            glFinish();
             
             
             
             
             
+            // now render strokes
             
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
+            [secondSubContext glEnableClientState:GL_VERTEX_ARRAY];
+            [secondSubContext glEnableClientState:GL_COLOR_ARRAY];
+            [secondSubContext glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+            [secondSubContext glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+
+            for(JotStroke* stroke in strokesAtTimeOfExport){
+                [stroke lock];
+                // make sure our texture is the correct one for this stroke
+                [stroke.texture bind];
+                
+                // draw each stroke element
+                AbstractBezierPathElement* prevElement = nil;
+                for(AbstractBezierPathElement* element in stroke.segments){
+                    [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:(GLuint)nil toContext:secondSubContext];
+                    prevElement = element;
+                }
+                [stroke.texture unbind];
+                [stroke unlock];
+            }
+
             
             
             
@@ -721,7 +735,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             [secondSubContext flush];
             [canvasTexture bind];
             glViewport(0, 0, fullSize.width, fullSize.height);
-            glFinish();
+            glFlush();
             
             status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
@@ -803,7 +817,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             exportFinishBlock(image);
             CGImageRelease(cgImage);
             
-            [secondSubContext flush];
             [JotGLContext popCurrentContext];
             [JotGLContext validateEmptyContextStack];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -928,7 +941,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // available in the background thread's
             // context
             [secondSubContext flush];
-            glFinish();
+            glFlush();
             
             
             
@@ -961,7 +974,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             [secondSubContext flush];
             [canvasTexture bind];
             glViewport(0, 0, fullSize.width, fullSize.height);
-            glFinish();
+            glFlush();
 
             status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
@@ -1043,7 +1056,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             exportFinishBlock(image);
             CGImageRelease(cgImage);
             
-            [secondSubContext flush];
             [JotGLContext popCurrentContext];
             [JotGLContext validateEmptyContextStack];
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -1116,9 +1128,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         // reset the texture so that we load the brush texture next
         // now draw the strokes
         
-        int c = 0;
-        
         for(JotStroke* stroke in [state everyVisibleStroke]){
+            [stroke lock];
             // make sure our texture is the correct one for this stroke
             [stroke.texture bind];
             
@@ -1127,9 +1138,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             for(AbstractBezierPathElement* element in stroke.segments){
                 [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:(GLuint)nil toContext:renderContext];
                 prevElement = element;
-                c++;
             }
             [stroke.texture unbind];
+            [stroke unlock];
         }
         [self unprepOpenGLState];
         
@@ -1221,6 +1232,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 - (BOOL) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
     
     CheckMainThread;
+    [currentStroke lock];
     // now we render to ourselves
     [JotGLContext pushCurrentContext:context];
 
@@ -1238,6 +1250,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // a new element wasn't possible, so just bail here.
     if(!addedElement){
         [JotGLContext popCurrentContext];
+        [currentStroke unlock];
         return NO;
     }
     // ok, we have the new element, set its color/width/rotation
@@ -1263,6 +1276,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // Display the buffer
     [self setNeedsPresentRenderBuffer];
     [JotGLContext popCurrentContext];
+    [currentStroke unlock];
     return YES;
 }
 
@@ -1284,7 +1298,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  * setup the openGL state, or send in nil or 0 to bypass setup
  */
 -(void) renderElement:(AbstractBezierPathElement*)element fromPreviousElement:(AbstractBezierPathElement*)previousElement includeOpenGLPrepForFBO:(GLuint)frameBuffer toContext:(JotGLContext*)renderContext{
-    CheckMainThread;
     
     if(!state) return;
     
@@ -1382,7 +1395,7 @@ static int undoCounter;
                 }
                 // get the stroke that we need to make permanent
                 JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
-                
+                [strokeToWriteToTexture lock];
                 // render it to the backing texture
                 [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID toContext:context];
                 
@@ -1403,12 +1416,12 @@ static int undoCounter;
                 [strokeToWriteToTexture.texture unbind];
                 // now that we're done with the stroke,
                 // let's throw it in the trash
+                [strokeToWriteToTexture unlock];
                 if([strokeToWriteToTexture.segments count] == 0){
                     [state.strokesBeingWrittenToBackingTexture removeSingleObject:strokeToWriteToTexture];
                     [[JotTrashManager sharedInstance] addObjectToDealloc:strokeToWriteToTexture];
                     prevElementForTextureWriting = nil;
                 }
-                
                 [self unprepOpenGLState];
                 
                 // rebind primary framebuffer
@@ -1419,7 +1432,7 @@ static int undoCounter;
                 // to flush all openGL commands, so that when we rebind
                 // it'll use the updated texture and won't have any
                 // issues of unsynchronized textures.
-                [(JotGLContext*)[JotGLContext currentContext] flush];
+                // popping will flush the context
                 [JotGLContext popCurrentContext];
                 [imageTextureLock unlock];
                 [inkTextureLock unlock];
@@ -1478,6 +1491,7 @@ static int undoCounter;
 -(void) drawLongLine{
     if(!state) return;
     JotStroke* newStroke = [[JotStroke alloc] initWithTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:state.bufferManager];
+    [newStroke lock];
     newStroke.delegate = self;
     [self addLineToAndRenderStroke:newStroke
                            toPoint:CGPointMake(100, 100)
@@ -1504,6 +1518,7 @@ static int undoCounter;
     [state forceAddStroke:newStroke];
     
     [self.delegate didEndStrokeWithTouch:nil];
+    [newStroke unlock];
 }
 
 /**
@@ -1570,6 +1585,7 @@ static int undoCounter;
     for(JotTouch* jotTouch in touches){
         [self.delegate willEndStrokeWithTouch:jotTouch];
         JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
+        [currentStroke lock];
         if(currentStroke){
             // move to this endpoint
             [self jotStylusTouchMoved:touches];
@@ -1593,6 +1609,7 @@ static int undoCounter;
             
             [self.delegate didEndStrokeWithTouch:jotTouch];
         }
+        [currentStroke unlock];
     }
     [JotGLContext validateEmptyContextStack];
 }
@@ -1718,6 +1735,7 @@ static int undoCounter;
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 [self.delegate willEndStrokeWithTouch:jotTouch];
                 JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
+                [currentStroke lock];
                 if(currentStroke){
                     // move to this endpoint
                     [self touchesMoved:[NSSet setWithObject:touch] withEvent:event];
@@ -1742,6 +1760,7 @@ static int undoCounter;
                     
                     [self.delegate didEndStrokeWithTouch:jotTouch];
                 }
+                [currentStroke unlock];
                 [JotTouch cleanJotTouchFor:touch];
             }
         }
@@ -1792,12 +1811,14 @@ static int undoCounter;
 -(IBAction) undo{
     CheckMainThread;
     JotStroke* undoneStroke = [state undo];
+    [undoneStroke lock];
     if(undoneStroke){
         CGFloat scale = [[UIScreen mainScreen] scale];
         CGRect bounds = [undoneStroke bounds];
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
+    [undoneStroke unlock];
 }
 
 // helper method to pop the most recent stroke
@@ -1806,6 +1827,7 @@ static int undoCounter;
 -(void) undoAndForget{
     CheckMainThread;
     JotStroke* lastKnownStroke = [state undoAndForget];
+    [lastKnownStroke lock];
     if(lastKnownStroke){
         CGFloat scale = [[UIScreen mainScreen] scale];
         CGRect bounds = [lastKnownStroke bounds];
@@ -1815,6 +1837,7 @@ static int undoCounter;
             [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
         }
     }
+    [lastKnownStroke unlock];
 }
 
 /**
@@ -1823,12 +1846,14 @@ static int undoCounter;
  */
 -(IBAction) redo{
     JotStroke* redoneStroke = [state redo];
+    [redoneStroke lock];
     if(redoneStroke){
         CGFloat scale = [[UIScreen mainScreen] scale];
         CGRect bounds = [redoneStroke bounds];
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
     }
+    [redoneStroke unlock];
 }
 
 
@@ -1937,6 +1962,7 @@ static int undoCounter;
         stroke = [[JotStroke alloc] initWithTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:self.state.bufferManager];
         state.currentStroke = stroke;
     }
+    [stroke lock];
     [stroke.texture bind];
 
     for(AbstractBezierPathElement* element in elements){
@@ -1962,6 +1988,7 @@ static int undoCounter;
     if(needsPresent){
         [self setNeedsPresentRenderBuffer];
     }
+    [stroke unlock];
     [JotGLContext popCurrentContext];
 }
 
@@ -2080,9 +2107,7 @@ static int undoCounter;
     // the pixels to the texture so they're
     // available in the background thread's
     // context
-    [context flush];
-    glFinish();
-    glFlush();
+    // popping the context will flush
     [JotGLContext popCurrentContext];
 
     return canvasTexture;
@@ -2094,7 +2119,7 @@ static int undoCounter;
 -(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clipPath andClippingSize:(CGSize)clipSize withTextureSize:(CGSize)textureSize{
     
     CheckMainThread;
-    glFinish();
+    glFlush();
     JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
     }];
@@ -2153,7 +2178,6 @@ static int undoCounter;
                    asErase:NO];
     [texture unbind];
     [self unprepOpenGLState];
-    glFinish();
     [JotGLContext popCurrentContext];
     //
     // we just drew to the backing texture, so be sure
@@ -2163,8 +2187,6 @@ static int undoCounter;
     [JotGLContext pushCurrentContext:context];
     [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
-//    [subContext flush];
-//    [subContext finish];
     [JotGLContext popCurrentContext];
 }
 
