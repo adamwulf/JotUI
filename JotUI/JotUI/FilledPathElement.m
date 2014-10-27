@@ -27,6 +27,8 @@
     CGAffineTransform scaleTransform;
     
     CGSize sizeOfTexture;
+    
+    NSLock* lock;
 }
 
 -(UIColor*) color{
@@ -36,6 +38,7 @@
 
 -(id) initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4 andSize:(CGSize)size{
     if(self = [super initWithStart:CGPointZero]){
+        lock = [[NSLock alloc] init];
         path = [_path copy];
         path.lineWidth = 2;
         sizeOfTexture = size;
@@ -199,13 +202,18 @@
  * depending on which was created/bound in this method+thread
  */
 -(BOOL) bind{
-    [texture bind];
-    return YES;
+    if([lock tryLock]){
+        [texture bind];
+        return YES;
+    }else{
+        @throw [NSException exceptionWithName:@"GLLockException" reason:@"cannot lock path element" userInfo:nil];
+    }
+    return NO;
 }
 
 -(void) unbind{
     [texture unbind];
-    // noop
+    [lock unlock];
 }
 
 
@@ -245,6 +253,7 @@
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     self = [super initFromDictionary:dictionary];
     if (self) {
+        lock = [[NSLock alloc] init];
         // load from dictionary
         path = [NSKeyedUnarchiver unarchiveObjectWithData:[dictionary objectForKey:@"bezierPath"]];
         p1 = CGPointMake([[dictionary objectForKey:@"p1.x"] floatValue], [[dictionary objectForKey:@"p1.y"] floatValue]);

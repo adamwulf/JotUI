@@ -37,6 +37,8 @@
     GLfloat colorComponents[4];
     
     CGFloat subBezierlengthCache[1000];
+    
+    NSLock* lock;
 }
 
 const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
@@ -66,6 +68,8 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         hashCache = prime * hashCache + ctrl2.y;
         
         boundsCache.origin = JotCGNotFoundPoint;
+        
+        lock = [[NSLock alloc] init];
     }
     return self;
 }
@@ -455,54 +459,61 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  * depending on which was created/bound in this method+thread
  */
 -(BOOL) bind{
-    if(!dataVertexBuffer.length){
-//        DebugLog(@"refusing to bind, we have no data");
-        return NO;
-    }
-    // we're only allowed to create vbo
-    // on the main thread.
-    // if we need a vbo, then create it
-    [self loadDataIntoVBOIfNeeded];
-    if(vertexBufferShouldContainColor){
-        [vbo bind];
+    if([lock tryLock]){
+        if(!dataVertexBuffer.length){
+            //        DebugLog(@"refusing to bind, we have no data");
+            [lock unlock];
+            return NO;
+        }
+        // we're only allowed to create vbo
+        // on the main thread.
+        // if we need a vbo, then create it
+        [self loadDataIntoVBOIfNeeded];
+        if(vertexBufferShouldContainColor){
+            [vbo bind];
+        }else{
+            // by this point, we've cached our components into
+            // colorComponents, even if self.color is nil we've
+            // set it appropriately
+            [vbo bindForColor:colorComponents];
+        }
+        /**
+         * debugging code to validate vertex data when binding
+         *
+         if(vertexBufferShouldContainColor && dataVertexBuffer){
+         struct ColorfulVertex* data = (struct ColorfulVertex*) [dataVertexBuffer bytes];
+         for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
+         struct ColorfulVertex vert = data[i];
+         if(vert.Position[0] < 0 ||
+         vert.Position[1] < 0 ||
+         vert.Size < 1){
+         DebugLog(@"what2");
+         }
+         }
+         }else if(dataVertexBuffer){
+         struct ColorlessVertex* data = (struct ColorlessVertex*) [dataVertexBuffer bytes];
+         for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
+         struct ColorlessVertex vert = data[i];
+         if(vert.Position[0] < 0 ||
+         vert.Position[1] < 0 ||
+         vert.Size < 1){
+         DebugLog(@"what3");
+         }
+         }
+         }
+         */
+        return YES;
     }else{
-        // by this point, we've cached our components into
-        // colorComponents, even if self.color is nil we've
-        // set it appropriately
-        [vbo bindForColor:colorComponents];
+        @throw [NSException exceptionWithName:@"GLLockException" reason:@"cannot lock path element" userInfo:nil];
     }
-/**
- * debugging code to validate vertex data when binding
- *
-    if(vertexBufferShouldContainColor && dataVertexBuffer){
-        struct ColorfulVertex* data = (struct ColorfulVertex*) [dataVertexBuffer bytes];
-        for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
-            struct ColorfulVertex vert = data[i];
-            if(vert.Position[0] < 0 ||
-               vert.Position[1] < 0 ||
-               vert.Size < 1){
-                DebugLog(@"what2");
-            }
-        }
-    }else if(dataVertexBuffer){
-        struct ColorlessVertex* data = (struct ColorlessVertex*) [dataVertexBuffer bytes];
-        for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
-            struct ColorlessVertex vert = data[i];
-            if(vert.Position[0] < 0 ||
-               vert.Position[1] < 0 ||
-               vert.Size < 1){
-                DebugLog(@"what3");
-            }
-        }
-    }
-*/
-    return YES;
+    return NO;
 }
 
 -(void) unbind{
     if(dataVertexBuffer.length){
         [vbo unbind];
     }
+    [lock unlock];
 }
 
 
@@ -676,6 +687,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     self = [super initFromDictionary:dictionary];
     if (self) {
+        lock = [[NSLock alloc] init];
         boundsCache.origin = JotCGNotFoundPoint;
         curveTo = CGPointMake([[dictionary objectForKey:@"curveTo.x"] floatValue], [[dictionary objectForKey:@"curveTo.y"] floatValue]);
         ctrl1 = CGPointMake([[dictionary objectForKey:@"ctrl1.x"] floatValue], [[dictionary objectForKey:@"ctrl1.y"] floatValue]);
@@ -709,6 +721,8 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         hashCache = prime * hashCache + ctrl1.y;
         hashCache = prime * hashCache + ctrl2.x;
         hashCache = prime * hashCache + ctrl2.y;
+        
+        
     }
     return self;
 }
