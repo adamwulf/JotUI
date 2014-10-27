@@ -104,7 +104,7 @@
 }
 
 +(void) validateContextMatches:(JotGLContext *)context{
-    if(context != [JotGLContext currentContext]){
+    if(context && context != [JotGLContext currentContext]){
         @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"mismatched current context" userInfo:nil];
     }
 }
