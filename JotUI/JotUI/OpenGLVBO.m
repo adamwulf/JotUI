@@ -34,6 +34,8 @@
     NSInteger stepMallocSize;
     // this tracks the number of steps that we hold. stepMallocSize * numberOfSteps == mallocSize
     NSInteger numberOfSteps;
+    // lock the buffer
+    NSLock* lock;
 }
 
 static NSInteger zeroedCacheNumber = -1;
@@ -51,6 +53,7 @@ static void * zeroedDataCache = nil;
         stepMallocSize = cacheNumber * kJotBufferBucketSize;
         mallocSize = ceilf(stepMallocSize / ((float)kJotMemoryPageSize)) * kJotMemoryPageSize;
         numberOfSteps = floorf(mallocSize / stepMallocSize);
+        lock = [[NSLock alloc] init];
 
         // generate the VBO in OpenGL
         glGenBuffers(1,&vbo);
@@ -104,12 +107,17 @@ static void * zeroedDataCache = nil;
  * no other steps are affected
  */
 -(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    GLintptr offset = stepNumber*stepMallocSize;
-    GLsizeiptr len = vertexData.length;
-    glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
-    glBindBuffer(GL_ARRAY_BUFFER,0);
-    glFlush();
+    if([lock tryLock]){
+        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        GLintptr offset = stepNumber*stepMallocSize;
+        GLsizeiptr len = vertexData.length;
+        glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+        glFlush();
+        [lock unlock];
+    }else{
+        @throw [NSException exceptionWithName:@"GLBufferException" reason:@"access buffer on multiple threads" userInfo:nil];
+    }
 }
 
 
@@ -120,6 +128,10 @@ static void * zeroedDataCache = nil;
  * this assumes the VBO is filled with ColorfulVertex vertex data
  */
 -(void) bindForStep:(NSInteger)stepNumber{
+    if(![lock tryLock]){
+        NSLog(@"============================== gotcha1 %@", lock);
+        [lock lock];
+    }
     JotGLContext* context = (JotGLContext*) [JotGLContext currentContext];
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
     
@@ -141,7 +153,10 @@ static void * zeroedDataCache = nil;
  * that the VBO is filled with ColorlessVertex vertex data
  */
 -(void) bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber{
-    
+    if(![lock tryLock]){
+        NSLog(@"============================== gotcha2 %@", lock);
+        [lock lock];
+    }
     JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
     
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
@@ -157,6 +172,7 @@ static void * zeroedDataCache = nil;
 
 -(void) unbind{
     glBindBuffer(GL_ARRAY_BUFFER,0);
+    [lock unlock];
 }
 
 -(void) dealloc{
