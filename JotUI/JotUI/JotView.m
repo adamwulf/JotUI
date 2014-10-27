@@ -71,7 +71,6 @@ dispatch_queue_t importExportStateQueue;
     NSUInteger isCurrentlyExporting;
 
     // a handle to the image used as the current brush texture
-    __strong JotBrushTexture* brushTexture;
     JotViewStateProxy* state;
     
     CGSize initialFrameSize;
@@ -86,6 +85,9 @@ dispatch_queue_t importExportStateQueue;
     // the maximum stroke size in bytes before a new stroke
     // is created
     NSInteger maxStrokeSize;
+    
+    NSLock* inkTextureLock;
+    NSLock* imageTextureLock;
 }
 
 @end
@@ -139,7 +141,8 @@ static JotGLContext *mainThreadContext;
 
 -(id) finishInit{
     CheckMainThread;
-    
+    inkTextureLock = [[NSLock alloc] init];
+    imageTextureLock = [[NSLock alloc] init];
     // strokes have a max of .5Mb each
     self.maxStrokeSize = 512*1024;
     
@@ -193,8 +196,6 @@ static JotGLContext *mainThreadContext;
         return nil;
     }
     
-    [self setBrushTexture:[JotDefaultBrushTexture sharedInstance]];
-
     // Set the view's scale factor
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
     
@@ -591,14 +592,20 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     CheckMainThread;
     
     if(!exportFinishBlock) return;
-
-    [JotGLContext pushCurrentContext:context];
     
-    JotGLTexture* fullTexture = [self generateTexture];
-    CGSize usefulTextureSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
-    CGSize exportSize = CGSizeMake(ceilf(initialViewport.width / 2), ceilf(initialViewport.height / 2));
+    if(![imageTextureLock tryLock]){
+        NSLog(@"gotcha");
+    }
 
-    [JotGLContext popCurrentContext];
+//    [JotGLContext pushCurrentContext:context];
+//    
+//    JotGLTexture* fullTexture = [self generateTexture];
+//    [fullTexture bind];
+//    CGSize usefulTextureSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+//    CGSize exportSize = CGSizeMake(ceilf(initialViewport.width / 2), ceilf(initialViewport.height / 2));
+//    [context flush];
+//    [fullTexture unbind];
+//    [JotGLContext popCurrentContext];
 
     //
     // the rest can be done in Core Graphics in a background thread
@@ -607,53 +614,146 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             if(state.isForgetful){
                 NSLog(@"forget: skipping export for forgetful jotview");
                 exportFinishBlock(nil);
+                [imageTextureLock unlock];
                 return;
             }
 
-            JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
                 return [JotView isImportExportImageQueue];
             }];
-            [JotGLContext pushCurrentContext:subContext];
-            glViewport(0, 0, usefulTextureSize.width, usefulTextureSize.height);
-
+            [JotGLContext pushCurrentContext:secondSubContext];
+            
+            // Setup OpenGL states
+            glMatrixMode(GL_PROJECTION);
+            
+            // Setup the view port in Pixels
+            glMatrixMode(GL_MODELVIEW);
+            
+            glDisable(GL_DITHER);
+            glEnable(GL_TEXTURE_2D);
+            
+            glEnable(GL_BLEND);
+            // Set a blending function appropriate for premultiplied alpha pixel data
+            [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+            
+            glEnable(GL_POINT_SPRITE_OES);
+            glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+            
+            glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
+            glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
+            
+            CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+            CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+            
+            // create the texture
+            // maxTextureSize
+            CGSize maxTextureSize = [UIScreen mainScreen].bounds.size;
+            maxTextureSize.width *= [UIScreen mainScreen].scale;
+            maxTextureSize.height *= [UIScreen mainScreen].scale;
+            JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
+            [canvasTexture bind];
+            
             GLuint exportFramebuffer;
+            
             glGenFramebuffersOES(1, &exportFramebuffer);
-//            NSLog(@"new framebuffer3: %d", exportFramebuffer);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, fullTexture.textureID, 0);
+            
+            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
+            [canvasTexture unbind];
+            
             GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
                 NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
                 NSLog(@"%@", str);
                 @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             }
-
+            
+            glViewport(0, 0, fullSize.width, fullSize.height);
+            
+            // step 1:
+            // Clear the buffer
+            glClearColor(0.0, 0.0, 0.0, 0.0);
+            glClear(GL_COLOR_BUFFER_BIT);
+            
+            // step 2:
+            // load a texture and draw it into a quad
+            // that fills the screen
+            [state.backgroundTexture drawInContext:secondSubContext];
+            
+            // reset our viewport
+            glViewport(0, 0, initialViewport.width, initialViewport.height);
+            
+            // we have to flush here to push all
+            // the pixels to the texture so they're
+            // available in the background thread's
+            // context
+            [secondSubContext flush];
+            glFinish();
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            // now read its contents
+            
+            [secondSubContext flush];
+            [canvasTexture bind];
+            glViewport(0, 0, fullSize.width, fullSize.height);
+            glFinish();
+            
+            status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+            if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
+                NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+                NSLog(@"%@", str);
+                @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
+            }
+            // step 3:
             // read the image from OpenGL and push it into a data buffer
-            int x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
-            NSInteger dataLength = usefulTextureSize.width * usefulTextureSize.height * 4;
-            GLubyte *data = calloc(usefulTextureSize.height * usefulTextureSize.width, 4);
+            GLint x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
+            NSInteger dataLength = fullSize.width * fullSize.height * 4;
+            GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
             if(!data){
                 @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
             }
             // Read pixel data from the framebuffer
             glPixelStorei(GL_PACK_ALIGNMENT, 4);
-            glReadPixels(x, y, usefulTextureSize.width, usefulTextureSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
             
-            printOpenGLError();
-            
-            // now we've read our data out from gl into *data
-            // so delete the export framebuffer
+            // now we're done, delete our buffers
             glDeleteFramebuffersOES(1, &exportFramebuffer);
+            [canvasTexture unbind];
+            [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
             
-            [[JotTextureCache sharedManager] returnTextureForReuse:fullTexture];
+            
             
             // Create a CGImage with the pixel data from OpenGL
             // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
             // otherwise, use kCGImageAlphaPremultipliedLast
             CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
             CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-            CGImageRef iref = CGImageCreate(usefulTextureSize.width, usefulTextureSize.height, 8, 32,
-                                            usefulTextureSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+            CGImageRef iref = CGImageCreate(fullSize.width, fullSize.height, 8, 32, fullSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
                                             kCGImageAlphaPremultipliedLast,
                                             ref, NULL, true, kCGRenderingIntentDefault);
             
@@ -663,12 +763,17 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             
             // OpenGL ES measures data in PIXELS
             // Create a graphics context with the target size measured in POINTS
-            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
-                                                               kCGImageAlphaPremultipliedLast);
+            CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
             if(!bitmapContext){
                 @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
             }
+            
+            // can I clear less stuff and still be ok?
             CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
+            
+            if(!bitmapContext){
+                NSLog(@"oh no1");
+            }
             
             // flip vertical for our drawn content, since OpenGL is opposite core graphics
             CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
@@ -683,7 +788,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             if(!cgImage){
                 @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
             }
-
+            
             UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
             
             // Clean up
@@ -697,8 +802,16 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // so pass the newly generated image to the completion block
             exportFinishBlock(image);
             CGImageRelease(cgImage);
+            
+            [secondSubContext flush];
             [JotGLContext popCurrentContext];
             [JotGLContext validateEmptyContextStack];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // can't do this sync()
+                // because the main thread + the importExportImageQueue
+                // could deadlock
+                [imageTextureLock unlock];
+            });
         }
     });
 }
@@ -731,104 +844,126 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     }
     
     if(!exportFinishBlock) return;
-    
-    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
-        return [NSThread isMainThread];
-    }];
-    [JotGLContext pushCurrentContext:subContext];
-    
-    // Setup OpenGL states
-    glMatrixMode(GL_PROJECTION);
-    
-    // Setup the view port in Pixels
-    glMatrixMode(GL_MODELVIEW);
-    
-    glDisable(GL_DITHER);
-    glEnable(GL_TEXTURE_2D);
-    
-    glEnable(GL_BLEND);
-    // Set a blending function appropriate for premultiplied alpha pixel data
-    [subContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
-    
-    glEnable(GL_POINT_SPRITE_OES);
-    glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
-    
-    glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-    glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
-
-    
-    
-    
-    CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
-    CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
-    
-	GLuint exportFramebuffer;
-    
-    glGenFramebuffersOES(1, &exportFramebuffer);
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-    
-    // create the texture
-    // maxTextureSize
-    CGSize maxTextureSize = [UIScreen mainScreen].bounds.size;
-    maxTextureSize.width *= [UIScreen mainScreen].scale;
-    maxTextureSize.height *= [UIScreen mainScreen].scale;
-    JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:subContext ofSize:maxTextureSize];
-    [canvasTexture bind];
-
-    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
-    
-    GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-    if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-        NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-		NSLog(@"%@", str);
-        @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
+    if(![inkTextureLock tryLock]){
+        NSLog(@"gotcha");
     }
-    
-    glViewport(0, 0, fullSize.width, fullSize.height);
-    
-    // step 1:
-    // Clear the buffer
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glClear(GL_COLOR_BUFFER_BIT);
-    
-    // step 2:
-    // load a texture and draw it into a quad
-    // that fills the screen
-    [state.backgroundTexture drawInContext:subContext];
-    
-    glDeleteFramebuffersOES(1, &exportFramebuffer);
-
-    // reset our viewport
-    glViewport(0, 0, initialViewport.width, initialViewport.height);
-
-    // we have to flush here to push all
-    // the pixels to the texture so they're
-    // available in the background thread's
-    // context
-    [subContext flush];
-    [JotGLContext popCurrentContext];
     
     // the rest can be done in Core Graphics in a background thread
     dispatch_async([JotView importExportImageQueue], ^{
         @autoreleasepool {
             if(state.isForgetful){
                 NSLog(@"forget: skipping export for forgetful jotview");
-                [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
                 exportFinishBlock(nil);
+                [inkTextureLock unlock];
                 return;
             }
 
-            JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
                 return [JotView isImportExportImageQueue];
             }];
-            [JotGLContext pushCurrentContext:subContext];
-            glViewport(0, 0, fullSize.width, fullSize.height);
-
+            [JotGLContext pushCurrentContext:secondSubContext];
+            
+            // Setup OpenGL states
+            glMatrixMode(GL_PROJECTION);
+            
+            // Setup the view port in Pixels
+            glMatrixMode(GL_MODELVIEW);
+            
+            glDisable(GL_DITHER);
+            glEnable(GL_TEXTURE_2D);
+            
+            glEnable(GL_BLEND);
+            // Set a blending function appropriate for premultiplied alpha pixel data
+            [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+            
+            glEnable(GL_POINT_SPRITE_OES);
+            glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+            
+            glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
+            glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
+            
+            CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+            CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+            
+            // create the texture
+            // maxTextureSize
+            CGSize maxTextureSize = [UIScreen mainScreen].bounds.size;
+            maxTextureSize.width *= [UIScreen mainScreen].scale;
+            maxTextureSize.height *= [UIScreen mainScreen].scale;
+            JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
+            [canvasTexture bind];
+            
             GLuint exportFramebuffer;
+            
             glGenFramebuffersOES(1, &exportFramebuffer);
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+            
             glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
+            [canvasTexture unbind];
+            
             GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+            if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
+                NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+                NSLog(@"%@", str);
+                @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
+            }
+            
+            glViewport(0, 0, fullSize.width, fullSize.height);
+            
+            // step 1:
+            // Clear the buffer
+            glClearColor(0.0, 0.0, 0.0, 0.0);
+            glClear(GL_COLOR_BUFFER_BIT);
+            
+            // step 2:
+            // load a texture and draw it into a quad
+            // that fills the screen
+            [state.backgroundTexture drawInContext:secondSubContext];
+            
+            // reset our viewport
+            glViewport(0, 0, initialViewport.width, initialViewport.height);
+            
+            // we have to flush here to push all
+            // the pixels to the texture so they're
+            // available in the background thread's
+            // context
+            [secondSubContext flush];
+            glFinish();
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            // now read its contents
+            
+            [secondSubContext flush];
+            [canvasTexture bind];
+            glViewport(0, 0, fullSize.width, fullSize.height);
+            glFinish();
+
+            status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
             if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
                 NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
                 NSLog(@"%@", str);
@@ -847,8 +982,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
             
             // now we're done, delete our buffers
-            [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
             glDeleteFramebuffersOES(1, &exportFramebuffer);
+            [canvasTexture unbind];
+            [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
             
             
 
@@ -907,8 +1043,15 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             exportFinishBlock(image);
             CGImageRelease(cgImage);
             
+            [secondSubContext flush];
             [JotGLContext popCurrentContext];
             [JotGLContext validateEmptyContextStack];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // can't do this sync()
+                // because the main thread + the importExportImageQueue
+                // could deadlock
+                [inkTextureLock unlock];
+            });
         }
     });
 }
@@ -944,11 +1087,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // noop for scissors
         }
         
-        // hang onto the current texture
-        // so we can reset it after we draw
-        // the strokes
-        JotBrushTexture* keepThisTexture = brushTexture;
-        
         glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
         
         //
@@ -976,16 +1114,13 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         // draw all the strokes that we have in our undo-able stack
         [self prepOpenGLStateForFBO:theFramebuffer toContext:renderContext];
         // reset the texture so that we load the brush texture next
-        brushTexture = nil;
         // now draw the strokes
         
         int c = 0;
         
         for(JotStroke* stroke in [state everyVisibleStroke]){
             // make sure our texture is the correct one for this stroke
-            if(stroke.texture != brushTexture){
-                [self setBrushTexture:stroke.texture];
-            }
+            [stroke.texture bind];
             
             // draw each stroke element
             AbstractBezierPathElement* prevElement = nil;
@@ -994,6 +1129,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 prevElement = element;
                 c++;
             }
+            [stroke.texture unbind];
         }
         [self unprepOpenGLState];
         
@@ -1004,10 +1140,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // ok, show it!
             [self setNeedsPresentRenderBuffer];
         }
-        
-        // now that we're done rendering strokes, reset the texture
-        // to the current brush
-        [self setBrushTexture:keepThisTexture];
         
         if(!CGRectEqualToRect(scissorRect, CGRectZero)){
             glDisable(GL_SCISSOR_TEST);
@@ -1055,7 +1187,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         }
 
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-        glFinish();
         if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES){
             NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
             NSLog(@"%@", str);
@@ -1120,12 +1251,14 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     // prepend the previous element, so that each of our new elements has a previous element to
     // render with
     elements = [[NSArray arrayWithObject:(previousElement ? previousElement : [NSNull null])] arrayByAddingObjectsFromArray:elements];
+    [currentStroke.texture bind];
     for(int i=1;i<[elements count];i++){
         [currentStroke addElement:[elements objectAtIndex:i]];
         // ok, now we have the current + previous stroke segment
         // so let's set to drawing it!
         [self renderElement:[elements objectAtIndex:i] fromPreviousElement:[elements objectAtIndex:i-1] includeOpenGLPrepForFBO:viewFramebuffer toContext:context];
     }
+    [currentStroke.texture unbind];
     
     // Display the buffer
     [self setNeedsPresentRenderBuffer];
@@ -1227,82 +1360,95 @@ static int undoCounter;
  * our backing texture
  */
 -(void) validateUndoState:(NSTimer *)timer{
-    [JotGLContext validateEmptyContextStack];
-
     CheckMainThread;
-
-    // ticking the state will make sure that the state is valid,
-    // containing only the correct number of undoable items in its
-    // arrays, and putting all excess strokes into strokesBeingWrittenToBackingTexture
-    [state tick];
-
-    if([state.strokesBeingWrittenToBackingTexture count]){
-        [JotGLContext pushCurrentContext:context];
-        
-        undoCounter++;
-        if(undoCounter % 3 == 0){
-//            NSLog(@"strokes waiting to write: %lu", (unsigned long)[state.strokesBeingWrittenToBackingTexture count]);
-            undoCounter = 0;
-        }
-        JotBrushTexture* keepThisTexture = brushTexture;
-        // get the stroke that we need to make permanent
-        JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
-        
-        // render it to the backing texture
-        [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID toContext:context];
-
-        // set our brush texture if needed
-        [self setBrushTexture:strokeToWriteToTexture.texture];
-
-        // draw each stroke element. for performance reasons, we'll only
-        // draw ~ 300 pixels of segments at a time.
-        NSInteger distance = 0;
-        while([strokeToWriteToTexture.segments count] && distance < 300){
-            AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
-            [strokeToWriteToTexture removeElementAtIndex:0];
-            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:(GLuint)nil toContext:context];
-            prevElementForTextureWriting = element;
-            distance += [element lengthOfElement];
-            // this should dealloc the element immediately,
-            // and the VBO its using internally will be recycled
-            // in to the JotBufferManager
-        }
-
-        // now that we're done with the stroke,
-        // let's throw it in the trash
-        if([strokeToWriteToTexture.segments count] == 0){
-            [state.strokesBeingWrittenToBackingTexture removeSingleObject:strokeToWriteToTexture];
-            [[JotTrashManager sharedInstance] addObjectToDealloc:strokeToWriteToTexture];
-            prevElementForTextureWriting = nil;
-        }
-        
-        [self unprepOpenGLState];
-
-        [self setBrushTexture:keepThisTexture];
-        // rebind primary framebuffer
-        [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
-
-        //
-        // we just drew to the backing texture, so be sure
-        // to flush all openGL commands, so that when we rebind
-        // it'll use the updated texture and won't have any
-        // issues of unsynchronized textures.
-        [(JotGLContext*)[JotGLContext currentContext] flush];
-        [JotGLContext popCurrentContext];
-    }else if([state isReadyToExport]){
-        // only export if the trash manager is empty
-        // that way we're exporting w/ low memory instead
-        // of unknown memory
-        if(![[JotTrashManager sharedInstance] tick]){
-            // ok, the trash is empty, so now see if we need to export
-            if([exportLaterInvocations count]){
-                NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
-                [exportLaterInvocations removeSingleObject:invokation];
-                [invokation invoke];
+    if([inkTextureLock tryLock]){
+        if([imageTextureLock tryLock]){
+            [JotGLContext validateEmptyContextStack];
+            
+            CheckMainThread;
+            
+            // ticking the state will make sure that the state is valid,
+            // containing only the correct number of undoable items in its
+            // arrays, and putting all excess strokes into strokesBeingWrittenToBackingTexture
+            [state tick];
+            
+            if([state.strokesBeingWrittenToBackingTexture count]){
+                [JotGLContext pushCurrentContext:context];
+                
+                undoCounter++;
+                if(undoCounter % 3 == 0){
+                    //            NSLog(@"strokes waiting to write: %lu", (unsigned long)[state.strokesBeingWrittenToBackingTexture count]);
+                    undoCounter = 0;
+                }
+                // get the stroke that we need to make permanent
+                JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
+                
+                // render it to the backing texture
+                [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID toContext:context];
+                
+                [strokeToWriteToTexture.texture bind];
+                // draw each stroke element. for performance reasons, we'll only
+                // draw ~ 300 pixels of segments at a time.
+                NSInteger distance = 0;
+                while([strokeToWriteToTexture.segments count] && distance < 300){
+                    AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
+                    [strokeToWriteToTexture removeElementAtIndex:0];
+                    [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:(GLuint)nil toContext:context];
+                    prevElementForTextureWriting = element;
+                    distance += [element lengthOfElement];
+                    // this should dealloc the element immediately,
+                    // and the VBO its using internally will be recycled
+                    // in to the JotBufferManager
+                }
+                [strokeToWriteToTexture.texture unbind];
+                // now that we're done with the stroke,
+                // let's throw it in the trash
+                if([strokeToWriteToTexture.segments count] == 0){
+                    [state.strokesBeingWrittenToBackingTexture removeSingleObject:strokeToWriteToTexture];
+                    [[JotTrashManager sharedInstance] addObjectToDealloc:strokeToWriteToTexture];
+                    prevElementForTextureWriting = nil;
+                }
+                
+                [self unprepOpenGLState];
+                
+                // rebind primary framebuffer
+                [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
+                
+                //
+                // we just drew to the backing texture, so be sure
+                // to flush all openGL commands, so that when we rebind
+                // it'll use the updated texture and won't have any
+                // issues of unsynchronized textures.
+                [(JotGLContext*)[JotGLContext currentContext] flush];
+                [JotGLContext popCurrentContext];
+                [imageTextureLock unlock];
+                [inkTextureLock unlock];
+            }else if([state isReadyToExport]){
+                [imageTextureLock unlock];
+                [inkTextureLock unlock];
+                // only export if the trash manager is empty
+                // that way we're exporting w/ low memory instead
+                // of unknown memory
+                if(![[JotTrashManager sharedInstance] tick]){
+                    // ok, the trash is empty, so now see if we need to export
+                    if([exportLaterInvocations count]){
+                        NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
+                        [exportLaterInvocations removeSingleObject:invokation];
+                        [invokation invoke];
+                    }
+                }
+            }else{
+                [imageTextureLock unlock];
+                [inkTextureLock unlock];
             }
+            [JotGLContext validateEmptyContextStack];
+        }else{
+            NSLog(@"skipping writing to ink texture during export2");
+            [inkTextureLock unlock];
         }
+    }else{
+        NSLog(@"skipping writing to ink texture during export");
     }
-    [JotGLContext validateEmptyContextStack];
 }
 
 
@@ -1331,7 +1477,7 @@ static int undoCounter;
 
 -(void) drawLongLine{
     if(!state) return;
-    JotStroke* newStroke = [[JotStroke alloc] initWithTexture:self.brushTexture andBufferManager:state.bufferManager];
+    JotStroke* newStroke = [[JotStroke alloc] initWithTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:state.bufferManager];
     newStroke.delegate = self;
     [self addLineToAndRenderStroke:newStroke
                            toPoint:CGPointMake(100, 100)
@@ -1368,10 +1514,10 @@ static int undoCounter;
     CheckMainThread;
     
     if(!state) return;
-    [self setBrushTexture:brushTexture];
+    
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-            JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
+            JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:state.bufferManager];
             newStroke.delegate = self;
             if(state.currentStroke){
                 @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
@@ -1396,7 +1542,6 @@ static int undoCounter;
     CheckMainThread;
     
     if(!state) return;
-    [self setBrushTexture:brushTexture];
 
     for(JotTouch* jotTouch in touches){
         [self.delegate willMoveStrokeWithTouch:jotTouch];
@@ -1421,7 +1566,6 @@ static int undoCounter;
     CheckMainThread;
     
     if(!state) return;
-    [self setBrushTexture:brushTexture];
 
     for(JotTouch* jotTouch in touches){
         [self.delegate willEndStrokeWithTouch:jotTouch];
@@ -1461,7 +1605,6 @@ static int undoCounter;
     CheckMainThread;
     
     if(!state) return;
-    [self setBrushTexture:brushTexture];
 
     for(JotTouch* jotTouch in touches){
         // If appropriate, add code necessary to save the state of the application.
@@ -1513,14 +1656,13 @@ static int undoCounter;
  */
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     if(!state) return;
-    [self setBrushTexture:brushTexture];
 
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for (UITouch *touch in touches) {
             @autoreleasepool {
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-                    JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:brushTexture andBufferManager:state.bufferManager];
+                    JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:state.bufferManager];
                     newStroke.delegate = self;
                     state.currentStroke = newStroke;
                     // find the stroke that we're modifying, and then add an element and render it
@@ -1539,7 +1681,6 @@ static int undoCounter;
 -(void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
 
     if(!state) return;
-    [self setBrushTexture:brushTexture];
 
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for (UITouch *touch in touches) {
@@ -1569,7 +1710,6 @@ static int undoCounter;
 -(void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
 
     if(!state) return;
-    [self setBrushTexture:brushTexture];
 
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for(UITouch* touch in touches){
@@ -1612,7 +1752,6 @@ static int undoCounter;
 -(void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event{
     CheckMainThread;
     if(!state) return;
-    [self setBrushTexture:brushTexture];
 
     if(![JotStylusManager sharedInstance].isStylusConnected){
         for(UITouch* touch in touches){
@@ -1637,22 +1776,6 @@ static int undoCounter;
 
 #pragma mark - Public Interface
 
--(JotBrushTexture*)brushTexture{
-    return brushTexture;
-}
-
-/**
- * setup the texture to use for the next brush stroke
- */
--(void) setBrushTexture:(JotBrushTexture*)brushImage{
-    if(brushTexture != brushImage){
-        [brushTexture unbind];
-        brushTexture = brushImage;
-        [brushTexture bind];
-    }else{
-        [brushTexture bind];
-    }
-}
 
 -(BOOL) canUndo{
     return [state canUndo];
@@ -1770,11 +1893,11 @@ static int undoCounter;
 // if no current strokes, then add an
 // empty stroke to the stack
 -(void) addUndoLevelAndContinueStroke{
-    [state addUndoLevelAndContinueStrokeWithBrush:brushTexture];
+    [state addUndoLevelAndContinueStrokeWithBrush:[[JotDefaultBrushTexture alloc] init]];
 }
 
 -(void) addUndoLevelAndFinishStroke{
-    [state addUndoLevelAndFinishStrokeWithBrush:brushTexture];
+    [state addUndoLevelAndFinishStrokeWithBrush:[[JotDefaultBrushTexture alloc] init]];
 }
 
 /**
@@ -1811,7 +1934,7 @@ static int undoCounter;
         if(state.currentStroke){
             @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
         }
-        stroke = [[JotStroke alloc] initWithTexture:brushTexture andBufferManager:self.state.bufferManager];
+        stroke = [[JotStroke alloc] initWithTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:self.state.bufferManager];
         state.currentStroke = stroke;
     }
     [stroke.texture bind];
@@ -1855,7 +1978,7 @@ static int undoCounter;
  * when to save
  */
 -(void) forceAddEmptyStroke{
-    [state forceAddEmptyStrokeWithBrush:brushTexture];
+    [state forceAddEmptyStrokeWithBrush:[[JotDefaultBrushTexture alloc] init]];
 }
 
 -(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 andSize:(CGSize)size{
@@ -1867,11 +1990,10 @@ static int undoCounter;
     JotFilledPathStroke* stroke = [[JotFilledPathStroke alloc] initWithPath:path andP1:p1 andP2:p2 andP3:p3 andP4:p4 andSize:size];
     [state forceAddStroke:stroke];
     
-    JotBrushTexture* keepThisTexture = brushTexture;
-    [self setBrushTexture:stroke.texture];
+    [stroke.texture bind];
     [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:YES toContext:context];
     [self setNeedsPresentRenderBuffer];
-    [self setBrushTexture:keepThisTexture];
+    [stroke.texture unbind];
     [JotGLContext popCurrentContext];
 }
 
@@ -1930,7 +2052,7 @@ static int undoCounter;
 
     // bind the texture to the framebuffer
     glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
-    
+
     GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
     if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
         NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
@@ -1949,7 +2071,8 @@ static int undoCounter;
     // now all of the content has been pushed to the texture,
     // so delete the framebuffer
     glDeleteFramebuffersOES(1, &exportFramebuffer);
-    
+    [canvasTexture unbind];
+
     // reset back to exact viewport
     glViewport(0, 0, initialViewport.width, initialViewport.height);
     
@@ -1958,7 +2081,8 @@ static int undoCounter;
     // available in the background thread's
     // context
     [context flush];
-
+    glFinish();
+    glFlush();
     [JotGLContext popCurrentContext];
 
     return canvasTexture;
@@ -2013,6 +2137,7 @@ static int undoCounter;
     // step 2:
     // load a texture and draw it into a quad
     // that fills the screen
+    [texture bind];
     [texture drawInContext:subContext
                       atT1:p1
                      andT2:p2
@@ -2026,7 +2151,7 @@ static int undoCounter;
                    andClip:clipPath
            andClippingSize:clipSize
                    asErase:NO];
-
+    [texture unbind];
     [self unprepOpenGLState];
     glFinish();
     [JotGLContext popCurrentContext];

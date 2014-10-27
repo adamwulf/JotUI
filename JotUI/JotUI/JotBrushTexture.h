@@ -15,7 +15,7 @@
 @property (readonly) UIImage* texture;
 @property (readonly) NSString* name;
 
-+(JotBrushTexture*) sharedInstance;
+//+(JotBrushTexture*) sharedInstance;
 
 -(BOOL) bind;
 -(void) unbind;

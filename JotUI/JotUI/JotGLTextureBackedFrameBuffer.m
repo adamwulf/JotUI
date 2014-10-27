@@ -47,6 +47,7 @@ dispatch_queue_t importExportTextureQueue;
             [texture bind];
             // associate texture with FBO
             glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
+            [texture unbind];
         }
         // check if it worked (probably worth doing :) )
         GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);

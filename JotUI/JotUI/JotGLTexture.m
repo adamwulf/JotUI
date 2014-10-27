@@ -11,12 +11,17 @@
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
+#import "AbstractBezierPathElement-Protected.h"
 
 static int totalTextureBytes;
 
 @implementation JotGLTexture{
     CGSize fullPixelSize;
     int fullByteSize;
+    NSRecursiveLock* lock;
+
+    int lockCount;
+    JotGLContext* contextOfBinding;
 }
 
 @synthesize textureID;
@@ -61,6 +66,8 @@ static int totalTextureBytes;
     if(self = [super init]){
         JotGLContext* currContext = (JotGLContext*) [JotGLContext currentContext];
         fullPixelSize = size;
+        lock = [[NSRecursiveLock alloc] init];
+        lockCount = 0;
         
         // unload the old texture
         [self deleteAssets];
@@ -126,7 +133,9 @@ static int totalTextureBytes;
             }
             // ok, initialize the data
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-            
+            glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+            glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
             // cleanup
             CGContextRelease(cgContext);
             free(imageData);
@@ -136,6 +145,8 @@ static int totalTextureBytes;
                 @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
             }
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zeroedDataCache);
+            glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+            glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
             free(zeroedDataCache);
         }
         // clear texture bind
@@ -152,6 +163,8 @@ static int totalTextureBytes;
     if(self = [super init]){
         fullPixelSize = _size;
         textureID = _textureID;
+        lock = [[NSRecursiveLock alloc] init];
+        lockCount = 0;
     }
     return self;
 }
@@ -168,15 +181,41 @@ static int totalTextureBytes;
 }
 
 -(void) bind{
+    printOpenGLError();
+    if(![lock tryLock]){
+        NSLog(@"gotcha");
+    }
+    if(contextOfBinding != nil && contextOfBinding != [JotGLContext currentContext]){
+        NSLog(@"gotcha");
+    }
+    lockCount++;
+    contextOfBinding = (JotGLContext*) [JotGLContext currentContext];
+    NSLog(@"locked %p (%d)", self, self.textureID);
     if(textureID){
+        glFinish();
         glBindTexture(GL_TEXTURE_2D, textureID);
+        glFinish();
     }else{
         NSLog(@"what4");
     }
+    printOpenGLError();
 }
 
 -(void) unbind{
+    printOpenGLError();
+    glFinish();
     glBindTexture(GL_TEXTURE_2D, 0);
+    glFinish();
+    NSLog(@"unlocked %p (%d)", self, self.textureID);
+    if(contextOfBinding != [JotGLContext currentContext]){
+        NSLog(@"gotcha");
+    }
+    lockCount--;
+    if(lockCount == 0){
+        contextOfBinding = nil;
+    }
+    [lock unlock];
+    printOpenGLError();
 }
 
 /**

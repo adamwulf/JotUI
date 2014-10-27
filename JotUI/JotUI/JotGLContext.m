@@ -46,10 +46,15 @@
     GLvoid* vertex_pointer_pointer;
     
     BOOL(^validateThreadBlock)();
+    NSRecursiveLock* lock;
 }
 
 -(BOOL) validateThread{
     return validateThreadBlock();
+}
+
+-(NSRecursiveLock*)lock{
+    return lock;
 }
 
 
@@ -59,6 +64,9 @@
 }
 
 +(BOOL) pushCurrentContext:(JotGLContext*)context{
+    if(![[context lock] tryLock]){
+        NSLog(@"gotcha");
+    }
     NSMutableArray* stackOfContexts = [[[NSThread currentThread] threadDictionary] objectForKey:@"stackOfContexts"];
     if(!stackOfContexts){
         if(!stackOfContexts){
@@ -76,7 +84,9 @@
     if(!stackOfContexts || [stackOfContexts count] == 0){
         @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"Cannot pop a GLContext from empty stack" userInfo:nil];
     }
+    JotGLContext* contextThatIsLeaving = [stackOfContexts lastObject];
     [stackOfContexts removeLastObject];
+    [[contextThatIsLeaving lock] unlock];
     JotGLContext* previousContext = [stackOfContexts lastObject];
     return [JotGLContext setCurrentContext:previousContext]; // ok if its nil
 }
@@ -101,6 +111,7 @@
         lastGreen = -1;
         lastAlpha = -1;
         validateThreadBlock = _validateThreadBlock;
+        lock = [[NSRecursiveLock alloc] init];
     }
     return self;
 }
@@ -114,6 +125,7 @@
         blend_dfactor = GL_ZERO;
         blend_sfactor = GL_ZERO;
         validateThreadBlock = _validateThreadBlock;
+        lock = [[NSRecursiveLock alloc] init];
     }
     return self;
 }

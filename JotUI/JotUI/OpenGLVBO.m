@@ -109,6 +109,7 @@ static void * zeroedDataCache = nil;
     GLsizeiptr len = vertexData.length;
     glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
     glBindBuffer(GL_ARRAY_BUFFER,0);
+    glFlush();
 }
 
 

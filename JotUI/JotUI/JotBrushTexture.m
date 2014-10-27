@@ -38,6 +38,8 @@
     // check if we already have the texture generated
     if(glBrushTextureID){
         glBindTexture(GL_TEXTURE_2D, glBrushTextureID);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         return YES;
     }
     
@@ -79,7 +81,9 @@
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         // Specify a 2D texture image, providing the a pointer to the image data in memory
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
-        
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
         // Release  the image data; it's no longer needed
         free(brushData);
         glFlush();
@@ -111,14 +115,14 @@
 -(id) initFromDictionary:(NSDictionary*)dictionary{
     NSString* className = [dictionary objectForKey:@"class"];
     Class clz = NSClassFromString(className);
-    return [clz sharedInstance];
+    return [[clz alloc] init];
 }
 
-#pragma mark - Singleton
-
-+(JotBrushTexture*) sharedInstance{
-    @throw kAbstractMethodException;
-}
+//#pragma mark - Singleton
+//
+//+(JotBrushTexture*) sharedInstance{
+//    @throw kAbstractMethodException;
+//}
 
 
 @end
