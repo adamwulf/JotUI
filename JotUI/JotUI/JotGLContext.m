@@ -47,7 +47,11 @@
     
     BOOL(^validateThreadBlock)();
     NSRecursiveLock* lock;
+    
+    NSMutableDictionary* contextProperties;
 }
+
+@synthesize contextProperties;
 
 -(BOOL) validateThread{
     return validateThreadBlock();
@@ -113,6 +117,7 @@
         lastAlpha = -1;
         validateThreadBlock = _validateThreadBlock;
         lock = [[NSRecursiveLock alloc] init];
+        contextProperties = [NSMutableDictionary dictionary];
     }
     return self;
 }
@@ -127,6 +132,7 @@
         blend_sfactor = GL_ZERO;
         validateThreadBlock = _validateThreadBlock;
         lock = [[NSRecursiveLock alloc] init];
+        contextProperties = [NSMutableDictionary dictionary];
     }
     return self;
 }

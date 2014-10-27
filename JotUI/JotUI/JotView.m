@@ -1456,11 +1456,11 @@ static int undoCounter;
             }
             [JotGLContext validateEmptyContextStack];
         }else{
-            DebugLog(@"skipping writing to ink texture during export2");
+//            DebugLog(@"skipping writing to ink texture during export2");
             [inkTextureLock unlock];
         }
     }else{
-        DebugLog(@"skipping writing to ink texture during export");
+//        DebugLog(@"skipping writing to ink texture during export");
     }
 }
 
@@ -1490,7 +1490,7 @@ static int undoCounter;
 
 -(void) drawLongLine{
     if(!state) return;
-    JotStroke* newStroke = [[JotStroke alloc] initWithTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:state.bufferManager];
+    JotStroke* newStroke = [[JotStroke alloc] initWithTexture:[JotDefaultBrushTexture sharedInstance] andBufferManager:state.bufferManager];
     [newStroke lock];
     newStroke.delegate = self;
     [self addLineToAndRenderStroke:newStroke
@@ -1532,7 +1532,7 @@ static int undoCounter;
     
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-            JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:state.bufferManager];
+            JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[JotDefaultBrushTexture sharedInstance] andBufferManager:state.bufferManager];
             newStroke.delegate = self;
             if(state.currentStroke){
                 @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
@@ -1679,7 +1679,7 @@ static int undoCounter;
             @autoreleasepool {
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-                    JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:state.bufferManager];
+                    JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[JotDefaultBrushTexture sharedInstance] andBufferManager:state.bufferManager];
                     newStroke.delegate = self;
                     state.currentStroke = newStroke;
                     // find the stroke that we're modifying, and then add an element and render it
@@ -1918,11 +1918,11 @@ static int undoCounter;
 // if no current strokes, then add an
 // empty stroke to the stack
 -(void) addUndoLevelAndContinueStroke{
-    [state addUndoLevelAndContinueStrokeWithBrush:[[JotDefaultBrushTexture alloc] init]];
+    [state addUndoLevelAndContinueStrokeWithBrush:[JotDefaultBrushTexture sharedInstance]];
 }
 
 -(void) addUndoLevelAndFinishStroke{
-    [state addUndoLevelAndFinishStrokeWithBrush:[[JotDefaultBrushTexture alloc] init]];
+    [state addUndoLevelAndFinishStrokeWithBrush:[JotDefaultBrushTexture sharedInstance]];
 }
 
 /**
@@ -1959,7 +1959,7 @@ static int undoCounter;
         if(state.currentStroke){
             @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
         }
-        stroke = [[JotStroke alloc] initWithTexture:[[JotDefaultBrushTexture alloc] init] andBufferManager:self.state.bufferManager];
+        stroke = [[JotStroke alloc] initWithTexture:[JotDefaultBrushTexture sharedInstance] andBufferManager:self.state.bufferManager];
         state.currentStroke = stroke;
     }
     [stroke lock];
@@ -2005,7 +2005,7 @@ static int undoCounter;
  * when to save
  */
 -(void) forceAddEmptyStroke{
-    [state forceAddEmptyStrokeWithBrush:[[JotDefaultBrushTexture alloc] init]];
+    [state forceAddEmptyStrokeWithBrush:[JotDefaultBrushTexture sharedInstance]];
 }
 
 -(void) forceAddStrokeForFilledPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 andSize:(CGSize)size{

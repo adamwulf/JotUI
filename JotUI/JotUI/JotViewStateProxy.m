@@ -236,7 +236,7 @@ static BOOL shouldPrint = NO;
     if(self.isForgetful){
         return NO;
     }
-    if(shouldPrint) DebugLog(@"checking hasEditsToSave: %p %lu %lu",self, (unsigned long) self.jotViewState.undoHash, (unsigned long)lastSavedUndoHash);
+//    if(shouldPrint) DebugLog(@"checking hasEditsToSave: %p %lu %lu",self, (unsigned long) self.jotViewState.undoHash, (unsigned long)lastSavedUndoHash);
     return self.jotViewState && [self.jotViewState undoHash] != lastSavedUndoHash;
 }
 

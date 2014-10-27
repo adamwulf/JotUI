@@ -10,4 +10,6 @@
 
 @interface JotDefaultBrushTexture : JotBrushTexture
 
++(JotBrushTexture*) sharedInstance;
+
 @end

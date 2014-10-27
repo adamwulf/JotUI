@@ -11,6 +11,8 @@
 		66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F7D1828501B00B7442F /* JotViewStateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 66696F7E1828501B00B7442F /* JotViewStateProxy.m */; };
 		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		667C9F6E19FEF2C900708632 /* JotSharedBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 667C9F6C19FEF2C900708632 /* JotSharedBrushTexture.h */; };
+		667C9F6F19FEF2C900708632 /* JotSharedBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */; };
 		668D19E319F8652100A65DCF /* JotTextureCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 668D19E119F8652100A65DCF /* JotTextureCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		668D19E419F8652100A65DCF /* JotTextureCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 668D19E219F8652100A65DCF /* JotTextureCache.m */; };
 		66A64EF419FB5B8E0026305B /* NSMutableArray+RemoveSingle.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A64EF219FB5B8E0026305B /* NSMutableArray+RemoveSingle.h */; };
@@ -103,6 +105,8 @@
 		66696F7D1828501B00B7442F /* JotViewStateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxy.h; sourceTree = "<group>"; };
 		66696F7E1828501B00B7442F /* JotViewStateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewStateProxy.m; sourceTree = "<group>"; };
 		66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxyDelegate.h; sourceTree = "<group>"; };
+		667C9F6C19FEF2C900708632 /* JotSharedBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotSharedBrushTexture.h; sourceTree = "<group>"; };
+		667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotSharedBrushTexture.m; sourceTree = "<group>"; };
 		668D19E119F8652100A65DCF /* JotTextureCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotTextureCache.h; sourceTree = "<group>"; };
 		668D19E219F8652100A65DCF /* JotTextureCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotTextureCache.m; sourceTree = "<group>"; };
 		668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMWeakTimerTarget.h; sourceTree = "<group>"; };
@@ -348,6 +352,8 @@
 			children = (
 				66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */,
 				66BF7F20176675E0003F4F67 /* JotBrushTexture.m */,
+				667C9F6C19FEF2C900708632 /* JotSharedBrushTexture.h */,
+				667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */,
 				66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */,
 				66BF7F2417667663003F4F67 /* JotDefaultBrushTexture.m */,
 			);
@@ -386,6 +392,7 @@
 				66F1F1EE18079BD700B8CE3B /* JotDefaultBrushTexture.h in Headers */,
 				66F1F1EF18079BD700B8CE3B /* JotGLTexture.h in Headers */,
 				66F1F1F018079BD700B8CE3B /* JotGLTextureBackedFrameBuffer.h in Headers */,
+				667C9F6E19FEF2C900708632 /* JotSharedBrushTexture.h in Headers */,
 				66F1F1F118079BD700B8CE3B /* JotGLContext.h in Headers */,
 				66F1F1F218079BD700B8CE3B /* JotStroke.h in Headers */,
 				66F1F1F318079BD700B8CE3B /* JotStrokeDelegate.h in Headers */,
@@ -529,6 +536,7 @@
 				66AC156918079B27005315C8 /* JotTrashManager.m in Sources */,
 				66AC156A18079B27005315C8 /* JotBufferManager.m in Sources */,
 				66AC156B18079B27005315C8 /* JotBufferVBO.m in Sources */,
+				667C9F6F19FEF2C900708632 /* JotSharedBrushTexture.m in Sources */,
 				66AC156C18079B27005315C8 /* OpenGLVBO.m in Sources */,
 				66AC156D18079B27005315C8 /* JotBrushTexture.m in Sources */,
 				66AC156E18079B27005315C8 /* JotDefaultBrushTexture.m in Sources */,

@@ -118,11 +118,4 @@
     return [[clz alloc] init];
 }
 
-//#pragma mark - Singleton
-//
-//+(JotBrushTexture*) sharedInstance{
-//    @throw kAbstractMethodException;
-//}
-
-
 @end

@@ -14,6 +14,7 @@
 @interface JotGLContext : EAGLContext
 
 @property (assign) BOOL needsFlush;
+@property (nonatomic, readonly) NSMutableDictionary* contextProperties;
 
 +(BOOL) pushCurrentContext:(JotGLContext*)context;
 

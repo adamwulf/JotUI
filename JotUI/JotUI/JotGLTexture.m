@@ -190,7 +190,7 @@ static int totalTextureBytes;
     }
     lockCount++;
     contextOfBinding = (JotGLContext*) [JotGLContext currentContext];
-    DebugLog(@"locked %p (%d)", self, self.textureID);
+//    DebugLog(@"locked %p (%d)", self, self.textureID);
     if(textureID){
         glBindTexture(GL_TEXTURE_2D, textureID);
     }else{
@@ -203,7 +203,7 @@ static int totalTextureBytes;
     printOpenGLError();
     glBindTexture(GL_TEXTURE_2D, 0);
     glFlush();
-    DebugLog(@"unlocked %p (%d)", self, self.textureID);
+//    DebugLog(@"unlocked %p (%d)", self, self.textureID);
     if(contextOfBinding != [JotGLContext currentContext]){
         DebugLog(@"gotcha");
     }
