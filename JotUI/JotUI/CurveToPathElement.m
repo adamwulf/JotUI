@@ -696,7 +696,7 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
         vertexBufferShouldContainColor = [[dictionary objectForKey:@"vertexBufferShouldContainColor"] boolValue];
         numberOfBytesOfVertexData = [[dictionary objectForKey:@"numberOfBytesOfVertexData"] integerValue];
         
-        CGFloat currentScale = [[dictionary objectForKey:@"scale"] floatValue];
+        CGFloat currentScale = [[UIScreen mainScreen] scale];
         if(currentScale != scaleOfVertexBuffer){
             // the scale of the cached data in the dictionary is
             // different than the scael of the data that we need.
