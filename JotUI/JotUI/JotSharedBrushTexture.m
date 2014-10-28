@@ -17,14 +17,14 @@ static int jotBrushCount = 0;
 -(id) init{
     if(self = [super init]){
         jotBrushCount++;
-        NSLog(@"built brush: %d", jotBrushCount);
+//        NSLog(@"built brush: %d", jotBrushCount);
     }
     return self;
 }
 
 -(void) dealloc{
     jotBrushCount--;
-    NSLog(@"destroyed brush: %d", jotBrushCount);
+//    NSLog(@"destroyed brush: %d", jotBrushCount);
 }
 
 -(UIImage*) texture{
