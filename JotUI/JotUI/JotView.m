@@ -374,11 +374,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 -(void) exportImageTo:(NSString*)inkPath
        andThumbnailTo:(NSString*)thumbnailPath
            andStateTo:(NSString*)plistPath
+   withThumbnailScale:(CGFloat)thumbScale
            onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
     
     // ask to save, and send in our state object
     // incase we need to defer saving until later
-    [self exportImageTo:inkPath andThumbnailTo:thumbnailPath andStateTo:plistPath andJotState:state onComplete:exportFinishBlock];
+    [self exportImageTo:inkPath andThumbnailTo:thumbnailPath andStateTo:plistPath andJotState:state withThumbnailScale:@(thumbScale) onComplete:exportFinishBlock];
 }
 
 /**
@@ -392,6 +393,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
        andThumbnailTo:(NSString*)thumbnailPath
            andStateTo:(NSString*)plistPath
           andJotState:(JotViewStateProxy*)stateToBeSaved
+   withThumbnailScale:(NSNumber*)thumbScale
            onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock{
 
     CheckMainThread;
@@ -434,7 +436,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             //
             // copy block to heap
             void(^block)(UIImage* ink, UIImage* thumb, NSDictionary* state) = [exportFinishBlock copy];
-            SEL exportMethodSelector = @selector(exportImageTo:andThumbnailTo:andStateTo:andJotState:onComplete:);
+            SEL exportMethodSelector = @selector(exportImageTo:andThumbnailTo:andStateTo:andJotState:withThumbnailScale:onComplete:);
             NSMethodSignature * mySignature = [JotView instanceMethodSignatureForSelector:exportMethodSelector];
             NSInvocation* saveInvocation = [NSInvocation invocationWithMethodSignature:mySignature];
             [saveInvocation setTarget:self];
@@ -443,7 +445,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             [saveInvocation setArgument:&thumbnailPath atIndex:3];
             [saveInvocation setArgument:&plistPath atIndex:4];
             [saveInvocation setArgument:&state atIndex:5];
-            [saveInvocation setArgument:&block atIndex:6];
+            [saveInvocation setArgument:&thumbScale atIndex:6];
+            [saveInvocation setArgument:&block atIndex:7];
             [saveInvocation retainArguments];
             [exportLaterInvocations addObject:saveInvocation];
         }else{
@@ -487,7 +490,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     [self exportToImageOnComplete:^(UIImage* image){
         thumb = image;
         dispatch_semaphore_signal(sema1);
-    }];
+    } withScale:[thumbScale floatValue]];
     
     /////////////////////////////////////////////////////
     /////////////////////////////////////////////////////
@@ -587,7 +590,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  * and
  * http://stackoverflow.com/questions/1379274/uiimagewritetosavedphotosalbum-saves-to-wrong-size-and-quality
  */
--(void) exportToImageOnComplete:(void(^)(UIImage*) )exportFinishBlock{
+-(void) exportToImageOnComplete:(void(^)(UIImage*) )exportFinishBlock withScale:(CGFloat)outputScale{
     
     CheckMainThread;
     
@@ -641,11 +644,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             glEnable(GL_POINT_SPRITE_OES);
             glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
             
-            glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-            glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
+            CGSize fullSize = CGSizeMake(initialViewport.width, initialViewport.height);
+            CGSize exportSize = CGSizeMake(ceilf(fullSize.width * outputScale), ceilf(fullSize.height * outputScale));;
             
-            CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
-            CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+            glOrthof(0, (GLsizei) fullSize.width, 0, (GLsizei) fullSize.height, -1, 1);
+            glViewport(0, 0, (GLsizei) fullSize.width, (GLsizei) fullSize.height);
             
             // create the texture
             // maxTextureSize
