@@ -628,6 +628,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 return [JotView isImportExportImageQueue];
             }];
             [JotGLContext pushCurrentContext:secondSubContext];
+//            // finish current gl calls
+//            glFinish();
             
             // Setup OpenGL states
             glMatrixMode(GL_PROJECTION);
@@ -880,7 +882,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 return [JotView isImportExportImageQueue];
             }];
             [JotGLContext pushCurrentContext:secondSubContext];
-            
+            // finish current gl calls
+//            glFinish();
+
             // Setup OpenGL states
             glMatrixMode(GL_PROJECTION);
             
@@ -1440,6 +1444,7 @@ static int undoCounter;
                 // issues of unsynchronized textures.
                 // popping will flush the context
                 [JotGLContext popCurrentContext];
+                glFlush();
                 [imageTextureLock unlock];
                 [inkTextureLock unlock];
             }else if([state isReadyToExport]){
@@ -2125,6 +2130,10 @@ static int undoCounter;
 
 -(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clipPath andClippingSize:(CGSize)clipSize withTextureSize:(CGSize)textureSize{
     
+    [inkTextureLock lock];
+    [imageTextureLock lock];
+            
+            
     CheckMainThread;
     glFlush();
     JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
@@ -2194,7 +2203,12 @@ static int undoCounter;
     [JotGLContext pushCurrentContext:context];
     [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
     [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+    // flush after drawing to texture
+    glFlush();
     [JotGLContext popCurrentContext];
+    
+    [imageTextureLock unlock];
+    [inkTextureLock unlock];
 }
 
 

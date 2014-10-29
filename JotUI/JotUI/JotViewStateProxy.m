@@ -88,7 +88,7 @@ static dispatch_queue_t loadUnloadStateQueue;
                 @synchronized(self){
                     if(shouldKeepStateLoaded){
                         lastSavedUndoHash = [jotViewState undoHash];
-                        DebugLog(@"jotproxy load: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
+//                        DebugLog(@"jotproxy load: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
                         shouldNotify = YES;
                     }else{
                         shouldNotify = NO;
@@ -135,7 +135,7 @@ static dispatch_queue_t loadUnloadStateQueue;
 -(void) wasSavedAtImmutableState:(JotViewImmutableState*)immutableState{
     lastSavedUndoHash = [immutableState undoHash];
     lastSavedUndoHash = [immutableState undoHash];
-    DebugLog(@"jotproxy saved: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
+//    DebugLog(@"jotproxy saved: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
 }
 
 -(void) unload{
@@ -162,7 +162,7 @@ static dispatch_queue_t loadUnloadStateQueue;
                                 [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
                                 jotViewState = nil;
                                 lastSavedUndoHash = 0;
-                                DebugLog(@"jotproxy unload: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
+//                                DebugLog(@"jotproxy unload: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
                                 [strongSelf.delegate didUnloadState:strongSelf];
                             }
                         }else{

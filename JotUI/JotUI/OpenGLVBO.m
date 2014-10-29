@@ -54,7 +54,7 @@ static void * zeroedDataCache = nil;
         mallocSize = ceilf(stepMallocSize / ((float)kJotMemoryPageSize)) * kJotMemoryPageSize;
         numberOfSteps = floorf(mallocSize / stepMallocSize);
         lock = [[NSLock alloc] init];
-
+        [lock lock];
         // generate the VBO in OpenGL
         glGenBuffers(1,&vbo);
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
@@ -81,6 +81,7 @@ static void * zeroedDataCache = nil;
         }
         // unbind after alloc
         glBindBuffer(GL_ARRAY_BUFFER,0);
+        [lock unlock];
     }
     return self;
 }
@@ -107,6 +108,9 @@ static void * zeroedDataCache = nil;
  * no other steps are affected
  */
 -(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
+    if(!lock){
+        NSLog(@"what");
+    }
     if(![lock tryLock]){
         NSLog(@"============================== gotcha3 %@", lock);
         [lock lock];
@@ -128,6 +132,9 @@ static void * zeroedDataCache = nil;
  * this assumes the VBO is filled with ColorfulVertex vertex data
  */
 -(void) bindForStep:(NSInteger)stepNumber{
+    if(!lock){
+        NSLog(@"what");
+    }
     if(![lock tryLock]){
         NSLog(@"============================== gotcha1 %@", lock);
         [lock lock];
@@ -153,6 +160,9 @@ static void * zeroedDataCache = nil;
  * that the VBO is filled with ColorlessVertex vertex data
  */
 -(void) bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber{
+    if(!lock){
+        NSLog(@"what");
+    }
     if(![lock tryLock]){
         NSLog(@"============================== gotcha2 %@", lock);
         [lock lock];
@@ -171,6 +181,9 @@ static void * zeroedDataCache = nil;
 }
 
 -(void) unbind{
+    if(!lock){
+        NSLog(@"what");
+    }
     glBindBuffer(GL_ARRAY_BUFFER,0);
     [lock unlock];
 }

@@ -152,6 +152,7 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
         // lets erase it, since it defaults to uncleared memory
         [self.backgroundFramebuffer clear];
     }
+    glFinish();
     [JotGLContext popCurrentContext];
 }
 
@@ -195,6 +196,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
             [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
         }
     }
+    glFinish();
     [JotGLContext popCurrentContext];
 }
 
