@@ -70,6 +70,7 @@
 +(BOOL) pushCurrentContext:(JotGLContext*)context{
     if(![[context lock] tryLock]){
         DebugLog(@"gotcha");
+        [[context lock] lock];
     }
     NSMutableArray* stackOfContexts = [[[NSThread currentThread] threadDictionary] objectForKey:@"stackOfContexts"];
     if(!stackOfContexts){

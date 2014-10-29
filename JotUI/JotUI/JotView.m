@@ -598,6 +598,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(![imageTextureLock tryLock]){
         DebugLog(@"gotcha");
+        [imageTextureLock lock];
     }
 
 //    [JotGLContext pushCurrentContext:context];
@@ -862,6 +863,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     if(!exportFinishBlock) return;
     if(![inkTextureLock tryLock]){
         DebugLog(@"gotcha");
+        [inkTextureLock lock];
     }
     
     // the rest can be done in Core Graphics in a background thread
@@ -1379,6 +1381,8 @@ static int undoCounter;
     CheckMainThread;
     if([inkTextureLock tryLock]){
         if([imageTextureLock tryLock]){
+            // only write to the bg texture if we can
+            // lock on both ink + image
             [JotGLContext validateEmptyContextStack];
             
             CheckMainThread;

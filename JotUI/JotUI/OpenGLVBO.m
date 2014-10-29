@@ -107,17 +107,17 @@ static void * zeroedDataCache = nil;
  * no other steps are affected
  */
 -(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
-    if([lock tryLock]){
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        GLintptr offset = stepNumber*stepMallocSize;
-        GLsizeiptr len = vertexData.length;
-        glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-        glFlush();
-        [lock unlock];
-    }else{
-        @throw [NSException exceptionWithName:@"GLBufferException" reason:@"access buffer on multiple threads" userInfo:nil];
+    if(![lock tryLock]){
+        NSLog(@"============================== gotcha3 %@", lock);
+        [lock lock];
     }
+    glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    GLintptr offset = stepNumber*stepMallocSize;
+    GLsizeiptr len = vertexData.length;
+    glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+    glFlush();
+    [lock unlock];
 }
 
 

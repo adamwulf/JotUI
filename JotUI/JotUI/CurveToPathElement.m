@@ -459,54 +459,53 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
  * depending on which was created/bound in this method+thread
  */
 -(BOOL) bind{
-    if([lock tryLock]){
-        if(!dataVertexBuffer.length){
-            //        DebugLog(@"refusing to bind, we have no data");
-            [lock unlock];
-            return NO;
-        }
-        // we're only allowed to create vbo
-        // on the main thread.
-        // if we need a vbo, then create it
-        [self loadDataIntoVBOIfNeeded];
-        if(vertexBufferShouldContainColor){
-            [vbo bind];
-        }else{
-            // by this point, we've cached our components into
-            // colorComponents, even if self.color is nil we've
-            // set it appropriately
-            [vbo bindForColor:colorComponents];
-        }
-        /**
-         * debugging code to validate vertex data when binding
-         *
-         if(vertexBufferShouldContainColor && dataVertexBuffer){
-         struct ColorfulVertex* data = (struct ColorfulVertex*) [dataVertexBuffer bytes];
-         for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
-         struct ColorfulVertex vert = data[i];
-         if(vert.Position[0] < 0 ||
-         vert.Position[1] < 0 ||
-         vert.Size < 1){
-         DebugLog(@"what2");
-         }
-         }
-         }else if(dataVertexBuffer){
-         struct ColorlessVertex* data = (struct ColorlessVertex*) [dataVertexBuffer bytes];
-         for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
-         struct ColorlessVertex vert = data[i];
-         if(vert.Position[0] < 0 ||
-         vert.Position[1] < 0 ||
-         vert.Size < 1){
-         DebugLog(@"what3");
-         }
-         }
-         }
-         */
-        return YES;
-    }else{
-        @throw [NSException exceptionWithName:@"GLLockException" reason:@"cannot lock path element" userInfo:nil];
+    if(![lock tryLock]){
+        NSLog(@"gotcha");
+        [lock lock];
     }
-    return NO;
+    if(!dataVertexBuffer.length){
+        //        DebugLog(@"refusing to bind, we have no data");
+        [lock unlock];
+        return NO;
+    }
+    // we're only allowed to create vbo
+    // on the main thread.
+    // if we need a vbo, then create it
+    [self loadDataIntoVBOIfNeeded];
+    if(vertexBufferShouldContainColor){
+        [vbo bind];
+    }else{
+        // by this point, we've cached our components into
+        // colorComponents, even if self.color is nil we've
+        // set it appropriately
+        [vbo bindForColor:colorComponents];
+    }
+    /**
+     * debugging code to validate vertex data when binding
+     *
+     if(vertexBufferShouldContainColor && dataVertexBuffer){
+     struct ColorfulVertex* data = (struct ColorfulVertex*) [dataVertexBuffer bytes];
+     for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
+     struct ColorfulVertex vert = data[i];
+     if(vert.Position[0] < 0 ||
+     vert.Position[1] < 0 ||
+     vert.Size < 1){
+     DebugLog(@"what2");
+     }
+     }
+     }else if(dataVertexBuffer){
+     struct ColorlessVertex* data = (struct ColorlessVertex*) [dataVertexBuffer bytes];
+     for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
+     struct ColorlessVertex vert = data[i];
+     if(vert.Position[0] < 0 ||
+     vert.Position[1] < 0 ||
+     vert.Size < 1){
+     DebugLog(@"what3");
+     }
+     }
+     }
+     */
+    return YES;
 }
 
 -(void) unbind{

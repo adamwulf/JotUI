@@ -202,13 +202,12 @@
  * depending on which was created/bound in this method+thread
  */
 -(BOOL) bind{
-    if([lock tryLock]){
-        [texture bind];
-        return YES;
-    }else{
-        @throw [NSException exceptionWithName:@"GLLockException" reason:@"cannot lock path element" userInfo:nil];
+    if(![lock tryLock]){
+        NSLog(@"gotcha");
+        [lock lock];
     }
-    return NO;
+    [texture bind];
+    return YES;
 }
 
 -(void) unbind{
