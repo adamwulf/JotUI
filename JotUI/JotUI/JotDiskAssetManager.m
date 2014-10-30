@@ -70,7 +70,6 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
         }
         [inProcessDiskWrites setObject:operation forKey:path];
         [opQueue addOperation:operation];
-        DebugLog(@"+JotDiskAssetManager: %d operations", (int)[opQueue operationCount]);
     }
 }
 
@@ -110,7 +109,6 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
         if(currOpForPath == operation){
             [inProcessDiskWrites removeObjectForKey:operation.path];
         }
-        DebugLog(@"-JotDiskAssetManager: %d operations", (int)[opQueue operationCount]);
     }
 }
 
