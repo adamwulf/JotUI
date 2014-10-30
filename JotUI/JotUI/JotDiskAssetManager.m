@@ -64,7 +64,8 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
                                                                                [self operationHasCompleted:operation];
                                                                            }];
 
-        [self cancelAnyOperationFor:path];
+        JotImageWriteOperation* currOp = [self cancelAnyOperationFor:path];
+        [operation addDependency:currOp];
         [inProcessDiskWrites setObject:operation forKey:path];
         [opQueue addOperation:operation];
         DebugLog(@"+JotDiskAssetManager: %d operations", (int)[opQueue operationCount]);
@@ -111,12 +112,14 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
     }
 }
 
--(void) cancelAnyOperationFor:(NSString*)path{
+-(JotImageWriteOperation*) cancelAnyOperationFor:(NSString*)path{
     @synchronized(inProcessDiskWrites){
         JotImageWriteOperation* currentOperation = [inProcessDiskWrites objectForKey:path];
         [currentOperation cancel];
         [inProcessDiskWrites removeObjectForKey:path];
+        return currentOperation;
     }
+    return nil;
 }
 
 #pragma mark - Helper
