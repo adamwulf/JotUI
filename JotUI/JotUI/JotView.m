@@ -320,7 +320,20 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  * Clean up any buffers we have allocated.
  */
 - (void)destroyFramebuffer{
-    [JotGLContext pushCurrentContext:context];
+    
+    JotGLContext* destroyContext = context;
+    if(!destroyContext){
+        // crash log from: https://crashlytics.com/milestonemade/ios/apps/com.milestonemade.looseleaf/issues/545172eae3de5099ba29598d/sessions/545171c803d1000153d9653633633632
+        // shows a nil context at this point.
+        // this code will generate a new context
+        // that can be used to clean up any
+        // GL assets.
+        destroyContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+            return YES;
+        }];
+    }
+    
+    [JotGLContext pushCurrentContext:destroyContext];
     if(viewFramebuffer){
         glDeleteFramebuffersOES(1, &viewFramebuffer);
         viewFramebuffer = 0;
@@ -333,6 +346,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 		glDeleteRenderbuffersOES(1, &depthRenderbuffer);
 		depthRenderbuffer = 0;
 	}
+    glFlush();
     [JotGLContext popCurrentContext];
 }
 

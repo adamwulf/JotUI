@@ -79,8 +79,11 @@
             [[[NSThread currentThread] threadDictionary] setObject:stackOfContexts forKey:@"stackOfContexts"];
         }
     }
+    if([stackOfContexts lastObject] != context){
+        // only flush if we get a new context on this thread
+        [(JotGLContext*)[JotGLContext currentContext] flush];
+    }
     [stackOfContexts addObject:context];
-    [(JotGLContext*)[JotGLContext currentContext] flush];
     return [JotGLContext setCurrentContext:context];
 }
 
