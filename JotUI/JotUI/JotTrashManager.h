@@ -11,6 +11,8 @@
 
 @interface JotTrashManager : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
+
 +(JotTrashManager*) sharedInstance;
 
 -(void) setMaxTickDuration:(NSTimeInterval)tickSize;

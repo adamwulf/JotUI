@@ -16,7 +16,7 @@
 
 @interface JotBufferManager : NSObject
 
-+(JotBufferManager*) sharedInstance;
++(JotBufferManager*) primaryInstance;
 
 +(NSInteger) cacheNumberForData:(NSData*)data;
 

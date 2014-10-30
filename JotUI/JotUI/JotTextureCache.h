@@ -11,6 +11,8 @@
 
 @interface JotTextureCache : NSObject
 
+- (instancetype)init NS_UNAVAILABLE;
+
 + (JotTextureCache *) sharedManager;
 
 -(JotGLTexture*) generateTextureForContext:(JotGLContext*)context ofSize:(CGSize)fullSize;

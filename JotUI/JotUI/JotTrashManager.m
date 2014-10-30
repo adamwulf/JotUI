@@ -53,7 +53,7 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 
 +(JotTrashManager*) sharedInstance{
     if(!_instance){
-        _instance = [[JotTrashManager alloc] init];
+        _instance = [[[JotTrashManager class] alloc] init];
     }
     return _instance;
 }

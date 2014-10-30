@@ -190,7 +190,7 @@ static void * zeroedDataCache = nil;
 
 -(void) dealloc{
     if(vbo){
-        [[JotBufferManager sharedInstance] openGLBufferHasDied:self];
+        [[JotBufferManager primaryInstance] openGLBufferHasDied:self];
         glDeleteBuffers(1,&vbo);
     }
 }

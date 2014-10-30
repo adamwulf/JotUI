@@ -24,7 +24,7 @@
     static dispatch_once_t onceToken;
     static JotTextureCache *manager;
     dispatch_once(&onceToken, ^{
-        manager = [[JotTextureCache alloc] init];
+        manager = [[[JotTextureCache class] alloc] init];
     });
     return manager;
 }
