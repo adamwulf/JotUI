@@ -65,7 +65,9 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
                                                                            }];
 
         JotImageWriteOperation* currOp = [self cancelAnyOperationFor:path];
-        [operation addDependency:currOp];
+        if(currOp){
+            [operation addDependency:currOp];
+        }
         [inProcessDiskWrites setObject:operation forKey:path];
         [opQueue addOperation:operation];
         DebugLog(@"+JotDiskAssetManager: %d operations", (int)[opQueue operationCount]);
