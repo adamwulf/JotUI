@@ -13,6 +13,10 @@
 		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		667C9F6E19FEF2C900708632 /* JotSharedBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 667C9F6C19FEF2C900708632 /* JotSharedBrushTexture.h */; };
 		667C9F6F19FEF2C900708632 /* JotSharedBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */; };
+		667EC03B1A01F4F60069FF33 /* JotDiskAssetManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 667EC0391A01F4F60069FF33 /* JotDiskAssetManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		667EC03C1A01F4F60069FF33 /* JotDiskAssetManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 667EC03A1A01F4F60069FF33 /* JotDiskAssetManager.m */; };
+		667EC0401A0206EE0069FF33 /* JotImageWriteOperation.h in Headers */ = {isa = PBXBuildFile; fileRef = 667EC03E1A0206EE0069FF33 /* JotImageWriteOperation.h */; };
+		667EC0411A0206EE0069FF33 /* JotImageWriteOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 667EC03F1A0206EE0069FF33 /* JotImageWriteOperation.m */; };
 		668D19E319F8652100A65DCF /* JotTextureCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 668D19E119F8652100A65DCF /* JotTextureCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		668D19E419F8652100A65DCF /* JotTextureCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 668D19E219F8652100A65DCF /* JotTextureCache.m */; };
 		66A64EF419FB5B8E0026305B /* NSMutableArray+RemoveSingle.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A64EF219FB5B8E0026305B /* NSMutableArray+RemoveSingle.h */; };
@@ -107,6 +111,10 @@
 		66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxyDelegate.h; sourceTree = "<group>"; };
 		667C9F6C19FEF2C900708632 /* JotSharedBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotSharedBrushTexture.h; sourceTree = "<group>"; };
 		667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotSharedBrushTexture.m; sourceTree = "<group>"; };
+		667EC0391A01F4F60069FF33 /* JotDiskAssetManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotDiskAssetManager.h; sourceTree = "<group>"; };
+		667EC03A1A01F4F60069FF33 /* JotDiskAssetManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotDiskAssetManager.m; sourceTree = "<group>"; };
+		667EC03E1A0206EE0069FF33 /* JotImageWriteOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotImageWriteOperation.h; sourceTree = "<group>"; };
+		667EC03F1A0206EE0069FF33 /* JotImageWriteOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotImageWriteOperation.m; sourceTree = "<group>"; };
 		668D19E119F8652100A65DCF /* JotTextureCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotTextureCache.h; sourceTree = "<group>"; };
 		668D19E219F8652100A65DCF /* JotTextureCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotTextureCache.m; sourceTree = "<group>"; };
 		668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMWeakTimerTarget.h; sourceTree = "<group>"; };
@@ -190,6 +198,17 @@
 				6648A52317F0E09000117ECB /* JotGLContext.m */,
 			);
 			name = OpenGL;
+			sourceTree = "<group>";
+		};
+		667EC03D1A0206C50069FF33 /* Disk Asset Manager */ = {
+			isa = PBXGroup;
+			children = (
+				667EC0391A01F4F60069FF33 /* JotDiskAssetManager.h */,
+				667EC03A1A01F4F60069FF33 /* JotDiskAssetManager.m */,
+				667EC03E1A0206EE0069FF33 /* JotImageWriteOperation.h */,
+				667EC03F1A0206EE0069FF33 /* JotImageWriteOperation.m */,
+			);
+			name = "Disk Asset Manager";
 			sourceTree = "<group>";
 		};
 		669B399A1692B46A00F12F42 = {
@@ -302,6 +321,7 @@
 		66A790161772516F0092A28A /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				667EC03D1A0206C50069FF33 /* Disk Asset Manager */,
 				668D19E119F8652100A65DCF /* JotTextureCache.h */,
 				668D19E219F8652100A65DCF /* JotTextureCache.m */,
 				66A79017177251960092A28A /* JotTrashManager.h */,
@@ -407,8 +427,10 @@
 				66F1F1FC18079BD700B8CE3B /* JotViewImmutableState.h in Headers */,
 				66F1F1FD18079BD700B8CE3B /* JotView.h in Headers */,
 				66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */,
+				667EC03B1A01F4F60069FF33 /* JotDiskAssetManager.h in Headers */,
 				66C6AAEB18A2E78E0036F4BB /* FilledPathElement.h in Headers */,
 				66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */,
+				667EC0401A0206EE0069FF33 /* JotImageWriteOperation.h in Headers */,
 				668D19E319F8652100A65DCF /* JotTextureCache.h in Headers */,
 				66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */,
 				66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */,
@@ -528,6 +550,7 @@
 				66A64EF519FB5B8E0026305B /* NSMutableArray+RemoveSingle.m in Sources */,
 				66AC156318079B27005315C8 /* UIImage+Resize.m in Sources */,
 				66AC156418079B27005315C8 /* UIImage+RoundedCorner.m in Sources */,
+				667EC0411A0206EE0069FF33 /* JotImageWriteOperation.m in Sources */,
 				66AC156518079B27005315C8 /* UIImage+Alpha.m in Sources */,
 				66AC156618079B27005315C8 /* NSMutableSet+Extras.m in Sources */,
 				66AC156718079B27005315C8 /* UIColor+JotHelper.m in Sources */,
@@ -543,6 +566,7 @@
 				66AC156F18079B27005315C8 /* JotGLTexture.m in Sources */,
 				66AC157018079B27005315C8 /* JotGLTextureBackedFrameBuffer.m in Sources */,
 				66AC157118079B27005315C8 /* JotGLContext.m in Sources */,
+				667EC03C1A01F4F60069FF33 /* JotDiskAssetManager.m in Sources */,
 				66AC157218079B27005315C8 /* JotStroke.m in Sources */,
 				66AC157318079B27005315C8 /* JotStrokeManager.m in Sources */,
 				66AC157418079B27005315C8 /* JotImmutableStroke.m in Sources */,

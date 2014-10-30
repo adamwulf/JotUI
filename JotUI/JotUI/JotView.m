@@ -26,7 +26,7 @@
 #import "MMWeakTimerTarget.h"
 #import "JotTextureCache.h"
 #import "NSMutableArray+RemoveSingle.h"
-
+#import "JotDiskAssetManager.h"
 #import <JotTouchSDK/JotStylusManager.h>
 
 
@@ -556,7 +556,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             if(ink){
                 // we have the backing ink texture to save
                 // so write it to disk
-                [UIImagePNGRepresentation(ink) writeToFile:inkPath atomically:YES];
+                [[JotDiskAssetManager sharedManager] writeImage:ink toPath:inkPath];
                 //            DebugLog(@"writing ink to disk");
             }else{
                 // the backing texture either hasn't changed, or
@@ -565,7 +565,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 //            DebugLog(@"skipping writing ink, nothing changed");
             }
             
-            [UIImagePNGRepresentation(thumb) writeToFile:thumbnailPath atomically:YES];
+            [[JotDiskAssetManager sharedManager] writeImage:thumb toPath:thumbnailPath];
             
             // this call will both serialize the state
             // and write it to disk

@@ -21,6 +21,7 @@
 #import "AbstractBezierPathElement.h"
 #import "AbstractBezierPathElement-Protected.h"
 #import "NSMutableArray+RemoveSingle.h"
+#import "JotDiskAssetManager.h"
 
 #define kJotDefaultUndoLimit 10
 
@@ -142,7 +143,7 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
     [JotGLContext pushCurrentContext:backgroundLoadTexturesThreadContext];
     
     // load image from disk
-    UIImage* savedInkImage = [UIImage imageWithContentsOfFile:inkImageFile];
+    UIImage* savedInkImage = [JotDiskAssetManager imageWithContentsOfFile:inkImageFile];
     
     // load new texture
     self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
