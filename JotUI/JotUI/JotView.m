@@ -612,13 +612,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     if(![imageTextureLock tryLock]){
         DebugLog(@"gotcha");
-        // if i can't lock, then if i try it'll deadlock.
-        // so i just need to wait until it unlocks
-        // and spin on this request. i'll do this by waiting
-        // for a 0.1s
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
-            [self exportToImageOnComplete:exportFinishBlock withScale:outputScale];
-        });
+        // save failed, just exit and our
+        // caller can retry later
+        exportFinishBlock(nil);
         return;
     }
 
@@ -887,13 +883,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 
     if(![inkTextureLock tryLock]){
         DebugLog(@"gotcha");
-        // if i can't lock, then if i try it'll deadlock.
-        // so i just need to wait until it unlocks
-        // and spin on this request. i'll do this by waiting
-        // for a 0.1s
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 100 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
-            [self exportInkTextureOnComplete:exportFinishBlock];
-        });
+        // save failed, just exit and our
+        // caller can retry later
+        exportFinishBlock(nil);
         return;
     }
     
