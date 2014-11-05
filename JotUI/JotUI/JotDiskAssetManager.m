@@ -57,8 +57,9 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
 
 
 -(void) writeImage:(UIImage*)image toPath:(NSString*)path{
+    JotImageWriteOperation* operation = nil;
     @synchronized(inProcessDiskWrites){
-        JotImageWriteOperation* operation = [[JotImageWriteOperation alloc] initWithImage:image
+        operation = [[JotImageWriteOperation alloc] initWithImage:image
                                                                                   andPath:path
                                                                            andNotifyBlock:^(JotImageWriteOperation* operation){
                                                                                [self operationHasCompleted:operation];
@@ -69,8 +70,8 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
             [operation addDependency:currOp];
         }
         [inProcessDiskWrites setObject:operation forKey:path];
-        [opQueue addOperation:operation];
     }
+    [opQueue addOperation:operation];
 }
 
 -(void) blockUntilCompletedForPath:(NSString*)path{
