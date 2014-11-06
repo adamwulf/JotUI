@@ -28,7 +28,7 @@
 #import "NSMutableArray+RemoveSingle.h"
 #import "JotDiskAssetManager.h"
 #import <JotTouchSDK/JotStylusManager.h>
-
+#import "UIScreen+PortraitBounds.h"
 
 #define kJotValidateUndoTimer .06
 
@@ -672,7 +672,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             
             // create the texture
             // maxTextureSize
-            CGSize maxTextureSize = [UIScreen mainScreen].bounds.size;
+            CGSize maxTextureSize = [UIScreen mainScreen].portraitBounds.size;
             maxTextureSize.width *= [UIScreen mainScreen].scale;
             maxTextureSize.height *= [UIScreen mainScreen].scale;
             JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
@@ -930,7 +930,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             
             // create the texture
             // maxTextureSize
-            CGSize maxTextureSize = [UIScreen mainScreen].bounds.size;
+            CGSize maxTextureSize = [UIScreen mainScreen].portraitBounds.size;
             maxTextureSize.width *= [UIScreen mainScreen].scale;
             maxTextureSize.height *= [UIScreen mainScreen].scale;
             JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
@@ -2092,7 +2092,7 @@ static int undoCounter;
     
     [JotGLContext pushCurrentContext:context];
     
-    CGSize maxTextureSize = [UIScreen mainScreen].bounds.size;
+    CGSize maxTextureSize = [UIScreen mainScreen].portraitBounds.size;
     maxTextureSize.width *= [UIScreen mainScreen].scale;
     maxTextureSize.height *= [UIScreen mainScreen].scale;
     
