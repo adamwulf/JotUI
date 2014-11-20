@@ -116,7 +116,7 @@
 #pragma mark - PlistSaving
 
 -(id) init{
-    if([super init]){
+    if(self = [super init]){
         lock = [[NSLock alloc] init];
     }
     return self;
