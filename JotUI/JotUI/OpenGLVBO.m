@@ -111,10 +111,7 @@ static void * zeroedDataCache = nil;
     if(!lock){
         NSLog(@"what");
     }
-    if(![lock tryLock]){
-        NSLog(@"============================== gotcha3 %@", lock);
-        [lock lock];
-    }
+    [lock lock];
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
     GLintptr offset = stepNumber*stepMallocSize;
     GLsizeiptr len = vertexData.length;
@@ -135,10 +132,7 @@ static void * zeroedDataCache = nil;
     if(!lock){
         NSLog(@"what");
     }
-    if(![lock tryLock]){
-        NSLog(@"============================== gotcha1 %@", lock);
-        [lock lock];
-    }
+    [lock lock];
     JotGLContext* context = (JotGLContext*) [JotGLContext currentContext];
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
     
@@ -163,10 +157,7 @@ static void * zeroedDataCache = nil;
     if(!lock){
         NSLog(@"what");
     }
-    if(![lock tryLock]){
-        NSLog(@"============================== gotcha2 %@", lock);
-        [lock lock];
-    }
+    [lock lock];
     JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
     
     glBindBuffer(GL_ARRAY_BUFFER,vbo);

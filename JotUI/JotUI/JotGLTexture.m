@@ -182,10 +182,8 @@ static int totalTextureBytes;
 
 -(void) bind{
     printOpenGLError();
-    if(![lock tryLock]){
-        DebugLog(@"gotcha");
-        [lock lock];
-    }
+    [lock lock];
+    
     if(contextOfBinding != nil && contextOfBinding != [JotGLContext currentContext]){
         DebugLog(@"gotcha");
     }
