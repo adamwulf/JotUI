@@ -8,6 +8,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import <OpenGLES/EAGLDrawable.h>
+#import <mach/mach_time.h>  // for mach_absolute_time() and friends
 
 #import "JotView.h"
 #import "JotStrokeManager.h"
@@ -29,6 +30,7 @@
 #import "JotDiskAssetManager.h"
 #import <JotTouchSDK/JotStylusManager.h>
 #import "UIScreen+PortraitBounds.h"
+#import "DebugTouchView.h"
 
 #define kJotValidateUndoTimer .06
 
@@ -88,6 +90,8 @@ dispatch_queue_t importExportStateQueue;
     
     NSLock* inkTextureLock;
     NSLock* imageTextureLock;
+    
+    DebugTouchView* debugDrawView;
 }
 
 @end
@@ -146,8 +150,9 @@ static JotGLContext *mainThreadContext;
     // strokes have a max of .5Mb each
     self.maxStrokeSize = 512*1024;
     
-//    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(presentRenderBuffer)];
-//    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkPresentRenderBuffer:)];
+    displayLink.frameInterval = 2;
+    [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
     initialFrameSize = self.bounds.size;
     
@@ -222,6 +227,14 @@ static JotGLContext *mainThreadContext;
     [JotGLContext popCurrentContext];
 
     [JotGLContext validateEmptyContextStack];
+    
+    
+    
+    debugDrawView = [[DebugTouchView alloc] initWithFrame:self.bounds];
+    debugDrawView.backgroundColor = [UIColor clearColor];
+    debugDrawView.opaque = NO;
+    [self addSubview:debugDrawView];
+    
     return self;
 }
 
@@ -1205,6 +1218,24 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     shouldslow = NO;
 }
 
+CGFloat JotBNRTimeBlock (void (^block)(void)) {
+    mach_timebase_info_data_t info;
+    if (mach_timebase_info(&info) != KERN_SUCCESS) return -1.0;
+    
+    uint64_t start = mach_absolute_time ();
+    block ();
+    uint64_t end = mach_absolute_time ();
+    uint64_t elapsed = end - start;
+    
+    uint64_t nanos = elapsed * info.numer / info.denom;
+    return (CGFloat)nanos / NSEC_PER_SEC;
+    
+} // BNRTimeBlock
+
+-(void) displayLinkPresentRenderBuffer:(CADisplayLink*)link{
+    [self presentRenderBuffer];
+}
+
 /**
  * this is a simple method to display our renderbuffer
  */
@@ -1216,6 +1247,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     [JotGLContext pushCurrentContext:self.context];
     
     if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
+//        NSLog(@"presenting");
         GLint currBoundFrBuff = -1;
         glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
         GLint currBoundRendBuff = -1;
@@ -1231,11 +1263,16 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES){
             DebugLog(@"%@", [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)]);
         }
-        [context presentRenderbuffer:GL_RENDERBUFFER_OES];
+//        NSLog(@"timing: %f", JotBNRTimeBlock(^{
+            [context presentRenderbuffer:GL_RENDERBUFFER_OES];
+//        }));
         needsPresentRenderBuffer = NO;
+//    }else{
+//        NSLog(@"skipping present");
     }
     slowtoggle = !slowtoggle;
     if([self.context needsFlush]){
+//        NSLog(@"flush");
         [self.context flush];
     }
 
@@ -1245,7 +1282,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 
 -(void) setNeedsPresentRenderBuffer{
     needsPresentRenderBuffer = YES;
-    [self presentRenderBuffer];
+//    [self presentRenderBuffer];
 }
 
 
@@ -1259,6 +1296,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  * also smooth the width and color transition
  */
 - (BOOL) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
+    
+    [debugDrawView addPoint:end];
+    if(!color){
+        [debugDrawView clear];
+    }
     
     CheckMainThread;
     [currentStroke lock];
