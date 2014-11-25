@@ -22,7 +22,7 @@
 
 -(void) addPoint:(CGPoint)p{
     points[currPoint] = p;
-    currPoint++;
+    currPoint = (currPoint+1) % 100;
     [self setNeedsDisplayInRect:CGRectMake(p.x-5, p.y-5, 10, 10)];
 }
 
