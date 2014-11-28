@@ -11,8 +11,6 @@
 		66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F7D1828501B00B7442F /* JotViewStateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 66696F7E1828501B00B7442F /* JotViewStateProxy.m */; };
 		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		667680D01A252E3D00789061 /* DebugTouchView.h in Headers */ = {isa = PBXBuildFile; fileRef = 667680CE1A252E3D00789061 /* DebugTouchView.h */; };
-		667680D11A252E3D00789061 /* DebugTouchView.m in Sources */ = {isa = PBXBuildFile; fileRef = 667680CF1A252E3D00789061 /* DebugTouchView.m */; };
 		667C9F6E19FEF2C900708632 /* JotSharedBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 667C9F6C19FEF2C900708632 /* JotSharedBrushTexture.h */; };
 		667C9F6F19FEF2C900708632 /* JotSharedBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */; };
 		667EC03B1A01F4F60069FF33 /* JotDiskAssetManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 667EC0391A01F4F60069FF33 /* JotDiskAssetManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -113,8 +111,6 @@
 		66696F7D1828501B00B7442F /* JotViewStateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxy.h; sourceTree = "<group>"; };
 		66696F7E1828501B00B7442F /* JotViewStateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewStateProxy.m; sourceTree = "<group>"; };
 		66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxyDelegate.h; sourceTree = "<group>"; };
-		667680CE1A252E3D00789061 /* DebugTouchView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DebugTouchView.h; sourceTree = "<group>"; };
-		667680CF1A252E3D00789061 /* DebugTouchView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DebugTouchView.m; sourceTree = "<group>"; };
 		667C9F6C19FEF2C900708632 /* JotSharedBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotSharedBrushTexture.h; sourceTree = "<group>"; };
 		667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotSharedBrushTexture.m; sourceTree = "<group>"; };
 		667EC0391A01F4F60069FF33 /* JotDiskAssetManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotDiskAssetManager.h; sourceTree = "<group>"; };
@@ -301,8 +297,6 @@
 				669B3A971692BADA00F12F42 /* JotViewDelegate.h */,
 				668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */,
 				668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */,
-				667680CE1A252E3D00789061 /* DebugTouchView.h */,
-				667680CF1A252E3D00789061 /* DebugTouchView.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -411,7 +405,6 @@
 				66F1F1E218079BD700B8CE3B /* UIImage+Resize.h in Headers */,
 				66F1F1E318079BD700B8CE3B /* UIImage+RoundedCorner.h in Headers */,
 				66F1F1E418079BD700B8CE3B /* UIImage+Alpha.h in Headers */,
-				667680D01A252E3D00789061 /* DebugTouchView.h in Headers */,
 				66F1F1E518079BD700B8CE3B /* NSMutableSet+Extras.h in Headers */,
 				66F1F1E618079BD700B8CE3B /* UIColor+JotHelper.h in Headers */,
 				66F1F1E718079BD700B8CE3B /* NSArray+JotMapReduce.h in Headers */,
@@ -577,7 +570,6 @@
 				667C9F6F19FEF2C900708632 /* JotSharedBrushTexture.m in Sources */,
 				66AC156C18079B27005315C8 /* OpenGLVBO.m in Sources */,
 				66AC156D18079B27005315C8 /* JotBrushTexture.m in Sources */,
-				667680D11A252E3D00789061 /* DebugTouchView.m in Sources */,
 				66AC156E18079B27005315C8 /* JotDefaultBrushTexture.m in Sources */,
 				66AC156F18079B27005315C8 /* JotGLTexture.m in Sources */,
 				66AC157018079B27005315C8 /* JotGLTextureBackedFrameBuffer.m in Sources */,

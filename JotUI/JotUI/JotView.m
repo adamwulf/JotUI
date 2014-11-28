@@ -30,7 +30,6 @@
 #import "JotDiskAssetManager.h"
 #import <JotTouchSDK/JotStylusManager.h>
 #import "UIScreen+PortraitBounds.h"
-#import "DebugTouchView.h"
 
 #define kJotValidateUndoTimer .06
 
@@ -90,8 +89,6 @@ dispatch_queue_t importExportStateQueue;
     
     NSLock* inkTextureLock;
     NSLock* imageTextureLock;
-    
-    DebugTouchView* debugDrawView;
 }
 
 @end
@@ -229,11 +226,6 @@ static JotGLContext *mainThreadContext;
     [JotGLContext validateEmptyContextStack];
     
     
-    
-    debugDrawView = [[DebugTouchView alloc] initWithFrame:self.bounds];
-    debugDrawView.backgroundColor = [UIColor clearColor];
-    debugDrawView.opaque = NO;
-    [self addSubview:debugDrawView];
     
     return self;
 }
@@ -1296,12 +1288,6 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
  * also smooth the width and color transition
  */
 - (BOOL) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
-    
-    [debugDrawView addPoint:end];
-    if(!color){
-        [debugDrawView clear];
-    }
-    
     CheckMainThread;
     [currentStroke lock];
     // now we render to ourselves
