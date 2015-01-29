@@ -36,34 +36,34 @@ dispatch_queue_t importExportTextureQueue;
 
 -(id) initForTexture:(JotGLTexture*)_texture{
     if(self = [super init]){
-        GLint currBoundFrBuff = -1;
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
-
-        glGenFramebuffersOES(1, &framebufferID);
-        texture = _texture;
-        if(framebufferID){
-            // generate FBO
-            glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-            [texture bind];
-            // associate texture with FBO
-            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
-            [texture unbind];
-        }
-        // check if it worked (probably worth doing :) )
-        GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-        if (status != GL_FRAMEBUFFER_COMPLETE_OES)
-        {
-            // rebind to the buffer we began with
+        [JotGLContext runBlock:^{
+            GLint currBoundFrBuff = -1;
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+            
+            glGenFramebuffersOES(1, &framebufferID);
+            texture = _texture;
+            if(framebufferID){
+                // generate FBO
+                glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+                [texture bind];
+                // associate texture with FBO
+                glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
+                [texture unbind];
+            }
+            // check if it worked (probably worth doing :) )
+            GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
+            if (status != GL_FRAMEBUFFER_COMPLETE_OES)
+            {
+                // rebind to the buffer we began with
+                glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
+                // didn't work
+                NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+                DebugLog(@"%@", str);
+                @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
+            }
             glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
-            // didn't work
-            NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-            DebugLog(@"%@", str);
-            @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-            return nil;
-        }
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
+        }];
     }
-    glFlush();
     return self;
 }
 

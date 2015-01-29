@@ -48,40 +48,42 @@ static void * zeroedDataCache = nil;
 
 -(id) initForCacheNumber:(NSInteger)_cacheNumber{
     if(self = [super init]){
-        // calculate all of our memory bucket sizes
-        cacheNumber = _cacheNumber;
-        stepMallocSize = cacheNumber * kJotBufferBucketSize;
-        mallocSize = ceilf(stepMallocSize / ((float)kJotMemoryPageSize)) * kJotMemoryPageSize;
-        numberOfSteps = floorf(mallocSize / stepMallocSize);
-        lock = [[NSLock alloc] init];
-        [lock lock];
-        // generate the VBO in OpenGL
-        glGenBuffers(1,&vbo);
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        // create buffer of size mallocSize (init w/ NULL to create)
-        
-        // zeroedDataCache is a pointer to zero'd memory that we
-        // use to initialze our VBO. This prevents "VBO uses uninitialized data"
-        // warning in Instruments, and will only waste a few Kb of memory
-        if(_cacheNumber > zeroedCacheNumber){
-            @synchronized([OpenGLVBO class]){
-                if(zeroedDataCache){
-                    free(zeroedDataCache);
-                }
-                zeroedCacheNumber = cacheNumber;
-                zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
-                if(!zeroedDataCache){
-                    @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't calloc" userInfo:nil];
+        [JotGLContext runBlock:^{
+            // calculate all of our memory bucket sizes
+            cacheNumber = _cacheNumber;
+            stepMallocSize = cacheNumber * kJotBufferBucketSize;
+            mallocSize = ceilf(stepMallocSize / ((float)kJotMemoryPageSize)) * kJotMemoryPageSize;
+            numberOfSteps = floorf(mallocSize / stepMallocSize);
+            lock = [[NSLock alloc] init];
+            [lock lock];
+            // generate the VBO in OpenGL
+            glGenBuffers(1,&vbo);
+            glBindBuffer(GL_ARRAY_BUFFER,vbo);
+            // create buffer of size mallocSize (init w/ NULL to create)
+            
+            // zeroedDataCache is a pointer to zero'd memory that we
+            // use to initialze our VBO. This prevents "VBO uses uninitialized data"
+            // warning in Instruments, and will only waste a few Kb of memory
+            if(_cacheNumber > zeroedCacheNumber){
+                @synchronized([OpenGLVBO class]){
+                    if(zeroedDataCache){
+                        free(zeroedDataCache);
+                    }
+                    zeroedCacheNumber = cacheNumber;
+                    zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
+                    if(!zeroedDataCache){
+                        @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't calloc" userInfo:nil];
+                    }
                 }
             }
-        }
-        @synchronized([OpenGLVBO class]){
-            // initialize the buffer to zero'd data
-            glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
-        }
-        // unbind after alloc
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-        [lock unlock];
+            @synchronized([OpenGLVBO class]){
+                // initialize the buffer to zero'd data
+                glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
+            }
+            // unbind after alloc
+            glBindBuffer(GL_ARRAY_BUFFER,0);
+            [lock unlock];
+        }];
     }
     return self;
 }
@@ -108,17 +110,19 @@ static void * zeroedDataCache = nil;
  * no other steps are affected
  */
 -(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
-    if(!lock){
-        NSLog(@"what");
-    }
-    [lock lock];
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    GLintptr offset = stepNumber*stepMallocSize;
-    GLsizeiptr len = vertexData.length;
-    glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
-    glBindBuffer(GL_ARRAY_BUFFER,0);
-    glFlush();
-    [lock unlock];
+    [JotGLContext runBlock:^{
+        if(!lock){
+            NSLog(@"what");
+        }
+        [lock lock];
+        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        GLintptr offset = stepNumber*stepMallocSize;
+        GLsizeiptr len = vertexData.length;
+        glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+        glFlush();
+        [lock unlock];
+    }];
 }
 
 
