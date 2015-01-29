@@ -266,6 +266,12 @@
     }
 }
 
+-(void) dealloc{
+    [self runBlock:^{
+        [contextProperties removeAllObjects];
+    }];
+}
+
 -(NSString*) description{
     return [NSString stringWithFormat:@"[JotGLContext (%p): %@]", self, name];
 }

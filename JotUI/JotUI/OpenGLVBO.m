@@ -179,14 +179,18 @@ static void * zeroedDataCache = nil;
     if(!lock){
         NSLog(@"what");
     }
-    glBindBuffer(GL_ARRAY_BUFFER,0);
+    [JotGLContext runBlock:^{
+        glBindBuffer(GL_ARRAY_BUFFER,0);
+    }];
     [lock unlock];
 }
 
 -(void) dealloc{
     if(vbo){
         [[JotBufferManager sharedInstance] openGLBufferHasDied:self];
-        glDeleteBuffers(1,&vbo);
+        [JotGLContext runBlock:^{
+            glDeleteBuffers(1,&vbo);
+        }];
     }
 }
 

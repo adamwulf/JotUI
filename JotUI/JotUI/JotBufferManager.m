@@ -191,6 +191,7 @@ static JotBufferManager* _instance = nil;
  * or if we should keep it in cache for later
  */
 -(void) recycleBuffer:(JotBufferVBO*)buffer{
+    
     NSMutableArray* vboCache = [self arrayOfVBOsForCacheNumber:buffer.cacheNumber];
     if([vboCache count] >= [self maxCacheSizeFor:buffer.cacheNumber]){
         JotBufferVBO* oldBuff = buffer;
