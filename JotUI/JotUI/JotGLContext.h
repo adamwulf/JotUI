@@ -30,9 +30,9 @@
 
 -(id) initWithAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup __attribute__((unavailable("Must use initWithAPI:sharegroup:andValidateThreadWith: instead.")));
 
--(id) initWithAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThread;
+-(id) initWithName:(NSString*)name andAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThread;
 
--(id) initWithAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThread;
+-(id) initWithName:(NSString*)name andAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThread;
 
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha;
 

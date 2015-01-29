@@ -25,6 +25,8 @@
  * result in unexpected behavior or crashes
  */
 @implementation JotGLContext{
+    NSString* name;
+    
     CGFloat lastRed;
     CGFloat lastBlue;
     CGFloat lastGreen;
@@ -134,8 +136,9 @@
     }
 }
 
--(id) initWithAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
+-(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
     if(self = [super initWithAPI:api]){
+        name = _name;
         lastRed = -1;
         lastBlue = -1;
         lastGreen = -1;
@@ -147,8 +150,9 @@
     return self;
 }
 
--(id) initWithAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
+-(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
     if(self = [super initWithAPI:api sharegroup:sharegroup]){
+        name = _name;
         lastRed = -1;
         lastBlue = -1;
         lastGreen = -1;
@@ -260,6 +264,10 @@
         blend_dfactor = dfactor;
         glBlendFunc(blend_sfactor, blend_dfactor);
     }
+}
+
+-(NSString*) description{
+    return [NSString stringWithFormat:@"[JotGLContext (%p): %@]", self, name];
 }
 
 @end

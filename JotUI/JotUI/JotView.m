@@ -183,13 +183,13 @@ static JotGLContext *mainThreadContext;
                                     [NSNumber numberWithBool:YES], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
     
     if(!mainThreadContext){
-        context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 andValidateThreadWith:^BOOL{
+        context = [[JotGLContext alloc] initWithName:@"JotViewMainThreadContext" andAPI:kEAGLRenderingAPIOpenGLES1 andValidateThreadWith:^BOOL{
             return [NSThread isMainThread];
         }];
         mainThreadContext = context;
         [[JotTrashManager sharedInstance] setGLContext:mainThreadContext];
     }else{
-        context = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+        context = [[JotGLContext alloc] initWithName:@"JotViewMainThreadContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
             return [NSThread isMainThread];
         }];
     }
@@ -331,7 +331,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         // this code will generate a new context
         // that can be used to clean up any
         // GL assets.
-        destroyContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+        destroyContext = [[JotGLContext alloc] initWithName:@"JotViewDestroyFBOContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
             return YES;
         }];
     }
@@ -644,7 +644,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 return;
             }
 
-            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithName:@"JotViewExportToImageContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
                 return [JotView isImportExportImageQueue];
             }];
             [secondSubContext runBlock:^{
@@ -902,7 +902,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 return;
             }
 
-            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithName:@"JotViewExportInkTextureContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
                 return [JotView isImportExportImageQueue];
             }];
             [secondSubContext runBlock:^{
@@ -2174,7 +2174,7 @@ static int undoCounter;
             
     CheckMainThread;
     glFlush();
-    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+    JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotViewDrawBackingTextureContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
     }];
     [subContext runBlock:^{

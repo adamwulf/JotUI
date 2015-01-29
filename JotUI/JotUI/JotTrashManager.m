@@ -63,7 +63,7 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 
 -(void) setGLContext:(JotGLContext*)context{
     dispatch_async([JotTrashManager trashQueue], ^{
-        backgroundContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:context.sharegroup andValidateThreadWith:^BOOL{
+        backgroundContext = [[JotGLContext alloc] initWithName:@"JotTrashQueueContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:context.sharegroup andValidateThreadWith:^BOOL{
             return [JotTrashManager isTrashManagerQueue];
         }];
     });

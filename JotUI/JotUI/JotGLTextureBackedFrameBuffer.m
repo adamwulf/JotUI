@@ -77,7 +77,7 @@ dispatch_queue_t importExportTextureQueue;
 }
 
 -(void) clear{
-    JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:[JotGLContext currentContext].sharegroup andValidateThreadWith:^BOOL{
+    JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotTextureBackedFBOSubContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:[JotGLContext currentContext].sharegroup andValidateThreadWith:^BOOL{
         return [JotView isImportExportImageQueue];
     }];
     [subContext runBlock:^{
