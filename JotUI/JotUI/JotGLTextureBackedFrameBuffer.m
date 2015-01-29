@@ -80,24 +80,23 @@ dispatch_queue_t importExportTextureQueue;
     JotGLContext* subContext = [[JotGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:[JotGLContext currentContext].sharegroup andValidateThreadWith:^BOOL{
         return [JotView isImportExportImageQueue];
     }];
-    [JotGLContext pushCurrentContext:subContext];
-    // render it to the backing texture
-
-    GLint currBoundFrBuff = -1;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
-//
-    //
-    // something below here is wrong.
-    // and/or how this interacts later
-    // with other threads
-    [texture bind];
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
-    [texture unbind];
-    [JotGLContext popCurrentContext];
+    [subContext runBlock:^{
+        // render it to the backing texture
+        GLint currBoundFrBuff = -1;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+        //
+        //
+        // something below here is wrong.
+        // and/or how this interacts later
+        // with other threads
+        [texture bind];
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+        [texture unbind];
+    }];
 }
 
 -(void) deleteAssets{

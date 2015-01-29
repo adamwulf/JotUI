@@ -140,21 +140,20 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
             return [JotView isImportExportImageQueue];
         }];
     }
-    [JotGLContext pushCurrentContext:backgroundLoadTexturesThreadContext];
-    
-    // load image from disk
-    UIImage* savedInkImage = [JotDiskAssetManager imageWithContentsOfFile:inkImageFile];
-    
-    // load new texture
-    self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
-    
-    if(!savedInkImage){
-        // no image was given, so it should be a blank texture
-        // lets erase it, since it defaults to uncleared memory
-        [self.backgroundFramebuffer clear];
-    }
-    glFinish();
-    [JotGLContext popCurrentContext];
+    [backgroundLoadTexturesThreadContext runBlock:^{
+        // load image from disk
+        UIImage* savedInkImage = [JotDiskAssetManager imageWithContentsOfFile:inkImageFile];
+        
+        // load new texture
+        self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
+        
+        if(!savedInkImage){
+            // no image was given, so it should be a blank texture
+            // lets erase it, since it defaults to uncleared memory
+            [self.backgroundFramebuffer clear];
+        }
+        glFinish();
+    }];
 }
 
 static JotGLContext* backgroundLoadStrokesThreadContext = nil;
@@ -168,37 +167,36 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
             return [JotView isImportExportStateQueue];
         }];
     }
-    [JotGLContext pushCurrentContext:backgroundLoadStrokesThreadContext];
-
-    // load the file
-    NSDictionary* stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
-    
-    if(stateInfo){
-        // load our undo state if we have it
-        NSString* stateDirectory = [stateInfoFile stringByDeletingLastPathComponent];
-        id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
-            if(![obj isKindOfClass:[NSDictionary class]]){
-                NSString* filename = [[stateDirectory stringByAppendingPathComponent:obj] stringByAppendingPathExtension:kJotStrokeFileExt];
-                obj = [NSDictionary dictionaryWithContentsOfFile:filename];
-            }
-            // pass in the buffer manager to use
-            [obj setObject:bufferManager forKey:@"bufferManager"];
-            [obj setObject:[NSNumber numberWithFloat:scale] forKey:@"scale"];
-            
-            NSString* className = [obj objectForKey:@"class"];
-            Class class = NSClassFromString(className);
-            JotStroke* stroke = [[class alloc] initFromDictionary:obj];
-            stroke.delegate = self;
-            return stroke;
-        };
+    [backgroundLoadStrokesThreadContext runBlock:^{
+        // load the file
+        NSDictionary* stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
         
-        @synchronized(self){
-            [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
-            [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+        if(stateInfo){
+            // load our undo state if we have it
+            NSString* stateDirectory = [stateInfoFile stringByDeletingLastPathComponent];
+            id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
+                if(![obj isKindOfClass:[NSDictionary class]]){
+                    NSString* filename = [[stateDirectory stringByAppendingPathComponent:obj] stringByAppendingPathExtension:kJotStrokeFileExt];
+                    obj = [NSDictionary dictionaryWithContentsOfFile:filename];
+                }
+                // pass in the buffer manager to use
+                [obj setObject:bufferManager forKey:@"bufferManager"];
+                [obj setObject:[NSNumber numberWithFloat:scale] forKey:@"scale"];
+                
+                NSString* className = [obj objectForKey:@"class"];
+                Class class = NSClassFromString(className);
+                JotStroke* stroke = [[class alloc] initFromDictionary:obj];
+                stroke.delegate = self;
+                return stroke;
+            };
+            
+            @synchronized(self){
+                [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
+                [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+            }
         }
-    }
-    glFinish();
-    [JotGLContext popCurrentContext];
+        glFinish();
+    }];
 }
 
 

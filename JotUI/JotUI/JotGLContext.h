@@ -16,9 +16,9 @@
 @property (assign) BOOL needsFlush;
 @property (nonatomic, readonly) NSMutableDictionary* contextProperties;
 
-+(BOOL) pushCurrentContext:(JotGLContext*)context;
+-(void) runBlock:(void(^)(void))block;
 
-+(BOOL) popCurrentContext;
+-(void) runBlockForStatus:(void(^)(BOOL didPushOk))block;
 
 +(void) validateEmptyContextStack;
 

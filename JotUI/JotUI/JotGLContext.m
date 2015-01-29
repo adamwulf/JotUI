@@ -61,6 +61,23 @@
     return lock;
 }
 
+-(void) runBlock:(void(^)(void))block{
+    void (^blockCheck)(BOOL) = ^void(BOOL didPushOk){
+        if(didPushOk){
+            block();
+        }else{
+            @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
+        }
+    };
+    [self runBlockForStatus:blockCheck];
+}
+
+-(void) runBlockForStatus:(void (^)(BOOL))block{
+    BOOL pushOk = [JotGLContext pushCurrentContext:self];
+    block(pushOk);
+    [JotGLContext validateContextMatches:self];
+    [JotGLContext popCurrentContext];
+}
 
 +(BOOL) setCurrentContext:(JotGLContext *)context{
     if(context && !context.validateThread){ NSAssert(NO, @"context is set on wrong thread"); };
