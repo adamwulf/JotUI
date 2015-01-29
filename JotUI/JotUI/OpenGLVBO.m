@@ -129,21 +129,23 @@ static void * zeroedDataCache = nil;
  * this assumes the VBO is filled with ColorfulVertex vertex data
  */
 -(void) bindForStep:(NSInteger)stepNumber{
-    if(!lock){
-        NSLog(@"what");
-    }
-    [lock lock];
-    JotGLContext* context = (JotGLContext*) [JotGLContext currentContext];
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    
-    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position)));
-    glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color)));
-    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size)));
-    
-    [context glEnableClientState:GL_VERTEX_ARRAY];
-    [context glEnableClientState:GL_COLOR_ARRAY];
-    [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-    [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+    [JotGLContext runBlock:^{
+        if(!lock){
+            NSLog(@"what");
+        }
+        [lock lock];
+        JotGLContext* context = (JotGLContext*) [JotGLContext currentContext];
+        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        
+        glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position)));
+        glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color)));
+        glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size)));
+        
+        [context glEnableClientState:GL_VERTEX_ARRAY];
+        [context glEnableClientState:GL_COLOR_ARRAY];
+        [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+        [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+    }];
 }
 
 /**
@@ -154,21 +156,23 @@ static void * zeroedDataCache = nil;
  * that the VBO is filled with ColorlessVertex vertex data
  */
 -(void) bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber{
-    if(!lock){
-        NSLog(@"what");
-    }
-    [lock lock];
-    JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
-    
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position)));
-    glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex),(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size)));
-
-    [context glEnableClientState:GL_VERTEX_ARRAY];
-    [context glDisableClientState:GL_COLOR_ARRAY];
-    [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-    [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
-    [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
+    [JotGLContext runBlock:^{
+        if(!lock){
+            NSLog(@"what");
+        }
+        [lock lock];
+        JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
+        
+        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position)));
+        glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex),(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size)));
+        
+        [context glEnableClientState:GL_VERTEX_ARRAY];
+        [context glDisableClientState:GL_COLOR_ARRAY];
+        [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+        [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+        [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
+    }];
 }
 
 -(void) unbind{

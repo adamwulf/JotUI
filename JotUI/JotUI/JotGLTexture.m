@@ -181,37 +181,44 @@ static int totalTextureBytes;
 }
 
 -(void) bind{
-    printOpenGLError();
-    [lock lock];
-    
-    if(contextOfBinding != nil && contextOfBinding != [JotGLContext currentContext]){
-        DebugLog(@"gotcha");
+    if(![JotGLContext currentContext]){
+        NSLog(@"what");
     }
-    lockCount++;
-    contextOfBinding = (JotGLContext*) [JotGLContext currentContext];
-//    DebugLog(@"locked %p (%d)", self, self.textureID);
-    if(textureID){
-        glBindTexture(GL_TEXTURE_2D, textureID);
-    }else{
-        DebugLog(@"what4");
-    }
-    printOpenGLError();
+    [JotGLContext runBlock:^{
+        printOpenGLError();
+        [lock lock];
+        
+        if(contextOfBinding != nil && contextOfBinding != [JotGLContext currentContext]){
+            DebugLog(@"gotcha");
+        }
+        lockCount++;
+        contextOfBinding = (JotGLContext*) [JotGLContext currentContext];
+        //    DebugLog(@"locked %p (%d)", self, self.textureID);
+        if(textureID){
+            glBindTexture(GL_TEXTURE_2D, textureID);
+        }else{
+            DebugLog(@"what4");
+        }
+        printOpenGLError();
+    }];
 }
 
 -(void) unbind{
-    printOpenGLError();
-    glBindTexture(GL_TEXTURE_2D, 0);
-    glFlush();
-//    DebugLog(@"unlocked %p (%d)", self, self.textureID);
-    if(contextOfBinding != [JotGLContext currentContext]){
-        DebugLog(@"gotcha");
-    }
-    lockCount--;
-    if(lockCount == 0){
-        contextOfBinding = nil;
-    }
-    [lock unlock];
-    printOpenGLError();
+    [JotGLContext runBlock:^{
+        printOpenGLError();
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glFlush();
+        //    DebugLog(@"unlocked %p (%d)", self, self.textureID);
+        if(contextOfBinding != [JotGLContext currentContext]){
+            DebugLog(@"gotcha");
+        }
+        lockCount--;
+        if(lockCount == 0){
+            contextOfBinding = nil;
+        }
+        [lock unlock];
+        printOpenGLError();
+    }];
 }
 
 /**

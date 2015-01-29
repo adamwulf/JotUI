@@ -16,9 +16,11 @@
 @property (assign) BOOL needsFlush;
 @property (nonatomic, readonly) NSMutableDictionary* contextProperties;
 
--(void) runBlock:(void(^)(void))block;
+// runs the block in the currently active context
++(void) runBlock:(void(^)(void))block;
 
--(void) runBlockForStatus:(void(^)(BOOL didPushOk))block;
+// pushes this context, runs the block, and pops
+-(void) runBlock:(void(^)(void))block;
 
 +(void) validateEmptyContextStack;
 
