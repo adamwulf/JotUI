@@ -29,6 +29,7 @@
 #import "NSMutableArray+RemoveSingle.h"
 #import "JotDiskAssetManager.h"
 #import <JotTouchSDK/JotStylusManager.h>
+#import "JotGLLayerBackedFrameBuffer.h"
 #import "UIScreen+PortraitBounds.h"
 
 #define kJotValidateUndoTimer .06
@@ -43,14 +44,8 @@ dispatch_queue_t importExportStateQueue;
     
 	JotGLContext *context;
     
-    CGSize initialViewport;
-    
 @private
-	// OpenGL names for the renderbuffer and framebuffers used to render to this view
-	GLuint viewRenderbuffer, viewFramebuffer;
-	
-	// OpenGL name for the depth buffer that is attached to viewFramebuffer, if it exists (0 if it does not exist)
-	GLuint depthRenderbuffer;
+    JotGLLayerBackedFrameBuffer* viewFramebuffer;
 
     //
     // these 4 properties help with our performance when writing
@@ -76,13 +71,6 @@ dispatch_queue_t importExportStateQueue;
     
     CGSize initialFrameSize;
     
-    // YES if we need to present our renderbuffer on the
-    // next display link
-    BOOL needsPresentRenderBuffer;
-    // YES if we should limit to 30fps, NO otherwise
-    BOOL shouldslow;
-    // helper var to toggle between frames for 30fps limit
-    BOOL slowtoggle;
     // the maximum stroke size in bytes before a new stroke
     // is created
     NSInteger maxStrokeSize;
@@ -272,47 +260,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  */
 - (BOOL)createFramebuffer{
     CheckMainThread;
-	// The pixel dimensions of the backbuffer
-	GLint backingWidth;
-	GLint backingHeight;
-	
-	// Generate IDs for a framebuffer object and a color renderbuffer
-	glGenFramebuffersOES(1, &viewFramebuffer);
-	glGenRenderbuffersOES(1, &viewRenderbuffer);
-	
-	glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-	// This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
-	// allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
-	[context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:(id<EAGLDrawable>)self.layer];
-	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, viewRenderbuffer);
-	
-	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
-	glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
-	
-	// For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
-	glGenRenderbuffersOES(1, &depthRenderbuffer);
-	glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
-	glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
-	glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
-	
-    CGRect frame = self.layer.bounds;
-    CGFloat scale = self.contentScaleFactor;
     
-    initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
     
-    glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-    glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
-
-	if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
-	{
-        NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-		DebugLog(@"%@", str);
-        @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-		return NO;
-	}
-    
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+    viewFramebuffer = [[JotGLLayerBackedFrameBuffer alloc] initForLayer:(CALayer<EAGLDrawable>*)self.layer];
 
     [self clear:NO];
 	
@@ -337,18 +287,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     }
     
     [destroyContext runBlock:^{
-        if(viewFramebuffer){
-            glDeleteFramebuffersOES(1, &viewFramebuffer);
-            viewFramebuffer = 0;
-        }
-        if(viewRenderbuffer){
-            glDeleteRenderbuffersOES(1, &viewRenderbuffer);
-            viewRenderbuffer = 0;
-        }
-        if(depthRenderbuffer){
-            glDeleteRenderbuffersOES(1, &depthRenderbuffer);
-            depthRenderbuffer = 0;
-        }
+        viewFramebuffer = nil;
         glFlush();
     }];
 }
@@ -667,7 +606,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 glEnable(GL_POINT_SPRITE_OES);
                 glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
                 
-                CGSize fullSize = CGSizeMake(initialViewport.width, initialViewport.height);
+                CGSize fullSize = viewFramebuffer.initialViewport;
                 CGSize exportSize = CGSizeMake(ceilf(fullSize.width * outputScale), ceilf(fullSize.height * outputScale));;
                 
                 glOrthof(0, (GLsizei) fullSize.width, 0, (GLsizei) fullSize.height, -1, 1);
@@ -709,7 +648,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [state.backgroundTexture drawInContext:secondSubContext];
                 
                 // reset our viewport
-                glViewport(0, 0, initialViewport.width, initialViewport.height);
+                glViewport(0, 0, viewFramebuffer.initialViewport.width, viewFramebuffer.initialViewport.height);
                 
                 // we have to flush here to push all
                 // the pixels to the texture so they're
@@ -738,7 +677,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                     // draw each stroke element
                     AbstractBezierPathElement* prevElement = nil;
                     for(AbstractBezierPathElement* element in stroke.segments){
-                        [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:(GLuint)nil toContext:secondSubContext];
+                        [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil toContext:secondSubContext];
                         prevElement = element;
                     }
                     [stroke.texture unbind];
@@ -924,6 +863,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 glEnable(GL_POINT_SPRITE_OES);
                 glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+                
+                CGSize initialViewport = viewFramebuffer.initialViewport;
                 
                 glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
                 glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
@@ -1112,7 +1053,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  * a stroke. it will clear the screen and re-draw all
  * strokes except for that undone/cancelled stroke
  */
--(void) renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(GLuint)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect{
+-(void) renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(AbstractJotGLFrameBuffer*)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect{
     @autoreleasepool {
         
         CheckMainThread;
@@ -1128,7 +1069,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // noop for scissors
             }
             
-            glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer);
+            glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer.framebufferID);
             
             //
             // step 1:
@@ -1165,7 +1106,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // draw each stroke element
                 AbstractBezierPathElement* prevElement = nil;
                 for(AbstractBezierPathElement* element in stroke.segments){
-                    [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:(GLuint)nil toContext:renderContext];
+                    [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil toContext:renderContext];
                     prevElement = element;
                 }
                 [stroke.texture unbind];
@@ -1193,14 +1134,14 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  * cut our framerate by half
  */
 -(void) slowDownFPS{
-    shouldslow = YES;
+    viewFramebuffer.shouldslow = YES;
 }
 /**
  * call this to unlimit our FPS back to
  * the full hardware limit
  */
 -(void) speedUpFPS{
-    shouldslow = NO;
+    viewFramebuffer.shouldslow = NO;
 }
 
 CGFloat JotBNRTimeBlock (void (^block)(void)) {
@@ -1229,42 +1170,11 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
     
     if(!state) return;
 
-    [self.context runBlock:^{
-        if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
-            //        NSLog(@"presenting");
-            GLint currBoundFrBuff = -1;
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
-            GLint currBoundRendBuff = -1;
-            glGetIntegerv(GL_RENDERBUFFER_BINDING_OES, &currBoundRendBuff);
-            if(currBoundFrBuff != viewFramebuffer){
-                DebugLog(@"gotcha");
-            }
-            if(currBoundRendBuff != viewRenderbuffer){
-                DebugLog(@"gotcha");
-            }
-            
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-            if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES){
-                DebugLog(@"%@", [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)]);
-            }
-            //        NSLog(@"timing: %f", JotBNRTimeBlock(^{
-            [context presentRenderbuffer:GL_RENDERBUFFER_OES];
-            //        }));
-            needsPresentRenderBuffer = NO;
-            //    }else{
-            //        NSLog(@"skipping present");
-        }
-        slowtoggle = !slowtoggle;
-        if([self.context needsFlush]){
-            //        NSLog(@"flush");
-            [self.context flush];
-        }
-    }];
+    [viewFramebuffer presentRenderBufferInContext:self.context];
 }
 
 -(void) setNeedsPresentRenderBuffer{
-    needsPresentRenderBuffer = YES;
-//    [self presentRenderBuffer];
+    [viewFramebuffer setNeedsPresentRenderBuffer];
 }
 
 
@@ -1345,7 +1255,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
  * teardown our openGL context/blending/etc. send in the framebuffer id to
  * setup the openGL state, or send in nil or 0 to bypass setup
  */
--(void) renderElement:(AbstractBezierPathElement*)element fromPreviousElement:(AbstractBezierPathElement*)previousElement includeOpenGLPrepForFBO:(GLuint)frameBuffer toContext:(JotGLContext*)renderContext{
+-(void) renderElement:(AbstractBezierPathElement*)element fromPreviousElement:(AbstractBezierPathElement*)previousElement includeOpenGLPrepForFBO:(AbstractJotGLFrameBuffer*)frameBuffer toContext:(JotGLContext*)renderContext{
     
     if(!state) return;
     
@@ -1385,9 +1295,9 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
  * the line. each of our vertices contains the
  * point location, color info, and the size
  */
--(void) prepOpenGLStateForFBO:(GLuint)frameBuffer toContext:(JotGLContext*)renderContext{
+-(void) prepOpenGLStateForFBO:(AbstractJotGLFrameBuffer*)frameBuffer toContext:(JotGLContext*)renderContext{
     CheckMainThread;
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer);
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer.framebufferID);
     
     [renderContext glEnableClientState:GL_VERTEX_ARRAY];
     [renderContext glEnableClientState:GL_COLOR_ARRAY];
@@ -1447,7 +1357,7 @@ static int undoCounter;
                     JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
                     [strokeToWriteToTexture lock];
                     // render it to the backing texture
-                    [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID toContext:context];
+                    [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:context];
                     
                     [strokeToWriteToTexture.texture bind];
                     // draw each stroke element. for performance reasons, we'll only
@@ -1456,7 +1366,7 @@ static int undoCounter;
                     while([strokeToWriteToTexture.segments count] && distance < 300){
                         AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
                         [strokeToWriteToTexture removeElementAtIndex:0];
-                        [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:(GLuint)nil toContext:context];
+                        [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil toContext:context];
                         prevElementForTextureWriting = element;
                         distance += [element lengthOfElement];
                         // this should dealloc the element immediately,
@@ -1916,13 +1826,8 @@ static int undoCounter;
 
     // set our context
     [context runBlock:^{
-        // Clear the buffer
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        [viewFramebuffer clear];
         
-        // rebind primary framebuffer
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
         if(shouldPresent){
             // Display the buffer
             [self setNeedsPresentRenderBuffer];
@@ -2069,7 +1974,7 @@ static int undoCounter;
         [state forceAddStroke:stroke];
         
         [stroke.texture bind];
-        [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:YES toContext:context];
+        [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:viewFramebuffer toContext:context];
         [self setNeedsPresentRenderBuffer];
         [stroke.texture unbind];
     }];
@@ -2113,45 +2018,32 @@ static int undoCounter;
         maxTextureSize.width *= [UIScreen mainScreen].scale;
         maxTextureSize.height *= [UIScreen mainScreen].scale;
         
-        //    DebugLog(@"drawing %f %f onto %f %f", initialViewport.width, initialViewport.height, maxTextureSize.width, maxTextureSize.height);
-        
-        CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
-        
-        GLuint exportFramebuffer;
-        
-        glGenFramebuffersOES(1, &exportFramebuffer);
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+        CGSize fullSize = CGSizeMake(ceilf(viewFramebuffer.initialViewport.width), ceilf(viewFramebuffer.initialViewport.height));
         
         // create the texture
         // that we'll draw all of our content to
         canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:context ofSize:maxTextureSize];
         [canvasTexture bind];
-        
-        // bind the texture to the framebuffer
-        glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
-        
-        GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-        if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-            NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-            DebugLog(@"%@", str);
-            @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
+
+        @autoreleasepool {
+            JotGLTextureBackedFrameBuffer* exportFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:canvasTexture];
+            
+            // set viewport to round up to the pixel, if needed
+            glViewport(0, 0, fullSize.width, fullSize.height);
+            
+            // ok, everything is setup at this point, so render all
+            // of the strokes over the backing texture to our
+            // export texture
+            [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
+            
+            // now all of the content has been pushed to the texture,
+            // so delete the framebuffer
+            exportFramebuffer = nil;
+            [canvasTexture unbind];
         }
         
-        // set viewport to round up to the pixel, if needed
-        glViewport(0, 0, fullSize.width, fullSize.height);
-        
-        // ok, everything is setup at this point, so render all
-        // of the strokes over the backing texture to our
-        // export texture
-        [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
-        
-        // now all of the content has been pushed to the texture,
-        // so delete the framebuffer
-        glDeleteFramebuffersOES(1, &exportFramebuffer);
-        [canvasTexture unbind];
-        
         // reset back to exact viewport
-        glViewport(0, 0, initialViewport.width, initialViewport.height);
+        glViewport(0, 0, viewFramebuffer.initialViewport.width, viewFramebuffer.initialViewport.height);
         
         // we have to flush here to push all
         // the pixels to the texture so they're
@@ -2179,7 +2071,7 @@ static int undoCounter;
     }];
     [subContext runBlock:^{
         // render it to the backing texture
-        [self prepOpenGLStateForFBO:state.backgroundFramebuffer.framebufferID toContext:subContext];
+        [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:subContext];
         // Setup OpenGL states
         glMatrixMode(GL_PROJECTION);
         // Setup the view port in Pixels
@@ -2194,7 +2086,7 @@ static int undoCounter;
         CGRect frame = self.layer.bounds;
         CGFloat scale = self.contentScaleFactor;
         
-        initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
+        CGSize initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
         
         glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
         glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);

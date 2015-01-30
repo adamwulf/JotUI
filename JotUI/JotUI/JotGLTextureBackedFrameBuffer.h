@@ -9,13 +9,13 @@
 #import <Foundation/Foundation.h>
 #import "JotGLTexture.h"
 #import "DeleteAssets.h"
+#import "AbstractJotGLFrameBuffer.h"
 
-@interface JotGLTextureBackedFrameBuffer : NSObject<DeleteAssets>{
-    GLuint framebufferID;
-}
+@interface JotGLTextureBackedFrameBuffer : AbstractJotGLFrameBuffer<DeleteAssets>
 
-@property (readonly) GLuint framebufferID;
 @property (readonly) JotGLTexture* texture;
+
+- (instancetype)init NS_UNAVAILABLE;
 
 // initialize a new framebuffer that has its color buffer
 // backed by this texture

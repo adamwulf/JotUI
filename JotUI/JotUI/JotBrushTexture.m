@@ -41,7 +41,7 @@
         [lock lock];
     }
     __block BOOL ret = NO;
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         // check if we already have the texture generated
         if(glBrushTextureID){
             glBindTexture(GL_TEXTURE_2D, glBrushTextureID);
@@ -106,7 +106,7 @@
 }
 
 -(void) unbind{
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         if(glBrushTextureID){
             glBindTexture(GL_TEXTURE_2D, 0);
         }
@@ -115,7 +115,7 @@
 }
 
 -(void) dealloc{
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         if (glBrushTextureID){
             glDeleteTextures(1, &glBrushTextureID);
             glBrushTextureID = 0;

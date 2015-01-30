@@ -31,12 +31,11 @@ dispatch_queue_t importExportTextureQueue;
     __strong JotGLTexture* texture;
 }
 
-@synthesize framebufferID;
 @synthesize texture;
 
 -(id) initForTexture:(JotGLTexture*)_texture{
     if(self = [super init]){
-        [JotGLContext runBlock:^{
+        [JotGLContext runBlock:^(JotGLContext* context){
             GLint currBoundFrBuff = -1;
             glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
             

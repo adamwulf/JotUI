@@ -48,7 +48,7 @@ static void * zeroedDataCache = nil;
 
 -(id) initForCacheNumber:(NSInteger)_cacheNumber{
     if(self = [super init]){
-        [JotGLContext runBlock:^{
+        [JotGLContext runBlock:^(JotGLContext* context){
             // calculate all of our memory bucket sizes
             cacheNumber = _cacheNumber;
             stepMallocSize = cacheNumber * kJotBufferBucketSize;
@@ -110,7 +110,7 @@ static void * zeroedDataCache = nil;
  * no other steps are affected
  */
 -(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         if(!lock){
             NSLog(@"what");
         }
@@ -133,12 +133,11 @@ static void * zeroedDataCache = nil;
  * this assumes the VBO is filled with ColorfulVertex vertex data
  */
 -(void) bindForStep:(NSInteger)stepNumber{
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         if(!lock){
             NSLog(@"what");
         }
         [lock lock];
-        JotGLContext* context = (JotGLContext*) [JotGLContext currentContext];
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
         
         glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position)));
@@ -160,12 +159,11 @@ static void * zeroedDataCache = nil;
  * that the VBO is filled with ColorlessVertex vertex data
  */
 -(void) bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber{
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         if(!lock){
             NSLog(@"what");
         }
         [lock lock];
-        JotGLContext* context = (JotGLContext*)[JotGLContext currentContext];
         
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
         glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position)));
@@ -183,7 +181,7 @@ static void * zeroedDataCache = nil;
     if(!lock){
         NSLog(@"what");
     }
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         glBindBuffer(GL_ARRAY_BUFFER,0);
     }];
     [lock unlock];
@@ -192,7 +190,7 @@ static void * zeroedDataCache = nil;
 -(void) dealloc{
     if(vbo){
         [[JotBufferManager sharedInstance] openGLBufferHasDied:self];
-        [JotGLContext runBlock:^{
+        [JotGLContext runBlock:^(JotGLContext* context){
             glDeleteBuffers(1,&vbo);
         }];
     }

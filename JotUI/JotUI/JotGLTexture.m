@@ -65,7 +65,7 @@ static int totalTextureBytes;
 -(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size{
     if(self = [super init]){
         JotGLContext* currContext = (JotGLContext*) [JotGLContext currentContext];
-        [JotGLContext runBlock:^{
+        [JotGLContext runBlock:^(JotGLContext* context){
             fullPixelSize = size;
             lock = [[NSRecursiveLock alloc] init];
             lockCount = 0;
@@ -184,7 +184,7 @@ static int totalTextureBytes;
     if(![JotGLContext currentContext]){
         NSLog(@"what");
     }
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         printOpenGLError();
         [lock lock];
         
@@ -204,7 +204,7 @@ static int totalTextureBytes;
 }
 
 -(void) unbind{
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         printOpenGLError();
         glBindTexture(GL_TEXTURE_2D, 0);
         glFlush();
@@ -263,7 +263,7 @@ static int totalTextureBytes;
       andClippingSize:(CGSize)clipSize
             asErase:(BOOL)asErase{
     // save our clipping texture and stencil buffer, if any
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         JotGLTexture* clipping;
         GLuint stencil_rb;
         

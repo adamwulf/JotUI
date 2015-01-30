@@ -17,7 +17,7 @@
 @property (nonatomic, readonly) NSMutableDictionary* contextProperties;
 
 // runs the block in the currently active context
-+(void) runBlock:(void(^)(void))block;
++(void) runBlock:(void(^)(JotGLContext*))block;
 
 // pushes this context, runs the block, and pops
 -(void) runBlock:(void(^)(void))block;

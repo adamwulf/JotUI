@@ -469,7 +469,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         [lock unlock];
         return NO;
     }
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         // we're only allowed to create vbo
         // on the main thread.
         // if we need a vbo, then create it
@@ -512,7 +512,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 }
 
 -(void) unbind{
-    [JotGLContext runBlock:^{
+    [JotGLContext runBlock:^(JotGLContext* context){
         if(dataVertexBuffer.length){
             [vbo unbind];
         }

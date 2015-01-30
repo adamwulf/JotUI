@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 66018A4719F61F4400228A0D /* DeleteAssets.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6658ABD01A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6658ABCE1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h */; };
+		6658ABD11A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6658ABCF1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.m */; };
+		6658ABD41A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6658ABD21A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6658ABD51A7B1ED500F32506 /* AbstractJotGLFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6658ABD31A7B1ED500F32506 /* AbstractJotGLFrameBuffer.m */; };
 		66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F7D1828501B00B7442F /* JotViewStateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 66696F7E1828501B00B7442F /* JotViewStateProxy.m */; };
 		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -108,6 +112,10 @@
 		66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = JotGLTextureBackedFrameBuffer.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		6648A52217F0E09000117ECB /* JotGLContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLContext.h; sourceTree = "<group>"; };
 		6648A52317F0E09000117ECB /* JotGLContext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = JotGLContext.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		6658ABCE1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLLayerBackedFrameBuffer.h; sourceTree = "<group>"; };
+		6658ABCF1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLLayerBackedFrameBuffer.m; sourceTree = "<group>"; };
+		6658ABD21A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractJotGLFrameBuffer.h; sourceTree = "<group>"; };
+		6658ABD31A7B1ED500F32506 /* AbstractJotGLFrameBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AbstractJotGLFrameBuffer.m; sourceTree = "<group>"; };
 		66696F7D1828501B00B7442F /* JotViewStateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxy.h; sourceTree = "<group>"; };
 		66696F7E1828501B00B7442F /* JotViewStateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewStateProxy.m; sourceTree = "<group>"; };
 		66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxyDelegate.h; sourceTree = "<group>"; };
@@ -196,10 +204,14 @@
 			children = (
 				66455F8C175FC47200C66DFA /* JotGLTexture.h */,
 				66455F8D175FC47200C66DFA /* JotGLTexture.m */,
-				66455F90175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h */,
-				66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */,
 				6648A52217F0E09000117ECB /* JotGLContext.h */,
 				6648A52317F0E09000117ECB /* JotGLContext.m */,
+				6658ABD21A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h */,
+				6658ABD31A7B1ED500F32506 /* AbstractJotGLFrameBuffer.m */,
+				66455F90175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.h */,
+				66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */,
+				6658ABCE1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h */,
+				6658ABCF1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.m */,
 			);
 			name = OpenGL;
 			sourceTree = "<group>";
@@ -432,9 +444,11 @@
 				66F1F1FA18079BD700B8CE3B /* CurveToPathElement.h in Headers */,
 				66F1F1FC18079BD700B8CE3B /* JotViewImmutableState.h in Headers */,
 				66F1F1FD18079BD700B8CE3B /* JotView.h in Headers */,
+				6658ABD01A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h in Headers */,
 				66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */,
 				667EC03B1A01F4F60069FF33 /* JotDiskAssetManager.h in Headers */,
 				66C6AAEB18A2E78E0036F4BB /* FilledPathElement.h in Headers */,
+				6658ABD41A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h in Headers */,
 				66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */,
 				66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */,
 				667EC0401A0206EE0069FF33 /* JotImageWriteOperation.h in Headers */,
@@ -554,6 +568,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6658ABD11A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.m in Sources */,
 				66A64EF519FB5B8E0026305B /* NSMutableArray+RemoveSingle.m in Sources */,
 				66AC156318079B27005315C8 /* UIImage+Resize.m in Sources */,
 				66AC156418079B27005315C8 /* UIImage+RoundedCorner.m in Sources */,
@@ -569,6 +584,7 @@
 				66B7E0531A0B4D94000797E4 /* UIScreen+PortraitBounds.m in Sources */,
 				667C9F6F19FEF2C900708632 /* JotSharedBrushTexture.m in Sources */,
 				66AC156C18079B27005315C8 /* OpenGLVBO.m in Sources */,
+				6658ABD51A7B1ED500F32506 /* AbstractJotGLFrameBuffer.m in Sources */,
 				66AC156D18079B27005315C8 /* JotBrushTexture.m in Sources */,
 				66AC156E18079B27005315C8 /* JotDefaultBrushTexture.m in Sources */,
 				66AC156F18079B27005315C8 /* JotGLTexture.m in Sources */,

@@ -63,12 +63,18 @@
     return lock;
 }
 
-+(void) runBlock:(void(^)(void))block{
++(void) runBlock:(void(^)(JotGLContext*))block{
     JotGLContext* currentContext = (JotGLContext*) [JotGLContext currentContext];
     if(!currentContext || ![currentContext isKindOfClass:[JotGLContext class]]){
         @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
     }else{
-        [currentContext runBlock:block];
+        if([JotGLContext pushCurrentContext:currentContext]){
+            block(currentContext);
+        }else{
+            @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
+        }
+        [JotGLContext validateContextMatches:currentContext];
+        [JotGLContext popCurrentContext];
     }
 }
 
