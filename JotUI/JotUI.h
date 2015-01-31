@@ -18,6 +18,8 @@
 // vm page size: http://developer.apple.com/library/mac/#documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
 #define kJotMemoryPageSize 4096
 
+#define kAbstractMethodException [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil]
+
 
 #import <Foundation/Foundation.h>
 

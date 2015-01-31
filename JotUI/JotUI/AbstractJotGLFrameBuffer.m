@@ -7,9 +7,16 @@
 //
 
 #import "AbstractJotGLFrameBuffer.h"
+#import "JotUI.h"
 
 @implementation AbstractJotGLFrameBuffer
 
-@synthesize framebufferID;
+-(void) bind{
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+}
+
+-(void) unbind{
+    glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+}
 
 @end

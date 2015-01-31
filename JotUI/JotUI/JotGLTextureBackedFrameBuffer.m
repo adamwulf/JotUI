@@ -66,6 +66,16 @@ dispatch_queue_t importExportTextureQueue;
     return self;
 }
 
+-(void) bind{
+    [texture bind];
+    [super bind];
+}
+
+-(void) unbind{
+    [super unbind];
+    [texture unbind];
+}
+
 #pragma mark - Dispatch Queues
 
 +(dispatch_queue_t) importExportTextureQueue{

@@ -13,6 +13,10 @@
     GLuint framebufferID;
 }
 
-@property (readonly) GLuint framebufferID;
+//@property (readonly) GLuint framebufferID;
+
+-(void) bind;
+
+-(void) unbind;
 
 @end

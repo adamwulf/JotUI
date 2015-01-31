@@ -91,6 +91,7 @@
 -(void) presentRenderBufferInContext:(JotGLContext*)context{
     [context runBlock:^{
         if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
+            [self bind];
             //        NSLog(@"presenting");
             GLint currBoundFrBuff = -1;
             glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
@@ -111,6 +112,7 @@
             [context presentRenderbuffer:GL_RENDERBUFFER_OES];
 
             needsPresentRenderBuffer = NO;
+            [self unbind];
         }
         slowtoggle = !slowtoggle;
         if([context needsFlush]){

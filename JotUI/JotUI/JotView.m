@@ -1069,7 +1069,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // noop for scissors
             }
             
-            glBindFramebufferOES(GL_FRAMEBUFFER_OES, theFramebuffer.framebufferID);
+            [theFramebuffer bind];
             
             //
             // step 1:
@@ -1113,7 +1113,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [stroke unlock];
             }
             [self unprepOpenGLState];
-            
+
             //    DebugLog(@"done render all: %d", c);
             
             if(shouldPresent){
@@ -1122,6 +1122,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [self setNeedsPresentRenderBuffer];
             }
             
+            [theFramebuffer unbind];
             if(!CGRectEqualToRect(scissorRect, CGRectZero)){
                 glDisable(GL_SCISSOR_TEST);
             }
@@ -1263,6 +1264,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
     
     if(frameBuffer){
         // draw the stroke element
+        [frameBuffer bind];
         [self prepOpenGLStateForFBO:frameBuffer toContext:renderContext];
     }
     // always prep the blend mode, the context
@@ -1286,6 +1288,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
     
     if(frameBuffer){
         [self unprepOpenGLState];
+        [frameBuffer unbind];
     }
 }
 
@@ -1297,7 +1300,6 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
  */
 -(void) prepOpenGLStateForFBO:(AbstractJotGLFrameBuffer*)frameBuffer toContext:(JotGLContext*)renderContext{
     CheckMainThread;
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, frameBuffer.framebufferID);
     
     [renderContext glEnableClientState:GL_VERTEX_ARRAY];
     [renderContext glEnableClientState:GL_COLOR_ARRAY];
@@ -1357,6 +1359,7 @@ static int undoCounter;
                     JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
                     [strokeToWriteToTexture lock];
                     // render it to the backing texture
+                    [state.backgroundFramebuffer bind];
                     [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:context];
                     
                     [strokeToWriteToTexture.texture bind];
@@ -1383,9 +1386,7 @@ static int undoCounter;
                         prevElementForTextureWriting = nil;
                     }
                     [self unprepOpenGLState];
-                    
-                    // rebind primary framebuffer
-                    [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
+                    [state.backgroundFramebuffer unbind];
                     
                     //
                     // we just drew to the backing texture, so be sure
@@ -2071,6 +2072,7 @@ static int undoCounter;
     }];
     [subContext runBlock:^{
         // render it to the backing texture
+        [state.backgroundFramebuffer bind];
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:subContext];
         // Setup OpenGL states
         glMatrixMode(GL_PROJECTION);
@@ -2124,6 +2126,7 @@ static int undoCounter;
                        asErase:NO];
         [texture unbind];
         [self unprepOpenGLState];
+        [state.backgroundFramebuffer unbind];
     }];
 
     //
@@ -2132,8 +2135,10 @@ static int undoCounter;
     // it'll use the updated texture and won't have any
     // issues of unsynchronized textures.
     [context runBlock:^{
+        [viewFramebuffer bind];
         [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+        [viewFramebuffer unbind];
         // flush after drawing to texture
         glFlush();
     }];
