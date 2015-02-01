@@ -64,31 +64,32 @@
 }
 
 +(void) runBlock:(void(^)(JotGLContext*))block{
-    JotGLContext* currentContext = (JotGLContext*) [JotGLContext currentContext];
-    if(!currentContext || ![currentContext isKindOfClass:[JotGLContext class]]){
-        @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
-    }else{
-        if([JotGLContext pushCurrentContext:currentContext]){
-            block(currentContext);
-        }else{
+    @autoreleasepool {
+        JotGLContext* currentContext = (JotGLContext*) [JotGLContext currentContext];
+        if(!currentContext || ![currentContext isKindOfClass:[JotGLContext class]]){
             @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
+        }else{
+            if([JotGLContext pushCurrentContext:currentContext]){
+                block(currentContext);
+            }else{
+                @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
+            }
+            [JotGLContext validateContextMatches:currentContext];
+            [JotGLContext popCurrentContext];
         }
-        [JotGLContext validateContextMatches:currentContext];
-        [JotGLContext popCurrentContext];
     }
 }
 
 -(void) runBlock:(void(^)(void))block{
-    if([JotGLContext pushCurrentContext:self]){
-        block();
-    }else{
-        @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
+    @autoreleasepool {
+        if([JotGLContext pushCurrentContext:self]){
+            block();
+        }else{
+            @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
+        }
+        [JotGLContext validateContextMatches:self];
+        [JotGLContext popCurrentContext];
     }
-    [JotGLContext validateContextMatches:self];
-    [JotGLContext popCurrentContext];
-}
-
--(void) runBlockForStatus:(void (^)(BOOL))block{
 }
 
 +(BOOL) setCurrentContext:(JotGLContext *)context{
