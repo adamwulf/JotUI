@@ -22,7 +22,7 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
 
 +(dispatch_queue_t) diskAssetQueue{
     if(!diskAssetQueue){
-        diskAssetQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportStateQueue", DISPATCH_QUEUE_SERIAL);
+        diskAssetQueue = dispatch_queue_create("com.milestonemade.looseleaf.diskAssetQueue", DISPATCH_QUEUE_SERIAL);
         dispatch_queue_set_specific(diskAssetQueue, kDiskAssetQueueIdentifier, (void *)kDiskAssetQueueIdentifier, NULL);
     }
     return diskAssetQueue;
