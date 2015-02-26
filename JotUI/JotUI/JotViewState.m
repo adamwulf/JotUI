@@ -13,8 +13,6 @@
 #import <QuartzCore/QuartzCore.h>
 #import <OpenGLES/EAGLDrawable.h>
 #import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
 #import "JotView.h"
 #import "JotTrashManager.h"
 #import "SegmentSmoother.h"
@@ -152,7 +150,7 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
             // lets erase it, since it defaults to uncleared memory
             [self.backgroundFramebuffer clear];
         }
-        glFinish();
+        [backgroundLoadTexturesThreadContext finish];
     }];
 }
 
@@ -195,7 +193,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
                 [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
             }
         }
-        glFinish();
+        [backgroundLoadStrokesThreadContext finish];
     }];
 }
 
@@ -215,7 +213,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
 -(void) setBackgroundTexture:(JotGLTexture *)_backgroundTexture{
     // generate FBO for the texture
     backgroundTexture = _backgroundTexture;
-    backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture];
+    backgroundFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:backgroundTexture forSize:GLSizeFromCGSize(backgroundTexture.pixelSize)];
 }
 
 

@@ -37,51 +37,35 @@
         CheckMainThread;
         layer = _layer;
         [JotGLContext runBlock:^(JotGLContext* context){
-            // The pixel dimensions of the backbuffer
-            GLint backingWidth;
-            GLint backingHeight;
             
-            // Generate IDs for a framebuffer object and a color renderbuffer
-            glGenFramebuffersOES(1, &framebufferID);
-            glGenRenderbuffersOES(1, &viewRenderbuffer);
-            
-            glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-            // This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
-            // allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
-            [context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:layer];
-            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, viewRenderbuffer);
-            
-            glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
-            glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
-            
-            // For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
-            glGenRenderbuffersOES(1, &depthRenderbuffer);
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
-            glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
-            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
+            [context generateFramebuffer:&framebufferID andRenderbuffer:&viewRenderbuffer andDepthRenderBuffer:&depthRenderbuffer forLayer:layer];
             
             CGRect frame = layer.bounds;
             CGFloat scale = layer.contentsScale;
             
             initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
             
-            glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-            glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
-            
-            if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
-            {
-                NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                DebugLog(@"%@", str);
-                @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-            }
-            
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+            [context glOrthof:0 right:(GLsizei) initialViewport.width bottom:0 top:(GLsizei) initialViewport.height zNear:-1 zFar:1];
+            [context glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
             
             [self clear];
         }];
     }
     return self;
+}
+
+-(void) bind{
+    [super bind];
+    [JotGLContext runBlock:^(JotGLContext * context) {
+        [context bindRenderbuffer:viewRenderbuffer];
+    }];
+}
+
+-(void) unbind{
+    [super unbind];
+    [JotGLContext runBlock:^(JotGLContext * context) {
+        [context unbindRenderbuffer];
+    }];
 }
 
 -(void) setNeedsPresentRenderBuffer{
@@ -93,30 +77,16 @@
         if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
             [self bind];
             //        NSLog(@"presenting");
-            GLint currBoundFrBuff = -1;
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
-            GLint currBoundRendBuff = -1;
-            glGetIntegerv(GL_RENDERBUFFER_BINDING_OES, &currBoundRendBuff);
-            if(currBoundFrBuff != framebufferID){
-                DebugLog(@"gotcha");
-            }
-            if(currBoundRendBuff != viewRenderbuffer){
-                DebugLog(@"gotcha");
-            }
-            
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-            if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES){
-                DebugLog(@"%@", [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)]);
-            }
+            [context assertCurrentBoundFramebufferIs:framebufferID andRenderBufferIs:viewRenderbuffer];
+            [context assertCheckFramebuffer];
 
-            [context presentRenderbuffer:GL_RENDERBUFFER_OES];
+            [context presentRenderbuffer];
 
             needsPresentRenderBuffer = NO;
             [self unbind];
         }
         slowtoggle = !slowtoggle;
         if([context needsFlush]){
-//        NSLog(@"flush");
             [context flush];
         }
     }];
@@ -124,31 +94,32 @@
 
 -(void) clear{
     [JotGLContext runBlock:^(JotGLContext*context){
+        [self bind];
         //
         // something below here is wrong.
         // and/or how this interacts later
-        // with other threads
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        // with other threads (?)
+        [context clear];
         
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+        [self unbind];
     }];
 }
 
 -(void) deleteAssets{
-    if(framebufferID){
-        glDeleteFramebuffersOES(1, &framebufferID);
-        framebufferID = 0;
-    }
-    if(viewRenderbuffer){
-        glDeleteRenderbuffersOES(1, &viewRenderbuffer);
-        viewRenderbuffer = 0;
-    }
-    if(depthRenderbuffer){
-        glDeleteRenderbuffersOES(1, &depthRenderbuffer);
-        depthRenderbuffer = 0;
-    }
+    [JotGLContext runBlock:^(JotGLContext * context) {
+        if(framebufferID){
+            [context deleteFramebuffer:framebufferID];
+            framebufferID = 0;
+        }
+        if(viewRenderbuffer){
+            [context deleteRenderbuffer:viewRenderbuffer];
+            viewRenderbuffer = 0;
+        }
+        if(depthRenderbuffer){
+            [context deleteDepthbuffer:depthRenderbuffer];
+            depthRenderbuffer = 0;
+        }
+    }];
 }
 
 -(void) dealloc{

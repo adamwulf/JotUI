@@ -189,21 +189,15 @@ static JotGLContext *mainThreadContext;
         // Set the view's scale factor
         self.contentScaleFactor = [[UIScreen mainScreen] scale];
         
-        // Setup OpenGL states
-        glMatrixMode(GL_PROJECTION);
+        [context glMatrixModeProjection];
         
         // Setup the view port in Pixels
-        glMatrixMode(GL_MODELVIEW);
+        [context glMatrixModeModelView];
         
-        glDisable(GL_DITHER);
-        glEnable(GL_TEXTURE_2D);
-        
-        glEnable(GL_BLEND);
-        // Set a blending function appropriate for premultiplied alpha pixel data
-        [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
-        
-        glEnable(GL_POINT_SPRITE_OES);
-        glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+        [context glDisableDither];
+        [context glEnableTextures];
+        [context glEnableBlend];
+        [context glEnablePointSprites];
         
         [self destroyFramebuffer];
         [self createFramebuffer];
@@ -288,7 +282,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     [destroyContext runBlock:^{
         viewFramebuffer = nil;
-        glFlush();
+        [destroyContext flush];
     }];
 }
 
@@ -591,26 +585,26 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 //            glFinish();
                 
                 // Setup OpenGL states
-                glMatrixMode(GL_PROJECTION);
+                [secondSubContext glMatrixModeProjection];
                 
                 // Setup the view port in Pixels
-                glMatrixMode(GL_MODELVIEW);
+                [secondSubContext glMatrixModeModelView];
                 
-                glDisable(GL_DITHER);
-                glEnable(GL_TEXTURE_2D);
+                [secondSubContext glDisableDither];
+                [secondSubContext glEnableTextures];
+                [secondSubContext glEnableBlend];
                 
-                glEnable(GL_BLEND);
                 // Set a blending function appropriate for premultiplied alpha pixel data
-                [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+                [secondSubContext prepOpenGLBlendModeForColor:[UIColor whiteColor]];
                 
-                glEnable(GL_POINT_SPRITE_OES);
-                glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+                [context glEnablePointSprites];
                 
-                CGSize fullSize = viewFramebuffer.initialViewport;
+                GLSize fullSize = GLSizeFromCGSize(viewFramebuffer.initialViewport);
                 CGSize exportSize = CGSizeMake(ceilf(fullSize.width * outputScale), ceilf(fullSize.height * outputScale));;
                 
-                glOrthof(0, (GLsizei) fullSize.width, 0, (GLsizei) fullSize.height, -1, 1);
-                glViewport(0, 0, (GLsizei) fullSize.width, (GLsizei) fullSize.height);
+                
+                
+                
                 
                 // create the texture
                 // maxTextureSize
@@ -618,29 +612,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 maxTextureSize.width *= [UIScreen mainScreen].scale;
                 maxTextureSize.height *= [UIScreen mainScreen].scale;
                 JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
-                [canvasTexture bind];
-                
-                GLuint exportFramebuffer;
-                
-                glGenFramebuffersOES(1, &exportFramebuffer);
-                glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-                
-                glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
-                [canvasTexture unbind];
-                
-                GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-                if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                    NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                    DebugLog(@"%@", str);
-                    @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-                }
-                
-                glViewport(0, 0, fullSize.width, fullSize.height);
+
+                JotGLTextureBackedFrameBuffer* exportFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:canvasTexture forSize:fullSize];
                 
                 // step 1:
                 // Clear the buffer
-                glClearColor(0.0, 0.0, 0.0, 0.0);
-                glClear(GL_COLOR_BUFFER_BIT);
+                [exportFramebuffer clear];
                 
                 // step 2:
                 // load a texture and draw it into a quad
@@ -648,7 +625,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [state.backgroundTexture drawInContext:secondSubContext];
                 
                 // reset our viewport
-                glViewport(0, 0, viewFramebuffer.initialViewport.width, viewFramebuffer.initialViewport.height);
+                [secondSubContext glViewportWithX:0 y:0 width:viewFramebuffer.initialViewport.width height:viewFramebuffer.initialViewport.height];
                 
                 // we have to flush here to push all
                 // the pixels to the texture so they're
@@ -662,12 +639,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 // now render strokes
                 
-                glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+                [exportFramebuffer bind];
                 
-                [secondSubContext glEnableClientState:GL_VERTEX_ARRAY];
-                [secondSubContext glEnableClientState:GL_COLOR_ARRAY];
-                [secondSubContext glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-                [secondSubContext glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+                [secondSubContext disableTextureCoordArray];
                 
                 for(JotStroke* stroke in strokesAtTimeOfExport){
                     [stroke lock];
@@ -684,44 +658,34 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                     [stroke unlock];
                 }
                 
+                [exportFramebuffer unbind];
                 
                 
-                
-                
-                
-                
-                
-                
-                
-                
-                
+
+                ////////////////////////////////
+                // render to texture is done,
                 // now read its contents
+                //
                 
                 [secondSubContext flush];
                 [canvasTexture bind];
-                glViewport(0, 0, fullSize.width, fullSize.height);
-                glFlush();
                 
-                status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-                if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                    NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                    DebugLog(@"%@", str);
-                    @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-                }
+                
+                [secondSubContext glOrthof:0 right:(GLsizei) fullSize.width bottom:0 top:(GLsizei) fullSize.height zNear:-1 zFar:1];
+                [secondSubContext glViewportWithX:0 y:0 width:(GLsizei) fullSize.width height:(GLsizei) fullSize.height];
+                [secondSubContext flush];
+                
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer
-                GLint x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
                 NSInteger dataLength = fullSize.width * fullSize.height * 4;
                 GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
                 if(!data){
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
                 // Read pixel data from the framebuffer
-                glPixelStorei(GL_PACK_ALIGNMENT, 4);
-                glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+                [secondSubContext readPixelsInto:data ofSize:fullSize];
                 
                 // now we're done, delete our buffers
-                glDeleteFramebuffersOES(1, &exportFramebuffer);
                 [canvasTexture unbind];
                 [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
                 
@@ -849,27 +813,26 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 //            glFinish();
                 
                 // Setup OpenGL states
-                glMatrixMode(GL_PROJECTION);
+                [secondSubContext glMatrixModeProjection];
                 
                 // Setup the view port in Pixels
-                glMatrixMode(GL_MODELVIEW);
+                [secondSubContext glMatrixModeModelView];
                 
-                glDisable(GL_DITHER);
-                glEnable(GL_TEXTURE_2D);
+                [secondSubContext glDisableDither];
+                [secondSubContext glEnableTextures];
+                [secondSubContext glEnableBlend];
                 
-                glEnable(GL_BLEND);
                 // Set a blending function appropriate for premultiplied alpha pixel data
-                [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+                [secondSubContext prepOpenGLBlendModeForColor:[UIColor whiteColor]];
                 
-                glEnable(GL_POINT_SPRITE_OES);
-                glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+                [context glEnablePointSprites];
                 
                 CGSize initialViewport = viewFramebuffer.initialViewport;
                 
-                glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-                glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
-                
-                CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
+                [secondSubContext glOrthof:0 right:(GLsizei) initialViewport.width bottom:0 top:(GLsizei) initialViewport.height zNear:-1 zFar:1];
+                [secondSubContext glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
+
+                GLSize fullSize = GLSizeFromCGSize(initialViewport);
                 CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
                 
                 // create the texture
@@ -877,65 +840,31 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 CGSize maxTextureSize = [UIScreen mainScreen].portraitBounds.size;
                 maxTextureSize.width *= [UIScreen mainScreen].scale;
                 maxTextureSize.height *= [UIScreen mainScreen].scale;
+                
                 JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
-                [canvasTexture bind];
-                
-                GLuint exportFramebuffer;
-                
-                glGenFramebuffersOES(1, &exportFramebuffer);
-                glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
-                
-                glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
-                [canvasTexture unbind];
-                
-                GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-                if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                    NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                    DebugLog(@"%@", str);
-                    @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-                }
-                
-                glViewport(0, 0, fullSize.width, fullSize.height);
-                
+                JotGLTextureBackedFrameBuffer* exportFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:canvasTexture forSize:fullSize];
+
                 // step 1:
                 // Clear the buffer
-                glClearColor(0.0, 0.0, 0.0, 0.0);
-                glClear(GL_COLOR_BUFFER_BIT);
+                [exportFramebuffer bind];
+                [secondSubContext assertCheckFramebuffer];
+                [secondSubContext clear];
                 
                 // step 2:
                 // load a texture and draw it into a quad
                 // that fills the screen
                 [state.backgroundTexture drawInContext:secondSubContext];
                 
+                [exportFramebuffer unbind];
+                
                 // reset our viewport
-                glViewport(0, 0, initialViewport.width, initialViewport.height);
+                [secondSubContext glViewportWithX:0 y:0 width:initialViewport.width height:initialViewport.height];
                 
                 // we have to flush here to push all
                 // the pixels to the texture so they're
                 // available in the background thread's
                 // context
                 [secondSubContext flush];
-                glFlush();
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
                 
                 
                 
@@ -947,29 +876,21 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 [secondSubContext flush];
                 [canvasTexture bind];
-                glViewport(0, 0, fullSize.width, fullSize.height);
-                glFlush();
-                
-                status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-                if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                    NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                    DebugLog(@"%@", str);
-                    @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-                }
+                [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
+                [secondSubContext flush];
+
+
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer
-                GLint x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
                 NSInteger dataLength = fullSize.width * fullSize.height * 4;
                 GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
                 if(!data){
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
                 // Read pixel data from the framebuffer
-                glPixelStorei(GL_PACK_ALIGNMENT, 4);
-                glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-                
+                [secondSubContext readPixelsInto:data ofSize:fullSize];
+
                 // now we're done, delete our buffers
-                glDeleteFramebuffersOES(1, &exportFramebuffer);
                 [canvasTexture unbind];
                 [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
                 
@@ -1062,20 +983,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         
         // set our current OpenGL context
         [renderContext runBlock:^{
-            if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-                glEnable(GL_SCISSOR_TEST);
-                glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
-            }else{
-                // noop for scissors
-            }
-            
             [theFramebuffer bind];
             
             //
             // step 1:
             // Clear the buffer
-            glClearColor(0.0, 0.0, 0.0, 0.0);
-            glClear(GL_COLOR_BUFFER_BIT);
+            [renderContext clear];
             
             //
             // step 2:
@@ -1123,10 +1036,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             }
             
             [theFramebuffer unbind];
-            if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-                glDisable(GL_SCISSOR_TEST);
-            }
-        }];
+        } withScissorRect:scissorRect];
     }
 }
 
@@ -1300,11 +1210,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
  */
 -(void) prepOpenGLStateForFBO:(AbstractJotGLFrameBuffer*)frameBuffer toContext:(JotGLContext*)renderContext{
     CheckMainThread;
-    
-    [renderContext glEnableClientState:GL_VERTEX_ARRAY];
-    [renderContext glEnableClientState:GL_COLOR_ARRAY];
-    [renderContext glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-    [renderContext glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+    [renderContext disableTextureCoordArray];
 }
 
 /**
@@ -2019,7 +1925,7 @@ static int undoCounter;
         maxTextureSize.width *= [UIScreen mainScreen].scale;
         maxTextureSize.height *= [UIScreen mainScreen].scale;
         
-        CGSize fullSize = CGSizeMake(ceilf(viewFramebuffer.initialViewport.width), ceilf(viewFramebuffer.initialViewport.height));
+        GLSize fullSize = GLSizeFromCGSize(viewFramebuffer.initialViewport);
         
         // create the texture
         // that we'll draw all of our content to
@@ -2027,10 +1933,7 @@ static int undoCounter;
         [canvasTexture bind];
 
         @autoreleasepool {
-            JotGLTextureBackedFrameBuffer* exportFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:canvasTexture];
-            
-            // set viewport to round up to the pixel, if needed
-            glViewport(0, 0, fullSize.width, fullSize.height);
+            JotGLTextureBackedFrameBuffer* exportFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:canvasTexture forSize:fullSize];
             
             // ok, everything is setup at this point, so render all
             // of the strokes over the backing texture to our
@@ -2044,7 +1947,7 @@ static int undoCounter;
         }
         
         // reset back to exact viewport
-        glViewport(0, 0, viewFramebuffer.initialViewport.width, viewFramebuffer.initialViewport.height);
+        [context glViewportWithX:0 y:0 width:viewFramebuffer.initialViewport.width height:viewFramebuffer.initialViewport.height];
         
         // we have to flush here to push all
         // the pixels to the texture so they're
@@ -2066,7 +1969,7 @@ static int undoCounter;
             
             
     CheckMainThread;
-    glFlush();
+    [(JotGLContext*)[JotGLContext currentContext] flush];
     JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotViewDrawBackingTextureContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
     }];
@@ -2075,36 +1978,29 @@ static int undoCounter;
         [state.backgroundFramebuffer bind];
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:subContext];
         // Setup OpenGL states
-        glMatrixMode(GL_PROJECTION);
+        [subContext glMatrixModeProjection];
         // Setup the view port in Pixels
-        glMatrixMode(GL_MODELVIEW);
-        glDisable(GL_DITHER);
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
+        [subContext glMatrixModeModelView];
+        [subContext glDisableDither];
+        [subContext glEnableTextures];
+        [subContext glEnableBlend];
         // Set a blending function appropriate for premultiplied alpha pixel data
-        [subContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
-        glEnable(GL_POINT_SPRITE_OES);
-        glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+        [subContext prepOpenGLBlendModeForColor:[UIColor whiteColor]];
+        [context glEnablePointSprites];
         CGRect frame = self.layer.bounds;
         CGFloat scale = self.contentScaleFactor;
         
         CGSize initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
         
-        glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-        glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
+        [subContext glOrthof:0 right:(GLsizei) initialViewport.width bottom:0 top:(GLsizei) initialViewport.height zNear:-1 zFar:1];
+        [subContext glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
         
-        if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
-        {
-            NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-            DebugLog(@"%@", str);
-            @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-        }
+        [subContext assertCheckFramebuffer];
         
         //
         // step 1:
         // Clear the buffer
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        [subContext clear];
         
         //
         // step 2:
@@ -2140,7 +2036,7 @@ static int undoCounter;
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
         [viewFramebuffer unbind];
         // flush after drawing to texture
-        glFlush();
+        [context flush];
     }];
     
     [imageTextureLock unlock];

@@ -9,8 +9,6 @@
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotUI.h"
 #import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
 
 
 dispatch_queue_t importExportTextureQueue;
@@ -33,34 +31,14 @@ dispatch_queue_t importExportTextureQueue;
 
 @synthesize texture;
 
--(id) initForTexture:(JotGLTexture*)_texture{
+-(id) initForTexture:(JotGLTexture*)_texture forSize:(GLSize)initialViewport{
     if(self = [super init]){
         [JotGLContext runBlock:^(JotGLContext* context){
-            GLint currBoundFrBuff = -1;
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
-            
-            glGenFramebuffersOES(1, &framebufferID);
             texture = _texture;
-            if(framebufferID){
-                // generate FBO
-                glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-                [texture bind];
-                // associate texture with FBO
-                glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
-                [texture unbind];
-            }
-            // check if it worked (probably worth doing :) )
-            GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-            if (status != GL_FRAMEBUFFER_COMPLETE_OES)
-            {
-                // rebind to the buffer we began with
-                glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
-                // didn't work
-                NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                DebugLog(@"%@", str);
-                @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-            }
-            glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
+            framebufferID = [context generateFramebufferWithTextureBacking:_texture];
+
+            [context glOrthof:0 right:initialViewport.width bottom:0 top:initialViewport.height zNear:-1 zFar:1];
+            [context glViewportWithX:0 y:0 width:initialViewport.width height:initialViewport.height];
         }];
     }
     return self;
@@ -89,31 +67,28 @@ dispatch_queue_t importExportTextureQueue;
     JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotTextureBackedFBOSubContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:[JotGLContext currentContext].sharegroup andValidateThreadWith:^BOOL{
         return [JotView isImportExportImageQueue];
     }];
-    [subContext runBlock:^{
-        // render it to the backing texture
-        GLint currBoundFrBuff = -1;
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+    [subContext runBlockAndMaintainCurrentFramebuffer:^{
         //
         //
         // something below here is wrong.
         // and/or how this interacts later
         // with other threads
         [texture bind];
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+        [subContext bindFramebuffer:framebufferID];
+        [subContext clear];
+
+        [subContext unbindFramebuffer];
         [texture unbind];
     }];
 }
 
 -(void) deleteAssets{
-    if(framebufferID && ![JotGLContext currentContext]){
-        DebugLog(@"nope");
-    }
-    glDeleteFramebuffersOES(1, &framebufferID);
-    framebufferID = 0;
+    [JotGLContext runBlock:^(JotGLContext *context) {
+        if(framebufferID){
+            [context deleteFramebuffer:framebufferID];
+            framebufferID = 0;
+        }
+    }];
 }
 
 -(void) dealloc{

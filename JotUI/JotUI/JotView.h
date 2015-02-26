@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
 
 #import "JotUI/JotUI.h"
 #import "JotUI/JotViewDelegate.h"

@@ -12,6 +12,8 @@
 #import <OpenGLES/ES1/glext.h>
 #import "JotGLContext.h"
 
+// TODO: remove the gl.h above, and have the brush texture use a proper JotGLTexture as its backing.
+
 #define kAbstractMethodException [NSException exceptionWithName:NSInternalInconsistencyException reason:[NSString stringWithFormat:@"You must override %@ in a subclass", NSStringFromSelector(_cmd)] userInfo:nil]
 
 

@@ -8,7 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */ = {isa = PBXBuildFile; fileRef = 66018A4719F61F4400228A0D /* DeleteAssets.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		6658ABD01A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6658ABCE1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h */; };
+		662370DD1A9FE5F700B62F69 /* JotGLTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 662370DB1A9FAE1200B62F69 /* JotGLTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		6658ABD01A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6658ABCE1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6658ABD11A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6658ABCF1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.m */; };
 		6658ABD41A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 6658ABD21A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		6658ABD51A7B1ED500F32506 /* AbstractJotGLFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 6658ABD31A7B1ED500F32506 /* AbstractJotGLFrameBuffer.m */; };
@@ -97,6 +98,8 @@
 		66018A4719F61F4400228A0D /* DeleteAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteAssets.h; sourceTree = "<group>"; };
 		6622F9D11774E72400C06825 /* JotViewState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewState.h; sourceTree = "<group>"; };
 		6622F9D21774E72400C06825 /* JotViewState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewState.m; sourceTree = "<group>"; };
+		662370DB1A9FAE1200B62F69 /* JotGLTypes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JotGLTypes.h; sourceTree = "<group>"; };
+		662370DC1A9FB9BB00B62F69 /* JotGLContext+Buffers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLContext+Buffers.h"; sourceTree = "<group>"; };
 		662681F4179B73FA0039A75B /* JotBufferVBO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBufferVBO.h; sourceTree = "<group>"; };
 		662681F5179B73FA0039A75B /* JotBufferVBO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotBufferVBO.m; sourceTree = "<group>"; };
 		662B55CE16A9EAC30020CFC3 /* MoveToPathElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MoveToPathElement.h; sourceTree = "<group>"; };
@@ -202,9 +205,11 @@
 		66455F8B175FC45600C66DFA /* OpenGL */ = {
 			isa = PBXGroup;
 			children = (
+				662370DB1A9FAE1200B62F69 /* JotGLTypes.h */,
 				66455F8C175FC47200C66DFA /* JotGLTexture.h */,
 				66455F8D175FC47200C66DFA /* JotGLTexture.m */,
 				6648A52217F0E09000117ECB /* JotGLContext.h */,
+				662370DC1A9FB9BB00B62F69 /* JotGLContext+Buffers.h */,
 				6648A52317F0E09000117ECB /* JotGLContext.m */,
 				6658ABD21A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h */,
 				6658ABD31A7B1ED500F32506 /* AbstractJotGLFrameBuffer.m */,
@@ -444,11 +449,12 @@
 				66F1F1FA18079BD700B8CE3B /* CurveToPathElement.h in Headers */,
 				66F1F1FC18079BD700B8CE3B /* JotViewImmutableState.h in Headers */,
 				66F1F1FD18079BD700B8CE3B /* JotView.h in Headers */,
-				6658ABD01A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h in Headers */,
 				66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */,
 				667EC03B1A01F4F60069FF33 /* JotDiskAssetManager.h in Headers */,
 				66C6AAEB18A2E78E0036F4BB /* FilledPathElement.h in Headers */,
 				6658ABD41A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h in Headers */,
+				662370DD1A9FE5F700B62F69 /* JotGLTypes.h in Headers */,
+				6658ABD01A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h in Headers */,
 				66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */,
 				66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */,
 				667EC0401A0206EE0069FF33 /* JotImageWriteOperation.h in Headers */,

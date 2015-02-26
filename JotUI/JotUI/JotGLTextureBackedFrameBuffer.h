@@ -19,7 +19,7 @@
 
 // initialize a new framebuffer that has its color buffer
 // backed by this texture
--(id) initForTexture:(JotGLTexture*)texture;
+-(id) initForTexture:(JotGLTexture*)texture forSize:(GLSize)fullSize;
 
 // erase the texture by setting all pixels
 // to zero opacity

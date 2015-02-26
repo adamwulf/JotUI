@@ -9,6 +9,7 @@
 #ifndef JotUI_h
 #define JotUI_h
 
+
 #define CheckMainThread if(![NSThread isMainThread]){ NSAssert(NO, @"needs to be on main thread"); }
 
 #define kJotEnableCacheStats NO

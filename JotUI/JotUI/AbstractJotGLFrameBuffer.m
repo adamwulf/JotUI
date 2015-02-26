@@ -9,14 +9,32 @@
 #import "AbstractJotGLFrameBuffer.h"
 #import "JotUI.h"
 
-@implementation AbstractJotGLFrameBuffer
+@implementation AbstractJotGLFrameBuffer{
+    // lock to ensure we're only bound in once place
+    NSRecursiveLock* lock;
+}
+
+-(id) init{
+    if(self = [super init]){
+        // build a lock for this framebuffer
+        lock = [[NSRecursiveLock alloc] init];
+    }
+    return self;
+}
 
 -(void) bind{
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+    [JotGLContext runBlock:^(JotGLContext* context){
+        [lock lock];
+        [context bindFramebuffer:framebufferID];
+    }];
 }
 
 -(void) unbind{
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+    [JotGLContext runBlock:^(JotGLContext* context){
+        [context unbindFramebuffer];
+        [context flush];
+        [lock unlock];
+    }];
 }
 
 @end

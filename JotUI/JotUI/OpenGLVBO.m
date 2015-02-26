@@ -11,6 +11,7 @@
 #import "UIColor+JotHelper.h"
 #import "AbstractBezierPathElement-Protected.h"
 #import "JotBufferManager.h"
+#import "JotGLContext+Buffers.h"
 #include <stddef.h>
 
 /**
@@ -38,10 +39,6 @@
     NSLock* lock;
 }
 
-static NSInteger zeroedCacheNumber = -1;
-static void * zeroedDataCache = nil;
-
-
 @synthesize numberOfSteps;
 @synthesize cacheNumber;
 @synthesize vbo;
@@ -56,32 +53,10 @@ static void * zeroedDataCache = nil;
             numberOfSteps = floorf(mallocSize / stepMallocSize);
             lock = [[NSLock alloc] init];
             [lock lock];
-            // generate the VBO in OpenGL
-            glGenBuffers(1,&vbo);
-            glBindBuffer(GL_ARRAY_BUFFER,vbo);
+
             // create buffer of size mallocSize (init w/ NULL to create)
-            
-            // zeroedDataCache is a pointer to zero'd memory that we
-            // use to initialze our VBO. This prevents "VBO uses uninitialized data"
-            // warning in Instruments, and will only waste a few Kb of memory
-            if(_cacheNumber > zeroedCacheNumber){
-                @synchronized([OpenGLVBO class]){
-                    if(zeroedDataCache){
-                        free(zeroedDataCache);
-                    }
-                    zeroedCacheNumber = cacheNumber;
-                    zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
-                    if(!zeroedDataCache){
-                        @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't calloc" userInfo:nil];
-                    }
-                }
-            }
-            @synchronized([OpenGLVBO class]){
-                // initialize the buffer to zero'd data
-                glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
-            }
-            // unbind after alloc
-            glBindBuffer(GL_ARRAY_BUFFER,0);
+            vbo = [context generateArrayBufferForSize:mallocSize forCacheNumber:cacheNumber];
+
             [lock unlock];
         }];
     }
@@ -115,12 +90,12 @@ static void * zeroedDataCache = nil;
             NSLog(@"what");
         }
         [lock lock];
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
         GLintptr offset = stepNumber*stepMallocSize;
         GLsizeiptr len = vertexData.length;
-        glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
-        glBindBuffer(GL_ARRAY_BUFFER,0);
-        glFlush();
+        [context bindArrayBuffer:vbo];
+        [context updateArrayBufferWithBytes:vertexData.bytes atOffset:offset andLength:len];
+        [context unbindArrayBuffer];
+        [context flush];
         [lock unlock];
     }];
 }
@@ -138,16 +113,11 @@ static void * zeroedDataCache = nil;
             NSLog(@"what");
         }
         [lock lock];
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        
-        glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position)));
-        glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color)));
-        glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size)));
-        
-        [context glEnableClientState:GL_VERTEX_ARRAY];
-        [context glEnableClientState:GL_COLOR_ARRAY];
-        [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-        [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+        [context bindArrayBuffer:vbo];
+        [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
+        [context enablePointSizeArrayForStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
+        [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
+        [context disableTextureCoordArray];
     }];
 }
 
@@ -165,14 +135,13 @@ static void * zeroedDataCache = nil;
         }
         [lock lock];
         
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position)));
-        glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex),(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size)));
+        [context bindArrayBuffer:vbo];
         
-        [context glEnableClientState:GL_VERTEX_ARRAY];
-        [context glDisableClientState:GL_COLOR_ARRAY];
-        [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-        [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+        [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
+        [context enablePointSizeArrayForStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
+        [context disableColorArray];
+        [context disableTextureCoordArray];
+
         [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
     }];
 }
@@ -182,7 +151,7 @@ static void * zeroedDataCache = nil;
         NSLog(@"what");
     }
     [JotGLContext runBlock:^(JotGLContext* context){
-        glBindBuffer(GL_ARRAY_BUFFER,0);
+        [context unbindArrayBuffer];
     }];
     [lock unlock];
 }
@@ -191,7 +160,7 @@ static void * zeroedDataCache = nil;
     if(vbo){
         [[JotBufferManager sharedInstance] openGLBufferHasDied:self];
         [JotGLContext runBlock:^(JotGLContext* context){
-            glDeleteBuffers(1,&vbo);
+            [context deleteBuffer:vbo];
         }];
     }
 }

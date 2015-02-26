@@ -11,8 +11,6 @@
 #import "AbstractBezierPathElement-Protected.h"
 #import <OpenGLES/EAGLDrawable.h>
 #import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
 #import "JotBufferManager.h"
 #import "JotBufferVBO.h"
 #import "MoveToPathElement.h"
