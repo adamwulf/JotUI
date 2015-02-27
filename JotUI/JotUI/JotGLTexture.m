@@ -250,11 +250,16 @@ static int totalTextureBytes;
         // now prep to draw the actual texture
         // always draw
         
-        void(^possiblyStenciledRenderBlock)() = ^{
-            
+        void(^possiblyStenciledRenderBlock1)() = ^{
+            //
+            // prep our context to draw our texture as a quad.
+            // now prep to draw the actual texture
+            // always draw
             [context disableColorArray];
             [context disablePointSizeArray];
             [context glColor4f:1 and:1 and:1 and:1];
+        };
+        void(^possiblyStenciledRenderBlock2)() = ^{
             
             [context prepOpenGLBlendModeForColor:asErase ? nil : [UIColor whiteColor]];
             
@@ -286,18 +291,16 @@ static int totalTextureBytes;
         };
         
         // cleanup
-        if(clippingPath){
-            [context runBlock:possiblyStenciledRenderBlock
-             forStenciledPath:clippingPath
-                         atP1:p1
-                        andP2:p2
-                        andP3:p3
-                        andP4:p4
-              andClippingSize:clipSize
-               withResolution:resolution];
-        }else{
-            possiblyStenciledRenderBlock();
-        }
+        [context runBlock:possiblyStenciledRenderBlock1
+                andBlock:possiblyStenciledRenderBlock2
+         forStenciledPath:clippingPath
+                     atP1:p1
+                    andP2:p2
+                    andP3:p3
+                    andP4:p4
+          andClippingSize:clipSize
+           withResolution:resolution];
+
         [self unbind];
     }];
 }

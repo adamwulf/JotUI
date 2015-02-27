@@ -45,7 +45,9 @@ int printOglError(char *file, int line);
 
 -(void) finish;
 
--(void) runBlock:(void(^)())block forStenciledPath:(UIBezierPath*)clippingPath
+-(void) runBlock:(void(^)())block1
+        andBlock:(void(^)())block2
+forStenciledPath:(UIBezierPath*)clippingPath
             atP1:(CGPoint)p1
            andP2:(CGPoint)p2
            andP3:(CGPoint)p3
