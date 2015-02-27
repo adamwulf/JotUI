@@ -75,8 +75,6 @@ int printOglError(char *file, int line);
 
 -(void) deleteRenderbuffer:(GLuint)viewRenderbuffer;
 
--(void) deleteDepthbuffer:(GLuint)depthRenderbuffer;
-
 -(void) glOrthof:(GLfloat)left right:(GLfloat)right bottom:(GLfloat)bottom top:(GLfloat)top zNear:(GLfloat)zNear zFar:(GLfloat)zFar;
 
 -(void) glViewportWithX:(GLint)x y:(GLint)y width:(GLsizei)width  height:(GLsizei)height;

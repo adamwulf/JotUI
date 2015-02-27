@@ -100,6 +100,9 @@ typedef enum UndfBOOL{
     
     GLenum matrixMode;
     
+    GLuint currentlyBoundFramebuffer;
+    GLuint currentlyBoundRenderbuffer;
+    
     GLint vertex_pointer_size;
     GLenum vertex_pointer_type;
     GLsizei vertex_pointer_stride;
@@ -158,6 +161,7 @@ typedef enum UndfBOOL{
     stencilOpZpass = GL_KEEP;
     alphaFuncFunc = GL_ALWAYS;
     alphaFuncRef = 0;
+    currentlyBoundFramebuffer = 0;
     lock = [[NSRecursiveLock alloc] init];
     contextProperties = [NSMutableDictionary dictionary];
 }
@@ -236,13 +240,12 @@ typedef enum UndfBOOL{
 
 -(void) runBlockAndMaintainCurrentFramebuffer:(void(^)())block{
     [self runBlock:^{
-        GLint currBoundFrBuff = -1;
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+        GLint currBoundFrBuff = currentlyBoundFramebuffer;
         
         block();
         
         // rebind to the buffer we began with
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, currBoundFrBuff);
+        [self bindFramebuffer:currBoundFrBuff];
     }];
 }
 
@@ -560,7 +563,7 @@ typedef enum UndfBOOL{
     [self runBlock:^{
         JotGLTexture* clipping;
         GLuint stencil_rb;
-        GLint currBoundRendBuff = [self currentlyBoundRenderBufferId];
+        GLint currBoundRendBuff = currentlyBoundRenderbuffer;
         
         CGSize pathSize = clippingPath.bounds.size;
         pathSize.width = ceilf(pathSize.width);
@@ -604,18 +607,11 @@ typedef enum UndfBOOL{
         // setup stencil buffers
         glGenRenderbuffersOES(1, &stencil_rb);
         //        DebugLog(@"new renderbuffer: %d", stencil_rb);
-        glBindRenderbufferOES(GL_RENDERBUFFER_OES, stencil_rb);
+        [self bindRenderbuffer:stencil_rb];
         glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, resolution.width, resolution.height);
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, stencil_rb);
         
-        // Check framebuffer completeness at the end of initialization.
-        GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-        if (status != GL_FRAMEBUFFER_COMPLETE_OES){
-            // didn't work
-            NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-            DebugLog(@"%@", str);
-            @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-        }
+        [self assertCheckFramebuffer];
         
         // setup the stencil test and alpha test. the stencil test
         // ensures all pixels are turned "on" in the stencil buffer,
@@ -677,7 +673,7 @@ typedef enum UndfBOOL{
         [clipping unbind];
         [self glDisableStencilTest];
         [self glDisableAlphaTest];
-        glDeleteRenderbuffersOES(1, &stencil_rb);
+        [self deleteRenderbuffer:stencil_rb];
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, 0);
         
         
@@ -804,7 +800,7 @@ typedef enum UndfBOOL{
         glGenFramebuffersOES(1, &framebufferID);
         if(framebufferID){
             // generate FBO
-            glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+            [self bindFramebuffer:framebufferID];
             [texture bind];
             // associate texture with FBO
             glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
@@ -827,8 +823,8 @@ typedef enum UndfBOOL{
     glGenFramebuffersOES(1, framebufferID);
     glGenRenderbuffersOES(1, viewRenderbuffer);
     
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, *framebufferID);
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, *viewRenderbuffer);
+    [self bindFramebuffer:framebufferID[0]];
+    [self bindRenderbuffer:viewRenderbuffer[0]];
     // This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
     // allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
     [self renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:layer];
@@ -839,46 +835,56 @@ typedef enum UndfBOOL{
     
     // For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
     glGenRenderbuffersOES(1, depthRenderbuffer);
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, *depthRenderbuffer);
+    [self bindRenderbuffer:depthRenderbuffer[0]];
     glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
     glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, *depthRenderbuffer);
     
     return GLSizeMake(backingWidth, backingHeight);
 }
 
+-(void) bindFramebuffer:(GLuint)framebuffer{
+    if(framebuffer && currentlyBoundFramebuffer != framebuffer){
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebuffer);
+        currentlyBoundFramebuffer = framebuffer;
+    }else if(!framebuffer){
+        @throw [NSException exceptionWithName:@"GLBindFramebufferExcpetion" reason:@"Trying to bind nil framebuffer" userInfo:nil];
+    }
+}
+-(void) unbindFramebuffer{
+    if(currentlyBoundFramebuffer != 0){
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+        currentlyBoundFramebuffer = 0;
+    }
+}
+
 -(void) deleteFramebuffer:(GLuint)framebufferID{
+    if(currentlyBoundFramebuffer == framebufferID){
+        @throw [NSException exceptionWithName:@"GLDeleteBoundBufferException" reason:@"deleting currently boudn buffer" userInfo:nil];
+    }
     glDeleteFramebuffersOES(1, &framebufferID);
 }
 
 -(void) deleteRenderbuffer:(GLuint)viewRenderbuffer{
+    if(currentlyBoundRenderbuffer == viewRenderbuffer){
+        @throw [NSException exceptionWithName:@"GLDeleteBoundBufferException" reason:@"deleting currently boudn buffer" userInfo:nil];
+    }
     glDeleteRenderbuffersOES(1, &viewRenderbuffer);
 }
 
--(void) deleteDepthbuffer:(GLuint)depthRenderbuffer{
-    glDeleteRenderbuffersOES(1, &depthRenderbuffer);
-}
-
 -(void) bindRenderbuffer:(GLuint)renderBufferId{
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, renderBufferId);
+    if(renderBufferId && currentlyBoundRenderbuffer != renderBufferId){
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, renderBufferId);
+        currentlyBoundRenderbuffer = renderBufferId;
+    }else if(!renderBufferId){
+        @throw [NSException exceptionWithName:@"GLBindRenderbufferExceptoin" reason:@"trying to bind nil renderbuffer" userInfo:nil];
+    }
 }
-
--(GLuint) currentlyBoundRenderBufferId{
-    GLint currBoundRendBuff = -1;
-    glGetIntegerv(GL_RENDERBUFFER_BINDING_OES, &currBoundRendBuff);
-    return (GLuint)currBoundRendBuff;
-}
-
 
 -(void) unbindRenderbuffer{
-    glBindRenderbufferOES(GL_RENDERBUFFER_OES, 0);
-}
-
--(void) bindFramebuffer:(GLuint)framebufferID{
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
-}
-
--(void) unbindFramebuffer{
-    glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+    if(currentlyBoundRenderbuffer){
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, 0);
+        currentlyBoundRenderbuffer = 0;
+    }
 }
 
 -(BOOL) presentRenderbuffer{

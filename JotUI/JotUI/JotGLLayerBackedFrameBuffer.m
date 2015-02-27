@@ -116,7 +116,7 @@
             viewRenderbuffer = 0;
         }
         if(depthRenderbuffer){
-            [context deleteDepthbuffer:depthRenderbuffer];
+            [context deleteRenderbuffer:depthRenderbuffer];
             depthRenderbuffer = 0;
         }
     }];
