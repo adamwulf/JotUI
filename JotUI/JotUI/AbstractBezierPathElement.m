@@ -11,22 +11,6 @@
 #import "UIColor+JotHelper.h"
 #import "JotUI.h"
 
-int printOglError(char *file, int line)
-{
-    
-    GLenum glErr;
-    int    retCode = 0;
-    
-    glErr = glGetError();
-    if (glErr != GL_NO_ERROR)
-    {
-        DebugLog(@"glError in file %s @ line %d: %d\n",
-               file, line, glErr);
-        retCode = glErr;
-    }
-    return retCode;
-}
-
 
 @implementation AbstractBezierPathElement{
     JotBufferManager* bufferManager;
@@ -160,7 +144,7 @@ int printOglError(char *file, int line)
         // VBO
         [JotGLContext runBlock:^(JotGLContext* context){
             if([self numberOfStepsGivenPreviousElement:previousElement]){
-                glDrawArrays(GL_POINTS, 0, (int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep]));
+                [context drawPointCount:(int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep])];
             }
         }];
         [self unbind];

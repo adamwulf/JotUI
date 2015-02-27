@@ -195,15 +195,12 @@ static JotGLContext *mainThreadContext;
         // Setup the view port in Pixels
         glMatrixMode(GL_MODELVIEW);
         
-        glDisable(GL_DITHER);
-        glEnable(GL_TEXTURE_2D);
-        
-        glEnable(GL_BLEND);
+        [context glDisableDither];
+        [context glEnableTextures];
+        [context glEnableBlend];
+        [context glEnablePointSprites];
         // Set a blending function appropriate for premultiplied alpha pixel data
         [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
-        
-        glEnable(GL_POINT_SPRITE_OES);
-        glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
         
         [self destroyFramebuffer];
         [self createFramebuffer];
@@ -596,15 +593,14 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // Setup the view port in Pixels
                 glMatrixMode(GL_MODELVIEW);
                 
-                glDisable(GL_DITHER);
-                glEnable(GL_TEXTURE_2D);
+                [secondSubContext glDisableDither];
+                [secondSubContext glEnableTextures];
+                [secondSubContext glEnableBlend];
                 
-                glEnable(GL_BLEND);
                 // Set a blending function appropriate for premultiplied alpha pixel data
                 [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
                 
-                glEnable(GL_POINT_SPRITE_OES);
-                glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+                [context glEnablePointSprites];
                 
                 CGSize fullSize = viewFramebuffer.initialViewport;
                 CGSize exportSize = CGSizeMake(ceilf(fullSize.width * outputScale), ceilf(fullSize.height * outputScale));;
@@ -667,7 +663,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext glEnableClientState:GL_VERTEX_ARRAY];
                 [secondSubContext glEnableClientState:GL_COLOR_ARRAY];
                 [secondSubContext glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-                [secondSubContext glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+                [secondSubContext disableTextureCoordArray];
                 
                 for(JotStroke* stroke in strokesAtTimeOfExport){
                     [stroke lock];
@@ -687,13 +683,10 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 
                 
-                
-                
-                
-                
-                
-                
-                
+                ////////////////////////////////
+                // render to texture is done,
+                // now read its contents
+                //
                 
                 // now read its contents
                 
@@ -854,15 +847,14 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // Setup the view port in Pixels
                 glMatrixMode(GL_MODELVIEW);
                 
-                glDisable(GL_DITHER);
-                glEnable(GL_TEXTURE_2D);
-                
-                glEnable(GL_BLEND);
+                [secondSubContext glDisableDither];
+                [secondSubContext glEnableTextures];
+                [secondSubContext glEnableBlend];
+
                 // Set a blending function appropriate for premultiplied alpha pixel data
                 [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
                 
-                glEnable(GL_POINT_SPRITE_OES);
-                glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+                [context glEnablePointSprites];
                 
                 CGSize initialViewport = viewFramebuffer.initialViewport;
                 
@@ -916,26 +908,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // context
                 [secondSubContext flush];
                 glFlush();
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
                 
                 
                 
@@ -1304,7 +1276,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
     [renderContext glEnableClientState:GL_VERTEX_ARRAY];
     [renderContext glEnableClientState:GL_COLOR_ARRAY];
     [renderContext glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-    [renderContext glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+    [renderContext disableTextureCoordArray];
 }
 
 /**
@@ -2078,13 +2050,12 @@ static int undoCounter;
         glMatrixMode(GL_PROJECTION);
         // Setup the view port in Pixels
         glMatrixMode(GL_MODELVIEW);
-        glDisable(GL_DITHER);
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
+        [subContext glDisableDither];
+        [subContext glEnableTextures];
+        [subContext glEnableBlend];
         // Set a blending function appropriate for premultiplied alpha pixel data
         [subContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
-        glEnable(GL_POINT_SPRITE_OES);
-        glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
+        [context glEnablePointSprites];
         CGRect frame = self.layer.bounds;
         CGFloat scale = self.contentScaleFactor;
         
@@ -2093,12 +2064,7 @@ static int undoCounter;
         glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
         glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
         
-        if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
-        {
-            NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-            DebugLog(@"%@", str);
-            @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-        }
+        [subContext assertCheckFramebuffer];
         
         //
         // step 1:

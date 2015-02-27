@@ -140,14 +140,14 @@ static void * zeroedDataCache = nil;
         [lock lock];
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
         
-        glVertexPointer(2, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position)));
-        glColorPointer(4, GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color)));
-        glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorfulVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size)));
-        
+        [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
+        [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
+        [context enablePointSizeArrayForStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
+        [context disableTextureCoordArray];
+
         [context glEnableClientState:GL_VERTEX_ARRAY];
         [context glEnableClientState:GL_COLOR_ARRAY];
         [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-        [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
     }];
 }
 
@@ -166,13 +166,13 @@ static void * zeroedDataCache = nil;
         [lock lock];
         
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        glVertexPointer(2, GL_FLOAT, sizeof(struct ColorlessVertex), (void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position)));
-        glPointSizePointerOES(GL_FLOAT, sizeof(struct ColorlessVertex),(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size)));
-        
-        [context glEnableClientState:GL_VERTEX_ARRAY];
-        [context glDisableClientState:GL_COLOR_ARRAY];
-        [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-        [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+        [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
+        [context enablePointSizeArrayForStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
+        [context enableVertexArray];
+        [context disableColorArray];
+        [context enablePointSizeArray];
+        [context disableTextureCoordArray];
+
         [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
     }];
 }

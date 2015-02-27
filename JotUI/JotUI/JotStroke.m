@@ -16,8 +16,6 @@
 #import "JotBufferManager.h"
 #import <OpenGLES/EAGLDrawable.h>
 #import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
 #import "JotUI.h"
 
 @implementation JotStroke{

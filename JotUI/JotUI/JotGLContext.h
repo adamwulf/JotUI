@@ -10,6 +10,13 @@
 #import <OpenGLES/EAGL.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
+#import "JotGLTypes.h"
+
+@class JotGLTexture;
+
+#define printOpenGLError() printOglError(__FILE__, __LINE__)
+
+int printOglError(char *file, int line);
 
 @interface JotGLContext : EAGLContext
 
@@ -17,7 +24,7 @@
 @property (nonatomic, readonly) NSMutableDictionary* contextProperties;
 
 // runs the block in the currently active context
-+(void) runBlock:(void(^)(JotGLContext*))block;
++(void) runBlock:(void(^)(JotGLContext* context))block;
 
 // pushes this context, runs the block, and pops
 -(void) runBlock:(void(^)(void))block;
@@ -47,5 +54,34 @@
 -(void) prepOpenGLBlendModeForColor:(UIColor*)color;
 
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor;
+
+-(void) drawTriangleStripCount:(GLsizei)count;
+
+-(void) drawPointCount:(GLsizei)count;
+
+-(void) assertCheckFramebuffer;
+
+-(void) assertCurrentBoundFramebufferIs:(GLuint)frameBuffer andRenderBufferIs:(GLuint)renderBuffer;
+
+-(void) glDisableDither;
+-(void) glEnableTextures;
+-(void) glEnableBlend;
+-(void) glEnablePointSprites;
+
+-(void) enableVertexArray;
+-(void) enableVertexArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
+-(void) disableVertexArray;
+
+-(void) enableColorArray;
+-(void) enableColorArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
+-(void) disableColorArray;
+
+-(void) enablePointSizeArray;
+-(void) enablePointSizeArrayForStride:(GLsizei) stride andPointer:(const GLvoid *)pointer;
+-(void) disablePointSizeArray;
+
+-(void) enableTextureCoordArray;
+-(void) enableTextureCoordArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
+-(void) disableTextureCoordArray;
 
 @end

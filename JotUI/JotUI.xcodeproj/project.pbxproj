@@ -54,6 +54,7 @@
 		66AC157C18079B27005315C8 /* MMWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */; };
 		66AC157D18079B35005315C8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A32026170242D200692C71 /* UIKit.framework */; };
 		66AC157E18079B41005315C8 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
+		66B498811AA131D300D48094 /* JotGLTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B498801AA131D300D48094 /* JotGLTypes.h */; };
 		66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B7E0501A0B4D94000797E4 /* UIScreen+PortraitBounds.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66B7E0531A0B4D94000797E4 /* UIScreen+PortraitBounds.m in Sources */ = {isa = PBXBuildFile; fileRef = 66B7E0511A0B4D94000797E4 /* UIScreen+PortraitBounds.m */; };
 		66C6AAE718A2E4D50036F4BB /* JotFilledPathStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66C6AAE518A2E4D50036F4BB /* JotFilledPathStroke.h */; };
@@ -162,6 +163,7 @@
 		66AA82E617761C2300F26904 /* JotViewImmutableState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewImmutableState.h; sourceTree = "<group>"; };
 		66AA82E717761C2300F26904 /* JotViewImmutableState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewImmutableState.m; sourceTree = "<group>"; };
 		66AC155718079A71005315C8 /* JotUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework.static; includeInIndex = 0; path = JotUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		66B498801AA131D300D48094 /* JotGLTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JotGLTypes.h; path = JotUI/JotGLTypes.h; sourceTree = "<group>"; };
 		66B7E0501A0B4D94000797E4 /* UIScreen+PortraitBounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScreen+PortraitBounds.h"; sourceTree = "<group>"; };
 		66B7E0511A0B4D94000797E4 /* UIScreen+PortraitBounds.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScreen+PortraitBounds.m"; sourceTree = "<group>"; };
 		66BF7F1F176675E0003F4F67 /* JotBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotBrushTexture.h; sourceTree = "<group>"; };
@@ -230,6 +232,7 @@
 		669B399A1692B46A00F12F42 = {
 			isa = PBXGroup;
 			children = (
+				66B498801AA131D300D48094 /* JotGLTypes.h */,
 				669B39F21692B52800F12F42 /* JotUI.h */,
 				669B39AE1692B46A00F12F42 /* JotUI */,
 				669B39AB1692B46A00F12F42 /* Frameworks */,
@@ -437,6 +440,7 @@
 				66F1F1F418079BD700B8CE3B /* JotStrokeManager.h in Headers */,
 				66F1F1F518079BD700B8CE3B /* JotImmutableStroke.h in Headers */,
 				66F1F1F618079BD700B8CE3B /* SegmentSmoother.h in Headers */,
+				66B498811AA131D300D48094 /* JotGLTypes.h in Headers */,
 				66F1F1F718079BD700B8CE3B /* AbstractBezierPathElement.h in Headers */,
 				66A64EF419FB5B8E0026305B /* NSMutableArray+RemoveSingle.h in Headers */,
 				66F1F1F818079BD700B8CE3B /* AbstractBezierPathElement-Protected.h in Headers */,
