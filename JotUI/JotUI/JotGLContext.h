@@ -59,6 +59,10 @@ int printOglError(char *file, int line);
 
 -(void) drawPointCount:(GLsizei)count;
 
+-(void) bindFramebuffer:(GLuint)framebufferId;
+
+-(void) unbindFramebuffer;
+
 -(void) assertCheckFramebuffer;
 
 -(void) assertCurrentBoundFramebufferIs:(GLuint)frameBuffer andRenderBufferIs:(GLuint)renderBuffer;

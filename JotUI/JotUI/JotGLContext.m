@@ -96,6 +96,8 @@ typedef enum UndfBOOL{
     GLenum blend_sfactor;
     GLenum blend_dfactor;
     
+    GLuint currentlyBoundFramebuffer;
+    
     GLint vertex_pointer_size;
     GLenum vertex_pointer_type;
     GLsizei vertex_pointer_stride;
@@ -153,6 +155,7 @@ typedef enum UndfBOOL{
     stencilOpZpass = GL_KEEP;
     alphaFuncFunc = GL_ALWAYS;
     alphaFuncRef = 0;
+    currentlyBoundFramebuffer = 0;
     lock = [[NSRecursiveLock alloc] init];
     contextProperties = [NSMutableDictionary dictionary];
 }
@@ -578,6 +581,23 @@ typedef enum UndfBOOL{
         @throw [NSException exceptionWithName:@"GLDrawPointException" reason:@"bad state" userInfo:nil];
     }
     glDrawArrays(GL_POINTS, 0, count);
+}
+
+#pragma mark - Generate Assets
+
+-(void) bindFramebuffer:(GLuint)framebuffer{
+    if(framebuffer && currentlyBoundFramebuffer != framebuffer){
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebuffer);
+        currentlyBoundFramebuffer = framebuffer;
+    }else if(!framebuffer){
+        @throw [NSException exceptionWithName:@"GLBindFramebufferExcpetion" reason:@"Trying to bind nil framebuffer" userInfo:nil];
+    }
+}
+-(void) unbindFramebuffer{
+    if(currentlyBoundFramebuffer != 0){
+        glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+        currentlyBoundFramebuffer = 0;
+    }
 }
 
 #pragma mark - Assert

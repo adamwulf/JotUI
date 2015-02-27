@@ -619,7 +619,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 GLuint exportFramebuffer;
                 
                 glGenFramebuffersOES(1, &exportFramebuffer);
-                glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+                [secondSubContext bindFramebuffer:exportFramebuffer];
                 
                 glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
                 [canvasTexture unbind];
@@ -657,8 +657,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 
                 // now render strokes
-                
-                glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+                [secondSubContext bindFramebuffer:exportFramebuffer];
                 
                 [secondSubContext glEnableClientState:GL_VERTEX_ARRAY];
                 [secondSubContext glEnableClientState:GL_COLOR_ARRAY];
@@ -875,7 +874,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 GLuint exportFramebuffer;
                 
                 glGenFramebuffersOES(1, &exportFramebuffer);
-                glBindFramebufferOES(GL_FRAMEBUFFER_OES, exportFramebuffer);
+                [secondSubContext bindFramebuffer:exportFramebuffer];
                 
                 glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
                 [canvasTexture unbind];
@@ -1217,7 +1216,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
  *
  * this assumes that this has been called:
  * [JotGLContext pushCurrentContext:];
- * glBindFramebufferOES(GL_FRAMEBUFFER_OES, viewFramebuffer);
+ * [context bindFramebuffer:viewFramebuffer];
  *
  * and also assumes that this will be called after
  * all rendering is done:

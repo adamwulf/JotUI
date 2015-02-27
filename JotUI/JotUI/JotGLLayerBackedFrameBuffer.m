@@ -45,7 +45,7 @@
             glGenFramebuffersOES(1, &framebufferID);
             glGenRenderbuffersOES(1, &viewRenderbuffer);
             
-            glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+            [context bindFramebuffer:framebufferID];
             glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
             // This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
             // allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
@@ -128,11 +128,11 @@
         // something below here is wrong.
         // and/or how this interacts later
         // with other threads
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebufferID);
+        [context bindFramebuffer:framebufferID];
         glClearColor(0.0, 0.0, 0.0, 0.0);
         glClear(GL_COLOR_BUFFER_BIT);
         
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+        [context unbindFramebuffer];
     }];
 }
 
