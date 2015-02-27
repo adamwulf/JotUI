@@ -60,6 +60,11 @@ typedef enum UndfBOOL{
     CGFloat lastGreen;
     CGFloat lastAlpha;
 
+    CGFloat lastClearRed;
+    CGFloat lastClearBlue;
+    CGFloat lastClearGreen;
+    CGFloat lastClearAlpha;
+    
     UndfBOOL enabled_GL_VERTEX_ARRAY;
     UndfBOOL enabled_GL_COLOR_ARRAY;
     UndfBOOL enabled_GL_POINT_SIZE_ARRAY_OES;
@@ -68,7 +73,26 @@ typedef enum UndfBOOL{
     UndfBOOL enabled_GL_BLEND;
     UndfBOOL enabled_GL_DITHER;
     UndfBOOL enabled_GL_POINT_SPRITE_OES;
+    UndfBOOL enabled_GL_SCISSOR_TEST;
+    UndfBOOL enabled_GL_STENCIL_TEST;
+    UndfBOOL enabled_GL_ALPHA_TEST;
+    UndfBOOL enabled_glColorMask_red;
+    UndfBOOL enabled_glColorMask_green;
+    UndfBOOL enabled_glColorMask_blue;
+    UndfBOOL enabled_glColorMask_alpha;
+    UndfBOOL enabled_GL_DEPTH_MASK;
     
+    GLuint stencilMask;
+    GLenum stencilFuncFunc;
+    GLint stencilFuncRef;
+    GLuint stencilFuncMask;
+    GLenum stencilOpFail;
+    GLenum stencilOpZfail;
+    GLenum stencilOpZpass;
+
+    GLenum alphaFuncFunc;
+    GLclampf alphaFuncRef;
+
     BOOL needsFlush;
     
     GLenum blend_sfactor;
@@ -96,6 +120,67 @@ typedef enum UndfBOOL{
 -(NSRecursiveLock*)lock{
     return lock;
 }
+
+#pragma mark - Init
+
+-(void) initAllProperties{
+    lastRed = -1;
+    lastBlue = -1;
+    lastGreen = -1;
+    lastAlpha = -1;
+    lastClearRed = -1;
+    lastClearBlue = -1;
+    lastClearGreen = -1;
+    lastClearAlpha = -1;
+    matrixMode = GL_MODELVIEW;
+    enabled_GL_VERTEX_ARRAY = UNKNOWN;
+    enabled_GL_COLOR_ARRAY = UNKNOWN;
+    enabled_GL_POINT_SIZE_ARRAY_OES = UNKNOWN;
+    enabled_GL_TEXTURE_COORD_ARRAY = UNKNOWN;
+    enabled_GL_TEXTURE_2D = UNKNOWN;
+    enabled_GL_BLEND = UNKNOWN;
+    enabled_GL_DITHER = UNKNOWN;
+    enabled_GL_POINT_SPRITE_OES = UNKNOWN;
+    enabled_GL_SCISSOR_TEST = UNKNOWN;
+    enabled_GL_STENCIL_TEST = UNKNOWN;
+    enabled_GL_ALPHA_TEST = UNKNOWN;
+    enabled_glColorMask_red = YEP;
+    enabled_glColorMask_green = YEP;
+    enabled_glColorMask_blue = YEP;
+    enabled_glColorMask_alpha = YEP;
+    enabled_GL_DEPTH_MASK = UNKNOWN;
+    stencilMask = 0xFF;
+    stencilFuncFunc = GL_ALWAYS;
+    stencilFuncRef = 0;
+    stencilFuncMask = 0xFF;
+    stencilOpFail = GL_KEEP;
+    stencilOpZfail = GL_KEEP;
+    stencilOpZpass = GL_KEEP;
+    alphaFuncFunc = GL_ALWAYS;
+    alphaFuncRef = 0;
+    lock = [[NSRecursiveLock alloc] init];
+    contextProperties = [NSMutableDictionary dictionary];
+}
+
+-(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
+    if(self = [super initWithAPI:api]){
+        name = _name;
+        validateThreadBlock = _validateThreadBlock;
+        [self initAllProperties];
+    }
+    return self;
+}
+
+-(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
+    if(self = [super initWithAPI:api sharegroup:sharegroup]){
+        name = _name;
+        validateThreadBlock = _validateThreadBlock;
+        [self initAllProperties];
+    }
+    return self;
+}
+
+#pragma mark - Run Blocks
 
 +(void) runBlock:(void(^)(JotGLContext* context))block{
     @autoreleasepool {
@@ -134,7 +219,7 @@ typedef enum UndfBOOL{
     [self runBlock:^{
 
         if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-            glEnable(GL_SCISSOR_TEST);
+            [self glEnableScissorTest];
             glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
         }else{
             // noop for scissors
@@ -143,7 +228,7 @@ typedef enum UndfBOOL{
         block();
 
         if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-            glDisable(GL_SCISSOR_TEST);
+            [self glDisableScissorTest];
         }
     }];
 }
@@ -212,53 +297,7 @@ typedef enum UndfBOOL{
     }
 }
 
--(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
-    if(self = [super initWithAPI:api]){
-        name = _name;
-        lastRed = -1;
-        lastBlue = -1;
-        lastGreen = -1;
-        lastAlpha = -1;
-        matrixMode = GL_MODELVIEW;
-        enabled_GL_VERTEX_ARRAY = UNKNOWN;
-        enabled_GL_COLOR_ARRAY = UNKNOWN;
-        enabled_GL_POINT_SIZE_ARRAY_OES = UNKNOWN;
-        enabled_GL_TEXTURE_COORD_ARRAY = UNKNOWN;
-        enabled_GL_TEXTURE_2D = UNKNOWN;
-        enabled_GL_BLEND = UNKNOWN;
-        enabled_GL_DITHER = UNKNOWN;
-        enabled_GL_POINT_SPRITE_OES = UNKNOWN;
-        validateThreadBlock = _validateThreadBlock;
-        lock = [[NSRecursiveLock alloc] init];
-        contextProperties = [NSMutableDictionary dictionary];
-    }
-    return self;
-}
-
--(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
-    if(self = [super initWithAPI:api sharegroup:sharegroup]){
-        name = _name;
-        lastRed = -1;
-        lastBlue = -1;
-        lastGreen = -1;
-        lastAlpha = -1;
-        matrixMode = GL_MODELVIEW;
-        blend_dfactor = GL_ZERO;
-        blend_sfactor = GL_ZERO;
-        enabled_GL_VERTEX_ARRAY = UNKNOWN;
-        enabled_GL_COLOR_ARRAY = UNKNOWN;
-        enabled_GL_POINT_SIZE_ARRAY_OES = UNKNOWN;
-        enabled_GL_TEXTURE_COORD_ARRAY = UNKNOWN;
-        enabled_GL_TEXTURE_2D = UNKNOWN;
-        enabled_GL_BLEND = UNKNOWN;
-        enabled_GL_DITHER = UNKNOWN;
-        enabled_GL_POINT_SPRITE_OES = UNKNOWN;
-        validateThreadBlock = _validateThreadBlock;
-        lock = [[NSRecursiveLock alloc] init];
-        contextProperties = [NSMutableDictionary dictionary];
-    }
-    return self;
-}
+#pragma mark - Flush
 
 -(void) setNeedsFlush:(BOOL)_needsFlush{
     needsFlush = _needsFlush;
@@ -278,6 +317,105 @@ typedef enum UndfBOOL{
 }
 
 #pragma mark - Enable Disable State
+
+-(void) glAlphaFunc:(GLenum)func ref:(GLclampf) ref{
+    if(alphaFuncFunc != func || alphaFuncRef != ref){
+        alphaFuncFunc = func;
+        alphaFuncRef = ref;
+        glAlphaFunc(func, ref);
+    }
+}
+
+-(void) glStencilOp:(GLenum)fail zfail:(GLenum)zfail zpass:(GLenum)zpass{
+    if(stencilOpFail != fail || stencilOpZfail != zfail || stencilOpZpass != zpass){
+        stencilOpFail = fail;
+        stencilOpZfail = zfail;
+        stencilOpZpass = zpass;
+        glStencilOp(fail, zfail, zpass);
+    }
+}
+
+-(void) glStencilFunc:(GLenum)func ref:(GLint)ref mask:(GLuint) mask{
+    if(stencilFuncFunc != func || stencilFuncRef != ref || stencilFuncMask != mask){
+        stencilFuncFunc = func;
+        stencilFuncRef = ref;
+        stencilFuncMask = mask;
+        glStencilFunc(func, ref, mask);
+    }
+}
+
+-(void) glStencilMask:(GLuint)mask{
+    if(mask != stencilMask){
+        glStencilMask(mask);
+        stencilMask = mask;
+    }
+}
+
+-(void) glDisableDepthMask{
+    if(enabled_GL_DEPTH_MASK == YEP || enabled_GL_DEPTH_MASK == UNKNOWN){
+        glDepthMask(GL_FALSE);
+        enabled_GL_DEPTH_MASK = NOPE;
+    }
+}
+
+-(void) glEnableDepthMask{
+    if(enabled_GL_DEPTH_MASK == NOPE || enabled_GL_DEPTH_MASK == UNKNOWN){
+        glDepthMask(GL_TRUE);
+        enabled_GL_DEPTH_MASK = YEP;
+    }
+}
+
+-(void) glColorMaskRed:(GLboolean)red green:(GLboolean)green blue:(GLboolean)blue alpha:(GLboolean)alpha{
+    if(red != enabled_glColorMask_red || green != enabled_glColorMask_green || blue != enabled_glColorMask_blue || alpha != enabled_glColorMask_alpha){
+        glColorMask(red, green, blue, alpha);
+        enabled_glColorMask_red = red ? YEP : NOPE;
+        enabled_glColorMask_green = green ? YEP : NOPE;
+        enabled_glColorMask_blue = blue ? YEP : NOPE;
+        enabled_glColorMask_alpha = alpha ? YEP : NOPE;
+    }
+}
+
+-(void) glDisableAlphaTest{
+    if(enabled_GL_ALPHA_TEST == YEP || enabled_GL_ALPHA_TEST == UNKNOWN){
+        glDisable(GL_ALPHA_TEST);
+        enabled_GL_ALPHA_TEST = NOPE;
+    }
+}
+
+-(void) glEnableAlphaTest{
+    if(enabled_GL_ALPHA_TEST == NOPE || enabled_GL_ALPHA_TEST == UNKNOWN){
+        glEnable(GL_ALPHA_TEST);
+        enabled_GL_ALPHA_TEST = YEP;
+    }
+}
+
+-(void) glDisableStencilTest{
+    if(enabled_GL_STENCIL_TEST == YEP || enabled_GL_STENCIL_TEST == UNKNOWN){
+        glDisable(GL_STENCIL_TEST);
+        enabled_GL_STENCIL_TEST = NOPE;
+    }
+}
+
+-(void) glEnableStencilTest{
+    if(enabled_GL_STENCIL_TEST == NOPE || enabled_GL_STENCIL_TEST == UNKNOWN){
+        glEnable(GL_STENCIL_TEST);
+        enabled_GL_STENCIL_TEST = YEP;
+    }
+}
+
+-(void) glDisableScissorTest{
+    if(enabled_GL_SCISSOR_TEST == YEP || enabled_GL_SCISSOR_TEST == UNKNOWN){
+        glDisable(GL_SCISSOR_TEST);
+        enabled_GL_SCISSOR_TEST = NOPE;
+    }
+}
+
+-(void) glEnableScissorTest{
+    if(enabled_GL_SCISSOR_TEST == NOPE || enabled_GL_SCISSOR_TEST == UNKNOWN){
+        glEnable(GL_SCISSOR_TEST);
+        enabled_GL_SCISSOR_TEST = YEP;
+    }
+}
 
 -(void) glDisableDither{
     if(enabled_GL_DITHER == YEP || enabled_GL_DITHER == UNKNOWN){
@@ -380,7 +518,6 @@ typedef enum UndfBOOL{
         }
     }else{
         @throw [NSException exceptionWithName:@"GLStateException" reason:@"Unknown state" userInfo:nil];
-        glEnableClientState(array);
     }
 }
     
@@ -408,7 +545,6 @@ typedef enum UndfBOOL{
         }
     }else{
         @throw [NSException exceptionWithName:@"GLStateException" reason:@"Unknown state" userInfo:nil];
-        glDisableClientState(array);
     }
 }
 
@@ -484,15 +620,14 @@ typedef enum UndfBOOL{
         // setup the stencil test and alpha test. the stencil test
         // ensures all pixels are turned "on" in the stencil buffer,
         // and the alpha test ensures we ignore transparent pixels
-        glEnable(GL_STENCIL_TEST);
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-        glDepthMask(GL_FALSE);
-        glStencilFunc(GL_NEVER, 1, 0xFF);
-        glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
-        glEnable(GL_ALPHA_TEST);
-        //        glAlphaFunc(GL_NOTEQUAL, 0.0 );
-        glAlphaFunc(GL_GREATER, 0.5);
-        glStencilMask(0xFF);
+        [self glEnableStencilTest];
+        [self glColorMaskRed:GL_FALSE green:GL_FALSE blue:GL_FALSE alpha:GL_FALSE];
+        [self glDisableDepthMask];
+        [self glStencilFunc:GL_NEVER ref:1 mask:0xFF];
+        [self glStencilOp:GL_REPLACE zfail:GL_KEEP zpass:GL_KEEP];  // draw 1s on test fail (always)
+        [self glEnableAlphaTest];
+        [self glAlphaFunc:GL_GREATER ref:0.5];
+        [self glStencilMask:0xFF];
         glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
         
         
@@ -524,10 +659,10 @@ typedef enum UndfBOOL{
         
         // now setup the next draw operations to respect
         // the new stencil buffer that's setup
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        glDepthMask(GL_TRUE);
-        glStencilMask(0x00);
-        glStencilFunc(GL_EQUAL, 1, 0xFF);
+        [self glColorMaskRed:GL_TRUE green:GL_TRUE blue:GL_TRUE alpha:GL_TRUE];
+        [self glEnableDepthMask];
+        [self glStencilMask:0x00];
+        [self glStencilFunc:GL_EQUAL ref:1 mask:0xFF];
         
         
         ////////////////////////////
@@ -540,8 +675,8 @@ typedef enum UndfBOOL{
         // turn stencil off
         //
         [clipping unbind];
-        glDisable(GL_STENCIL_TEST);
-        glDisable(GL_ALPHA_TEST);
+        [self glDisableStencilTest];
+        [self glDisableAlphaTest];
         glDeleteRenderbuffersOES(1, &stencil_rb);
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, 0);
         
@@ -552,6 +687,16 @@ typedef enum UndfBOOL{
 }
 
 #pragma mark - Color and Blend Mode
+
+-(void) glClearColor:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha{
+    if(red != lastRed || green != lastGreen || blue != lastBlue || alpha != lastAlpha){
+        glClearColor(red, green, blue, alpha);
+        lastClearRed = red;
+        lastClearGreen = green;
+        lastClearBlue = blue;
+        lastClearAlpha = alpha;
+    }
+}
 
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha{
     if(red != lastRed || green != lastGreen || blue != lastBlue || alpha != lastAlpha){
@@ -591,15 +736,22 @@ typedef enum UndfBOOL{
 }
 
 -(void) clear{
-    glClearColor(0.0, 0.0, 0.0, 0.0);
+    [self glClearColor:0 and:0 and:0 and:0];
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
 -(void) drawTriangleStripCount:(GLsizei)count{
+    if(!enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
+        @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
+    }
     glDrawArrays(GL_TRIANGLE_STRIP, 0, count);
 }
 
 -(void) drawPointCount:(GLsizei)count{
+    if(enabled_GL_TEXTURE_COORD_ARRAY || !enabled_GL_POINT_SIZE_ARRAY_OES || !enabled_GL_VERTEX_ARRAY){
+        // enabled_GL_COLOR_ARRAY is optional for point drawing
+        @throw [NSException exceptionWithName:@"GLDrawPointException" reason:@"bad state" userInfo:nil];
+    }
     glDrawArrays(GL_POINTS, 0, count);
 }
 
