@@ -659,9 +659,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // now render strokes
                 [secondSubContext bindFramebuffer:exportFramebuffer];
                 
-                [secondSubContext glEnableClientState:GL_VERTEX_ARRAY];
-                [secondSubContext glEnableClientState:GL_COLOR_ARRAY];
-                [secondSubContext glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+                [secondSubContext enableVertexArray];
+                [secondSubContext enableColorArray];
+                [secondSubContext enablePointSizeArray];
                 [secondSubContext disableTextureCoordArray];
                 
                 for(JotStroke* stroke in strokesAtTimeOfExport){
@@ -1272,9 +1272,9 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
 -(void) prepOpenGLStateForFBO:(AbstractJotGLFrameBuffer*)frameBuffer toContext:(JotGLContext*)renderContext{
     CheckMainThread;
     
-    [renderContext glEnableClientState:GL_VERTEX_ARRAY];
-    [renderContext glEnableClientState:GL_COLOR_ARRAY];
-    [renderContext glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+    [renderContext enableVertexArray];
+    [renderContext enableColorArray];
+    [renderContext enablePointSizeArray];
     [renderContext disableTextureCoordArray];
 }
 

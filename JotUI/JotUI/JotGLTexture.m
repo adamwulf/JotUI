@@ -302,10 +302,10 @@ static int totalTextureBytes;
         // prep our context to draw our texture as a quad.
         // now prep to draw the actual texture
         // always draw
-        [context glEnableClientState:GL_VERTEX_ARRAY];
-        [context glDisableClientState:GL_COLOR_ARRAY];
-        [context glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
-        [context glEnableClientState:GL_TEXTURE_COORD_ARRAY];
+        [context enableVertexArray];
+        [context disableColorArray];
+        [context disablePointSizeArray];
+        [context enableTextureCoordArray];
         [context glColor4f:1 and:1 and:1 and:1];
         
         GLint currBoundRendBuff = -1;
@@ -418,10 +418,10 @@ static int totalTextureBytes;
         
         // unprep our quad drawing texture, and prep back for
         // drawing lines
-        [context glEnableClientState:GL_VERTEX_ARRAY];
-        [context glEnableClientState:GL_COLOR_ARRAY];
-        [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-        [context glDisableClientState:GL_TEXTURE_COORD_ARRAY];
+        [context enableVertexArray];
+        [context enableColorArray];
+        [context enablePointSizeArray];
+        [context disableTextureCoordArray];
         
         [self unbind];
     }];

@@ -144,10 +144,9 @@ static void * zeroedDataCache = nil;
         [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
         [context enablePointSizeArrayForStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
         [context disableTextureCoordArray];
-
-        [context glEnableClientState:GL_VERTEX_ARRAY];
-        [context glEnableClientState:GL_COLOR_ARRAY];
-        [context glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+        [context enableVertexArray];
+        [context enableColorArray];
+        [context enablePointSizeArray];
     }];
 }
 

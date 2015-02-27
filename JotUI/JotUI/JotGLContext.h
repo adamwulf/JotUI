@@ -43,10 +43,6 @@ int printOglError(char *file, int line);
 
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha;
 
--(void) glEnableClientState:(GLenum)array;
-
--(void) glDisableClientState:(GLenum)array;
-
 -(void) flush;
 
 -(void) finish;
