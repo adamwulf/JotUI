@@ -469,6 +469,9 @@ typedef enum UndfBOOL{
     }
 }
 
+-(void) enableVertexArray{
+    [self glEnableClientState:GL_VERTEX_ARRAY];
+}
 -(void) enableVertexArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
     [self glEnableClientState:GL_VERTEX_ARRAY];
     glVertexPointer(size, GL_FLOAT, stride, pointer);
@@ -477,6 +480,9 @@ typedef enum UndfBOOL{
     [self glDisableClientState:GL_VERTEX_ARRAY];
 }
 
+-(void) enableColorArray{
+    [self glEnableClientState:GL_COLOR_ARRAY];
+}
 -(void) enableColorArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
     [self glEnableClientState:GL_COLOR_ARRAY];
     glColorPointer(size, GL_FLOAT, stride, pointer);
@@ -485,6 +491,9 @@ typedef enum UndfBOOL{
     [self glDisableClientState:GL_COLOR_ARRAY];
 }
 
+-(void) enablePointSizeArray{
+    [self glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+}
 -(void) enablePointSizeArrayForStride:(GLsizei) stride andPointer:(const GLvoid *)pointer{
     [self glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
     glPointSizePointerOES(GL_FLOAT, stride, pointer);
@@ -493,6 +502,9 @@ typedef enum UndfBOOL{
     [self glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
 }
 
+-(void) enableTextureCoordArray{
+    [self glEnableClientState:GL_TEXTURE_COORD_ARRAY];
+}
 -(void) enableTextureCoordArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
     [self glEnableClientState:GL_TEXTURE_COORD_ARRAY];
     glTexCoordPointer(size, GL_FLOAT, stride, pointer);

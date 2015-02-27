@@ -139,7 +139,9 @@
         
         [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
         [context enablePointSizeArrayForStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
+        [context enableVertexArray];
         [context disableColorArray];
+        [context enablePointSizeArray];
         [context disableTextureCoordArray];
 
         [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];

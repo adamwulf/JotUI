@@ -255,8 +255,10 @@ static int totalTextureBytes;
             // prep our context to draw our texture as a quad.
             // now prep to draw the actual texture
             // always draw
+            [context enableVertexArray];
             [context disableColorArray];
             [context disablePointSizeArray];
+            [context enableTextureCoordArray];
             [context glColor4f:1 and:1 and:1 and:1];
         };
         void(^possiblyStenciledRenderBlock2)() = ^{
