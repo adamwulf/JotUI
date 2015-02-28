@@ -132,4 +132,10 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(void) enableTextureCoordArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
 -(void) disableTextureCoordArray;
 
+
+
+// want these to be private eventually
+
+-(void) glTexParameteriWithPname:(GLenum)pname param:(GLint)param;
+
 @end

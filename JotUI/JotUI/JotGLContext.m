@@ -120,6 +120,23 @@ typedef enum UndfBOOL{
     GLsizei texcoord_pointer_stride;
     const GLvoid* texcoord_pointer_pointer;
     
+    GLfloat ortho_left;
+    GLfloat ortho_right;
+    GLfloat ortho_top;
+    GLfloat ortho_bottom;
+    GLfloat ortho_znear;
+    GLfloat ortho_zfar;
+    
+    GLint viewport_x;
+    GLint viewport_y;
+    GLsizei viewport_width;
+    GLsizei viewport_height;
+    
+    GLint texparam_GL_TEXTURE_MIN_FILTER;
+    GLint texparam_GL_TEXTURE_MAG_FILTER;
+    GLint texparam_GL_TEXTURE_WRAP_S;
+    GLint texparam_GL_TEXTURE_WRAP_T;
+
     BOOL(^validateThreadBlock)();
     NSRecursiveLock* lock;
     
@@ -189,7 +206,21 @@ typedef enum UndfBOOL{
     texcoord_pointer_size = 0;
     texcoord_pointer_type = 0;
     texcoord_pointer_stride = 0;
+    ortho_left = 0;
+    ortho_right = 0;
+    ortho_top = 0;
+    ortho_bottom = 0;
+    ortho_znear = 0;
+    ortho_zfar = 0;
+    viewport_x = 0;
+    viewport_y = 0;
+    viewport_width = 0;
+    viewport_height = 0;
     texcoord_pointer_pointer = NULL;
+    texparam_GL_TEXTURE_MIN_FILTER = 0;
+    texparam_GL_TEXTURE_MAG_FILTER = 0;
+    texparam_GL_TEXTURE_WRAP_S = 0;
+    texparam_GL_TEXTURE_WRAP_T = 0;
     lock = [[NSRecursiveLock alloc] init];
     contextProperties = [NSMutableDictionary dictionary];
 }
@@ -543,6 +574,10 @@ typedef enum UndfBOOL{
     vertex_pointer_type = GL_FLOAT;
     vertex_pointer_stride = stride;
     vertex_pointer_pointer = pointer;
+    
+    if(!stride){
+        [NSException exceptionWithName:@"StrideException" reason:@"stride cannot be zero" userInfo:nil];
+    }
 }
 -(void) disableVertexArray{
     [self glDisableClientState:GL_VERTEX_ARRAY];
@@ -649,6 +684,33 @@ typedef enum UndfBOOL{
         }
     }else{
         @throw [NSException exceptionWithName:@"GLStateException" reason:@"Unknown state" userInfo:nil];
+    }
+}
+
+
+-(void) glTexParameteriWithPname:(GLenum)pname param:(GLint)param{
+    if(pname == GL_TEXTURE_MIN_FILTER){
+        if(YES || param != texparam_GL_TEXTURE_MIN_FILTER){
+            texparam_GL_TEXTURE_MIN_FILTER = param;
+            glTexParameteri(GL_TEXTURE_2D, pname, param);
+        }
+    }else if(pname == GL_TEXTURE_MAG_FILTER){
+        if(YES || param != texparam_GL_TEXTURE_MAG_FILTER){
+            texparam_GL_TEXTURE_MAG_FILTER = param;
+            glTexParameteri(GL_TEXTURE_2D, pname, param);
+        }
+    }else if(pname == GL_TEXTURE_WRAP_S){
+        if(YES || param != texparam_GL_TEXTURE_WRAP_S){
+            texparam_GL_TEXTURE_WRAP_S = param;
+            glTexParameteri(GL_TEXTURE_2D, pname, param);
+        }
+    }else if(pname == GL_TEXTURE_WRAP_T){
+        if(YES || param != texparam_GL_TEXTURE_WRAP_T){
+            texparam_GL_TEXTURE_WRAP_T = param;
+            glTexParameteri(GL_TEXTURE_2D, pname, param);
+        }
+    }else{
+        @throw [NSException exceptionWithName:@"TextureParamException" reason:@"Unknown texture parameter" userInfo:nil];
     }
 }
 
@@ -856,12 +918,26 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) glOrthof:(GLfloat)left right:(GLfloat)right bottom:(GLfloat)bottom top:(GLfloat)top zNear:(GLfloat)zNear zFar:(GLfloat)zFar{
     ValidateCurrentContext;
-    glOrthof(left, right, bottom, top, zNear, zFar);
+    if(ortho_left != left || ortho_right != right || ortho_top != top || ortho_bottom != bottom || ortho_znear != zNear || ortho_zfar != zFar){
+        glOrthof(left, right, bottom, top, zNear, zFar);
+        ortho_left = left;
+        ortho_right = right;
+        ortho_top = top;
+        ortho_bottom = bottom;
+        ortho_znear = zNear;
+        ortho_zfar = zFar;
+    }
 }
 
 -(void) glViewportWithX:(GLint)x y:(GLint)y width:(GLsizei)width  height:(GLsizei)height{
     ValidateCurrentContext;
-    glViewport(x, y, width, height);
+    if(viewport_x != x || viewport_y != y || viewport_width != width || viewport_height != height){
+        glViewport(x, y, width, height);
+        viewport_x = x;
+        viewport_y = y;
+        viewport_width = width;
+        viewport_height = height;
+    }
 }
 
 -(void) clear{
@@ -905,13 +981,13 @@ forStenciledPath:(UIBezierPath*)clippingPath
     [self bindTexture:textureID];
     
     // configure how this texture scales.
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    [self glTexParameteriWithPname:GL_TEXTURE_MIN_FILTER param:GL_LINEAR];
+    [self glTexParameteriWithPname:GL_TEXTURE_MAG_FILTER param:GL_LINEAR];
+    [self glTexParameteriWithPname:GL_TEXTURE_WRAP_S param:GL_CLAMP_TO_EDGE];
+    [self glTexParameteriWithPname:GL_TEXTURE_WRAP_T param:GL_CLAMP_TO_EDGE];
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+//    [self glTexParameteriWithPname:GL_TEXTURE_MIN_FILTER param:GL_LINEAR];
+//    [self glTexParameteriWithPname:GL_TEXTURE_MAG_FILTER param:GL_LINEAR];
 
     [self unbindTexture];
 

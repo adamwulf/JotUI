@@ -47,8 +47,10 @@
         // check if we already have the texture generated
         if(glBrushTextureID){
             [context bindTexture:glBrushTextureID];
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//            [context glTexParameteriWithPname:GL_TEXTURE_MIN_FILTER param:GL_LINEAR];
+//            [context glTexParameteriWithPname:GL_TEXTURE_MAG_FILTER param:GL_LINEAR];
+//            [context glTexParameteriWithPname:GL_TEXTURE_WRAP_S param:GL_CLAMP_TO_EDGE];
+//            [context glTexParameteriWithPname:GL_TEXTURE_WRAP_T param:GL_CLAMP_TO_EDGE];
             ret = YES;
             return;
         }
@@ -88,11 +90,12 @@
             // Bind the texture name.
             [context bindTexture:glBrushTextureID];
             // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            [context glTexParameteriWithPname:GL_TEXTURE_MIN_FILTER param:GL_LINEAR];
+            [context glTexParameteriWithPname:GL_TEXTURE_MAG_FILTER param:GL_LINEAR];
+            [context glTexParameteriWithPname:GL_TEXTURE_WRAP_S param:GL_CLAMP_TO_EDGE];
+            [context glTexParameteriWithPname:GL_TEXTURE_WRAP_T param:GL_CLAMP_TO_EDGE];
             // Specify a 2D texture image, providing the a pointer to the image data in memory
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
-            glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-            glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
             
             // Release  the image data; it's no longer needed
             free(brushData);
