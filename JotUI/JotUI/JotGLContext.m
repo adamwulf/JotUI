@@ -104,7 +104,21 @@ typedef enum UndfBOOL{
     GLint vertex_pointer_size;
     GLenum vertex_pointer_type;
     GLsizei vertex_pointer_stride;
-    GLvoid* vertex_pointer_pointer;
+    const GLvoid* vertex_pointer_pointer;
+    
+    GLint color_pointer_size;
+    GLenum color_pointer_type;
+    GLsizei color_pointer_stride;
+    const GLvoid* color_pointer_pointer;
+    
+    GLenum point_pointer_type;
+    GLsizei point_pointer_stride;
+    const GLvoid* point_pointer_pointer;
+    
+    GLint texcoord_pointer_size;
+    GLenum texcoord_pointer_type;
+    GLsizei texcoord_pointer_stride;
+    const GLvoid* texcoord_pointer_pointer;
     
     BOOL(^validateThreadBlock)();
     NSRecursiveLock* lock;
@@ -161,6 +175,21 @@ typedef enum UndfBOOL{
     alphaFuncRef = 0;
     currentlyBoundFramebuffer = 0;
     currentlyBoundRenderbuffer = 0;
+    vertex_pointer_size = 0;
+    vertex_pointer_type = 0;
+    vertex_pointer_stride = 0;
+    vertex_pointer_pointer = NULL;
+    color_pointer_size = 0;
+    color_pointer_type = 0;
+    color_pointer_stride = 0;
+    color_pointer_pointer = NULL;
+    point_pointer_type = 0;
+    point_pointer_stride = 0;
+    point_pointer_pointer = NULL;
+    texcoord_pointer_size = 0;
+    texcoord_pointer_type = 0;
+    texcoord_pointer_stride = 0;
+    texcoord_pointer_pointer = NULL;
     lock = [[NSRecursiveLock alloc] init];
     contextProperties = [NSMutableDictionary dictionary];
 }
@@ -510,6 +539,10 @@ typedef enum UndfBOOL{
 -(void) enableVertexArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
     [self glEnableClientState:GL_VERTEX_ARRAY];
     glVertexPointer(size, GL_FLOAT, stride, pointer);
+    vertex_pointer_size = size;
+    vertex_pointer_type = GL_FLOAT;
+    vertex_pointer_stride = stride;
+    vertex_pointer_pointer = pointer;
 }
 -(void) disableVertexArray{
     [self glDisableClientState:GL_VERTEX_ARRAY];
@@ -521,6 +554,10 @@ typedef enum UndfBOOL{
 -(void) enableColorArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
     [self glEnableClientState:GL_COLOR_ARRAY];
     glColorPointer(size, GL_FLOAT, stride, pointer);
+    color_pointer_size = size;
+    color_pointer_type = GL_FLOAT;
+    color_pointer_stride = stride;
+    color_pointer_pointer = pointer;
 }
 -(void) disableColorArray{
     [self glDisableClientState:GL_COLOR_ARRAY];
@@ -532,6 +569,9 @@ typedef enum UndfBOOL{
 -(void) enablePointSizeArrayForStride:(GLsizei) stride andPointer:(const GLvoid *)pointer{
     [self glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
     glPointSizePointerOES(GL_FLOAT, stride, pointer);
+    point_pointer_type = GL_FLOAT;
+    point_pointer_stride = stride;
+    point_pointer_pointer = pointer;
 }
 -(void) disablePointSizeArray{
     [self glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
@@ -543,7 +583,10 @@ typedef enum UndfBOOL{
 -(void) enableTextureCoordArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
     [self glEnableClientState:GL_TEXTURE_COORD_ARRAY];
     glTexCoordPointer(size, GL_FLOAT, stride, pointer);
-    
+    texcoord_pointer_size = size;
+    texcoord_pointer_type = GL_FLOAT;
+    texcoord_pointer_stride = stride;
+    texcoord_pointer_pointer = pointer;
 }
 -(void) disableTextureCoordArray{
     [self glDisableClientState:GL_TEXTURE_COORD_ARRAY];
