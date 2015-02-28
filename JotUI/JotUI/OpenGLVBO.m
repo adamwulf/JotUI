@@ -90,9 +90,9 @@
             NSLog(@"what");
         }
         [lock lock];
-        [context bindArrayBuffer:vbo];
         GLintptr offset = stepNumber*stepMallocSize;
         GLsizeiptr len = vertexData.length;
+        [context bindArrayBuffer:vbo];
         [context updateArrayBufferWithBytes:vertexData.bytes atOffset:offset andLength:len];
         [context unbindArrayBuffer];
         [context flush];
@@ -114,7 +114,6 @@
         }
         [lock lock];
         [context bindArrayBuffer:vbo];
-        
         [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
         [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
         [context enablePointSizeArrayForStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
@@ -140,6 +139,7 @@
         [lock lock];
         
         [context bindArrayBuffer:vbo];
+        
         [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
         [context enablePointSizeArrayForStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
         [context enableVertexArray];

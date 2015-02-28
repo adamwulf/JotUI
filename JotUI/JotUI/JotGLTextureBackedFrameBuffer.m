@@ -97,10 +97,12 @@ dispatch_queue_t importExportTextureQueue;
     if(framebufferID && ![JotGLContext currentContext]){
         DebugLog(@"nope");
     }
-    [JotGLContext runBlock:^(JotGLContext *context) {
-        [context deleteFramebuffer:framebufferID];
-    }];
-    framebufferID = 0;
+    if(framebufferID){
+        [JotGLContext runBlock:^(JotGLContext *context) {
+            [context deleteFramebuffer:framebufferID];
+        }];
+        framebufferID = 0;
+    }
 }
 
 -(void) dealloc{
