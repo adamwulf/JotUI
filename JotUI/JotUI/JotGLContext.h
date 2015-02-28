@@ -63,6 +63,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) prepOpenGLBlendModeForColor:(UIColor*)color;
 
+-(GLuint) generateTextureForSize:(CGSize)size withBytes:(const GLvoid *)bytes;
+
 -(void) bindTexture:(GLuint)textureId;
 
 -(void) unbindTexture;

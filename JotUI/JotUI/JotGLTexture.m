@@ -70,26 +70,12 @@ static int totalTextureBytes;
             lock = [[NSRecursiveLock alloc] init];
             lockCount = 0;
             
-            // unload the old texture
-            [self deleteAssets];
-            
-            // create a new texture in OpenGL
-            glGenTextures(1, &textureID);
-            
-            // bind the texture that we'll be writing to
-            [context bindTexture:textureID];
-            
-            // configure how this texture scales.
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             
             fullByteSize = fullPixelSize.width * fullPixelSize.height * 4;
             @synchronized([JotGLTexture class]){
                 totalTextureBytes += fullByteSize;
             }
-            
+
             //
             // load the image data if we have some, or initialize to
             // a blank texture
@@ -133,10 +119,9 @@ static int totalTextureBytes;
                 if(currContext != [JotGLContext currentContext]){
                     @throw [NSException exceptionWithName:@"OpenGLException" reason:@"Mismatched Context" userInfo:nil];
                 }
-                // ok, initialize the data
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
-                glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-                glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+                
+                
+                textureID = [context generateTextureForSize:fullPixelSize withBytes:imageData];
                 
                 // cleanup
                 CGContextRelease(cgContext);
@@ -146,13 +131,10 @@ static int totalTextureBytes;
                 if(!zeroedDataCache){
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, zeroedDataCache);
-                glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-                glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+                textureID = [context generateTextureForSize:fullPixelSize withBytes:zeroedDataCache];
+
                 free(zeroedDataCache);
             }
-            // clear texture bind
-            [context unbindTexture];
         }];
     }
     

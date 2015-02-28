@@ -843,6 +843,30 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 #pragma mark - Generate Assets
 
+-(GLuint) generateTextureForSize:(CGSize)fullPixelSize withBytes:(const GLvoid *)imageData{
+    ValidateCurrentContext;
+    GLuint textureID;
+    
+    // create a new texture in OpenGL
+    glGenTextures(1, &textureID);
+    
+    // bind the texture that we'll be writing to
+    [self bindTexture:textureID];
+    
+    // configure how this texture scales.
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+    [self unbindTexture];
+
+    return textureID;
+}
+
 -(void) bindTexture:(GLuint)textureId{
     ValidateCurrentContext;
     glBindTexture(GL_TEXTURE_2D, textureId);
