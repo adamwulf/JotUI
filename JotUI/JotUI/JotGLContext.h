@@ -85,6 +85,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) drawPointCount:(GLsizei)count;
 
+-(void) readPixelsInto:(GLubyte *)data ofSize:(GLSize)size;
+
 -(void) bindRenderbuffer:(GLuint)renderBufferId;
 
 -(void) unbindRenderbuffer;

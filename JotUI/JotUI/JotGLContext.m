@@ -836,6 +836,11 @@ forStenciledPath:(UIBezierPath*)clippingPath
     glDrawArrays(GL_POINTS, 0, count);
 }
 
+-(void) readPixelsInto:(GLubyte *)data ofSize:(GLSize)size{
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glReadPixels(0, 0, size.width, size.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+}
+
 #pragma mark - Generate Assets
 
 -(void) bindTexture:(GLuint)textureId{

@@ -692,15 +692,13 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer
-                GLint x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
                 NSInteger dataLength = fullSize.width * fullSize.height * 4;
                 GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
                 if(!data){
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
                 // Read pixel data from the framebuffer
-                glPixelStorei(GL_PACK_ALIGNMENT, 4);
-                glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+                [secondSubContext readPixelsInto:data ofSize:GLSizeFromCGSize(fullSize)];
                 
                 // now we're done, delete our buffers
                 [secondSubContext unbindFramebuffer];
@@ -910,15 +908,13 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer
-                GLint x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
                 NSInteger dataLength = fullSize.width * fullSize.height * 4;
                 GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
                 if(!data){
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
                 // Read pixel data from the framebuffer
-                glPixelStorei(GL_PACK_ALIGNMENT, 4);
-                glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+                [secondSubContext readPixelsInto:data ofSize:GLSizeFromCGSize(fullSize)];
                 
                 // now we're done, delete our buffers
                 [secondSubContext unbindFramebuffer];
