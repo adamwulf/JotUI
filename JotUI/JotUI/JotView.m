@@ -624,19 +624,13 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
                 [canvasTexture unbind];
                 
-                GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-                if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                    NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                    DebugLog(@"%@", str);
-                    @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-                }
+                [secondSubContext assertCheckFramebuffer];
                 
-                glViewport(0, 0, fullSize.width, fullSize.height);
+                [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
                 
                 // step 1:
                 // Clear the buffer
-                glClearColor(0.0, 0.0, 0.0, 0.0);
-                glClear(GL_COLOR_BUFFER_BIT);
+                [secondSubContext clear];
                 
                 // step 2:
                 // load a texture and draw it into a quad
@@ -644,7 +638,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [state.backgroundTexture drawInContext:secondSubContext];
                 
                 // reset our viewport
-                glViewport(0, 0, viewFramebuffer.initialViewport.width, viewFramebuffer.initialViewport.height);
+                [secondSubContext glViewportWithX:0 y:0 width:viewFramebuffer.initialViewport.width height:viewFramebuffer.initialViewport.height];
                 
                 // we have to flush here to push all
                 // the pixels to the texture so they're
@@ -691,15 +685,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 [secondSubContext flush];
                 [canvasTexture bind];
-                glViewport(0, 0, fullSize.width, fullSize.height);
+                [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
                 glFlush();
                 
-                status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-                if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                    NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                    DebugLog(@"%@", str);
-                    @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-                }
+                [secondSubContext assertCheckFramebuffer];
+
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer
                 GLint x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
@@ -879,19 +869,13 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
                 [canvasTexture unbind];
                 
-                GLenum status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-                if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                    NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                    DebugLog(@"%@", str);
-                    @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-                }
+                [secondSubContext assertCheckFramebuffer];
                 
-                glViewport(0, 0, fullSize.width, fullSize.height);
+                [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
                 
                 // step 1:
                 // Clear the buffer
-                glClearColor(0.0, 0.0, 0.0, 0.0);
-                glClear(GL_COLOR_BUFFER_BIT);
+                [secondSubContext clear];
                 
                 // step 2:
                 // load a texture and draw it into a quad
@@ -899,7 +883,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [state.backgroundTexture drawInContext:secondSubContext];
                 
                 // reset our viewport
-                glViewport(0, 0, initialViewport.width, initialViewport.height);
+                [secondSubContext glViewportWithX:0 y:0 width:initialViewport.width height:initialViewport.height];
                 
                 // we have to flush here to push all
                 // the pixels to the texture so they're
@@ -918,15 +902,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 [secondSubContext flush];
                 [canvasTexture bind];
-                glViewport(0, 0, fullSize.width, fullSize.height);
+                [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
                 glFlush();
                 
-                status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-                if(status != GL_FRAMEBUFFER_COMPLETE_OES) {
-                    NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                    DebugLog(@"%@", str);
-                    @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-                }
+                [secondSubContext assertCheckFramebuffer];
+
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer
                 GLint x = 0, y = 0; //, width = backingWidthForRenderBuffer, height = backingHeightForRenderBuffer;
@@ -1039,8 +1019,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             //
             // step 1:
             // Clear the buffer
-            glClearColor(0.0, 0.0, 0.0, 0.0);
-            glClear(GL_COLOR_BUFFER_BIT);
+            [renderContext clear];
             
             //
             // step 2:
@@ -1993,7 +1972,7 @@ static int undoCounter;
             JotGLTextureBackedFrameBuffer* exportFramebuffer = [[JotGLTextureBackedFrameBuffer alloc] initForTexture:canvasTexture];
             
             // set viewport to round up to the pixel, if needed
-            glViewport(0, 0, fullSize.width, fullSize.height);
+            [context glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
             
             // ok, everything is setup at this point, so render all
             // of the strokes over the backing texture to our
@@ -2007,7 +1986,7 @@ static int undoCounter;
         }
         
         // reset back to exact viewport
-        glViewport(0, 0, viewFramebuffer.initialViewport.width, viewFramebuffer.initialViewport.height);
+        [context glViewportWithX:0 y:0 width:viewFramebuffer.initialViewport.width height:viewFramebuffer.initialViewport.height];
         
         // we have to flush here to push all
         // the pixels to the texture so they're
@@ -2060,8 +2039,7 @@ static int undoCounter;
         //
         // step 1:
         // Clear the buffer
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        [subContext clear];
         
         //
         // step 2:

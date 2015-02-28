@@ -320,13 +320,7 @@ static int totalTextureBytes;
             glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, stencil_rb);
             
             // Check framebuffer completeness at the end of initialization.
-            GLuint status = glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES);
-            if (status != GL_FRAMEBUFFER_COMPLETE_OES){
-                // didn't work
-                NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                DebugLog(@"%@", str);
-                @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-            }
+            [context assertCheckFramebuffer];
             
             // setup the stencil test and alpha test. the stencil test
             // ensures all pixels are turned "on" in the stencil buffer,

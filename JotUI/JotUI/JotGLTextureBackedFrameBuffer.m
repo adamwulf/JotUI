@@ -86,8 +86,7 @@ dispatch_queue_t importExportTextureQueue;
         // with other threads
         [texture bind];
         [subContext bindFramebuffer:framebufferID];
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
+        [subContext clear];
         
         [subContext unbindFramebuffer];
         [texture unbind];

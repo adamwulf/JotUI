@@ -69,12 +69,7 @@
             [context glOrthof:0 right:(GLsizei) initialViewport.width bottom:0 top:(GLsizei) initialViewport.height zNear:-1 zFar:1];
             [context glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
             
-            if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
-            {
-                NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
-                DebugLog(@"%@", str);
-                @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
-            }
+            [context assertCheckFramebuffer];
             
             [context bindRenderbuffer:viewRenderbuffer];
             
@@ -118,9 +113,7 @@
         // and/or how this interacts later
         // with other threads
         [context bindFramebuffer:framebufferID];
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        
+        [context clear];
         [context unbindFramebuffer];
     }];
 }
