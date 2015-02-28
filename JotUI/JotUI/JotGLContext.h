@@ -69,6 +69,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) deleteTexture:(GLuint)textureId;
 
+-(GLSize) generateFramebuffer:(GLuint*)framebufferID andRenderbuffer:(GLuint*)viewRenderbuffer andDepthRenderBuffer:(GLuint*)depthRenderbuffer forLayer:(CALayer<EAGLDrawable>*)layer;
+
 -(void) deleteFramebuffer:(GLuint)framebufferID;
 
 -(void) deleteRenderbuffer:(GLuint)viewRenderbuffer;

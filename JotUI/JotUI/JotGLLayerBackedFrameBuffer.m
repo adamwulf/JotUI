@@ -37,29 +37,8 @@
         CheckMainThread;
         layer = _layer;
         [JotGLContext runBlock:^(JotGLContext* context){
-            // The pixel dimensions of the backbuffer
-            GLint backingWidth;
-            GLint backingHeight;
             
-            // Generate IDs for a framebuffer object and a color renderbuffer
-            glGenFramebuffersOES(1, &framebufferID);
-            glGenRenderbuffersOES(1, &viewRenderbuffer);
-            
-            [context bindFramebuffer:framebufferID];
-            [context bindRenderbuffer:viewRenderbuffer];
-            // This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
-            // allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
-            [context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:layer];
-            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, viewRenderbuffer);
-            
-            glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
-            glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
-            
-            // For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
-            glGenRenderbuffersOES(1, &depthRenderbuffer);
-            [context bindRenderbuffer:depthRenderbuffer];
-            glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
-            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
+            [context generateFramebuffer:&framebufferID andRenderbuffer:&viewRenderbuffer andDepthRenderBuffer:&depthRenderbuffer forLayer:layer];
             
             CGRect frame = layer.bounds;
             CGFloat scale = layer.contentsScale;
@@ -79,6 +58,20 @@
     return self;
 }
 
+-(void) bind{
+    [super bind];
+    [JotGLContext runBlock:^(JotGLContext * context) {
+        [context bindRenderbuffer:viewRenderbuffer];
+    }];
+}
+
+-(void) unbind{
+    [super unbind];
+    [JotGLContext runBlock:^(JotGLContext * context) {
+        [context unbindRenderbuffer];
+    }];
+}
+
 -(void) setNeedsPresentRenderBuffer{
     needsPresentRenderBuffer = YES;
 }
@@ -87,10 +80,8 @@
     [context runBlock:^{
         if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
             [self bind];
-            
+            //        NSLog(@"presenting");
             [context assertCurrentBoundFramebufferIs:framebufferID andRenderBufferIs:viewRenderbuffer];
-            
-            [context bindRenderbuffer:viewRenderbuffer];
             [context assertCheckFramebuffer];
 
             [context presentRenderbuffer];
@@ -100,7 +91,6 @@
         }
         slowtoggle = !slowtoggle;
         if([context needsFlush]){
-//        NSLog(@"flush");
             [context flush];
         }
     }];
@@ -108,18 +98,19 @@
 
 -(void) clear{
     [JotGLContext runBlock:^(JotGLContext*context){
+        [self bind];
         //
         // something below here is wrong.
         // and/or how this interacts later
-        // with other threads
-        [context bindFramebuffer:framebufferID];
+        // with other threads (?)
         [context clear];
-        [context unbindFramebuffer];
+        
+        [self unbind];
     }];
 }
 
 -(void) deleteAssets{
-    [JotGLContext runBlock:^(JotGLContext *context) {
+    [JotGLContext runBlock:^(JotGLContext * context) {
         if(framebufferID){
             [context deleteFramebuffer:framebufferID];
             framebufferID = 0;

@@ -858,6 +858,37 @@ forStenciledPath:(UIBezierPath*)clippingPath
     glDeleteTextures(1, &textureId);
 }
 
+-(GLSize) generateFramebuffer:(GLuint*)framebufferID
+              andRenderbuffer:(GLuint*)viewRenderbuffer
+         andDepthRenderBuffer:(GLuint*)depthRenderbuffer
+                     forLayer:(CALayer<EAGLDrawable>*)layer{
+    ValidateCurrentContext;
+    
+    GLint backingWidth, backingHeight;
+    
+    // Generate IDs for a framebuffer object and a color renderbuffer
+    glGenFramebuffersOES(1, framebufferID);
+    glGenRenderbuffersOES(1, viewRenderbuffer);
+    
+    [self bindFramebuffer:framebufferID[0]];
+    [self bindRenderbuffer:viewRenderbuffer[0]];
+    // This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
+    // allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
+    [self renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:layer];
+    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, *viewRenderbuffer);
+    
+    glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
+    glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+    
+    // For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
+    glGenRenderbuffersOES(1, depthRenderbuffer);
+    [self bindRenderbuffer:depthRenderbuffer[0]];
+    glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
+    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, *depthRenderbuffer);
+    
+    return GLSizeMake(backingWidth, backingHeight);
+}
+
 -(void) bindFramebuffer:(GLuint)framebuffer{
     ValidateCurrentContext;
     if(framebuffer && currentlyBoundFramebuffer != framebuffer){
