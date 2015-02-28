@@ -213,6 +213,25 @@ typedef enum UndfBOOL{
     }
 }
 
+-(void) runBlock:(void(^)())block withScissorRect:(CGRect)scissorRect{
+    [self runBlock:^{
+
+        if(!CGRectEqualToRect(scissorRect, CGRectZero)){
+            [self glEnableScissorTest];
+            glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
+        }else{
+            // noop for scissors
+        }
+
+        block();
+
+        if(!CGRectEqualToRect(scissorRect, CGRectZero)){
+            [self glDisableScissorTest];
+        }
+    }];
+}
+
+
 -(void) runBlockAndMaintainCurrentFramebuffer:(void(^)())block{
     [self runBlock:^{
         GLint currBoundFrBuff = -1;

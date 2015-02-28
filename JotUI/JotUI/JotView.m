@@ -1033,12 +1033,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         
         // set our current OpenGL context
         [renderContext runBlock:^{
-            if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-                glEnable(GL_SCISSOR_TEST);
-                glScissor(scissorRect.origin.x, scissorRect.origin.y, scissorRect.size.width, scissorRect.size.height);
-            }else{
-                // noop for scissors
-            }
             
             [theFramebuffer bind];
             
@@ -1094,10 +1088,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             }
             
             [theFramebuffer unbind];
-            if(!CGRectEqualToRect(scissorRect, CGRectZero)){
-                glDisable(GL_SCISSOR_TEST);
-            }
-        }];
+            
+        } withScissorRect:scissorRect];
     }
 }
 

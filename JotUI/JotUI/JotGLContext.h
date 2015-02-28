@@ -49,6 +49,8 @@ int printOglError(char *file, int line);
 
 -(void) runBlockAndMaintainCurrentFramebuffer:(void(^)())block;
 
+-(void) runBlock:(void(^)())block withScissorRect:(CGRect)scissorRect;
+
 -(void) prepOpenGLBlendModeForColor:(UIColor*)color;
 
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor;
