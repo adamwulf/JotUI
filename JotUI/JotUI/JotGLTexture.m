@@ -319,7 +319,7 @@ static int totalTextureBytes;
             // setup stencil buffers
             glGenRenderbuffersOES(1, &stencil_rb);
             //        DebugLog(@"new renderbuffer: %d", stencil_rb);
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, stencil_rb);
+            [context bindRenderbuffer:stencil_rb];
             glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, size.width, size.height);
             glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, stencil_rb);
             
@@ -413,7 +413,11 @@ static int totalTextureBytes;
             
             // restore bound render buffer
             glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, 0);
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, currBoundRendBuff);
+            if(currBoundRendBuff){
+                [context bindRenderbuffer:currBoundRendBuff];
+            }else{
+                [context unbindRenderbuffer];
+            }
         }
         
         // unprep our quad drawing texture, and prep back for

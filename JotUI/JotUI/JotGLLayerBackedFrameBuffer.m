@@ -46,7 +46,7 @@
             glGenRenderbuffersOES(1, &viewRenderbuffer);
             
             [context bindFramebuffer:framebufferID];
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+            [context bindRenderbuffer:viewRenderbuffer];
             // This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
             // allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
             [context renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:layer];
@@ -57,7 +57,7 @@
             
             // For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
             glGenRenderbuffersOES(1, &depthRenderbuffer);
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, depthRenderbuffer);
+            [context bindRenderbuffer:depthRenderbuffer];
             glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
             glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, depthRenderbuffer);
             
@@ -76,7 +76,7 @@
                 @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
             }
             
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+            [context bindRenderbuffer:viewRenderbuffer];
             
             [self clear];
         }];
@@ -95,12 +95,10 @@
             
             [context assertCurrentBoundFramebufferIs:framebufferID andRenderBufferIs:viewRenderbuffer];
             
-            glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
-            if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES){
-                DebugLog(@"%@", [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)]);
-            }
+            [context bindRenderbuffer:viewRenderbuffer];
+            [context assertCheckFramebuffer];
 
-            [context presentRenderbuffer:GL_RENDERBUFFER_OES];
+            [context presentRenderbuffer];
 
             needsPresentRenderBuffer = NO;
             [self unbind];

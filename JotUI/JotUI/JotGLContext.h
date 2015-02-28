@@ -55,9 +55,15 @@ int printOglError(char *file, int line);
 
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor;
 
+-(void) clear;
+
 -(void) drawTriangleStripCount:(GLsizei)count;
 
 -(void) drawPointCount:(GLsizei)count;
+
+-(void) bindRenderbuffer:(GLuint)renderBufferId;
+
+-(void) unbindRenderbuffer;
 
 -(void) bindFramebuffer:(GLuint)framebufferId;
 
@@ -66,6 +72,10 @@ int printOglError(char *file, int line);
 -(void) assertCheckFramebuffer;
 
 -(void) assertCurrentBoundFramebufferIs:(GLuint)frameBuffer andRenderBufferIs:(GLuint)renderBuffer;
+
+-(BOOL) presentRenderbuffer:(NSUInteger)target NS_UNAVAILABLE;
+
+-(BOOL) presentRenderbuffer;
 
 -(void) glDisableDither;
 -(void) glEnableTextures;

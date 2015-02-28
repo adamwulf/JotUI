@@ -97,6 +97,7 @@ typedef enum UndfBOOL{
     GLenum blend_dfactor;
     
     GLuint currentlyBoundFramebuffer;
+    GLuint currentlyBoundRenderbuffer;
     
     GLint vertex_pointer_size;
     GLenum vertex_pointer_type;
@@ -156,6 +157,7 @@ typedef enum UndfBOOL{
     alphaFuncFunc = GL_ALWAYS;
     alphaFuncRef = 0;
     currentlyBoundFramebuffer = 0;
+    currentlyBoundRenderbuffer = 0;
     lock = [[NSRecursiveLock alloc] init];
     contextProperties = [NSMutableDictionary dictionary];
 }
@@ -596,6 +598,11 @@ typedef enum UndfBOOL{
     }
 }
 
+-(void) clear{
+    [self glClearColor:0 and:0 and:0 and:0];
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
 -(void) drawTriangleStripCount:(GLsizei)count{
     if(!enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
         @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
@@ -626,6 +633,26 @@ typedef enum UndfBOOL{
         glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
         currentlyBoundFramebuffer = 0;
     }
+}
+
+-(void) bindRenderbuffer:(GLuint)renderBufferId{
+    if(renderBufferId && currentlyBoundRenderbuffer != renderBufferId){
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, renderBufferId);
+        currentlyBoundRenderbuffer = renderBufferId;
+    }else if(!renderBufferId){
+        @throw [NSException exceptionWithName:@"GLBindRenderbufferExceptoin" reason:@"trying to bind nil renderbuffer" userInfo:nil];
+    }
+}
+
+-(void) unbindRenderbuffer{
+    if(currentlyBoundRenderbuffer){
+        glBindRenderbufferOES(GL_RENDERBUFFER_OES, 0);
+        currentlyBoundRenderbuffer = 0;
+    }
+}
+
+-(BOOL) presentRenderbuffer{
+    return [super presentRenderbuffer:GL_RENDERBUFFER_OES];
 }
 
 #pragma mark - Assert

@@ -1212,7 +1212,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
  *
  * and also assumes that this will be called after
  * all rendering is done:
- * glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
+ * [context bindRenderBuffer:viewRenderbuffer];
  * [context presentRenderbuffer:GL_RENDERBUFFER_OES];
  *
  * @param includeOpenGLPrepForFBO this signals whether we need to setup and
