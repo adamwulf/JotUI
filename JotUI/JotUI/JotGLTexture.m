@@ -307,6 +307,11 @@ static int totalTextureBytes;
     }];
 }
 
+
+-(BOOL) isLocked{
+    return lockCount != 0;
+}
+
 -(void) dealloc{
     @synchronized([JotGLTexture class]){
         totalTextureBytes -= fullByteSize;

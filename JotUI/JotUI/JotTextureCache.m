@@ -9,6 +9,12 @@
 #import "JotTextureCache.h"
 #import "JotGLContext.h"
 
+@interface JotGLTexture (Lock)
+
+-(BOOL) isLocked;
+
+@end
+
 @implementation JotTextureCache{
     NSMutableArray* cachedTextures;
 }
@@ -59,8 +65,11 @@
 
 -(void) returnTextureForReuse:(JotGLTexture*)texture{
     @synchronized(self){
+        if([texture isLocked]){
+            @throw [NSException exceptionWithName:@"TextureCacheException" reason:@"Caching locked texture" userInfo:nil];
+        }
         if([cachedTextures containsObject:texture]){
-            DebugLog(@"what");
+            @throw [NSException exceptionWithName:@"TextureCacheException" reason:@"Recaching already cached texture" userInfo:nil];
         }
         [cachedTextures addObject:texture];
 //        DebugLog(@"texture returned, have %d in cache", (int) [cachedTextures count]);
