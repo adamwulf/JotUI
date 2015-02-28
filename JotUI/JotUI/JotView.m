@@ -200,7 +200,7 @@ static JotGLContext *mainThreadContext;
         [context glEnableBlend];
         [context glEnablePointSprites];
         // Set a blending function appropriate for premultiplied alpha pixel data
-        [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+        [context glBlendFuncONE];
         
         [self destroyFramebuffer];
         [self createFramebuffer];
@@ -598,7 +598,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext glEnableBlend];
                 
                 // Set a blending function appropriate for premultiplied alpha pixel data
-                [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+                [secondSubContext glBlendFuncONE];
                 
                 [secondSubContext glEnablePointSprites];
                 
@@ -616,13 +616,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
                 [canvasTexture bind];
                 
-                GLuint exportFramebuffer;
-                
-                glGenFramebuffersOES(1, &exportFramebuffer);
+                GLuint exportFramebuffer = [secondSubContext generateFramebufferWithTextureBacking:canvasTexture];
+                // by default, it's unbound after generating, so bind it
                 [secondSubContext bindFramebuffer:exportFramebuffer];
-                
-                glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
-                [canvasTexture unbind];
                 
                 [secondSubContext assertCheckFramebuffer];
                 
@@ -840,7 +836,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext glEnableBlend];
 
                 // Set a blending function appropriate for premultiplied alpha pixel data
-                [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+                [secondSubContext glBlendFuncONE];
                 
                 [secondSubContext glEnablePointSprites];
                 
@@ -860,14 +856,10 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
                 [canvasTexture bind];
                 
-                GLuint exportFramebuffer;
-                
-                glGenFramebuffersOES(1, &exportFramebuffer);
+                GLuint exportFramebuffer = [secondSubContext generateFramebufferWithTextureBacking:canvasTexture];
+                // by default, it's unbound after generating, so bind it
                 [secondSubContext bindFramebuffer:exportFramebuffer];
-                
-                glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, canvasTexture.textureID, 0);
-                [canvasTexture unbind];
-                
+
                 [secondSubContext assertCheckFramebuffer];
                 
                 [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
@@ -2021,7 +2013,7 @@ static int undoCounter;
         [subContext glEnableTextures];
         [subContext glEnableBlend];
         // Set a blending function appropriate for premultiplied alpha pixel data
-        [subContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+        [subContext glBlendFuncONE];
         [subContext glEnablePointSprites];
         CGRect frame = self.layer.bounds;
         CGFloat scale = self.contentScaleFactor;

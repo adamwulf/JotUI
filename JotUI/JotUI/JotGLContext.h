@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <OpenGLES/EAGL.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
 #import "JotGLTypes.h"
 
 @class JotGLTexture;
@@ -79,7 +77,9 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) deleteRenderbuffer:(GLuint)viewRenderbuffer;
 
--(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor;
+-(void) glBlendFuncONE;
+
+-(void) glBlendFuncZERO;
 
 -(void) glOrthof:(GLfloat)left right:(GLfloat)right bottom:(GLfloat)bottom top:(GLfloat)top zNear:(GLfloat)zNear zFar:(GLfloat)zFar;
 

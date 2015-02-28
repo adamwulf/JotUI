@@ -672,7 +672,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
             // use it as our stencil when drawing our texture
             
             // always draw to stencil with correct blend mode
-            [self glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+            [self glBlendFuncONE];
             
             // setup stencil buffers
             glGenRenderbuffersOES(1, &stencil_rb);
@@ -786,11 +786,19 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(void) prepOpenGLBlendModeForColor:(UIColor*)color{
     if(!color){
         // eraser
-        [self glBlendFunc:GL_ZERO and:GL_ONE_MINUS_SRC_ALPHA];
+        [self glBlendFuncZERO];
     }else{
         // normal brush
-        [self glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+        [self glBlendFuncONE];
     }
+}
+
+-(void) glBlendFuncONE{
+    [self glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+}
+
+-(void) glBlendFuncZERO{
+    [self glBlendFunc:GL_ZERO and:GL_ONE_MINUS_SRC_ALPHA];
 }
 
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor{
