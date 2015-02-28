@@ -55,6 +55,10 @@ int printOglError(char *file, int line);
 
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor;
 
+-(void) glOrthof:(GLfloat)left right:(GLfloat)right bottom:(GLfloat)bottom top:(GLfloat)top zNear:(GLfloat)zNear zFar:(GLfloat)zFar;
+
+-(void) glViewportWithX:(GLint)x y:(GLint)y width:(GLsizei)width  height:(GLsizei)height;
+
 -(void) clear;
 
 -(void) drawTriangleStripCount:(GLsizei)count;
@@ -77,6 +81,8 @@ int printOglError(char *file, int line);
 
 -(BOOL) presentRenderbuffer;
 
+-(void) glMatrixModeModelView;
+-(void) glMatrixModeProjection;
 -(void) glDisableDither;
 -(void) glEnableTextures;
 -(void) glEnableBlend;

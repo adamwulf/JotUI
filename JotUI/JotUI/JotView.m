@@ -190,10 +190,10 @@ static JotGLContext *mainThreadContext;
         self.contentScaleFactor = [[UIScreen mainScreen] scale];
         
         // Setup OpenGL states
-        glMatrixMode(GL_PROJECTION);
+        [context glMatrixModeProjection];
         
         // Setup the view port in Pixels
-        glMatrixMode(GL_MODELVIEW);
+        [context glMatrixModeModelView];
         
         [context glDisableDither];
         [context glEnableTextures];
@@ -588,10 +588,10 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 //            glFinish();
                 
                 // Setup OpenGL states
-                glMatrixMode(GL_PROJECTION);
+                [secondSubContext glMatrixModeProjection];
                 
                 // Setup the view port in Pixels
-                glMatrixMode(GL_MODELVIEW);
+                [secondSubContext glMatrixModeModelView];
                 
                 [secondSubContext glDisableDither];
                 [secondSubContext glEnableTextures];
@@ -600,13 +600,13 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // Set a blending function appropriate for premultiplied alpha pixel data
                 [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
                 
-                [context glEnablePointSprites];
+                [secondSubContext glEnablePointSprites];
                 
                 CGSize fullSize = viewFramebuffer.initialViewport;
                 CGSize exportSize = CGSizeMake(ceilf(fullSize.width * outputScale), ceilf(fullSize.height * outputScale));;
                 
-                glOrthof(0, (GLsizei) fullSize.width, 0, (GLsizei) fullSize.height, -1, 1);
-                glViewport(0, 0, (GLsizei) fullSize.width, (GLsizei) fullSize.height);
+                [secondSubContext glOrthof:0 right:(GLsizei) fullSize.width bottom:0 top:(GLsizei) fullSize.height zNear:-1 zFar:1];
+                [secondSubContext glViewportWithX:0 y:0 width:(GLsizei) fullSize.width height:(GLsizei) fullSize.height];
                 
                 // create the texture
                 // maxTextureSize
@@ -841,10 +841,10 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 //            glFinish();
                 
                 // Setup OpenGL states
-                glMatrixMode(GL_PROJECTION);
+                [secondSubContext glMatrixModeProjection];
                 
                 // Setup the view port in Pixels
-                glMatrixMode(GL_MODELVIEW);
+                [secondSubContext glMatrixModeModelView];
                 
                 [secondSubContext glDisableDither];
                 [secondSubContext glEnableTextures];
@@ -853,12 +853,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // Set a blending function appropriate for premultiplied alpha pixel data
                 [secondSubContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
                 
-                [context glEnablePointSprites];
+                [secondSubContext glEnablePointSprites];
                 
                 CGSize initialViewport = viewFramebuffer.initialViewport;
                 
-                glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-                glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
+                [secondSubContext glOrthof:0 right:(GLsizei) initialViewport.width bottom:0 top:(GLsizei) initialViewport.height zNear:-1 zFar:1];
+                [secondSubContext glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
                 
                 CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
                 CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
@@ -2038,22 +2038,22 @@ static int undoCounter;
         [state.backgroundFramebuffer bind];
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:subContext];
         // Setup OpenGL states
-        glMatrixMode(GL_PROJECTION);
+        [subContext glMatrixModeProjection];
         // Setup the view port in Pixels
-        glMatrixMode(GL_MODELVIEW);
+        [subContext glMatrixModeModelView];
         [subContext glDisableDither];
         [subContext glEnableTextures];
         [subContext glEnableBlend];
         // Set a blending function appropriate for premultiplied alpha pixel data
         [subContext glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
-        [context glEnablePointSprites];
+        [subContext glEnablePointSprites];
         CGRect frame = self.layer.bounds;
         CGFloat scale = self.contentScaleFactor;
         
         CGSize initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
         
-        glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-        glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
+        [subContext glOrthof:0 right:(GLsizei) initialViewport.width bottom:0 top:(GLsizei) initialViewport.height zNear:-1 zFar:1];
+        [subContext glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
         
         [subContext assertCheckFramebuffer];
         

@@ -66,8 +66,8 @@
             
             initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
             
-            glOrthof(0, (GLsizei) initialViewport.width, 0, (GLsizei) initialViewport.height, -1, 1);
-            glViewport(0, 0, (GLsizei) initialViewport.width, (GLsizei) initialViewport.height);
+            [context glOrthof:0 right:(GLsizei) initialViewport.width bottom:0 top:(GLsizei) initialViewport.height zNear:-1 zFar:1];
+            [context glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
             
             if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
             {

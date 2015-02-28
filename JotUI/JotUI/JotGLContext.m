@@ -96,6 +96,8 @@ typedef enum UndfBOOL{
     GLenum blend_sfactor;
     GLenum blend_dfactor;
     
+    GLenum matrixMode;
+    
     GLuint currentlyBoundFramebuffer;
     GLuint currentlyBoundRenderbuffer;
     
@@ -131,6 +133,7 @@ typedef enum UndfBOOL{
     lastClearBlue = -1;
     lastClearGreen = -1;
     lastClearAlpha = -1;
+    matrixMode = GL_MODELVIEW;
     enabled_GL_VERTEX_ARRAY = UNKNOWN;
     enabled_GL_COLOR_ARRAY = UNKNOWN;
     enabled_GL_POINT_SIZE_ARRAY_OES = UNKNOWN;
@@ -306,21 +309,34 @@ typedef enum UndfBOOL{
     }
 }
 
+-(void) validateCurrentContext{
+#ifdef DEBUG
+    #define ValidateCurrentContext [JotGLContext validateContextMatches:self];
+#else
+    #define ValidateCurrentContext
+#endif
+}
+
 #pragma mark - Flush
 
 -(void) setNeedsFlush:(BOOL)_needsFlush{
+    ValidateCurrentContext;
+    [self validateCurrentContext];
     needsFlush = _needsFlush;
 }
 
 -(BOOL) needsFlush{
+    ValidateCurrentContext;
     return needsFlush;
 }
 
 -(void) flush{
+    ValidateCurrentContext;
     needsFlush = NO;
     glFlush();
 }
 -(void) finish{
+    ValidateCurrentContext;
     needsFlush = NO;
     glFinish();
 }
@@ -328,6 +344,7 @@ typedef enum UndfBOOL{
 #pragma mark - Enable Disable State
 
 -(void) glAlphaFunc:(GLenum)func ref:(GLclampf) ref{
+    ValidateCurrentContext;
     if(alphaFuncFunc != func || alphaFuncRef != ref){
         alphaFuncFunc = func;
         alphaFuncRef = ref;
@@ -336,6 +353,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glStencilOp:(GLenum)fail zfail:(GLenum)zfail zpass:(GLenum)zpass{
+    ValidateCurrentContext;
     if(stencilOpFail != fail || stencilOpZfail != zfail || stencilOpZpass != zpass){
         stencilOpFail = fail;
         stencilOpZfail = zfail;
@@ -345,6 +363,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glStencilFunc:(GLenum)func ref:(GLint)ref mask:(GLuint) mask{
+    ValidateCurrentContext;
     if(stencilFuncFunc != func || stencilFuncRef != ref || stencilFuncMask != mask){
         stencilFuncFunc = func;
         stencilFuncRef = ref;
@@ -354,6 +373,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glStencilMask:(GLuint)mask{
+    ValidateCurrentContext;
     if(mask != stencilMask){
         glStencilMask(mask);
         stencilMask = mask;
@@ -361,6 +381,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glDisableDepthMask{
+    ValidateCurrentContext;
     if(enabled_GL_DEPTH_MASK == YEP || enabled_GL_DEPTH_MASK == UNKNOWN){
         glDepthMask(GL_FALSE);
         enabled_GL_DEPTH_MASK = NOPE;
@@ -368,6 +389,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glEnableDepthMask{
+    ValidateCurrentContext;
     if(enabled_GL_DEPTH_MASK == NOPE || enabled_GL_DEPTH_MASK == UNKNOWN){
         glDepthMask(GL_TRUE);
         enabled_GL_DEPTH_MASK = YEP;
@@ -375,6 +397,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glColorMaskRed:(GLboolean)red green:(GLboolean)green blue:(GLboolean)blue alpha:(GLboolean)alpha{
+    ValidateCurrentContext;
     if(red != enabled_glColorMask_red || green != enabled_glColorMask_green || blue != enabled_glColorMask_blue || alpha != enabled_glColorMask_alpha){
         glColorMask(red, green, blue, alpha);
         enabled_glColorMask_red = red ? YEP : NOPE;
@@ -385,6 +408,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glDisableAlphaTest{
+    ValidateCurrentContext;
     if(enabled_GL_ALPHA_TEST == YEP || enabled_GL_ALPHA_TEST == UNKNOWN){
         glDisable(GL_ALPHA_TEST);
         enabled_GL_ALPHA_TEST = NOPE;
@@ -392,6 +416,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glEnableAlphaTest{
+    ValidateCurrentContext;
     if(enabled_GL_ALPHA_TEST == NOPE || enabled_GL_ALPHA_TEST == UNKNOWN){
         glEnable(GL_ALPHA_TEST);
         enabled_GL_ALPHA_TEST = YEP;
@@ -399,6 +424,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glDisableStencilTest{
+    ValidateCurrentContext;
     if(enabled_GL_STENCIL_TEST == YEP || enabled_GL_STENCIL_TEST == UNKNOWN){
         glDisable(GL_STENCIL_TEST);
         enabled_GL_STENCIL_TEST = NOPE;
@@ -406,6 +432,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glEnableStencilTest{
+    ValidateCurrentContext;
     if(enabled_GL_STENCIL_TEST == NOPE || enabled_GL_STENCIL_TEST == UNKNOWN){
         glEnable(GL_STENCIL_TEST);
         enabled_GL_STENCIL_TEST = YEP;
@@ -413,6 +440,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glDisableScissorTest{
+    ValidateCurrentContext;
     if(enabled_GL_SCISSOR_TEST == YEP || enabled_GL_SCISSOR_TEST == UNKNOWN){
         glDisable(GL_SCISSOR_TEST);
         enabled_GL_SCISSOR_TEST = NOPE;
@@ -420,6 +448,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glEnableScissorTest{
+    ValidateCurrentContext;
     if(enabled_GL_SCISSOR_TEST == NOPE || enabled_GL_SCISSOR_TEST == UNKNOWN){
         glEnable(GL_SCISSOR_TEST);
         enabled_GL_SCISSOR_TEST = YEP;
@@ -427,6 +456,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glDisableDither{
+    ValidateCurrentContext;
     if(enabled_GL_DITHER == YEP || enabled_GL_DITHER == UNKNOWN){
         glDisable(GL_DITHER);
         enabled_GL_DITHER = NOPE;
@@ -434,6 +464,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glEnableTextures{
+    ValidateCurrentContext;
     if(enabled_GL_TEXTURE_2D == NOPE || enabled_GL_TEXTURE_2D == UNKNOWN){
         glEnable(GL_TEXTURE_2D);
         enabled_GL_TEXTURE_2D = YEP;
@@ -441,6 +472,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glEnableBlend{
+    ValidateCurrentContext;
     if(enabled_GL_BLEND == NOPE || enabled_GL_BLEND == UNKNOWN){
         glEnable(GL_BLEND);
         enabled_GL_BLEND = YEP;
@@ -448,10 +480,27 @@ typedef enum UndfBOOL{
 }
 
 -(void) glEnablePointSprites{
+    ValidateCurrentContext;
     if(enabled_GL_POINT_SPRITE_OES == NOPE || enabled_GL_POINT_SPRITE_OES == UNKNOWN){
         glEnable(GL_POINT_SPRITE_OES);
         glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
         enabled_GL_POINT_SPRITE_OES = YEP;
+    }
+}
+
+-(void) glMatrixModeModelView{
+    [self glMatrixMode:GL_MODELVIEW];
+}
+
+-(void) glMatrixModeProjection{
+    [self glMatrixMode:GL_PROJECTION];
+}
+
+-(void) glMatrixMode:(GLenum)mode{
+    ValidateCurrentContext;
+    if(matrixMode != mode){
+        glMatrixMode(mode);
+        matrixMode = mode;
     }
 }
 
@@ -501,6 +550,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glEnableClientState:(GLenum)array{
+    ValidateCurrentContext;
     if(array == GL_VERTEX_ARRAY){
         if(enabled_GL_VERTEX_ARRAY == NOPE || enabled_GL_VERTEX_ARRAY == UNKNOWN){
             enabled_GL_VERTEX_ARRAY = YES;
@@ -529,6 +579,7 @@ typedef enum UndfBOOL{
 }
     
 -(void) glDisableClientState:(GLenum)array{
+    ValidateCurrentContext;
     if(array == GL_VERTEX_ARRAY){
         if(enabled_GL_VERTEX_ARRAY == YEP || enabled_GL_VERTEX_ARRAY == UNKNOWN){
             enabled_GL_VERTEX_ARRAY = NOPE;
@@ -560,6 +611,7 @@ typedef enum UndfBOOL{
 #pragma mark - Color and Blend Mode
 
 -(void) glClearColor:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha{
+    ValidateCurrentContext;
     if(red != lastClearRed || green != lastClearGreen || blue != lastClearBlue || alpha != lastClearAlpha){
         glClearColor(red, green, blue, alpha);
         lastClearRed = red;
@@ -570,6 +622,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha{
+    ValidateCurrentContext;
     if(red != lastRed || green != lastGreen || blue != lastBlue || alpha != lastAlpha){
         glColor4f(red, green, blue, alpha);
         lastRed = red;
@@ -590,6 +643,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor{
+    ValidateCurrentContext;
     if(blend_sfactor != sfactor ||
        blend_dfactor != dfactor){
         blend_sfactor = sfactor;
@@ -598,12 +652,24 @@ typedef enum UndfBOOL{
     }
 }
 
+-(void) glOrthof:(GLfloat)left right:(GLfloat)right bottom:(GLfloat)bottom top:(GLfloat)top zNear:(GLfloat)zNear zFar:(GLfloat)zFar{
+    ValidateCurrentContext;
+    glOrthof(left, right, bottom, top, zNear, zFar);
+}
+
+-(void) glViewportWithX:(GLint)x y:(GLint)y width:(GLsizei)width  height:(GLsizei)height{
+    ValidateCurrentContext;
+    glViewport(x, y, width, height);
+}
+
 -(void) clear{
+    ValidateCurrentContext;
     [self glClearColor:0 and:0 and:0 and:0];
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
 -(void) drawTriangleStripCount:(GLsizei)count{
+    ValidateCurrentContext;
     if(!enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
         @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
     }
@@ -611,6 +677,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) drawPointCount:(GLsizei)count{
+    ValidateCurrentContext;
     if(enabled_GL_TEXTURE_COORD_ARRAY || !enabled_GL_POINT_SIZE_ARRAY_OES || !enabled_GL_VERTEX_ARRAY){
         // enabled_GL_COLOR_ARRAY is optional for point drawing
         @throw [NSException exceptionWithName:@"GLDrawPointException" reason:@"bad state" userInfo:nil];
@@ -621,6 +688,7 @@ typedef enum UndfBOOL{
 #pragma mark - Generate Assets
 
 -(void) bindFramebuffer:(GLuint)framebuffer{
+    ValidateCurrentContext;
     if(framebuffer && currentlyBoundFramebuffer != framebuffer){
         glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebuffer);
         currentlyBoundFramebuffer = framebuffer;
@@ -629,6 +697,7 @@ typedef enum UndfBOOL{
     }
 }
 -(void) unbindFramebuffer{
+    ValidateCurrentContext;
     if(currentlyBoundFramebuffer != 0){
         glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
         currentlyBoundFramebuffer = 0;
@@ -636,6 +705,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) bindRenderbuffer:(GLuint)renderBufferId{
+    ValidateCurrentContext;
     if(renderBufferId && currentlyBoundRenderbuffer != renderBufferId){
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, renderBufferId);
         currentlyBoundRenderbuffer = renderBufferId;
@@ -645,6 +715,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) unbindRenderbuffer{
+    ValidateCurrentContext;
     if(currentlyBoundRenderbuffer){
         glBindRenderbufferOES(GL_RENDERBUFFER_OES, 0);
         currentlyBoundRenderbuffer = 0;
@@ -652,12 +723,14 @@ typedef enum UndfBOOL{
 }
 
 -(BOOL) presentRenderbuffer{
+    ValidateCurrentContext;
     return [super presentRenderbuffer:GL_RENDERBUFFER_OES];
 }
 
 #pragma mark - Assert
 
 -(void) assertCheckFramebuffer{
+    ValidateCurrentContext;
     if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
     {
         NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
@@ -667,6 +740,7 @@ typedef enum UndfBOOL{
 }
 
 -(void) assertCurrentBoundFramebufferIs:(GLuint)framebufferID andRenderBufferIs:(GLuint)viewRenderbuffer{
+    ValidateCurrentContext;
     GLint currBoundFrBuff = -1;
     glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
     GLint currBoundRendBuff = -1;
