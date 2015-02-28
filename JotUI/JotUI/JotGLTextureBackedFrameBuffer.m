@@ -36,19 +36,8 @@ dispatch_queue_t importExportTextureQueue;
 -(id) initForTexture:(JotGLTexture*)_texture{
     if(self = [super init]){
         [JotGLContext runBlock:^(JotGLContext* context){
-            [context runBlockAndMaintainCurrentFramebuffer:^{
-                glGenFramebuffersOES(1, &framebufferID);
-                texture = _texture;
-                if(framebufferID){
-                    // generate FBO
-                    [context bindFramebuffer:framebufferID];
-                    [texture bind];
-                    // associate texture with FBO
-                    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
-                    [texture unbind];
-                }
-                [context assertCheckFramebuffer];
-            }];
+            texture = _texture;
+            framebufferID = [context generateFramebufferWithTextureBacking:texture];
         }];
     }
     return self;

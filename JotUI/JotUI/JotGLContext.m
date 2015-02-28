@@ -882,6 +882,24 @@ forStenciledPath:(UIBezierPath*)clippingPath
     glDeleteTextures(1, &textureId);
 }
 
+-(GLuint) generateFramebufferWithTextureBacking:(JotGLTexture *)texture{
+    __block GLuint framebufferID;
+    [self runBlockAndMaintainCurrentFramebuffer:^{
+        glGenFramebuffersOES(1, &framebufferID);
+        if(framebufferID){
+            // generate FBO
+            [self bindFramebuffer:framebufferID];
+            [texture bind];
+            // associate texture with FBO
+            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
+            [texture unbind];
+        }
+        [self assertCheckFramebuffer];
+    }];
+    
+    return framebufferID;
+}
+
 -(GLSize) generateFramebuffer:(GLuint*)framebufferID
               andRenderbuffer:(GLuint*)viewRenderbuffer
          andDepthRenderBuffer:(GLuint*)depthRenderbuffer
