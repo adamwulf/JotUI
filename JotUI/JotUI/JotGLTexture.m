@@ -183,6 +183,20 @@ static int totalTextureBytes;
     }];
 }
 
+-(void) rebind{
+    // rebinds the texture, while maintaining lock count
+    // and lock ownership
+    [JotGLContext runBlock:^(JotGLContext* context){
+        if(!lockCount){
+            @throw [NSException exceptionWithName:@"TextureBindException" reason:@"Cannot rebind unbound texture" userInfo:nil];
+        }
+        [lock lock];
+        [self unbind];
+        [self bind];
+        [lock unlock];
+    }];
+}
+
 -(void) unbind{
     [JotGLContext runBlock:^(JotGLContext* context){
         printOpenGLError();

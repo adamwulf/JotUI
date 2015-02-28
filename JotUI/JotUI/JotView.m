@@ -682,8 +682,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext flush];
                 // rebind the canvas texture, since state.backgroundTexture
                 // would have been bound when it was drawn
-                [canvasTexture unbind];
-                [canvasTexture bind];
+                [canvasTexture rebind];
                 [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
                 [secondSubContext flush];
                 
@@ -897,8 +896,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext flush];
                 // rebind the canvas texture, since state.backgroundTexture
                 // would have been bound when it was drawn
-                [canvasTexture unbind];
-                [canvasTexture bind];
+                [canvasTexture rebind];
                 [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
                 [secondSubContext flush];
                 

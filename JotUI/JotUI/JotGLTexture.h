@@ -24,6 +24,7 @@
 -(id) initForTextureID:(GLuint)textureID withSize:(CGSize)size;
 
 -(void) bind;
+-(void) rebind;
 -(void) unbind;
 
 +(int) totalTextureBytes;
