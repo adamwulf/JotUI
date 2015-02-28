@@ -519,6 +519,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 isCurrentlyExporting = 0;
             }
 //            DebugLog(@"export ends: %p", self);
+            [[JotTrashManager sharedInstance] addObjectToDealloc:immutableState];
         }
     });
 }

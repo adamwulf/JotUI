@@ -191,4 +191,12 @@
     [lock unlock];
 }
 
+#pragma mark - Dealloc
+
+-(void) dealloc{
+    [JotGLContext runBlock:^(JotGLContext *context) {
+        // noop, just validate we have one
+    }];
+}
+
 @end

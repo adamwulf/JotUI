@@ -14,6 +14,8 @@
 
 @implementation JotViewImmutableState{
     NSMutableDictionary* stateDict;
+    NSMutableArray* stackOfImmutableStrokes;
+    NSMutableArray* stackOfImmutableUndoneStrokes;
 }
 
 /**
@@ -25,8 +27,8 @@
     if(self = [super init]){
         stateDict = [NSMutableDictionary dictionary];
         
-        NSMutableArray* stackOfImmutableStrokes = [NSMutableArray array];
-        NSMutableArray* stackOfImmutableUndoneStrokes = [NSMutableArray array];
+        stackOfImmutableStrokes = [NSMutableArray array];
+        stackOfImmutableUndoneStrokes = [NSMutableArray array];
         for(JotStroke* stroke in [stateInfo objectForKey:@"stackOfStrokes"]){
             [stackOfImmutableStrokes addObject:[[JotImmutableStroke alloc] initWithJotStroke:stroke]];
         }
