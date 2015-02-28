@@ -46,7 +46,7 @@
     [JotGLContext runBlock:^(JotGLContext* context){
         // check if we already have the texture generated
         if(glBrushTextureID){
-            glBindTexture(GL_TEXTURE_2D, glBrushTextureID);
+            [context bindTexture:glBrushTextureID];
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             ret = YES;
@@ -86,7 +86,7 @@
             // Use OpenGL ES to generate a name for the texture.
             glGenTextures(1, &glBrushTextureID);
             // Bind the texture name.
-            glBindTexture(GL_TEXTURE_2D, glBrushTextureID);
+            [context bindTexture:glBrushTextureID];
             // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             // Specify a 2D texture image, providing the a pointer to the image data in memory
@@ -110,7 +110,7 @@
 -(void) unbind{
     [JotGLContext runBlock:^(JotGLContext* context){
         if(glBrushTextureID){
-            glBindTexture(GL_TEXTURE_2D, 0);
+            [context unbindTexture];
         }
     }];
     [lock unlock];

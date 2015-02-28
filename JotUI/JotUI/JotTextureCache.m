@@ -45,7 +45,7 @@
         [context runBlock:^{
             // create the texture
             glGenTextures(1, &canvastexture);
-            glBindTexture(GL_TEXTURE_2D, canvastexture);
+            [context bindTexture:canvastexture];
             
             //
             // http://stackoverflow.com/questions/5835656/glframebuffertexture2d-fails-on-iphone-for-certain-texture-sizes
@@ -61,7 +61,7 @@
             glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
             glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
             
-            glBindTexture(GL_TEXTURE_2D, 0);
+            [context unbindTexture];
             
             // we have to flush here to push all
             // the pixels to the texture so they're

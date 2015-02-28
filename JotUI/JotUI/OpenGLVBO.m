@@ -11,6 +11,7 @@
 #import "UIColor+JotHelper.h"
 #import "AbstractBezierPathElement-Protected.h"
 #import "JotBufferManager.h"
+#import "JotGLContext+Buffers.h"
 #include <stddef.h>
 
 /**
@@ -38,10 +39,6 @@
     NSLock* lock;
 }
 
-static NSInteger zeroedCacheNumber = -1;
-static void * zeroedDataCache = nil;
-
-
 @synthesize numberOfSteps;
 @synthesize cacheNumber;
 @synthesize vbo;
@@ -56,32 +53,10 @@ static void * zeroedDataCache = nil;
             numberOfSteps = floorf(mallocSize / stepMallocSize);
             lock = [[NSLock alloc] init];
             [lock lock];
-            // generate the VBO in OpenGL
-            glGenBuffers(1,&vbo);
-            glBindBuffer(GL_ARRAY_BUFFER,vbo);
+
             // create buffer of size mallocSize (init w/ NULL to create)
-            
-            // zeroedDataCache is a pointer to zero'd memory that we
-            // use to initialze our VBO. This prevents "VBO uses uninitialized data"
-            // warning in Instruments, and will only waste a few Kb of memory
-            if(_cacheNumber > zeroedCacheNumber){
-                @synchronized([OpenGLVBO class]){
-                    if(zeroedDataCache){
-                        free(zeroedDataCache);
-                    }
-                    zeroedCacheNumber = cacheNumber;
-                    zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
-                    if(!zeroedDataCache){
-                        @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't calloc" userInfo:nil];
-                    }
-                }
-            }
-            @synchronized([OpenGLVBO class]){
-                // initialize the buffer to zero'd data
-                glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
-            }
-            // unbind after alloc
-            glBindBuffer(GL_ARRAY_BUFFER,0);
+            vbo = [context generateArrayBufferForSize:mallocSize forCacheNumber:cacheNumber];
+
             [lock unlock];
         }];
     }
@@ -115,11 +90,11 @@ static void * zeroedDataCache = nil;
             NSLog(@"what");
         }
         [lock lock];
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        [context bindArrayBuffer:vbo];
         GLintptr offset = stepNumber*stepMallocSize;
         GLsizeiptr len = vertexData.length;
-        glBufferSubData(GL_ARRAY_BUFFER, offset, len, vertexData.bytes);
-        glBindBuffer(GL_ARRAY_BUFFER,0);
+        [context updateArrayBufferWithBytes:vertexData.bytes atOffset:offset andLength:len];
+        [context unbindArrayBuffer];
         glFlush();
         [lock unlock];
     }];
@@ -138,7 +113,7 @@ static void * zeroedDataCache = nil;
             NSLog(@"what");
         }
         [lock lock];
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        [context bindArrayBuffer:vbo];
         
         [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
         [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
@@ -164,7 +139,7 @@ static void * zeroedDataCache = nil;
         }
         [lock lock];
         
-        glBindBuffer(GL_ARRAY_BUFFER,vbo);
+        [context bindArrayBuffer:vbo];
         [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
         [context enablePointSizeArrayForStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
         [context enableVertexArray];
@@ -181,7 +156,7 @@ static void * zeroedDataCache = nil;
         NSLog(@"what");
     }
     [JotGLContext runBlock:^(JotGLContext* context){
-        glBindBuffer(GL_ARRAY_BUFFER,0);
+        [context unbindArrayBuffer];
     }];
     [lock unlock];
 }
@@ -190,7 +165,7 @@ static void * zeroedDataCache = nil;
     if(vbo){
         [[JotBufferManager sharedInstance] openGLBufferHasDied:self];
         [JotGLContext runBlock:^(JotGLContext* context){
-            glDeleteBuffers(1,&vbo);
+            [context deleteArrayBuffer:vbo];
         }];
     }
 }

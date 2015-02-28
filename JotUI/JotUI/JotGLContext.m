@@ -687,6 +687,14 @@ typedef enum UndfBOOL{
 
 #pragma mark - Generate Assets
 
+-(void) bindTexture:(GLuint)textureId{
+    glBindTexture(GL_TEXTURE_2D, textureId);
+}
+
+-(void) unbindTexture{
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 -(void) bindFramebuffer:(GLuint)framebuffer{
     ValidateCurrentContext;
     if(framebuffer && currentlyBoundFramebuffer != framebuffer){
@@ -751,6 +759,56 @@ typedef enum UndfBOOL{
     if(currBoundRendBuff != viewRenderbuffer){
         @throw [NSException exceptionWithName:@"Renderbuffer Exception" reason:[NSString stringWithFormat:@"Expected %d but was %d", viewRenderbuffer, currBoundRendBuff] userInfo:nil];
     }
+}
+
+#pragma mark - Buffers
+
+static NSInteger zeroedCacheNumber = -1;
+static void * zeroedDataCache = nil;
+
+-(GLuint) generateArrayBufferForSize:(GLsizeiptr)mallocSize forCacheNumber:(NSInteger)cacheNumber{
+    GLuint vbo;
+    // zeroedDataCache is a pointer to zero'd memory that we
+    // use to initialze our VBO. This prevents "VBO uses uninitialized data"
+    // warning in Instruments, and will only waste a few Kb of memory
+    if(cacheNumber > zeroedCacheNumber){
+        @synchronized([JotGLContext class]){
+            if(zeroedDataCache){
+                free(zeroedDataCache);
+            }
+            zeroedCacheNumber = cacheNumber;
+            zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
+            if(!zeroedDataCache){
+                @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't calloc" userInfo:nil];
+            }
+        }
+    }
+    // generate the VBO in OpenGL
+    glGenBuffers(1,&vbo);
+    [self bindArrayBuffer:vbo];
+    @synchronized([JotGLContext class]){
+        // initialize the buffer to zero'd data
+        glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
+    }
+    // unbind after alloc
+    [self unbindArrayBuffer];
+    return vbo;
+}
+
+-(void) bindArrayBuffer:(GLuint)buffer{
+    glBindBuffer(GL_ARRAY_BUFFER,buffer);
+}
+
+-(void) updateArrayBufferWithBytes:(const GLvoid *)bytes atOffset:(GLintptr)offset andLength:(GLsizeiptr)len{
+    glBufferSubData(GL_ARRAY_BUFFER, offset, len, bytes);
+}
+
+-(void) unbindArrayBuffer{
+    glBindBuffer(GL_ARRAY_BUFFER,0);
+}
+
+-(void) deleteArrayBuffer:(GLuint)buffer{
+    glDeleteBuffers(1,&buffer);
 }
 
 #pragma mark - Dealloc

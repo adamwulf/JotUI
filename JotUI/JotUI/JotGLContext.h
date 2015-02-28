@@ -53,6 +53,10 @@ int printOglError(char *file, int line);
 
 -(void) prepOpenGLBlendModeForColor:(UIColor*)color;
 
+-(void) bindTexture:(GLuint)textureId;
+
+-(void) unbindTexture;
+
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor;
 
 -(void) glOrthof:(GLfloat)left right:(GLfloat)right bottom:(GLfloat)bottom top:(GLfloat)top zNear:(GLfloat)zNear zFar:(GLfloat)zFar;

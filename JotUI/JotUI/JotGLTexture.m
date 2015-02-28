@@ -77,7 +77,7 @@ static int totalTextureBytes;
             glGenTextures(1, &textureID);
             
             // bind the texture that we'll be writing to
-            glBindTexture(GL_TEXTURE_2D, textureID);
+            [context bindTexture:textureID];
             
             // configure how this texture scales.
             glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
@@ -152,7 +152,7 @@ static int totalTextureBytes;
                 free(zeroedDataCache);
             }
             // clear texture bind
-            glBindTexture(GL_TEXTURE_2D,0);
+            [context unbindTexture];
         }];
     }
     
@@ -194,11 +194,7 @@ static int totalTextureBytes;
         lockCount++;
         contextOfBinding = (JotGLContext*) [JotGLContext currentContext];
         //    DebugLog(@"locked %p (%d)", self, self.textureID);
-        if(textureID){
-            glBindTexture(GL_TEXTURE_2D, textureID);
-        }else{
-            DebugLog(@"what4");
-        }
+        [context bindTexture:textureID];
         printOpenGLError();
     }];
 }
@@ -206,7 +202,7 @@ static int totalTextureBytes;
 -(void) unbind{
     [JotGLContext runBlock:^(JotGLContext* context){
         printOpenGLError();
-        glBindTexture(GL_TEXTURE_2D, 0);
+        [context unbindTexture];
         glFlush();
         //    DebugLog(@"unlocked %p (%d)", self, self.textureID);
         if(contextOfBinding != [JotGLContext currentContext]){
