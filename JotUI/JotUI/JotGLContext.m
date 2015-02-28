@@ -560,8 +560,9 @@ typedef enum UndfBOOL{
         if(enabled_GL_COLOR_ARRAY == NOPE || enabled_GL_COLOR_ARRAY == UNKNOWN){
             enabled_GL_COLOR_ARRAY = YES;
             glEnableClientState(array);
+            CGFloat alphaToSet = lastAlpha;
             lastAlpha = -1; // need to reset glColor4f http://lwjgl.org/forum/index.php?topic=2424.0
-            [self glColor4f:lastRed and:lastGreen and:lastBlue and:lastAlpha];
+            [self glColor4f:lastRed and:lastGreen and:lastBlue and:alphaToSet];
         }
     }else if(array == GL_POINT_SIZE_ARRAY_OES){
         if(enabled_GL_POINT_SIZE_ARRAY_OES == NOPE || enabled_GL_POINT_SIZE_ARRAY_OES == UNKNOWN){
@@ -589,8 +590,9 @@ typedef enum UndfBOOL{
         if(enabled_GL_COLOR_ARRAY == YEP || enabled_GL_COLOR_ARRAY == UNKNOWN){
             enabled_GL_COLOR_ARRAY = NOPE;
             glDisableClientState(array);
+            CGFloat alphaToSet = lastAlpha;
             lastAlpha = -1; // need to reset glColor4f http://lwjgl.org/forum/index.php?topic=2424.0
-            [self glColor4f:lastRed and:lastGreen and:lastBlue and:lastAlpha];
+            [self glColor4f:lastRed and:lastGreen and:lastBlue and:alphaToSet];
         }
     }else if(array == GL_POINT_SIZE_ARRAY_OES){
         if(enabled_GL_POINT_SIZE_ARRAY_OES == YEP || enabled_GL_POINT_SIZE_ARRAY_OES == UNKNOWN){
