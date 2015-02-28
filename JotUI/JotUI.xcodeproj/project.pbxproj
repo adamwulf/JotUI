@@ -54,7 +54,7 @@
 		66AC157C18079B27005315C8 /* MMWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */; };
 		66AC157D18079B35005315C8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A32026170242D200692C71 /* UIKit.framework */; };
 		66AC157E18079B41005315C8 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
-		66B498811AA131D300D48094 /* JotGLTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B498801AA131D300D48094 /* JotGLTypes.h */; };
+		66B498811AA131D300D48094 /* JotGLTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B498801AA131D300D48094 /* JotGLTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B7E0501A0B4D94000797E4 /* UIScreen+PortraitBounds.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66B7E0531A0B4D94000797E4 /* UIScreen+PortraitBounds.m in Sources */ = {isa = PBXBuildFile; fileRef = 66B7E0511A0B4D94000797E4 /* UIScreen+PortraitBounds.m */; };
 		66C6AAE718A2E4D50036F4BB /* JotFilledPathStroke.h in Headers */ = {isa = PBXBuildFile; fileRef = 66C6AAE518A2E4D50036F4BB /* JotFilledPathStroke.h */; };
@@ -440,7 +440,6 @@
 				66F1F1F418079BD700B8CE3B /* JotStrokeManager.h in Headers */,
 				66F1F1F518079BD700B8CE3B /* JotImmutableStroke.h in Headers */,
 				66F1F1F618079BD700B8CE3B /* SegmentSmoother.h in Headers */,
-				66B498811AA131D300D48094 /* JotGLTypes.h in Headers */,
 				66F1F1F718079BD700B8CE3B /* AbstractBezierPathElement.h in Headers */,
 				66A64EF419FB5B8E0026305B /* NSMutableArray+RemoveSingle.h in Headers */,
 				66F1F1F818079BD700B8CE3B /* AbstractBezierPathElement-Protected.h in Headers */,
@@ -452,6 +451,7 @@
 				66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */,
 				667EC03B1A01F4F60069FF33 /* JotDiskAssetManager.h in Headers */,
 				66C6AAEB18A2E78E0036F4BB /* FilledPathElement.h in Headers */,
+				66B498811AA131D300D48094 /* JotGLTypes.h in Headers */,
 				6658ABD41A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h in Headers */,
 				66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */,
 				66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */,
