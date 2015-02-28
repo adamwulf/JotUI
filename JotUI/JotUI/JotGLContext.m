@@ -564,6 +564,12 @@ typedef enum UndfBOOL{
     }
 }
 
+-(void) checkVertexArray{
+    if(vertex_pointer_stride == 0){
+        [NSException exceptionWithName:@"StrideException" reason:@"stride cannot be zero" userInfo:nil];
+    }
+}
+
 -(void) enableVertexArray{
     [self glEnableClientState:GL_VERTEX_ARRAY];
 }
@@ -575,9 +581,7 @@ typedef enum UndfBOOL{
     vertex_pointer_stride = stride;
     vertex_pointer_pointer = pointer;
     
-    if(!stride){
-        [NSException exceptionWithName:@"StrideException" reason:@"stride cannot be zero" userInfo:nil];
-    }
+    [self checkVertexArray];
 }
 -(void) disableVertexArray{
     [self glDisableClientState:GL_VERTEX_ARRAY];
