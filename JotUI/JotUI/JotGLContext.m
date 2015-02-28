@@ -160,6 +160,24 @@ typedef enum UndfBOOL{
     contextProperties = [NSMutableDictionary dictionary];
 }
 
+-(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
+    if(self = [super initWithAPI:api]){
+        name = _name;
+        validateThreadBlock = _validateThreadBlock;
+        [self initAllProperties];
+    }
+    return self;
+}
+
+-(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
+    if(self = [super initWithAPI:api sharegroup:sharegroup]){
+        name = _name;
+        validateThreadBlock = _validateThreadBlock;
+        [self initAllProperties];
+    }
+    return self;
+}
+
 #pragma mark - Run Blocks
 
 +(void) runBlock:(void(^)(JotGLContext* context))block{
@@ -193,6 +211,27 @@ typedef enum UndfBOOL{
         [JotGLContext validateContextMatches:self];
         [JotGLContext popCurrentContext];
     }
+}
+
+-(void) runBlockAndMaintainCurrentFramebuffer:(void(^)())block{
+    [self runBlock:^{
+        GLint currBoundFrBuff = -1;
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+        
+        if(currBoundFrBuff != currentlyBoundFramebuffer){
+            @throw [NSException exceptionWithName:@"GLCurrentFramebufferException" reason:@"Unexpected current framebufer" userInfo:nil];
+        }
+        
+        block();
+        
+        // rebind to the buffer we began with
+        // or unbind altogether
+        if(currBoundFrBuff){
+            [self bindFramebuffer:currBoundFrBuff];
+        }else{
+            [self unbindFramebuffer];
+        }
+    }];
 }
 
 +(BOOL) setCurrentContext:(JotGLContext *)context{
@@ -244,36 +283,6 @@ typedef enum UndfBOOL{
     if(context && context != [JotGLContext currentContext]){
         @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"mismatched current context" userInfo:nil];
     }
-}
-
--(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
-    if(self = [super initWithAPI:api]){
-        name = _name;
-        lastRed = -1;
-        lastBlue = -1;
-        lastGreen = -1;
-        lastAlpha = -1;
-        validateThreadBlock = _validateThreadBlock;
-        lock = [[NSRecursiveLock alloc] init];
-        contextProperties = [NSMutableDictionary dictionary];
-    }
-    return self;
-}
-
--(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
-    if(self = [super initWithAPI:api sharegroup:sharegroup]){
-        name = _name;
-        lastRed = -1;
-        lastBlue = -1;
-        lastGreen = -1;
-        lastAlpha = -1;
-        blend_dfactor = GL_ZERO;
-        blend_sfactor = GL_ZERO;
-        validateThreadBlock = _validateThreadBlock;
-        lock = [[NSRecursiveLock alloc] init];
-        contextProperties = [NSMutableDictionary dictionary];
-    }
-    return self;
 }
 
 #pragma mark - Flush

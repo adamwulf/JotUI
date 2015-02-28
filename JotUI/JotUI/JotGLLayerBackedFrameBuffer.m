@@ -92,17 +92,8 @@
     [context runBlock:^{
         if(needsPresentRenderBuffer && (!shouldslow || slowtoggle)){
             [self bind];
-            //        NSLog(@"presenting");
-            GLint currBoundFrBuff = -1;
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
-            GLint currBoundRendBuff = -1;
-            glGetIntegerv(GL_RENDERBUFFER_BINDING_OES, &currBoundRendBuff);
-            if(currBoundFrBuff != framebufferID){
-                DebugLog(@"gotcha");
-            }
-            if(currBoundRendBuff != viewRenderbuffer){
-                DebugLog(@"gotcha");
-            }
+            
+            [context assertCurrentBoundFramebufferIs:framebufferID andRenderBufferIs:viewRenderbuffer];
             
             glBindRenderbufferOES(GL_RENDERBUFFER_OES, viewRenderbuffer);
             if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES){

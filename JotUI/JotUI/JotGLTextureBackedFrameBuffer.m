@@ -36,25 +36,19 @@ dispatch_queue_t importExportTextureQueue;
 -(id) initForTexture:(JotGLTexture*)_texture{
     if(self = [super init]){
         [JotGLContext runBlock:^(JotGLContext* context){
-            GLint currBoundFrBuff = -1;
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
-            
-            glGenFramebuffersOES(1, &framebufferID);
-            texture = _texture;
-            if(framebufferID){
-                // generate FBO
-                [context bindFramebuffer:framebufferID];
-                [texture bind];
-                // associate texture with FBO
-                glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
-                [texture unbind];
-            }
-            [context assertCheckFramebuffer];
-            if(currBoundFrBuff){
-                [context bindFramebuffer:currBoundFrBuff];
-            }else{
-                [context unbindFramebuffer];
-            }
+            [context runBlockAndMaintainCurrentFramebuffer:^{
+                glGenFramebuffersOES(1, &framebufferID);
+                texture = _texture;
+                if(framebufferID){
+                    // generate FBO
+                    [context bindFramebuffer:framebufferID];
+                    [texture bind];
+                    // associate texture with FBO
+                    glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
+                    [texture unbind];
+                }
+                [context assertCheckFramebuffer];
+            }];
         }];
     }
     return self;
@@ -85,8 +79,6 @@ dispatch_queue_t importExportTextureQueue;
     }];
     [subContext runBlock:^{
         // render it to the backing texture
-        GLint currBoundFrBuff = -1;
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
         //
         //
         // something below here is wrong.
