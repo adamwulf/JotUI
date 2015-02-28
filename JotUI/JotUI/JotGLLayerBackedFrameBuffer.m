@@ -119,18 +119,20 @@
 }
 
 -(void) deleteAssets{
-    if(framebufferID){
-        glDeleteFramebuffersOES(1, &framebufferID);
-        framebufferID = 0;
-    }
-    if(viewRenderbuffer){
-        glDeleteRenderbuffersOES(1, &viewRenderbuffer);
-        viewRenderbuffer = 0;
-    }
-    if(depthRenderbuffer){
-        glDeleteRenderbuffersOES(1, &depthRenderbuffer);
-        depthRenderbuffer = 0;
-    }
+    [JotGLContext runBlock:^(JotGLContext *context) {
+        if(framebufferID){
+            [context deleteFramebuffer:framebufferID];
+            framebufferID = 0;
+        }
+        if(viewRenderbuffer){
+            [context deleteRenderbuffer:viewRenderbuffer];
+            viewRenderbuffer = 0;
+        }
+        if(depthRenderbuffer){
+            [context deleteRenderbuffer:depthRenderbuffer];
+            depthRenderbuffer = 0;
+        }
+    }];
 }
 
 -(void) dealloc{

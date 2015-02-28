@@ -703,7 +703,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
                 
                 // now we're done, delete our buffers
-                glDeleteFramebuffersOES(1, &exportFramebuffer);
+                [secondSubContext unbindFramebuffer];
+                [secondSubContext deleteFramebuffer:exportFramebuffer];
                 [canvasTexture unbind];
                 [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
                 
@@ -920,7 +921,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 glReadPixels(x, y, fullSize.width, fullSize.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
                 
                 // now we're done, delete our buffers
-                glDeleteFramebuffersOES(1, &exportFramebuffer);
+                [secondSubContext unbindFramebuffer];
+                [secondSubContext deleteFramebuffer:exportFramebuffer];
                 [canvasTexture unbind];
                 [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
                 

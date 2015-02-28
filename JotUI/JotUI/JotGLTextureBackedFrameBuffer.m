@@ -97,7 +97,9 @@ dispatch_queue_t importExportTextureQueue;
     if(framebufferID && ![JotGLContext currentContext]){
         DebugLog(@"nope");
     }
-    glDeleteFramebuffersOES(1, &framebufferID);
+    [JotGLContext runBlock:^(JotGLContext *context) {
+        [context deleteFramebuffer:framebufferID];
+    }];
     framebufferID = 0;
 }
 

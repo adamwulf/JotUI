@@ -47,6 +47,16 @@ int printOglError(char *file, int line);
 
 -(void) finish;
 
+-(void) runBlock:(void(^)())block1
+        andBlock:(void(^)())block2
+forStenciledPath:(UIBezierPath*)clippingPath
+            atP1:(CGPoint)p1
+           andP2:(CGPoint)p2
+           andP3:(CGPoint)p3
+           andP4:(CGPoint)p4
+ andClippingSize:(CGSize)clipSize
+  withResolution:(CGSize)resolution;
+
 -(void) runBlockAndMaintainCurrentFramebuffer:(void(^)())block;
 
 -(void) runBlock:(void(^)())block withScissorRect:(CGRect)scissorRect;
@@ -56,6 +66,12 @@ int printOglError(char *file, int line);
 -(void) bindTexture:(GLuint)textureId;
 
 -(void) unbindTexture;
+
+-(void) deleteTexture:(GLuint)textureId;
+
+-(void) deleteFramebuffer:(GLuint)framebufferID;
+
+-(void) deleteRenderbuffer:(GLuint)viewRenderbuffer;
 
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor;
 

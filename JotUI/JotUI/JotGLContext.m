@@ -607,6 +607,155 @@ typedef enum UndfBOOL{
     }
 }
 
+#pragma mark - Stencil
+
+-(void) runBlock:(void(^)())block1
+        andBlock:(void(^)())block2
+forStenciledPath:(UIBezierPath*)clippingPath
+            atP1:(CGPoint)p1
+           andP2:(CGPoint)p2
+           andP3:(CGPoint)p3
+           andP4:(CGPoint)p4
+ andClippingSize:(CGSize)clipSize
+  withResolution:(CGSize)resolution{
+    [self runBlock:^{
+        
+        JotGLTexture* clipping;
+        GLuint stencil_rb;
+        
+        if(clippingPath){
+
+            CGSize pathSize = clippingPath.bounds.size;
+            pathSize.width = ceilf(pathSize.width);
+            pathSize.height = ceilf(pathSize.height);
+            
+            // on high res screens, the input path is in
+            // pt instead of px, so we need to make sure
+            // the clipping texture is in the same coordinate
+            // space as the gl context. to do that build
+            // a texture that matches the path's bounds, and
+            // it'll stretch to fill the context.
+            //
+            // https://github.com/adamwulf/loose-leaf/issues/408
+            //
+            // generate simple coregraphics texture in coregraphics
+            UIGraphicsBeginImageContextWithOptions(clipSize, NO, 1);
+            CGContextRef cgContext = UIGraphicsGetCurrentContext();
+            CGContextClearRect(cgContext, CGRectMake(0, 0, clipSize.width, clipSize.height));
+            [[UIColor whiteColor] setFill];
+            [clippingPath fill];
+            CGContextSetBlendMode(cgContext, kCGBlendModeClear);
+            CGContextSetBlendMode(cgContext, kCGBlendModeNormal);
+            UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+            UIGraphicsEndImageContext();
+            
+            // this is an image that's filled white with our path and
+            // clear everywhere else
+            clipping = [[JotGLTexture alloc] initForImage:image withSize:image.size];
+        }
+        
+        //
+        // run block 1
+        block1();
+        GLint currBoundRendBuff = currentlyBoundRenderbuffer;
+        
+        if(clippingPath){
+            
+            //
+            // prep our context to draw our texture as a quad.
+            // now prep to draw the actual texture
+            // always draw
+            
+            // if we were provided a clippingPath, then we should
+            // use it as our stencil when drawing our texture
+            
+            // always draw to stencil with correct blend mode
+            [self glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+            
+            // setup stencil buffers
+            glGenRenderbuffersOES(1, &stencil_rb);
+            //        DebugLog(@"new renderbuffer: %d", stencil_rb);
+            [self bindRenderbuffer:stencil_rb];
+            glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, resolution.width, resolution.height);
+            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, stencil_rb);
+            
+            [self assertCheckFramebuffer];
+            
+            // setup the stencil test and alpha test. the stencil test
+            // ensures all pixels are turned "on" in the stencil buffer,
+            // and the alpha test ensures we ignore transparent pixels
+            [self glEnableStencilTest];
+            [self glColorMaskRed:GL_FALSE green:GL_FALSE blue:GL_FALSE alpha:GL_FALSE];
+            [self glDisableDepthMask];
+            [self glStencilFunc:GL_NEVER ref:1 mask:0xFF];
+            [self glStencilOp:GL_REPLACE zfail:GL_KEEP zpass:GL_KEEP];  // draw 1s on test fail (always)
+            [self glEnableAlphaTest];
+            [self glAlphaFunc:GL_GREATER ref:0.5];
+            [self glStencilMask:0xFF];
+            glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
+            
+            
+            // these vertices will stretch the stencil texture
+            // across the entire size that we're drawing on
+            Vertex3D vertices[] = {
+                { p1.x, p1.y},
+                { p2.x, p2.y},
+                { p3.x, p3.y},
+                { p4.x, p4.y}
+            };
+            const GLfloat texCoords[] = {
+                0, 1,
+                1, 1,
+                0, 0,
+                1, 0
+            };
+            // bind our clipping texture, and draw it
+            [clipping bind];
+            
+            [self disableColorArray];
+            [self disablePointSizeArray];
+            [self glColor4f:1 and:1 and:1 and:1];
+            
+            [self enableVertexArrayForSize:2 andStride:0 andPointer:vertices];
+            [self enableTextureCoordArrayForSize:2 andStride:0 andPointer:texCoords];
+            [self drawTriangleStripCount:4];
+            
+            
+            // now setup the next draw operations to respect
+            // the new stencil buffer that's setup
+            [self glColorMaskRed:GL_TRUE green:GL_TRUE blue:GL_TRUE alpha:GL_TRUE];
+            [self glEnableDepthMask];
+            [self glStencilMask:0x00];
+            [self glStencilFunc:GL_EQUAL ref:1 mask:0xFF];
+        }
+        
+        ////////////////////////////
+        // stencil is setup
+        block2();
+        //
+        
+        
+        if(clippingPath){
+            ////////////////////////////
+            // turn stencil off
+            //
+            [clipping unbind];
+            [self glDisableStencilTest];
+            [self glDisableAlphaTest];
+            [self unbindRenderbuffer];
+            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, 0);
+            [self deleteRenderbuffer:stencil_rb];
+            
+            
+            // restore bound render buffer
+            if(currBoundRendBuff){
+                [self bindRenderbuffer:currBoundRendBuff];
+            }else{
+                [self unbindRenderbuffer];
+            }
+        }
+    }];
+}
 
 #pragma mark - Color and Blend Mode
 
@@ -688,11 +837,18 @@ typedef enum UndfBOOL{
 #pragma mark - Generate Assets
 
 -(void) bindTexture:(GLuint)textureId{
+    ValidateCurrentContext;
     glBindTexture(GL_TEXTURE_2D, textureId);
 }
 
 -(void) unbindTexture{
+    ValidateCurrentContext;
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+-(void) deleteTexture:(GLuint)textureId{
+    ValidateCurrentContext;
+    glDeleteTextures(1, &textureId);
 }
 
 -(void) bindFramebuffer:(GLuint)framebuffer{
@@ -710,6 +866,22 @@ typedef enum UndfBOOL{
         glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
         currentlyBoundFramebuffer = 0;
     }
+}
+
+-(void) deleteFramebuffer:(GLuint)framebufferID{
+    ValidateCurrentContext;
+    if(framebufferID && currentlyBoundFramebuffer == framebufferID){
+        @throw [NSException exceptionWithName:@"GLDeleteBoundBufferException" reason:@"deleting currently boudn buffer" userInfo:nil];
+    }
+    glDeleteFramebuffersOES(1, &framebufferID);
+}
+
+-(void) deleteRenderbuffer:(GLuint)viewRenderbuffer{
+    ValidateCurrentContext;
+    if(viewRenderbuffer && currentlyBoundRenderbuffer == viewRenderbuffer){
+        @throw [NSException exceptionWithName:@"GLDeleteBoundBufferException" reason:@"deleting currently boudn buffer" userInfo:nil];
+    }
+    glDeleteRenderbuffersOES(1, &viewRenderbuffer);
 }
 
 -(void) bindRenderbuffer:(GLuint)renderBufferId{

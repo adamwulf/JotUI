@@ -175,7 +175,9 @@ static int totalTextureBytes;
 
 -(void) deleteAssets{
     if (textureID){
-        glDeleteTextures(1, &textureID);
+        [JotGLContext runBlock:^(JotGLContext* context){
+            [context deleteTexture:textureID];
+        }];
         textureID = 0;
     }
 }
@@ -254,91 +256,39 @@ static int totalTextureBytes;
                 andP2:(CGPoint)p2
                 andP3:(CGPoint)p3
                 andP4:(CGPoint)p4
-       withResolution:(CGSize)size
+       withResolution:(CGSize)resolution
               andClip:(UIBezierPath*)clippingPath
       andClippingSize:(CGSize)clipSize
             asErase:(BOOL)asErase{
     // save our clipping texture and stencil buffer, if any
     [JotGLContext runBlock:^(JotGLContext* context){
-        JotGLTexture* clipping;
-        GLuint stencil_rb;
-        
-        if(clippingPath){
-            
-            CGSize pathSize = clippingPath.bounds.size;
-            pathSize.width = ceilf(pathSize.width);
-            pathSize.height = ceilf(pathSize.height);
-            
-            // on high res screens, the input path is in
-            // pt instead of px, so we need to make sure
-            // the clipping texture is in the same coordinate
-            // space as the gl context. to do that build
-            // a texture that matches the path's bounds, and
-            // it'll stretch to fill the context.
-            //
-            // https://github.com/adamwulf/loose-leaf/issues/408
-            //
-            // generate simple coregraphics texture in coregraphics
-            UIGraphicsBeginImageContextWithOptions(clipSize, NO, 1);
-            CGContextRef cgContext = UIGraphicsGetCurrentContext();
-            CGContextClearRect(cgContext, CGRectMake(0, 0, clipSize.width, clipSize.height));
-            [[UIColor whiteColor] setFill];
-            [clippingPath fill];
-            CGContextSetBlendMode(cgContext, kCGBlendModeClear);
-            CGContextSetBlendMode(cgContext, kCGBlendModeNormal);
-            UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            
-            // this is an image that's filled white with our path and
-            // clear everywhere else
-            clipping = [[JotGLTexture alloc] initForImage:image withSize:image.size];
-        }
         
         //
         // prep our context to draw our texture as a quad.
         // now prep to draw the actual texture
         // always draw
-        [context enableVertexArray];
-        [context disableColorArray];
-        [context disablePointSizeArray];
-        [context enableTextureCoordArray];
-        [context glColor4f:1 and:1 and:1 and:1];
         
-        GLint currBoundRendBuff = -1;
-        glGetIntegerv(GL_RENDERBUFFER_BINDING_OES, &currBoundRendBuff);
-        
-        // if we were provided a clippingPath, then we should
-        // use it as our stencil when drawing our texture
-        if(clippingPath){
-            // always draw to stencil with correct blend mode
-            [context glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
-            // setup stencil buffers
-            glGenRenderbuffersOES(1, &stencil_rb);
-            //        DebugLog(@"new renderbuffer: %d", stencil_rb);
-            [context bindRenderbuffer:stencil_rb];
-            glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, size.width, size.height);
-            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, stencil_rb);
+        void(^possiblyStenciledRenderBlock1)() = ^{
+            //
+            // prep our context to draw our texture as a quad.
+            // now prep to draw the actual texture
+            // always draw
+            [context enableVertexArray];
+            [context disableColorArray];
+            [context disablePointSizeArray];
+            [context enableTextureCoordArray];
+            [context glColor4f:1 and:1 and:1 and:1];
+        };
+        void(^possiblyStenciledRenderBlock2)() = ^{
             
-            // Check framebuffer completeness at the end of initialization.
-            [context assertCheckFramebuffer];
+            [context prepOpenGLBlendModeForColor:asErase ? nil : [UIColor whiteColor]];
             
-            // setup the stencil test and alpha test. the stencil test
-            // ensures all pixels are turned "on" in the stencil buffer,
-            // and the alpha test ensures we ignore transparent pixels
-            glEnable(GL_STENCIL_TEST);
-            glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-            glDepthMask(GL_FALSE);
-            glStencilFunc(GL_NEVER, 1, 0xFF);
-            glStencilOp(GL_REPLACE, GL_KEEP, GL_KEEP);  // draw 1s on test fail (always)
-            glEnable(GL_ALPHA_TEST);
-            //        glAlphaFunc(GL_NOTEQUAL, 0.0 );
-            glAlphaFunc(GL_GREATER, 0.5);
-            glStencilMask(0xFF);
-            glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
-            
-            
-            // these vertices will stretch the stencil texture
-            // across the entire size that we're drawing on
+            //
+            // these vertices make sure to draw our texture across
+            // the entire size, with the input texture coordinates.
+            //
+            // this allows the caller to ask us to render a portion of our
+            // texture in any size rect it needs
             Vertex3D vertices[] = {
                 { p1.x, p1.y},
                 { p2.x, p2.y},
@@ -346,77 +296,31 @@ static int totalTextureBytes;
                 { p4.x, p4.y}
             };
             const GLfloat texCoords[] = {
-                0, 1,
-                1, 1,
-                0, 0,
-                1, 0
+                t1.x, t1.y,
+                t2.x, t2.y,
+                t3.x, t3.y,
+                t4.x, t4.y
             };
-            // bind our clipping texture, and draw it
-            [clipping bind];
-            glVertexPointer(2, GL_FLOAT, 0, vertices);
-            glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
-            glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            
-            
-            // now setup the next draw operations to respect
-            // the new stencil buffer that's setup
-            glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-            glDepthMask(GL_TRUE);
-            glStencilMask(0x00);
-            glStencilFunc(GL_EQUAL, 1, 0xFF);
-        }
-        
-        [context prepOpenGLBlendModeForColor:asErase ? nil : [UIColor whiteColor]];
-        
-        //
-        // these vertices make sure to draw our texture across
-        // the entire size, with the input texture coordinates.
-        //
-        // this allows the caller to ask us to render a portion of our
-        // texture in any size rect it needs
-        Vertex3D vertices[] = {
-            { p1.x, p1.y},
-            { p2.x, p2.y},
-            { p3.x, p3.y},
-            { p4.x, p4.y}
+            // now draw our own texture, which will be drawn
+            // for only the input texture coords and will respect
+            // the stencil, if any
+            [self bind];
+            [context enableVertexArrayForSize:2 andStride:0 andPointer:vertices];
+            [context enableTextureCoordArrayForSize:2 andStride:0 andPointer:texCoords];
+            [context drawTriangleStripCount:4];
         };
-        const GLfloat texCoords[] = {
-            t1.x, t1.y,
-            t2.x, t2.y,
-            t3.x, t3.y,
-            t4.x, t4.y
-        };
-        // now draw our own texture, which will be drawn
-        // for only the input texture coords and will respect
-        // the stencil, if any
-        [self bind];
-        glVertexPointer(2, GL_FLOAT, 0, vertices);
-        glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
         
         // cleanup
-        if(clippingPath){
-            [clipping unbind];
-            glDisable(GL_STENCIL_TEST);
-            glDisable(GL_ALPHA_TEST);
-            glDeleteRenderbuffersOES(1, &stencil_rb);
-            
-            // restore bound render buffer
-            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, 0);
-            if(currBoundRendBuff){
-                [context bindRenderbuffer:currBoundRendBuff];
-            }else{
-                [context unbindRenderbuffer];
-            }
-        }
-        
-        // unprep our quad drawing texture, and prep back for
-        // drawing lines
-        [context enableVertexArray];
-        [context enableColorArray];
-        [context enablePointSizeArray];
-        [context disableTextureCoordArray];
-        
+        [context runBlock:possiblyStenciledRenderBlock1
+                 andBlock:possiblyStenciledRenderBlock2
+         forStenciledPath:clippingPath
+                     atP1:p1
+                    andP2:p2
+                    andP3:p3
+                    andP4:p4
+          andClippingSize:clipSize
+           withResolution:resolution];
+
         [self unbind];
     }];
 }
