@@ -285,7 +285,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     
     [destroyContext runBlock:^{
         viewFramebuffer = nil;
-        glFlush();
+        [destroyContext flush];
     }];
 }
 
@@ -686,7 +686,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext flush];
                 [canvasTexture bind];
                 [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
-                glFlush();
+                [secondSubContext flush];
                 
                 [secondSubContext assertCheckFramebuffer];
 
@@ -890,7 +890,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // available in the background thread's
                 // context
                 [secondSubContext flush];
-                glFlush();
+                [secondSubContext flush];
                 
                 
                 
@@ -903,7 +903,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext flush];
                 [canvasTexture bind];
                 [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
-                glFlush();
+                [secondSubContext flush];
                 
                 [secondSubContext assertCheckFramebuffer];
 
@@ -2008,7 +2008,6 @@ static int undoCounter;
             
             
     CheckMainThread;
-    glFlush();
     JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotViewDrawBackingTextureContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
     }];
@@ -2075,7 +2074,7 @@ static int undoCounter;
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
         [viewFramebuffer unbind];
         // flush after drawing to texture
-        glFlush();
+        [context flush];
     }];
     
     [imageTextureLock unlock];

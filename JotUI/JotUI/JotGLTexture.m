@@ -203,7 +203,7 @@ static int totalTextureBytes;
     [JotGLContext runBlock:^(JotGLContext* context){
         printOpenGLError();
         [context unbindTexture];
-        glFlush();
+        [context flush];
         //    DebugLog(@"unlocked %p (%d)", self, self.textureID);
         if(contextOfBinding != [JotGLContext currentContext]){
             DebugLog(@"gotcha");

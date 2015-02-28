@@ -23,7 +23,7 @@ dispatch_queue_t importExportTextureQueue;
  * one very important thing is to rebind the texture after it
  * has been drawn to with this frame buffer
  *
- * it's also very important to call glFlush() after drawing
+ * it's also very important to call [context flush] after drawing
  * using this framebuffer, and to rebind the backing texture before
  * drawing with it
  */

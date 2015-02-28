@@ -95,7 +95,7 @@
         GLsizeiptr len = vertexData.length;
         [context updateArrayBufferWithBytes:vertexData.bytes atOffset:offset andLength:len];
         [context unbindArrayBuffer];
-        glFlush();
+        [context flush];
         [lock unlock];
     }];
 }
