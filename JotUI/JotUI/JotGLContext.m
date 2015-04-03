@@ -574,6 +574,9 @@ typedef enum UndfBOOL{
     vertex_pointer_type = GL_FLOAT;
     vertex_pointer_stride = stride;
     vertex_pointer_pointer = pointer;
+    if(!stride){
+        [NSException exceptionWithName:@"StrideException" reason:@"stride cannot be zero" userInfo:nil];
+    }
 }
 -(void) disableVertexArray{
     [self glDisableClientState:GL_VERTEX_ARRAY];
