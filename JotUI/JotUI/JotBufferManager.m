@@ -111,33 +111,35 @@ static JotBufferManager* _instance = nil;
     NSInteger cacheNumberForData = [JotBufferManager cacheNumberForData:vertexData];
     // look to see if/how many we have that are ready to use
     NSMutableArray* vboCache = [self arrayOfVBOsForCacheNumber:cacheNumberForData];
-    JotBufferVBO* buffer = [vboCache firstObject];
-    if(buffer){
-        // if we have a buffer ready to use, then remove it from our cache,
-        // update it's data, and return it
-        [vboCache removeObjectAtIndex:0];
-        [buffer updateBufferWithData:vertexData];
-    }else{
-        // we don't have any buffers of the size we need, so
-        // fill our cache with buffers of the right size
-        OpenGLVBO* openGLVBO = [[OpenGLVBO alloc] initForCacheNumber:cacheNumberForData];
-        for(int stepNumber=0;stepNumber<openGLVBO.numberOfSteps;stepNumber++){
-            buffer = [[JotBufferVBO alloc] initWithData:vertexData andOpenGLVBO:openGLVBO andStepNumber:stepNumber];
-            [vboCache addObject:buffer];
+    JotBufferVBO* buffer = nil;
+    @synchronized(vboCache){
+        buffer = [vboCache firstObject];
+        if(buffer){
+            // if we have a buffer ready to use, then remove it from our cache,
+            // update it's data, and return it
+            [vboCache removeObjectAtIndex:0];
+            [buffer updateBufferWithData:vertexData];
+        }else{
+            // we don't have any buffers of the size we need, so
+            // fill our cache with buffers of the right size
+            OpenGLVBO* openGLVBO = [[OpenGLVBO alloc] initForCacheNumber:cacheNumberForData];
+            for(int stepNumber=0;stepNumber<openGLVBO.numberOfSteps;stepNumber++){
+                buffer = [[JotBufferVBO alloc] initWithData:vertexData andOpenGLVBO:openGLVBO andStepNumber:stepNumber];
+                [vboCache addObject:buffer];
+            }
+            // now use the last of those newly created buffers
+            buffer = [vboCache lastObject];
+            [vboCache removeLastObject];
+            
+            // stats:
+            // track full memory size, and memory per cache number
+            [[JotBufferManager sharedInstance] openGLBufferHasBeenBorn:openGLVBO];
         }
-        // now use the last of those newly created buffers
-        buffer = [vboCache lastObject];
-        [vboCache removeLastObject];
+        //
+        // track how many buffers are in use:
         
-        // stats:
-        // track full memory size, and memory per cache number
-        [[JotBufferManager sharedInstance] openGLBufferHasBeenBorn:openGLVBO];
+        [(JotGLContext*)[JotGLContext currentContext] setNeedsFlush:YES];
     }
-    //
-    // track how many buffers are in use:
-    
-    [(JotGLContext*)[JotGLContext currentContext] setNeedsFlush:YES];
-
     return buffer;
 }
 
@@ -193,24 +195,26 @@ static JotBufferManager* _instance = nil;
 -(void) recycleBuffer:(JotBufferVBO*)buffer{
     
     NSMutableArray* vboCache = [self arrayOfVBOsForCacheNumber:buffer.cacheNumber];
-    if([vboCache count] >= [self maxCacheSizeFor:buffer.cacheNumber]){
-        JotBufferVBO* oldBuff = buffer;
-        for(NSInteger i=0;i<[vboCache count];i++){
-            JotBufferVBO* buffInCache = [vboCache objectAtIndex:i];
-            if(buffer.allocOrder < buffInCache.allocOrder){
-                [vboCache replaceObjectAtIndex:i withObject:buffer];
-                buffer = buffInCache;
+    @synchronized(vboCache){
+        if([vboCache count] >= [self maxCacheSizeFor:buffer.cacheNumber]){
+            JotBufferVBO* oldBuff = buffer;
+            for(NSInteger i=0;i<[vboCache count];i++){
+                JotBufferVBO* buffInCache = [vboCache objectAtIndex:i];
+                if(buffer.allocOrder < buffInCache.allocOrder){
+                    [vboCache replaceObjectAtIndex:i withObject:buffer];
+                    buffer = buffInCache;
+                }
             }
+            if(oldBuff != buffer){
+                //            DebugLog(@"throwing away %d instead of %d",(int) buffer.allocOrder,(int) oldBuff.allocOrder);
+            }
+            // we don't need this buffer anymore,
+            // so send it off to the Trashmanager to dealloc
+            [[JotTrashManager sharedInstance] addObjectToDealloc:buffer];
+        }else{
+            // we can still use this buffer later
+            [vboCache addObject:buffer];
         }
-        if(oldBuff != buffer){
-//            DebugLog(@"throwing away %d instead of %d",(int) buffer.allocOrder,(int) oldBuff.allocOrder);
-        }
-        // we don't need this buffer anymore,
-        // so send it off to the Trashmanager to dealloc
-        [[JotTrashManager sharedInstance] addObjectToDealloc:buffer];
-    }else{
-        // we can still use this buffer later
-        [vboCache addObject:buffer];
     }
 }
 
@@ -259,12 +263,14 @@ static JotBufferManager* _instance = nil;
  * particular size
  */
 -(NSMutableArray*) arrayOfVBOsForCacheNumber:(NSInteger)size{
-    NSMutableArray* arr = [cacheOfVBOs objectForKey:@(size)];
-    if(!arr){
-        arr = [NSMutableArray array];
-        [cacheOfVBOs setObject:arr forKey:@(size)];
+    @synchronized(cacheOfVBOs){
+        NSMutableArray* arr = [cacheOfVBOs objectForKey:@(size)];
+        if(!arr){
+            arr = [NSMutableArray array];
+            [cacheOfVBOs setObject:arr forKey:@(size)];
+        }
+        return arr;
     }
-    return arr;
 }
 
 @end
