@@ -77,6 +77,8 @@ dispatch_queue_t importExportStateQueue;
     
     NSLock* inkTextureLock;
     NSLock* imageTextureLock;
+    
+    CADisplayLink* displayLink;
 }
 
 @end
@@ -135,7 +137,7 @@ static JotGLContext *mainThreadContext;
     // strokes have a max of .5Mb each
     self.maxStrokeSize = 512*1024;
     
-    CADisplayLink* displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkPresentRenderBuffer:)];
+    displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkPresentRenderBuffer:)];
     displayLink.frameInterval = 2;
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
@@ -1992,6 +1994,16 @@ static int undoCounter;
         DebugLog(@"what6");
     }
     [self destroyFramebuffer];
+}
+
+// the JotTrashManager is about to delete us,
+// so we need to clean up any circular references here
+//
+// the CADisplayLink in particular causes a circular
+// reference
+-(void) deleteAssets{
+    [displayLink invalidate];
+    displayLink = nil;
 }
 
 -(void) willMoveToSuperview:(UIView *)newSuperview{

@@ -9,6 +9,7 @@
 #import "JotTrashManager.h"
 #import <QuartzCore/CAAnimation.h>
 #import "JotGLTextureBackedFrameBuffer.h"
+#import "JotView.h"
 
 /**
  * The trash manager will hold onto objects and slowly
