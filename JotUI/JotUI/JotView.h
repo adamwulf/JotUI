@@ -94,4 +94,8 @@
 #pragma mark - debug
 -(void) drawLongLine;
 
+#pragma mark - jot trash
+
+-(void) deleteAssets;
+
 @end

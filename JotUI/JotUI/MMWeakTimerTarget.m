@@ -36,4 +36,9 @@
         [timer invalidate];
     }
 }
+
+-(void) dealloc{
+    NSLog(@"dealloc timer");
+}
+
 @end

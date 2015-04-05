@@ -10,6 +10,7 @@
 #import <QuartzCore/CAAnimation.h>
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotView.h"
+#import "JotBufferVBO.h"
 
 /**
  * The trash manager will hold onto objects and slowly
@@ -106,11 +107,20 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
                             while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
                                 // this array should be the last retain for these objects,
                                 // so removing them will release them and cause them to dealloc
-                                id obj = [objectsToDealloc lastObject];
-                                if([obj respondsToSelector:@selector(deleteAssets)]){
-                                    [obj deleteAssets];
+                                __weak NSObject* weakObj;
+                                @autoreleasepool {
+                                    id obj = [objectsToDealloc lastObject];
+                                    weakObj = obj;
+                                    if([obj respondsToSelector:@selector(deleteAssets)]){
+                                        [obj deleteAssets];
+                                    }
+                                    [objectsToDealloc removeLastObject];
                                 }
-                                [objectsToDealloc removeLastObject];
+                                @synchronized(weakObj){
+                                    if(weakObj){
+                                        [objectsToDealloc insertObject:weakObj atIndex:0];
+                                    }
+                                }
                             }
                         }];
                     }
