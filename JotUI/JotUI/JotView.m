@@ -531,6 +531,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // and will fire after we're done. (from validateUndoState).
                 isCurrentlyExporting = 0;
             }
+            
+            // possible fix for #1335, keeping commented out so that
+            // I can verify later...
+//            [[JotTrashManager sharedInstance] addObjectToDealloc:immutableState];
+
+            
 //            DebugLog(@"export ends: %p", self);
         }
     });

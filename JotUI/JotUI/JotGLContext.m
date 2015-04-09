@@ -248,15 +248,17 @@ typedef enum UndfBOOL{
 +(void) runBlock:(void(^)(JotGLContext* context))block{
     @autoreleasepool {
         JotGLContext* currentContext = (JotGLContext*) [JotGLContext currentContext];
-        if(!currentContext || ![currentContext isKindOfClass:[JotGLContext class]]){
-            @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
+        if(!currentContext){
+            @throw [NSException exceptionWithName:@"OpenGLException" reason:@"cannot run block without GL Context" userInfo:nil];
+        }else if(![currentContext isKindOfClass:[JotGLContext class]]){
+            @throw [NSException exceptionWithName:@"OpenGLException" reason:@"currentContext must be a JotGLContext" userInfo:nil];
         }else{
             if([JotGLContext pushCurrentContext:currentContext]){
                 @autoreleasepool {
                     block(currentContext);
                 }
             }else{
-                @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
+                @throw [NSException exceptionWithName:@"OpenGLException" reason:@"+could not push GL Context" userInfo:nil];
             }
             [JotGLContext validateContextMatches:currentContext];
             [JotGLContext popCurrentContext];
@@ -271,7 +273,7 @@ typedef enum UndfBOOL{
                 block();
             }
         }else{
-            @throw [NSException exceptionWithName:@"OpenGLException" reason:@"could not push GL Context" userInfo:nil];
+            @throw [NSException exceptionWithName:@"OpenGLException" reason:@"-could not push GL Context" userInfo:nil];
         }
         [JotGLContext validateContextMatches:self];
         [JotGLContext popCurrentContext];
@@ -324,6 +326,9 @@ typedef enum UndfBOOL{
 }
 
 +(BOOL) pushCurrentContext:(JotGLContext*)context{
+    if(!context){
+        @throw [NSException exceptionWithName:@"OpenGLException" reason:@"cannot push nil context" userInfo:nil];
+    }
     if(![[context lock] tryLock]){
         DebugLog(@"gotcha");
         [[context lock] lock];
