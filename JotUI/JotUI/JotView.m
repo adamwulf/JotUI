@@ -1955,8 +1955,10 @@ static int undoCounter;
 // the CADisplayLink in particular causes a circular
 // reference
 -(void) deleteAssets{
-    [displayLink invalidate];
-    displayLink = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [displayLink invalidate];
+        displayLink = nil;
+    });
     state = nil;
     [validateUndoStateTimer invalidate];
     validateUndoStateTimer = nil;
