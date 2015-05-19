@@ -1197,6 +1197,7 @@ static void * zeroedDataCache = nil;
 #pragma mark - Dealloc
 
 -(void) dealloc{
+    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
     [self runBlock:^{
         [contextProperties removeAllObjects];
     }];

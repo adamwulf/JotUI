@@ -27,6 +27,10 @@
     return self;
 }
 
+-(void) dealloc{
+    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
+}
+
 -(CGRect) bounds{
     return [[segments firstObject] bounds];
 }

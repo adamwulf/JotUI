@@ -127,6 +127,7 @@
 }
 
 -(void) dealloc{
+    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
     [self deleteAssets];
 }
 

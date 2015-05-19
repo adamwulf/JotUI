@@ -93,6 +93,7 @@ dispatch_queue_t importExportTextureQueue;
 }
 
 -(void) dealloc{
+    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
     [self deleteAssets];
 }
 

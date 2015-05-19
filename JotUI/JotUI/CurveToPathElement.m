@@ -15,7 +15,7 @@
 #import "JotBufferVBO.h"
 #import "MoveToPathElement.h"
 #import "JotGLContext.h"
-
+#import "JotTrashManager.h"
 
 #define kDivideStepBy 5
 #define kAbsoluteMinWidth 3.0
@@ -520,6 +520,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 
 
 -(void) dealloc{
+    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
     if(vbo){
         [self.bufferManager recycleBuffer:vbo];
         vbo = nil;

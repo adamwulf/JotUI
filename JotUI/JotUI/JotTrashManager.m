@@ -132,8 +132,18 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 }
 
 -(void) addObjectToDealloc:(NSObject*)obj{
-    @synchronized(self){
-        [objectsToDealloc addObject:obj];
+    if(obj){
+        @synchronized(self){
+            [objectsToDealloc addObject:obj];
+        }
+    }
+}
+
+-(void) addObjectsToDealloc:(NSArray*)objs{
+    if(objs){
+        @synchronized(self){
+            [objectsToDealloc addObjectsFromArray:objs];
+        }
     }
 }
 

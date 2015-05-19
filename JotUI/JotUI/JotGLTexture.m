@@ -327,6 +327,7 @@ static int totalTextureBytes;
 }
 
 -(void) dealloc{
+    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
     @synchronized([JotGLTexture class]){
         totalTextureBytes -= fullByteSize;
     }

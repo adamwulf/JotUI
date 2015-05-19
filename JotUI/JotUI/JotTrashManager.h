@@ -13,11 +13,15 @@
 
 +(JotTrashManager*) sharedInstance;
 
++(BOOL) isTrashManagerQueue;
+
 -(void) setMaxTickDuration:(NSTimeInterval)tickSize;
 
 -(BOOL) tick;
 
 -(void) addObjectToDealloc:(NSObject*)obj;
+
+-(void) addObjectsToDealloc:(NSArray*)objs;
 
 -(void) setGLContext:(JotGLContext*)context;
 

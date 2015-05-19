@@ -437,6 +437,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
 #pragma mark - dealloc
 
 -(void)dealloc{
+    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
     if(backgroundFramebuffer){
         [[JotTrashManager sharedInstance] addObjectToDealloc:backgroundFramebuffer];
     }

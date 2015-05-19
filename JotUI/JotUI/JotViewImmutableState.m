@@ -41,6 +41,9 @@
     return self;
 }
 
+-(void) dealloc{
+    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
+}
 
 /**
  * this will write out the state to the specified path.
@@ -101,6 +104,11 @@
  */
 -(NSUInteger) undoHash{
     return [[stateDict objectForKey:@"undoHash"] unsignedIntegerValue];
+}
+
+-(void) deleteAssets{
+    [[JotTrashManager sharedInstance] addObjectsToDealloc:[stateDict objectForKey:@"stackOfStrokes"]];
+    [[JotTrashManager sharedInstance] addObjectsToDealloc:[stateDict objectForKey:@"stackOfUndoneStrokes"]];
 }
 
 @end

@@ -534,10 +534,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             
             // possible fix for #1335, keeping commented out so that
             // I can verify later...
-//            [[JotTrashManager sharedInstance] addObjectToDealloc:immutableState];
-
+//                    [[JotTrashManager sharedInstance] addObjectToDealloc:immutableState];
             
-//            DebugLog(@"export ends: %p", self);
+            //            DebugLog(@"export ends: %p", self);
         }
     });
 }
