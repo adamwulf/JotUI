@@ -443,12 +443,6 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
 #pragma mark - dealloc
 
 -(void)dealloc{
-    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
-    [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfStrokes];
-    [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfUndoneStrokes];
-    [[JotTrashManager sharedInstance] addObjectsToDealloc:strokesBeingWrittenToBackingTexture];
-    [[JotTrashManager sharedInstance] addObjectToDealloc:currentStroke];
-    [[JotTrashManager sharedInstance] addObjectToDealloc:backgroundFramebuffer];
     if(backgroundFramebuffer){
         [[JotTrashManager sharedInstance] addObjectToDealloc:backgroundFramebuffer];
     }

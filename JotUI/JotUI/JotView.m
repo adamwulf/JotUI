@@ -502,6 +502,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                     isCurrentlyExporting = 0;
                 }
                 DebugLog(@"forget: skipping export write to disk for forgetful jotview");
+                [[JotTrashManager sharedInstance] addObjectToDealloc:immutableState];
                 return;
             }
             

@@ -25,6 +25,8 @@
     NSMutableArray* objectsToDealloc;
     NSTimeInterval maxTickDuration;
     JotGLContext* backgroundContext;
+    NSMutableArray* deallocd;
+    NSMutableArray* skipped;
 }
 
 static dispatch_queue_t _trashQueue;
@@ -50,6 +52,8 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
         objectsToDealloc = [[NSMutableArray alloc] init];
         maxTickDuration = 1;
         _instance = self;
+        deallocd = [NSMutableArray array];
+        skipped = [NSMutableArray array];
     }
     return _instance;
 }
@@ -109,9 +113,11 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
                                 // this array should be the last retain for these objects,
                                 // so removing them will release them and cause them to dealloc
                                 __weak NSObject* weakObj;
+                                NSString* objStr = nil;
                                 @autoreleasepool {
                                     id obj = [objectsToDealloc lastObject];
                                     weakObj = obj;
+                                    objStr = [NSString stringWithFormat:@"%p", obj];
                                     if([obj respondsToSelector:@selector(deleteAssets)]){
                                         [obj deleteAssets];
                                     }
@@ -120,6 +126,8 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
                                 @synchronized(weakObj){
                                     if(weakObj){
                                         [objectsToDealloc insertObject:weakObj atIndex:0];
+                                    }else{
+                                        [deallocd addObject:objStr];
                                     }
                                 }
                             }
@@ -137,6 +145,8 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
         @synchronized(self){
             if(![objectsToDealloc containsObjectIdenticalTo:obj]){
                 [objectsToDealloc addObject:obj];
+            }else{
+                [skipped addObject:[NSString stringWithFormat:@"%p", obj]];
             }
         }
     }

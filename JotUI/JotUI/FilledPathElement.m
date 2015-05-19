@@ -217,7 +217,7 @@
 
 
 -(void) dealloc{
-    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
+    [[JotTrashManager sharedInstance] addObjectToDealloc:texture];
     texture = nil;
 }
 

@@ -30,10 +30,6 @@
     return self;
 }
 
--(void) dealloc{
-    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
-}
-
 -(NSMutableArray*) segments{
     return [NSMutableArray arrayWithArray:segments];
 }
