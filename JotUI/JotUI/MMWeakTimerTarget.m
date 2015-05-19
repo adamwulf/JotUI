@@ -37,8 +37,4 @@
     }
 }
 
--(void) dealloc{
-    NSLog(@"dealloc timer");
-}
-
 @end
