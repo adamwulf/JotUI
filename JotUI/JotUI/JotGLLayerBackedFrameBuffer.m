@@ -127,7 +127,7 @@
 }
 
 -(void) dealloc{
-    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
+    NSAssert([JotGLContext currentContext] != nil, @"must be on glcontext");
     [self deleteAssets];
 }
 

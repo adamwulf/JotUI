@@ -356,6 +356,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
             [stackOfStrokes addObject:currentStroke];
             currentStroke = nil;
         }
+        [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfUndoneStrokes];
         [stackOfUndoneStrokes removeAllObjects];
     }
 }
@@ -368,6 +369,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         }else{
             [self forceAddEmptyStrokeWithBrush:brushTexture];
         }
+        [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfUndoneStrokes];
         [stackOfUndoneStrokes removeAllObjects];
     }
 }
@@ -382,6 +384,9 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
 
 -(void) clearAllStrokes{
     @synchronized(self){
+        [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfStrokes];
+        [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfUndoneStrokes];
+        [[JotTrashManager sharedInstance] addObjectToDealloc:currentStroke];
         [stackOfUndoneStrokes removeAllObjects];
         [stackOfStrokes removeAllObjects];
         currentStroke = nil;
@@ -421,6 +426,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         
         // since we've added an undo level, we need to
         // remove all undone strokes.
+        [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfUndoneStrokes];
         [stackOfUndoneStrokes removeAllObjects];
     }
 }
@@ -438,6 +444,11 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
 
 -(void)dealloc{
     NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
+    [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfStrokes];
+    [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfUndoneStrokes];
+    [[JotTrashManager sharedInstance] addObjectsToDealloc:strokesBeingWrittenToBackingTexture];
+    [[JotTrashManager sharedInstance] addObjectToDealloc:currentStroke];
+    [[JotTrashManager sharedInstance] addObjectToDealloc:backgroundFramebuffer];
     if(backgroundFramebuffer){
         [[JotTrashManager sharedInstance] addObjectToDealloc:backgroundFramebuffer];
     }

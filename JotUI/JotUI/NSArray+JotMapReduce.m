@@ -53,4 +53,13 @@
 	return result;
 }
 
+- (BOOL) containsObjectIdenticalTo:(id)anObject{
+    for(id obj in self){
+        if(obj == anObject){
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end

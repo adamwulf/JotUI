@@ -520,7 +520,6 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 
 
 -(void) dealloc{
-    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
     if(vbo){
         [self.bufferManager recycleBuffer:vbo];
         vbo = nil;

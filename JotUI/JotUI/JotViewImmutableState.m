@@ -82,6 +82,11 @@
             }
         }
         
+        // add all of the immutable stroke objects to the trash manager,
+        // from here on out we're only going to hold onto their stroke IDs
+        [[JotTrashManager sharedInstance] addObjectsToDealloc:[stateDict objectForKey:@"stackOfStrokes"]];
+        [[JotTrashManager sharedInstance] addObjectsToDealloc:[stateDict objectForKey:@"stackOfUndoneStrokes"]];
+
         [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfStrokes"];
         [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfUndoneStrokes"];
         [stateDict setObject:[NSNumber numberWithBool:YES] forKey:@"hasConverted"];
@@ -107,8 +112,11 @@
 }
 
 -(void) deleteAssets{
-    [[JotTrashManager sharedInstance] addObjectsToDealloc:[stateDict objectForKey:@"stackOfStrokes"]];
-    [[JotTrashManager sharedInstance] addObjectsToDealloc:[stateDict objectForKey:@"stackOfUndoneStrokes"]];
+    if(![[stateDict objectForKey:@"hasConverted"] boolValue]){
+        // only add the stroke arrays if we haven't already converted them
+        [[JotTrashManager sharedInstance] addObjectsToDealloc:[stateDict objectForKey:@"stackOfStrokes"]];
+        [[JotTrashManager sharedInstance] addObjectsToDealloc:[stateDict objectForKey:@"stackOfUndoneStrokes"]];
+    }
 }
 
 @end

@@ -1115,6 +1115,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(BOOL) presentRenderbuffer{
     ValidateCurrentContext;
+    printOpenGLError();
     return [super presentRenderbuffer:GL_RENDERBUFFER_OES];
 }
 
@@ -1197,7 +1198,6 @@ static void * zeroedDataCache = nil;
 #pragma mark - Dealloc
 
 -(void) dealloc{
-    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
     [self runBlock:^{
         [contextProperties removeAllObjects];
     }];

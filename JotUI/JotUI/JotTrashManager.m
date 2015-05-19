@@ -11,6 +11,7 @@
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotView.h"
 #import "JotBufferVBO.h"
+#import "NSArray+JotMapReduce.h"
 
 /**
  * The trash manager will hold onto objects and slowly
@@ -134,7 +135,9 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 -(void) addObjectToDealloc:(NSObject*)obj{
     if(obj){
         @synchronized(self){
-            [objectsToDealloc addObject:obj];
+            if(![objectsToDealloc containsObjectIdenticalTo:obj]){
+                [objectsToDealloc addObject:obj];
+            }
         }
     }
 }
@@ -142,7 +145,9 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 -(void) addObjectsToDealloc:(NSArray*)objs{
     if(objs){
         @synchronized(self){
-            [objectsToDealloc addObjectsFromArray:objs];
+            for(NSObject* obj in objs){
+                [self addObjectToDealloc:obj];
+            }
         }
     }
 }

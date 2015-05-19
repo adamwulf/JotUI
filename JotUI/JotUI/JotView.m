@@ -534,7 +534,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             
             // possible fix for #1335, keeping commented out so that
             // I can verify later...
-//                    [[JotTrashManager sharedInstance] addObjectToDealloc:immutableState];
+            [[JotTrashManager sharedInstance] addObjectToDealloc:immutableState];
             
             //            DebugLog(@"export ends: %p", self);
         }
@@ -1329,6 +1329,7 @@ static int undoCounter;
                         // this should dealloc the element immediately,
                         // and the VBO its using internally will be recycled
                         // in to the JotBufferManager
+                        [[JotTrashManager sharedInstance] addObjectToDealloc:element];
                     }
                     [strokeToWriteToTexture.texture unbind];
                     // now that we're done with the stroke,

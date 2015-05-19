@@ -327,11 +327,13 @@ static int totalTextureBytes;
 }
 
 -(void) dealloc{
-    NSAssert([JotTrashManager isTrashManagerQueue], @"must be on trash queue");
+    [lock lock];
+    NSAssert([JotGLContext currentContext] != nil, @"must be on glcontext");
     @synchronized([JotGLTexture class]){
         totalTextureBytes -= fullByteSize;
     }
 	[self deleteAssets];
+    [lock unlock];
 }
 
 @end
