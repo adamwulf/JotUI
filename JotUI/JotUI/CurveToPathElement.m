@@ -16,6 +16,7 @@
 #import "MoveToPathElement.h"
 #import "JotGLContext.h"
 #import "JotTrashManager.h"
+#import <PerformanceBezier/PerformanceBezier.h>
 #import <ClippingBezier/ClippingBezier.h>
 
 #define kDivideStepBy 5
