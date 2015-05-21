@@ -15,6 +15,9 @@
 		66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F7D1828501B00B7442F /* JotViewStateProxy.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 66696F7E1828501B00B7442F /* JotViewStateProxy.m */; };
 		66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		666CC5AE1B0D8ADC0047825D /* PerformanceBezier.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 666CC5AD1B0D8ADC0047825D /* PerformanceBezier.framework */; };
+		666CC5B01B0D8AE00047825D /* ClippingBezier.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 666CC5AF1B0D8AE00047825D /* ClippingBezier.framework */; };
+		666CC5B11B0D8BE20047825D /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
 		667C9F6E19FEF2C900708632 /* JotSharedBrushTexture.h in Headers */ = {isa = PBXBuildFile; fileRef = 667C9F6C19FEF2C900708632 /* JotSharedBrushTexture.h */; };
 		667C9F6F19FEF2C900708632 /* JotSharedBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = 667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */; };
 		667EC03B1A01F4F60069FF33 /* JotDiskAssetManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 667EC0391A01F4F60069FF33 /* JotDiskAssetManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -53,7 +56,6 @@
 		66AC157B18079B27005315C8 /* JotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B3A301692B68F00F12F42 /* JotView.m */; };
 		66AC157C18079B27005315C8 /* MMWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */; };
 		66AC157D18079B35005315C8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A32026170242D200692C71 /* UIKit.framework */; };
-		66AC157E18079B41005315C8 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
 		66B498811AA131D300D48094 /* JotGLTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B498801AA131D300D48094 /* JotGLTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66B498831AA1481F00D48094 /* JotGLContext+Buffers.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B498821AA1481F00D48094 /* JotGLContext+Buffers.h */; };
 		66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B7E0501A0B4D94000797E4 /* UIScreen+PortraitBounds.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -121,6 +123,8 @@
 		66696F7D1828501B00B7442F /* JotViewStateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxy.h; sourceTree = "<group>"; };
 		66696F7E1828501B00B7442F /* JotViewStateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotViewStateProxy.m; sourceTree = "<group>"; };
 		66696F811828505A00B7442F /* JotViewStateProxyDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotViewStateProxyDelegate.h; sourceTree = "<group>"; };
+		666CC5AD1B0D8ADC0047825D /* PerformanceBezier.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PerformanceBezier.framework; path = "../../ClippingBezier/Submodules/DrawKit-iOS/Submodules/PerformanceBezier/build/Debug-iphoneos/PerformanceBezier.framework"; sourceTree = "<group>"; };
+		666CC5AF1B0D8AE00047825D /* ClippingBezier.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ClippingBezier.framework; path = "../../ClippingBezier/build/Debug-iphoneos/ClippingBezier.framework"; sourceTree = "<group>"; };
 		667C9F6C19FEF2C900708632 /* JotSharedBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotSharedBrushTexture.h; sourceTree = "<group>"; };
 		667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotSharedBrushTexture.m; sourceTree = "<group>"; };
 		667EC0391A01F4F60069FF33 /* JotDiskAssetManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotDiskAssetManager.h; sourceTree = "<group>"; };
@@ -194,9 +198,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				666CC5B01B0D8AE00047825D /* ClippingBezier.framework in Frameworks */,
+				666CC5AE1B0D8ADC0047825D /* PerformanceBezier.framework in Frameworks */,
+				666CC5B11B0D8BE20047825D /* JotTouchSDK.framework in Frameworks */,
 				66AC157D18079B35005315C8 /* UIKit.framework in Frameworks */,
 				66AC155818079A72005315C8 /* Foundation.framework in Frameworks */,
-				66AC157E18079B41005315C8 /* JotTouchSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -254,6 +260,8 @@
 		669B39AB1692B46A00F12F42 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				666CC5AF1B0D8AE00047825D /* ClippingBezier.framework */,
+				666CC5AD1B0D8ADC0047825D /* PerformanceBezier.framework */,
 				66A32026170242D200692C71 /* UIKit.framework */,
 				66AA213516FCE26600E86922 /* JotTouchSDK.framework */,
 				669B39AC1692B46A00F12F42 /* Foundation.framework */,
@@ -699,6 +707,9 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../JotTouchSDK\"",
+					"/Users/adam/Documents/Code/loose-leaf/LooseLeaf/Submodules/ClippingBezier/Submodules/DrawKit-iOS/Submodules/PerformanceBezier/build/Debug-iphoneos",
+					"/Users/adam/Documents/Code/loose-leaf/LooseLeaf/Submodules/ClippingBezier/build/Debug-iphoneos",
+					"/Users/adam/Documents/Code/loose-leaf/LooseLeaf/Submodules/JotUI/JotTouchSDK",
 				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -733,6 +744,9 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../JotTouchSDK\"",
+					"/Users/adam/Documents/Code/loose-leaf/LooseLeaf/Submodules/ClippingBezier/Submodules/DrawKit-iOS/Submodules/PerformanceBezier/build/Debug-iphoneos",
+					"/Users/adam/Documents/Code/loose-leaf/LooseLeaf/Submodules/ClippingBezier/build/Debug-iphoneos",
+					"/Users/adam/Documents/Code/loose-leaf/LooseLeaf/Submodules/JotUI/JotTouchSDK",
 				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
