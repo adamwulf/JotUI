@@ -9,8 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <OpenGLES/EAGL.h>
+#import "DeleteAssets.h"
 
-@interface OpenGLVBO : NSObject
+@interface OpenGLVBO : NSObject<DeleteAssets>
 
 @property (nonatomic, readonly) int fullByteSize;
 @property (nonatomic, readonly) int stepByteSize;

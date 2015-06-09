@@ -161,13 +161,17 @@
     [lock unlock];
 }
 
--(void) dealloc{
+-(void) deleteAssets{
     if(vbo){
         [[JotBufferManager sharedInstance] openGLBufferHasDied:self];
         [JotGLContext runBlock:^(JotGLContext* context){
             [context deleteArrayBuffer:vbo];
         }];
     }
+}
+
+-(void) dealloc{
+    [self deleteAssets];
 }
 
 
