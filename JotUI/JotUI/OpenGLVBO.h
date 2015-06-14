@@ -11,7 +11,7 @@
 #import <OpenGLES/EAGL.h>
 #import "DeleteAssets.h"
 
-@interface OpenGLVBO : NSObject<DeleteAssets>
+@interface OpenGLVBO : NSObject
 
 @property (nonatomic, readonly) int fullByteSize;
 @property (nonatomic, readonly) int stepByteSize;
