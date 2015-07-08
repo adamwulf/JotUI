@@ -313,7 +313,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         if([self canUndo]){
             JotStroke* undoneStroke = [stackOfStrokes lastObject];
             [stackOfUndoneStrokes addObject:undoneStroke];
-            [stackOfStrokes removeSingleObject:undoneStroke];
+            [stackOfStrokes removeLastObject];
             return undoneStroke;
         }
         return nil;
@@ -325,7 +325,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         if([self canRedo]){
             JotStroke* redoneStroke = [stackOfUndoneStrokes lastObject];
             [stackOfStrokes addObject:redoneStroke];
-            [stackOfUndoneStrokes removeSingleObject:redoneStroke];
+            [stackOfUndoneStrokes removeLastObject];
             return redoneStroke;
         }
         return nil;
@@ -336,7 +336,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
     @synchronized(self){
         if([self canUndo]){
             JotStroke* lastKnownStroke = [stackOfStrokes lastObject];
-            [stackOfStrokes removeSingleObject:lastKnownStroke];
+            [stackOfStrokes removeLastObject];
             // don't add to the undone stack
             return lastKnownStroke;
         }
