@@ -95,6 +95,21 @@ dispatch_queue_t importExportStateQueue;
 
 static JotGLContext *mainThreadContext;
 
+static int numAlive = 0;
+
++(void) plusOne{
+    @synchronized([JotView class]){
+        numAlive += 1;
+        NSLog(@"number alive: %d", numAlive);
+    }
+}
++(void) minusOne{
+    @synchronized([JotView class]){
+        numAlive -= 1;
+        NSLog(@"number alive: %d", numAlive);
+    }
+}
+
 +(JotGLContext*) mainThreadContext{
     return mainThreadContext;
 }
@@ -132,6 +147,7 @@ static JotGLContext *mainThreadContext;
 
 -(id) finishInit{
     CheckMainThread;
+    [JotView plusOne];
     inkTextureLock = [[NSLock alloc] init];
     imageTextureLock = [[NSLock alloc] init];
     // strokes have a max of .5Mb each
@@ -1353,7 +1369,7 @@ static int undoCounter;
                 }];
                 [imageTextureLock unlock];
                 [inkTextureLock unlock];
-            }else if([state isReadyToExport]){
+            }else if(!state || [state isReadyToExport]){
                 [imageTextureLock unlock];
                 [inkTextureLock unlock];
                 // only export if the trash manager is empty
@@ -1948,6 +1964,23 @@ static int undoCounter;
         DebugLog(@"what6");
     }
     [self destroyFramebuffer];
+    [JotView minusOne];
+}
+
+-(BOOL) hasLink{
+    return displayLink != nil;
+}
+
+-(void) invalidate{
+    __block JotView* strongSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @autoreleasepool {
+            [displayLink invalidate];
+            displayLink = nil;
+            [[JotTrashManager sharedInstance] addObjectToDealloc:strongSelf];
+            strongSelf = nil;
+        }
+    });
 }
 
 // the JotTrashManager is about to delete us,
@@ -1956,10 +1989,6 @@ static int undoCounter;
 // the CADisplayLink in particular causes a circular
 // reference
 -(void) deleteAssets{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [displayLink invalidate];
-        displayLink = nil;
-    });
     state = nil;
     [validateUndoStateTimer invalidate];
     validateUndoStateTimer = nil;

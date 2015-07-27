@@ -96,6 +96,8 @@
 
 #pragma mark - jot trash
 
+-(BOOL) hasLink;
+-(void) invalidate;
 -(void) deleteAssets;
 
 @end

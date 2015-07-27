@@ -109,15 +109,15 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
                                 // this array should be the last retain for these objects,
                                 // so removing them will release them and cause them to dealloc
                                 __weak NSObject* weakObj;
-                                NSString* objStr = nil;
                                 @autoreleasepool {
                                     id obj = [objectsToDealloc lastObject];
                                     weakObj = obj;
-                                    objStr = [NSString stringWithFormat:@"%p", obj];
-                                    if([obj respondsToSelector:@selector(deleteAssets)]){
-                                        [obj deleteAssets];
+                                    @autoreleasepool {
+                                        if([obj respondsToSelector:@selector(deleteAssets)]){
+                                            [obj deleteAssets];
+                                        }
+                                        [objectsToDealloc removeLastObject];
                                     }
-                                    [objectsToDealloc removeLastObject];
                                 }
                                 @synchronized(weakObj){
                                     if(weakObj){
@@ -137,6 +137,9 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 -(void) addObjectToDealloc:(NSObject*)obj{
     if(obj){
         @synchronized(self){
+            if([obj isKindOfClass:[JotView class]] && [(JotView*)obj hasLink]){
+                @throw [NSException exceptionWithName:@"JotViewDeallocException" reason:@"Cannot dealloc JotView with active CADisplayLink" userInfo:nil];
+            }
             if(![objectsToDealloc containsObjectIdenticalTo:obj]){
                 [objectsToDealloc addObject:obj];
             }
