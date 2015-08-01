@@ -16,6 +16,7 @@
 #import "AbstractBezierPathElement-Protected.h"
 #import "CurveToPathElement.h"
 #import "UIColor+JotHelper.h"
+#import "MMMainOperationQueue.h"
 #import "JotGLTexture.h"
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotDefaultBrushTexture.h"
@@ -24,6 +25,7 @@
 #import "JotViewImmutableState.h"
 #import "SegmentSmoother.h"
 #import "JotFilledPathStroke.h"
+#import "MMWeakTimer.h"
 #import "MMWeakTimerTarget.h"
 #import "JotTextureCache.h"
 #import "NSMutableArray+RemoveSingle.h"
@@ -61,7 +63,7 @@ dispatch_queue_t importExportStateQueue;
     // if our export method gets called while we're writing to the texture,
     // then we add that to a queue and will re-call that export method
     // after all the strokes have been written to disk
-    NSTimer* validateUndoStateTimer;
+    MMWeakTimer* validateUndoStateTimer;
     AbstractBezierPathElement* prevElementForTextureWriting;
     NSMutableArray* exportLaterInvocations;
     NSUInteger isCurrentlyExporting;
@@ -162,14 +164,8 @@ static int numAlive = 0;
     prevElementForTextureWriting = nil;
     exportLaterInvocations = [NSMutableArray array];
     
-    MMWeakTimerTarget* weakTimerTarget = [[MMWeakTimerTarget alloc] initWithTarget:self andSelector:@selector(validateUndoState:)];
+    validateUndoStateTimer = [[MMWeakTimer alloc] initScheduledTimerWithTimeInterval:kJotValidateUndoTimer target:self selector:@selector(validateUndoState:)];
     
-    validateUndoStateTimer = [NSTimer scheduledTimerWithTimeInterval:kJotValidateUndoTimer
-                                                              target:weakTimerTarget
-                                                            selector:@selector(timerDidFire:)
-                                                            userInfo:nil
-                                                             repeats:YES];
-
     //
     // this view should accept Jot stylus touch events
     [[JotTrashManager sharedInstance] setMaxTickDuration:kJotValidateUndoTimer * 1 / 20];
@@ -435,7 +431,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         return;
     }
     
-//    NSLog(@"========== starting to save page");
+    NSLog(@"========== starting to save page");
     @synchronized(self){
         isCurrentlyExporting = [state undoHash];
 //        DebugLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
@@ -510,7 +506,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             dispatch_release(sema1);
             dispatch_release(sema2);
             
-//            NSLog(@"========== done saving JotView");
+            NSLog(@"========== done saving JotView");
             exportFinishBlock(ink, thumb, immutableState);
             
             if(state.isForgetful){
@@ -798,12 +794,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             }];
             
             [JotGLContext validateEmptyContextStack];
-            dispatch_async(dispatch_get_main_queue(), ^{
+            [[MMMainOperationQueue sharedQueue] addOperationWithBlock:^{
                 // can't do this sync()
                 // because the main thread + the importExportImageQueue
                 // could deadlock
                 [imageTextureLock unlock];
-            });
+            }];
         }
     });
 }
@@ -1011,12 +1007,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 CGImageRelease(cgImage);
             }];
             [JotGLContext validateEmptyContextStack];
-            dispatch_async(dispatch_get_main_queue(), ^{
+            [[MMMainOperationQueue sharedQueue] addOperationWithBlock:^{
                 // can't do this sync()
                 // because the main thread + the importExportImageQueue
                 // could deadlock
                 [inkTextureLock unlock];
-            });
+            }];
         }
     });
 }
@@ -1305,6 +1301,11 @@ static int undoCounter;
  */
 -(void) validateUndoState:(NSTimer *)timer{
     CheckMainThread;
+    
+    if([exportLaterInvocations count]){
+        NSLog(@"waiting to export");
+    }
+    
     if([inkTextureLock tryLock]){
         if([imageTextureLock tryLock]){
             // only write to the bg texture if we can
@@ -1319,6 +1320,7 @@ static int undoCounter;
             [state tick];
             
             if([state.strokesBeingWrittenToBackingTexture count]){
+                NSLog(@"writing %d strokes to texture", (int)[state.strokesBeingWrittenToBackingTexture count]);
                 [context runBlock:^{
                     
                     undoCounter++;
@@ -1963,6 +1965,8 @@ static int undoCounter;
     if(isCurrentlyExporting){
         DebugLog(@"what6");
     }
+    [validateUndoStateTimer invalidate];
+    validateUndoStateTimer = nil;
     [self destroyFramebuffer];
     [JotView minusOne];
 }
@@ -1973,14 +1977,14 @@ static int undoCounter;
 
 -(void) invalidate{
     __block JotView* strongSelf = self;
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [[MMMainOperationQueue sharedQueue] addOperationWithBlock:^{
         @autoreleasepool {
             [displayLink invalidate];
             displayLink = nil;
             [[JotTrashManager sharedInstance] addObjectToDealloc:strongSelf];
             strongSelf = nil;
         }
-    });
+    }];
 }
 
 // the JotTrashManager is about to delete us,

@@ -12,6 +12,7 @@
 #import "JotUI.h"
 #import "OpenGLVBO.h"
 #import "JotBufferVBO.h"
+#import "MMMainOperationQueue.h"
 
 /**
  * the JotBufferManager will help allocate
@@ -56,11 +57,11 @@ static JotBufferManager* _instance = nil;
         
 #ifdef DEBUG
         if(kJotEnableCacheStats){
-            dispatch_async(dispatch_get_main_queue(),^{
+            [[MMMainOperationQueue sharedQueue] addOperationWithBlock:^{
                 @autoreleasepool {
                     [NSTimer scheduledTimerWithTimeInterval:10 target:self selector:@selector(printStats) userInfo:nil repeats:YES];
                 }
-            });
+            }];
         }
 #endif
     }

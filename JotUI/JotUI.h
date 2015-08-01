@@ -39,6 +39,8 @@
 #import <JotUI/UIImage+Resize.h>
 #import <JotUI/JotDiskAssetManager.h>
 #import <JotUI/UIScreen+PortraitBounds.h>
+#import <JotUI/MMWeakTimer.h>
+#import <JotUI/MMMainOperationQueue.h>
 
 typedef struct {
 	GLfloat	x;

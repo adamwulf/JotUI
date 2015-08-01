@@ -23,6 +23,10 @@
 		667EC0411A0206EE0069FF33 /* JotImageWriteOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 667EC03F1A0206EE0069FF33 /* JotImageWriteOperation.m */; };
 		668D19E319F8652100A65DCF /* JotTextureCache.h in Headers */ = {isa = PBXBuildFile; fileRef = 668D19E119F8652100A65DCF /* JotTextureCache.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		668D19E419F8652100A65DCF /* JotTextureCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 668D19E219F8652100A65DCF /* JotTextureCache.m */; };
+		66A575A61B6D4CC700F599FC /* MMWeakTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A575A41B6D4CC700F599FC /* MMWeakTimer.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		66A575A71B6D4CC700F599FC /* MMWeakTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A575A51B6D4CC700F599FC /* MMWeakTimer.m */; };
+		66A575AB1B6D536B00F599FC /* MMMainOperationQueue.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A575A91B6D536B00F599FC /* MMMainOperationQueue.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		66A575AC1B6D536B00F599FC /* MMMainOperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A575AA1B6D536B00F599FC /* MMMainOperationQueue.m */; };
 		66A64EF419FB5B8E0026305B /* NSMutableArray+RemoveSingle.h in Headers */ = {isa = PBXBuildFile; fileRef = 66A64EF219FB5B8E0026305B /* NSMutableArray+RemoveSingle.h */; };
 		66A64EF519FB5B8E0026305B /* NSMutableArray+RemoveSingle.m in Sources */ = {isa = PBXBuildFile; fileRef = 66A64EF319FB5B8E0026305B /* NSMutableArray+RemoveSingle.m */; };
 		66AC155818079A72005315C8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B39AC1692B46A00F12F42 /* Foundation.framework */; };
@@ -152,6 +156,10 @@
 		66A32026170242D200692C71 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		66A340251694FF5E0093E81A /* UIColor+JotHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+JotHelper.h"; sourceTree = "<group>"; };
 		66A340261694FF5E0093E81A /* UIColor+JotHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+JotHelper.m"; sourceTree = "<group>"; };
+		66A575A41B6D4CC700F599FC /* MMWeakTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMWeakTimer.h; sourceTree = "<group>"; };
+		66A575A51B6D4CC700F599FC /* MMWeakTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMWeakTimer.m; sourceTree = "<group>"; };
+		66A575A91B6D536B00F599FC /* MMMainOperationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMMainOperationQueue.h; sourceTree = "<group>"; };
+		66A575AA1B6D536B00F599FC /* MMMainOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMMainOperationQueue.m; sourceTree = "<group>"; };
 		66A64EF219FB5B8E0026305B /* NSMutableArray+RemoveSingle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+RemoveSingle.h"; sourceTree = "<group>"; };
 		66A64EF319FB5B8E0026305B /* NSMutableArray+RemoveSingle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+RemoveSingle.m"; sourceTree = "<group>"; };
 		66A79017177251960092A28A /* JotTrashManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotTrashManager.h; sourceTree = "<group>"; };
@@ -303,6 +311,8 @@
 		669B3A2E1692B66B00F12F42 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				66A575A81B6D533000F599FC /* MMMainOperationQueue */,
+				66A575A31B6D4CB600F599FC /* WeakTimer */,
 				66A790161772516F0092A28A /* Managers */,
 				66BF7F2717667940003F4F67 /* Plist */,
 				66BF7F1E176675CE003F4F67 /* Brush Texture */,
@@ -313,8 +323,6 @@
 				669B3A2F1692B68F00F12F42 /* JotView.h */,
 				669B3A301692B68F00F12F42 /* JotView.m */,
 				669B3A971692BADA00F12F42 /* JotViewDelegate.h */,
-				668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */,
-				668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -340,6 +348,26 @@
 				66A64EF319FB5B8E0026305B /* NSMutableArray+RemoveSingle.m */,
 			);
 			name = Categories;
+			sourceTree = "<group>";
+		};
+		66A575A31B6D4CB600F599FC /* WeakTimer */ = {
+			isa = PBXGroup;
+			children = (
+				668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */,
+				668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */,
+				66A575A41B6D4CC700F599FC /* MMWeakTimer.h */,
+				66A575A51B6D4CC700F599FC /* MMWeakTimer.m */,
+			);
+			name = WeakTimer;
+			sourceTree = "<group>";
+		};
+		66A575A81B6D533000F599FC /* MMMainOperationQueue */ = {
+			isa = PBXGroup;
+			children = (
+				66A575A91B6D536B00F599FC /* MMMainOperationQueue.h */,
+				66A575AA1B6D536B00F599FC /* MMMainOperationQueue.m */,
+			);
+			name = MMMainOperationQueue;
 			sourceTree = "<group>";
 		};
 		66A790161772516F0092A28A /* Managers */ = {
@@ -456,6 +484,8 @@
 				66C6AAEB18A2E78E0036F4BB /* FilledPathElement.h in Headers */,
 				66B498831AA1481F00D48094 /* JotGLContext+Buffers.h in Headers */,
 				66B498811AA131D300D48094 /* JotGLTypes.h in Headers */,
+				66A575AB1B6D536B00F599FC /* MMMainOperationQueue.h in Headers */,
+				66A575A61B6D4CC700F599FC /* MMWeakTimer.h in Headers */,
 				6658ABD41A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h in Headers */,
 				66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */,
 				66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */,
@@ -610,6 +640,8 @@
 				66AC157718079B27005315C8 /* MoveToPathElement.m in Sources */,
 				66AC157818079B27005315C8 /* CurveToPathElement.m in Sources */,
 				66AC157918079B27005315C8 /* JotViewState.m in Sources */,
+				66A575A71B6D4CC700F599FC /* MMWeakTimer.m in Sources */,
+				66A575AC1B6D536B00F599FC /* MMMainOperationQueue.m in Sources */,
 				66AC157A18079B27005315C8 /* JotViewImmutableState.m in Sources */,
 				66AC157B18079B27005315C8 /* JotView.m in Sources */,
 				668D19E419F8652100A65DCF /* JotTextureCache.m in Sources */,
