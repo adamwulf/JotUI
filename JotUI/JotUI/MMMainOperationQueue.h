@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 @interface MMMainOperationQueue : NSOperationQueue
 
@@ -17,5 +18,6 @@
 
 -(NSUInteger) pendingBlockCount;
 -(void) tick;
+-(void) waitFor:(CGFloat)seconds;
 
 @end

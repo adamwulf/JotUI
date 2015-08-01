@@ -10,6 +10,7 @@
 
 @implementation MMMainOperationQueue{
     NSMutableArray* blockQueue;
+    dispatch_semaphore_t sema;
 }
 
 static MMMainOperationQueue* sharedQueue;
@@ -46,12 +47,31 @@ static MMMainOperationQueue* sharedQueue;
 }
 
 - (void)addOperationWithBlock:(void (^)(void))block NS_AVAILABLE(10_6, 4_0){
-    [blockQueue addObject:block];
+    @synchronized([MMMainOperationQueue class]){
+        [blockQueue addObject:block];
+        if(sema){
+            dispatch_semaphore_signal(sema);
+        }
+    }
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         [self tick];
     }];
 }
 
+-(void) waitFor:(CGFloat)seconds{
+    @synchronized([MMMainOperationQueue class]){
+        if(sema){
+            dispatch_release(sema);
+        }
+        sema = dispatch_semaphore_create(0);
+    }
+    dispatch_time_t waitTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC));
+    if(dispatch_semaphore_wait(sema, waitTime)){
+        NSLog(@"sema timeout");
+    }else{
+        NSLog(@"sema signalled");
+    }
+}
 
 
 @end
