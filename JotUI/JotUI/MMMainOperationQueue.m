@@ -46,6 +46,34 @@ static MMMainOperationQueue* sharedQueue;
     }
 }
 
+- (void)addOperationWithBlockAndWait:(void (^)(void))block{
+    // create a semaphore that we'll use to wait
+    // until the block executes
+    dispatch_semaphore_t localSema = dispatch_semaphore_create(0);
+    
+    // create a new block that will signal
+    // when it's complete
+    void (^waitingBlock)() = ^{
+        block();
+        dispatch_semaphore_signal(localSema);
+    };
+    
+    // add the bock to the queue
+    @synchronized([MMMainOperationQueue class]){
+        [blockQueue addObject:waitingBlock];
+        if(sema){
+            dispatch_semaphore_signal(sema);
+        }
+    }
+    [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+        [self tick];
+    }];
+    
+    // and now wait until it's complete
+    dispatch_semaphore_wait(localSema, DISPATCH_TIME_FOREVER);
+    dispatch_release(localSema);
+}
+
 - (void)addOperationWithBlock:(void (^)(void))block NS_AVAILABLE(10_6, 4_0){
     @synchronized([MMMainOperationQueue class]){
         [blockQueue addObject:block];

@@ -99,18 +99,18 @@ static JotGLContext *mainThreadContext;
 
 static int numAlive = 0;
 
-+(void) plusOne{
-    @synchronized([JotView class]){
-        numAlive += 1;
-        NSLog(@"number alive: %d", numAlive);
-    }
-}
-+(void) minusOne{
-    @synchronized([JotView class]){
-        numAlive -= 1;
-        NSLog(@"number alive: %d", numAlive);
-    }
-}
+//+(void) plusOne{
+//    @synchronized([JotView class]){
+//        numAlive += 1;
+//        NSLog(@"number alive: %d", numAlive);
+//    }
+//}
+//+(void) minusOne{
+//    @synchronized([JotView class]){
+//        numAlive -= 1;
+//        NSLog(@"number alive: %d", numAlive);
+//    }
+//}
 
 +(JotGLContext*) mainThreadContext{
     return mainThreadContext;
@@ -149,7 +149,7 @@ static int numAlive = 0;
 
 -(id) finishInit{
     CheckMainThread;
-    [JotView plusOne];
+//    [JotView plusOne];
     inkTextureLock = [[NSLock alloc] init];
     imageTextureLock = [[NSLock alloc] init];
     // strokes have a max of .5Mb each
@@ -1968,7 +1968,7 @@ static int undoCounter;
     [validateUndoStateTimer invalidate];
     validateUndoStateTimer = nil;
     [self destroyFramebuffer];
-    [JotView minusOne];
+//    [JotView minusOne];
 }
 
 -(BOOL) hasLink{
