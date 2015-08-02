@@ -431,7 +431,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         return;
     }
     
-    NSLog(@"========== starting to save page");
+//    NSLog(@"========== starting to save page");
     @synchronized(self){
         isCurrentlyExporting = [state undoHash];
 //        DebugLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
@@ -506,7 +506,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             dispatch_release(sema1);
             dispatch_release(sema2);
             
-            NSLog(@"========== done saving JotView");
+//            NSLog(@"========== done saving JotView");
             exportFinishBlock(ink, thumb, immutableState);
             
             if(state.isForgetful){

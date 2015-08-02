@@ -67,9 +67,9 @@ static MMMainOperationQueue* sharedQueue;
     }
     dispatch_time_t waitTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC));
     if(dispatch_semaphore_wait(sema, waitTime)){
-        NSLog(@"sema timeout");
+        // noop, the sema has timed out
     }else{
-        NSLog(@"sema signalled");
+        // noop, the sema was signaled
     }
 }
 
