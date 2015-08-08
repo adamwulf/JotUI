@@ -31,12 +31,15 @@ static MMMainOperationQueue* sharedQueue;
 }
 
 -(void) tick{
+    void(^block)();
     @synchronized([MMMainOperationQueue class]){
         if([blockQueue count]){
-            void(^block)() = [blockQueue firstObject];
+            block = [blockQueue firstObject];
             [blockQueue removeObjectAtIndex:0];
-            block();
         }
+    }
+    if(block){
+        block();
     }
 }
 
@@ -47,6 +50,14 @@ static MMMainOperationQueue* sharedQueue;
 }
 
 - (void)addOperationWithBlockAndWait:(void (^)(void))block{
+    
+    if([NSThread isMainThread]){
+        // if we're already on the main thread, then
+        // just run the block
+        block();
+        return;
+    }
+    
     // create a semaphore that we'll use to wait
     // until the block executes
     dispatch_semaphore_t localSema = dispatch_semaphore_create(0);
