@@ -97,8 +97,8 @@ dispatch_queue_t importExportStateQueue;
 
 static JotGLContext *mainThreadContext;
 
-static int numAlive = 0;
-
+//static int numAlive = 0;
+//
 //+(void) plusOne{
 //    @synchronized([JotView class]){
 //        numAlive += 1;
