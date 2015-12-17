@@ -11,6 +11,7 @@
 #import <UIKit/UIKit.h>
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
+#import <mach/mach_time.h>  // for mach_absolute_time() and friends
 
 
 int printOglError(char *file, int line)
@@ -969,7 +970,13 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) readPixelsInto:(GLubyte *)data ofSize:(GLSize)size{
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
-    glReadPixels(0, 0, size.width, size.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    // timing start
+    CGFloat duration = BNRTimeBlock2(^{
+        glReadPixels(0, 0, size.width, size.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    });
+    NSLog(@"total2 = %f", duration);
+    // timing end
 }
 
 #pragma mark - Generate Assets
@@ -1206,5 +1213,21 @@ static void * zeroedDataCache = nil;
 -(NSString*) description{
     return [NSString stringWithFormat:@"[JotGLContext (%p): %@]", self, name];
 }
+
+
+CGFloat BNRTimeBlock2 (void (^block)(void)) {
+    mach_timebase_info_data_t info;
+    if (mach_timebase_info(&info) != KERN_SUCCESS) return -1.0;
+
+    uint64_t start = mach_absolute_time ();
+    block ();
+    uint64_t end = mach_absolute_time ();
+    uint64_t elapsed = end - start;
+
+    uint64_t nanos = elapsed * info.numer / info.denom;
+    return (CGFloat)nanos / NSEC_PER_SEC;
+
+} // BNRTimeBlock
+
 
 @end

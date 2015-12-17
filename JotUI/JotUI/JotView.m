@@ -941,6 +941,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
                 // Read pixel data from the framebuffer
+                NSLog(@"reading pixels of size: %.2f %.2f", fullSize.width, fullSize.height);
                 [secondSubContext readPixelsInto:data ofSize:GLSizeFromCGSize(fullSize)];
                 
                 // now we're done, delete our buffers
