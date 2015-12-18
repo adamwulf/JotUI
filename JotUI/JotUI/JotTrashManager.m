@@ -101,32 +101,49 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
     if(countToDealloc){
         dispatch_async([JotTrashManager trashQueue], ^{
             @autoreleasepool {
+                __block NSUInteger lastKnownCountOfObjects;
                 @synchronized(self){
-                    if([objectsToDealloc count]){
-                        [backgroundContext runBlock:^{
-                            double startTime = CACurrentMediaTime();
-                            while([objectsToDealloc count] && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
-                                // this array should be the last retain for these objects,
-                                // so removing them will release them and cause them to dealloc
-                                __weak NSObject* weakObj;
+                    // only synchronize around objectsToDealloc
+                    lastKnownCountOfObjects = [objectsToDealloc count];
+                }
+
+                if(lastKnownCountOfObjects){
+                    [backgroundContext runBlock:^{
+                        double startTime = CACurrentMediaTime();
+                        while(lastKnownCountOfObjects && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
+                            // this array should be the last retain for these objects,
+                            // so removing them will release them and cause them to dealloc
+                            __weak NSObject* weakObj;
+                            @autoreleasepool {
+                                id obj;
+                                @synchronized(self){
+                                    obj = [objectsToDealloc lastObject];
+                                }
+                                if(!obj){
+                                    break;
+                                }
+                                weakObj = obj;
                                 @autoreleasepool {
-                                    id obj = [objectsToDealloc lastObject];
-                                    weakObj = obj;
-                                    @autoreleasepool {
-                                        if([obj respondsToSelector:@selector(deleteAssets)]){
-                                            [obj deleteAssets];
-                                        }
+                                    if([obj respondsToSelector:@selector(deleteAssets)]){
+                                        [obj deleteAssets];
+                                    }
+                                    @synchronized(self){
                                         [objectsToDealloc removeLastObject];
                                     }
                                 }
-                                @synchronized(weakObj){
-                                    if(weakObj){
+                            }
+                            @synchronized(weakObj){
+                                if(weakObj){
+                                    @synchronized(self){
                                         [objectsToDealloc insertObject:weakObj atIndex:0];
                                     }
                                 }
                             }
-                        }];
-                    }
+                            @synchronized(self){
+                                lastKnownCountOfObjects = [objectsToDealloc count];
+                            }
+                        }
+                    }];
                 }
             }
         });

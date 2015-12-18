@@ -1958,6 +1958,14 @@ static int undoCounter;
 
 #pragma mark - dealloc
 
+-(void) performBlockOnMainThreadSync:(void(^)())block{
+    if([NSThread isMainThread]){
+        block();
+    }else{
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
+}
+
 /**
  * Releases resources when they are not longer needed.
  */
@@ -1966,7 +1974,10 @@ static int undoCounter;
     if(isCurrentlyExporting){
         DebugLog(@"what6");
     }
-    [validateUndoStateTimer invalidate];
+
+    [self performBlockOnMainThreadSync:^{
+        [validateUndoStateTimer invalidate];
+    }];
     validateUndoStateTimer = nil;
     [self destroyFramebuffer];
 //    [JotView minusOne];
@@ -1995,7 +2006,9 @@ static int undoCounter;
 // reference
 -(void) deleteAssets{
     state = nil;
-    [validateUndoStateTimer invalidate];
+    [self performBlockOnMainThreadSync:^{
+        [validateUndoStateTimer invalidate];
+    }];
     validateUndoStateTimer = nil;
 }
 
