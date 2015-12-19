@@ -445,9 +445,11 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
 -(void)dealloc{
     if(backgroundFramebuffer){
         [[JotTrashManager sharedInstance] addObjectToDealloc:backgroundFramebuffer];
+        backgroundFramebuffer = nil;
     }
     if(backgroundTexture){
         [[JotTrashManager sharedInstance] addObjectToDealloc:backgroundTexture];
+        backgroundTexture = nil;
     }
 }
 

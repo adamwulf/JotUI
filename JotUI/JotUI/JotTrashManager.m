@@ -158,7 +158,8 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
                 @throw [NSException exceptionWithName:@"JotViewDeallocException" reason:@"Cannot dealloc JotView with active CADisplayLink" userInfo:nil];
             }
             if(![objectsToDealloc containsObjectIdenticalTo:obj]){
-                [objectsToDealloc addObject:obj];
+                // trash queue is FIFO
+                [objectsToDealloc insertObject:obj atIndex:0];
             }
         }
     }

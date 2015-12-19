@@ -211,6 +211,7 @@
 -(void) dealloc{
     [[JotBufferManager sharedInstance] openGLBufferHasDied:self];
     [[JotTrashManager sharedInstance] addObjectToDealloc:glBuffer];
+    glBuffer = nil;
 }
 
 
