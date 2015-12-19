@@ -405,7 +405,17 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     return (struct ColorfulVertex*) dataVertexBuffer.bytes;
 }
 
+static CGFloat screenWidth;
+static CGFloat screenHeight;
+
 -(void) validateVertexData:(struct ColorfulVertex)vertex{
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        CGFloat scale = [[UIScreen mainScreen] scale];
+        screenWidth = CGRectGetWidth([[[UIScreen mainScreen] fixedCoordinateSpace] bounds]) * scale + 50;
+        screenHeight = CGRectGetHeight([[[UIScreen mainScreen] fixedCoordinateSpace] bounds]) * scale + 50;
+    });
+
     if(vertex.Color[0] < 0 || vertex.Color[0] > 1){
         DebugLog(@"what?!1");
     }
@@ -421,10 +431,10 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     if(vertex.Size < 1 || vertex.Size > 360){
         DebugLog(@"what?!5");
     }
-    if(vertex.Position[0] < -50 || vertex.Position[0] > 1600){
+    if(vertex.Position[0] < -50 || vertex.Position[0] > screenWidth){
         DebugLog(@"what?!6");
     }
-    if(vertex.Position[1] < -50 || vertex.Position[1] > 2080){
+    if(vertex.Position[1] < -50 || vertex.Position[1] > screenHeight){
         DebugLog(@"what?!7");
     }
 }
