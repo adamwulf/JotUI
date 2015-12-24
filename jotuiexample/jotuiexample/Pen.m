@@ -41,7 +41,7 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
 }
 
 -(JotBrushTexture*) texture{
-    return [JotDefaultBrushTexture sharedInstace];
+    return [JotDefaultBrushTexture sharedInstance];
 }
 
 #pragma mark - Setters
@@ -96,10 +96,11 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  * that a new touch is about to be processed. we should
  * reset all of our counters/etc to base values
  */
--(void) willBeginStrokeWithTouch:(JotTouch*)touch{
+-(BOOL) willBeginStrokeWithTouch:(JotTouch*)touch{
     velocity = 1;
     lastDate = [NSDate date];
     numberOfTouches = 1;
+    return YES;
 }
 
 /**
@@ -119,6 +120,10 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
     lastLoc = [touch windowPosition];
 }
 
+-(void) willEndStrokeWithTouch:(JotTouch *)touch{
+    // noop
+}
+
 /**
  * user is finished with a stroke. for our purposes
  * we don't need to do anything
@@ -127,10 +132,14 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
     // noop
 }
 
+-(void) willCancelStroke:(JotStroke *)stroke withTouch:(JotTouch *)touch{
+    // noop
+}
+
 /**
  * the user cancelled the touch
  */
--(void) didCancelStrokeWithTouch:(JotTouch*)touch{
+-(void) didCancelStroke:(JotStroke *)stroke withTouch:(JotTouch *)touch{
     // noop
 }
 
@@ -188,5 +197,10 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
 -(CGFloat) smoothnessForTouch:(JotTouch *)touch{
     return 0.75;
 }
+
+-(NSArray*) willAddElementsToStroke:(NSArray*)elements fromPreviousElement:(AbstractBezierPathElement*)previousElement{
+    return elements;
+}
+
 
 @end

@@ -10,9 +10,8 @@
 #import <JotUI/JotUI.h>
 #import <JotTouchSDK/JotStylusManager.h>
 
-@interface ViewController(){
+@interface ViewController()<JotViewStateProxyDelegate>{
     JotStylusManager* jotManager;
-    
 }
 
 @end
@@ -32,55 +31,22 @@
     
     
     jotManager = [JotStylusManager sharedInstance];
-    
-    [jotManager addShortcutOptionButton1Default: [[JotShortcut alloc]
-                                                  initWithShortDescription:@"Next Color"
-                                                  key:@"nc"
-                                                  target:self selector:@selector(nextColor)]];
-    
-    
-    [jotManager addShortcutOptionButton2Default: [[JotShortcut alloc]
-                                                  initWithShortDescription:@"Previous Color"
-                                                  key:@"pc"
-                                                  target:self selector:@selector(previousColor)]];
-    
-    [jotManager addShortcutOption: [[JotShortcut alloc]
-                                    initWithShortDescription:@"Increase Stroke Width"
-                                    key:@"isw"
-                                    target:self selector:@selector(increaseStrokeWidth)
-                                    repeatRate:100]];
-    
-    [jotManager addShortcutOption: [[JotShortcut alloc]
-                                    initWithShortDescription:@"Decrease Stroke Width"
-                                    key:@"dsw"
-                                    target:self selector:@selector(decreaseStrokeWidth)
-                                    repeatRate:100]];
-        
-    [jotManager addShortcutOption: [[JotShortcut alloc]
-                                    initWithShortDescription:@"Undo"
-                                    key:@"undo"
-                                    target:self selector:@selector(undo)
-                                    repeatRate:100]];
-    
-    [jotManager addShortcutOption: [[JotShortcut alloc]
-                                    initWithShortDescription:@"Redo"
-                                    key:@"redo"
-                                    target:self selector:@selector(redo)
-                                    repeatRate:100]];
-    
-    
-    jotManager.unconnectedPressure = 0;
+    jotManager.unconnectedPressure = 100;
     jotManager.palmRejectorDelegate = jotView;
     [[NSNotificationCenter defaultCenter] addObserver: self
                                              selector:@selector(connectionChange:)
                                                  name: JotStylusManagerDidChangeConnectionStatus
                                                object:nil];
-    
     jotManager.rejectMode = NO;
-    jotManager.enabled = YES;
-    
-    
-    
+    [jotManager enable];
+
+    jotView.frame = self.view.bounds;
+
+    JotViewStateProxy* paperState = [[JotViewStateProxy alloc] initWithDelegate:self];
+    paperState.delegate = self;
+    [paperState loadJotStateAsynchronously:NO withSize:jotView.bounds.size andScale:[[UIScreen mainScreen] scale] andContext:jotView.context andBufferManager:[JotBufferManager sharedInstance]];
+    [jotView loadState:paperState];
+
     [self changePenType:nil];
     
     [self tappedColorButton:blackButton];
@@ -129,8 +95,6 @@
 }
 
 -(IBAction) changePenType:(id)sender{
-    [jotView setBrushTexture:[self activePen].texture];
-
     if([[self activePen].color isEqual:blackButton.backgroundColor]) [self tappedColorButton:blackButton];
     if([[self activePen].color isEqual:redButton.backgroundColor]) [self tappedColorButton:redButton];
     if([[self activePen].color isEqual:greenButton.backgroundColor]) [self tappedColorButton:greenButton];
@@ -218,7 +182,7 @@
 
 
 -(IBAction) saveImage{
-    [jotView exportImageTo:nil andThumbnailTo:nil andStateTo:nil onComplete:^(UIImage* ink, UIImage* thumb, JotViewImmutableState*state){
+    [jotView exportImageTo:nil andThumbnailTo:nil andStateTo:nil withThumbnailScale:1.0 onComplete:^(UIImage *ink, UIImage *thumb, JotViewImmutableState *state) {
         UIImageWriteToSavedPhotosAlbum(thumb, nil, nil, nil);
     }];
 }
@@ -241,16 +205,6 @@
     popoverController = nil;
 }
 
-
--(IBAction) showSettings:(id)sender{
-    JotSettingsViewController* settings = [[JotSettingsViewController alloc] initWithOnOffSwitch:YES andShowPalmRejection:YES];
-    if(popoverController){
-        [popoverController dismissPopoverAnimated:NO];
-    }
-    popoverController = [[UIPopoverController alloc] initWithContentViewController:settings];
-    [popoverController presentPopoverFromRect:[sender frame] inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
-    [popoverController setPopoverContentSize:CGSizeMake(300, 400) animated:NO];
-}
 
 #pragma mark - Jot Stylus Button Callbacks
 
@@ -296,21 +250,36 @@
 
 
 #pragma mark - JotViewDelegate
+#pragma mark JotPalmRejectionDelegate
 
--(void) willBeginStrokeWithTouch:(JotTouch*)touch{
+
+-(NSArray*) willAddElementsToStroke:(NSArray *)elements fromPreviousElement:(AbstractBezierPathElement *)previousElement{
+    return [[self activePen] willAddElementsToStroke:elements fromPreviousElement:previousElement];
+}
+
+-(BOOL) willBeginStrokeWithTouch:(JotTouch*)touch{
     [[self activePen] willBeginStrokeWithTouch:touch];
+    return YES;
 }
 
 -(void) willMoveStrokeWithTouch:(JotTouch*)touch{
     [[self activePen] willMoveStrokeWithTouch:touch];
 }
 
+-(void) willEndStrokeWithTouch:(JotTouch *)touch{
+    NSLog(@"will end");
+}
+
 -(void) didEndStrokeWithTouch:(JotTouch*)touch{
     [[self activePen] didEndStrokeWithTouch:touch];
 }
 
--(void) didCancelStrokeWithTouch:(JotTouch*)touch{
-    [[self activePen] didCancelStrokeWithTouch:touch];
+-(void) willCancelStroke:(JotStroke *)stroke withTouch:(JotTouch *)touch{
+    [[self activePen] willCancelStroke:stroke withTouch:touch];
+}
+
+-(void) didCancelStroke:(JotStroke *)stroke withTouch:(JotTouch *)touch{
+    [[self activePen] didCancelStroke:stroke withTouch:touch];
 }
 
 -(UIColor*) colorForTouch:(JotTouch *)touch{
@@ -359,5 +328,29 @@
 -(void) popoverControllerDidDismissPopover:(UIPopoverController *)_popoverController{
     popoverController = nil;
 }
+
+#pragma mark - JotViewStateProxyDelegate
+
+-(NSString*) documentsDir{
+    NSArray<NSString*>* userDocumentsPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    return [userDocumentsPaths objectAtIndex:0];
+}
+
+-(NSString*) jotViewStateInkPath{
+    return [[self documentsDir] stringByAppendingPathComponent:@"ink.png"];
+}
+
+-(NSString*) jotViewStatePlistPath{
+    return [[self documentsDir] stringByAppendingPathComponent:@"state.plist"];
+}
+
+-(void) didLoadState:(JotViewStateProxy*)state{
+
+}
+
+-(void) didUnloadState:(JotViewStateProxy*)state{
+
+}
+
 
 @end

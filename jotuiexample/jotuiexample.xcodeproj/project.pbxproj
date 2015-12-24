@@ -43,11 +43,13 @@
 		66F9215E16734FF000B1F868 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66F9215D16734FF000B1F868 /* Default-568h@2x.png */; };
 		66F9216116734FF000B1F868 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F9216016734FF000B1F868 /* ViewController.m */; };
 		66F923021677C83F00B1F868 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F923011677C83F00B1F868 /* AudioToolbox.framework */; };
+		C5018DED1C2BCE4A00A68A1C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */; };
+		C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		6625FBB0174C219D009CC541 /* Filled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Filled.png; sourceTree = "<group>"; };
-		6634758C17623366008EB6DA /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = file; name = JotUI.framework; path = "../JotUI/build/Release-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
+		6634758C17623366008EB6DA /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../JotUI/build/Release-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
 		6645055416EFCD7E00B90511 /* check.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check.png; sourceTree = "<group>"; };
 		6645055516EFCD7E00B90511 /* check@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check@2x.png"; sourceTree = "<group>"; };
 		6661A70D16EE60BC00DD58D1 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = background.jpg; sourceTree = "<group>"; };
@@ -91,6 +93,8 @@
 		66F9216016734FF000B1F868 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		66F922B416736C8600B1F868 /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../DerivedData/JotUI/Build/Products/Debug-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
 		66F923011677C83F00B1F868 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +102,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */,
+				C5018DED1C2BCE4A00A68A1C /* SystemConfiguration.framework in Frameworks */,
 				6634758E1762337A008EB6DA /* JotTouchSDK.framework in Frameworks */,
 				6634758D17623366008EB6DA /* JotUI.framework in Frameworks */,
 				66F923021677C83F00B1F868 /* AudioToolbox.framework in Frameworks */,
@@ -187,6 +193,8 @@
 		66F9214616734FF000B1F868 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */,
+				C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */,
 				66F923061677C85F00B1F868 /* JotUI */,
 				66F923051677C85100B1F868 /* JotTouchSDK */,
 				66F9214716734FF000B1F868 /* UIKit.framework */,
@@ -270,7 +278,7 @@
 		66F9213A16734FF000B1F868 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = Adonit;
 			};
 			buildConfigurationList = 66F9213D16734FF000B1F868 /* Build configuration list for PBXProject "jotuiexample" */;
@@ -359,6 +367,8 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
+				ENABLE_BITCODE = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -370,7 +380,6 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -387,11 +396,11 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
+				ENABLE_BITCODE = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = 2;
@@ -412,11 +421,13 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "jotuiexample/jotuiexample-Prefix.pch";
 				INFOPLIST_FILE = "jotuiexample/jotuiexample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_LDFLAGS = (
 					"-fobjc-arc",
 					"-all_load",
 					"-ObjC",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.adonit.jotuiexample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -437,11 +448,13 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "jotuiexample/jotuiexample-Prefix.pch";
 				INFOPLIST_FILE = "jotuiexample/jotuiexample-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_LDFLAGS = (
 					"-fobjc-arc",
 					"-all_load",
 					"-ObjC",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = net.adonit.jotuiexample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "824CC456-C71B-48E8-8D39-DB5B0EF5DA8C";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "824CC456-C71B-48E8-8D39-DB5B0EF5DA8C";
