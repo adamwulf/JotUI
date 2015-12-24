@@ -280,6 +280,11 @@
 			attributes = {
 				LastUpgradeCheck = 0720;
 				ORGANIZATIONNAME = Adonit;
+				TargetAttributes = {
+					66F9214216734FF000B1F868 = {
+						DevelopmentTeam = MU27A4SCKC;
+					};
+				};
 			};
 			buildConfigurationList = 66F9213D16734FF000B1F868 /* Build configuration list for PBXProject "jotuiexample" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -427,7 +432,7 @@
 					"-all_load",
 					"-ObjC",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.adonit.jotuiexample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.milestonemade.jotuiexample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -439,8 +444,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_OBJC_ARC = YES;
-				CODE_SIGN_IDENTITY = "iPhone Developer: Adam Wulf (E3Q77AFJPJ)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Adam Wulf (E3Q77AFJPJ)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"\"$(SRCROOT)/../JotTouchSDK\"",
@@ -454,9 +459,9 @@
 					"-all_load",
 					"-ObjC",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = net.adonit.jotuiexample;
+				PRODUCT_BUNDLE_IDENTIFIER = com.milestonemade.jotuiexample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "824CC456-C71B-48E8-8D39-DB5B0EF5DA8C";
+				PROVISIONING_PROFILE = "";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "824CC456-C71B-48E8-8D39-DB5B0EF5DA8C";
 				WRAPPER_EXTENSION = app;
 			};
