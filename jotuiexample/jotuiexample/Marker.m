@@ -22,22 +22,7 @@
 }
 
 -(JotBrushTexture*) texture{
-    return [JotDefaultBrushTexture sharedInstace];
+    return [JotDefaultBrushTexture sharedInstance];
 }
-
-
-/**
- * this Marker will rotate so that
- * it always faces the direction that
- * the stroke is travelling
- */
--(CGFloat) rotationForSegment:(AbstractBezierPathElement *)segment fromPreviousSegment:(AbstractBezierPathElement *)previousSegment{
-    if([previousSegment isKindOfClass:[MoveToPathElement class]]){
-        MoveToPathElement* moveTo = (MoveToPathElement*)previousSegment;
-        moveTo.rotation = [segment angleOfStart] + M_PI_2;
-    }
-    return previousSegment.rotation + ([segment angleOfEnd] - [segment angleOfStart]);
-}
-
 
 @end

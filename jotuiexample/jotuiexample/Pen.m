@@ -189,13 +189,4 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
     return 0.75;
 }
 
-/**
- * the pen is a circle, so rotation isn't very
- * important for this pen. just return 0
- * and don't have any rotation
- */
--(CGFloat) rotationForSegment:(AbstractBezierPathElement *)segment fromPreviousSegment:(AbstractBezierPathElement *)previousSegment{
-    return 0;
-}
-
 @end

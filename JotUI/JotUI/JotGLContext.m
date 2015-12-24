@@ -1205,6 +1205,9 @@ static void * zeroedDataCache = nil;
 #pragma mark - Dealloc
 
 -(void) dealloc{
+    // allow the context to dealloc on any thread.
+    validateThreadBlock = ^{ return YES; };
+
     [self runBlock:^{
         [contextProperties removeAllObjects];
     }];
