@@ -1306,97 +1306,102 @@ static int undoCounter;
     if([exportLaterInvocations count]){
         NSLog(@"waiting to export");
     }
-    
-    if([inkTextureLock tryLock]){
-        if([imageTextureLock tryLock]){
-            // only write to the bg texture if we can
-            // lock on both ink + image
-            [JotGLContext validateEmptyContextStack];
-            
-            CheckMainThread;
-            
-            // ticking the state will make sure that the state is valid,
-            // containing only the correct number of undoable items in its
-            // arrays, and putting all excess strokes into strokesBeingWrittenToBackingTexture
-            [state tick];
-            
-            if([state.strokesBeingWrittenToBackingTexture count]){
-                NSLog(@"writing %d strokes to texture", (int)[state.strokesBeingWrittenToBackingTexture count]);
-                [context runBlock:^{
-                    
-                    undoCounter++;
-                    if(undoCounter % 3 == 0){
-                        //            DebugLog(@"strokes waiting to write: %lu", (unsigned long)[state.strokesBeingWrittenToBackingTexture count]);
-                        undoCounter = 0;
+
+
+    UIApplicationState applicationState = [[UIApplication sharedApplication] applicationState];
+
+    if(applicationState == UIApplicationStateActive){
+        if([inkTextureLock tryLock]){
+            if([imageTextureLock tryLock]){
+                // only write to the bg texture if we can
+                // lock on both ink + image
+                [JotGLContext validateEmptyContextStack];
+
+                CheckMainThread;
+
+                // ticking the state will make sure that the state is valid,
+                // containing only the correct number of undoable items in its
+                // arrays, and putting all excess strokes into strokesBeingWrittenToBackingTexture
+                [state tick];
+
+                if([state.strokesBeingWrittenToBackingTexture count]){
+                    NSLog(@"writing %d strokes to texture", (int)[state.strokesBeingWrittenToBackingTexture count]);
+                    [context runBlock:^{
+
+                        undoCounter++;
+                        if(undoCounter % 3 == 0){
+                            //            DebugLog(@"strokes waiting to write: %lu", (unsigned long)[state.strokesBeingWrittenToBackingTexture count]);
+                            undoCounter = 0;
+                        }
+                        // get the stroke that we need to make permanent
+                        JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
+                        [strokeToWriteToTexture lock];
+                        // render it to the backing texture
+                        [state.backgroundFramebuffer bind];
+                        [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:context];
+
+                        [strokeToWriteToTexture.texture bind];
+                        // draw each stroke element. for performance reasons, we'll only
+                        // draw ~ 300 pixels of segments at a time.
+                        NSInteger distance = 0;
+                        while([strokeToWriteToTexture.segments count] && distance < 300){
+                            AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
+                            [strokeToWriteToTexture removeElementAtIndex:0];
+                            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil toContext:context];
+                            prevElementForTextureWriting = element;
+                            distance += [element lengthOfElement];
+                            // this should dealloc the element immediately,
+                            // and the VBO its using internally will be recycled
+                            // in to the JotBufferManager
+                            [[JotTrashManager sharedInstance] addObjectToDealloc:element];
+                        }
+                        [strokeToWriteToTexture.texture unbind];
+                        // now that we're done with the stroke,
+                        // let's throw it in the trash
+                        [strokeToWriteToTexture unlock];
+                        if([strokeToWriteToTexture.segments count] == 0){
+                            [state.strokesBeingWrittenToBackingTexture removeSingleObject:strokeToWriteToTexture];
+                            [[JotTrashManager sharedInstance] addObjectToDealloc:strokeToWriteToTexture];
+                            prevElementForTextureWriting = nil;
+                        }
+                        [self unprepOpenGLState];
+                        [state.backgroundFramebuffer unbind];
+
+                        //
+                        // we just drew to the backing texture, so be sure
+                        // to flush all openGL commands, so that when we rebind
+                        // it'll use the updated texture and won't have any
+                        // issues of unsynchronized textures.
+                        // popping will flush the context
+                    }];
+                    [imageTextureLock unlock];
+                    [inkTextureLock unlock];
+                }else if(!state || [state isReadyToExport]){
+                    [imageTextureLock unlock];
+                    [inkTextureLock unlock];
+                    // only export if the trash manager is empty
+                    // that way we're exporting w/ low memory instead
+                    // of unknown memory
+                    if(![[JotTrashManager sharedInstance] tick]){
+                        // ok, the trash is empty, so now see if we need to export
+                        if([exportLaterInvocations count]){
+                            NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
+                            [exportLaterInvocations removeSingleObject:invokation];
+                            [invokation invoke];
+                        }
                     }
-                    // get the stroke that we need to make permanent
-                    JotStroke* strokeToWriteToTexture = [state.strokesBeingWrittenToBackingTexture objectAtIndex:0];
-                    [strokeToWriteToTexture lock];
-                    // render it to the backing texture
-                    [state.backgroundFramebuffer bind];
-                    [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:context];
-                    
-                    [strokeToWriteToTexture.texture bind];
-                    // draw each stroke element. for performance reasons, we'll only
-                    // draw ~ 300 pixels of segments at a time.
-                    NSInteger distance = 0;
-                    while([strokeToWriteToTexture.segments count] && distance < 300){
-                        AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
-                        [strokeToWriteToTexture removeElementAtIndex:0];
-                        [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil toContext:context];
-                        prevElementForTextureWriting = element;
-                        distance += [element lengthOfElement];
-                        // this should dealloc the element immediately,
-                        // and the VBO its using internally will be recycled
-                        // in to the JotBufferManager
-                        [[JotTrashManager sharedInstance] addObjectToDealloc:element];
-                    }
-                    [strokeToWriteToTexture.texture unbind];
-                    // now that we're done with the stroke,
-                    // let's throw it in the trash
-                    [strokeToWriteToTexture unlock];
-                    if([strokeToWriteToTexture.segments count] == 0){
-                        [state.strokesBeingWrittenToBackingTexture removeSingleObject:strokeToWriteToTexture];
-                        [[JotTrashManager sharedInstance] addObjectToDealloc:strokeToWriteToTexture];
-                        prevElementForTextureWriting = nil;
-                    }
-                    [self unprepOpenGLState];
-                    [state.backgroundFramebuffer unbind];
-                    
-                    //
-                    // we just drew to the backing texture, so be sure
-                    // to flush all openGL commands, so that when we rebind
-                    // it'll use the updated texture and won't have any
-                    // issues of unsynchronized textures.
-                    // popping will flush the context
-                }];
-                [imageTextureLock unlock];
-                [inkTextureLock unlock];
-            }else if(!state || [state isReadyToExport]){
-                [imageTextureLock unlock];
-                [inkTextureLock unlock];
-                // only export if the trash manager is empty
-                // that way we're exporting w/ low memory instead
-                // of unknown memory
-                if(![[JotTrashManager sharedInstance] tick]){
-                    // ok, the trash is empty, so now see if we need to export
-                    if([exportLaterInvocations count]){
-                        NSInvocation* invokation = [exportLaterInvocations objectAtIndex:0];
-                        [exportLaterInvocations removeSingleObject:invokation];
-                        [invokation invoke];
-                    }
+                }else{
+                    [imageTextureLock unlock];
+                    [inkTextureLock unlock];
                 }
+                [JotGLContext validateEmptyContextStack];
             }else{
-                [imageTextureLock unlock];
+                //            DebugLog(@"skipping writing to ink texture during export2");
                 [inkTextureLock unlock];
             }
-            [JotGLContext validateEmptyContextStack];
         }else{
-//            DebugLog(@"skipping writing to ink texture during export2");
-            [inkTextureLock unlock];
+            //        DebugLog(@"skipping writing to ink texture during export");
         }
-    }else{
-//        DebugLog(@"skipping writing to ink texture during export");
     }
 }
 
