@@ -28,6 +28,7 @@
 #import <JotUI/JotViewDelegate.h>
 #import <JotUI/MoveToPathElement.h>
 #import <JotUI/CurveToPathElement.h>
+#import <JotUI/TriangleCurveToPathElement.h>
 #import <JotUI/JotStrokeManager.h>
 #import <JotUI/JotGLTextureBackedFrameBuffer.h>
 #import <JotUI/JotViewImmutableState.h>

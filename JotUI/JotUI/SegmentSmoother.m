@@ -9,6 +9,7 @@
 #import "SegmentSmoother.h"
 #import "AbstractBezierPathElement.h"
 #import "CurveToPathElement.h"
+#import "TriangleCurveToPathElement.h"
 #import "MoveToPathElement.h"
 
 @implementation SegmentSmoother
@@ -102,7 +103,7 @@
             ctrl2_y = point2.y;
         }
         
-        return [CurveToPathElement elementWithStart:point1
+        return [TriangleCurveToPathElement elementWithStart:point1
                                          andCurveTo:point2
                                         andControl1:CGPointMake(ctrl1_x, ctrl1_y)
                                         andControl2:CGPointMake(ctrl2_x, ctrl2_y)];

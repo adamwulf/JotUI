@@ -97,6 +97,8 @@
 		66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FF18079BD700B8CE3B /* JotViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B3A971692BADA00F12F42 /* JotViewDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F20018079C6C00B8CE3B /* JotUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39F21692B52800F12F42 /* JotUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C581221B1C366E1300AE21BB /* TriangleCurveToPathElement.h in Headers */ = {isa = PBXBuildFile; fileRef = C58122191C366E1300AE21BB /* TriangleCurveToPathElement.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C581221C1C366E1300AE21BB /* TriangleCurveToPathElement.m in Sources */ = {isa = PBXBuildFile; fileRef = C581221A1C366E1300AE21BB /* TriangleCurveToPathElement.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -195,6 +197,8 @@
 		66C6AAEA18A2E78E0036F4BB /* FilledPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilledPathElement.m; sourceTree = "<group>"; };
 		66D9827F17B1679400007732 /* OpenGLVBO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLVBO.h; sourceTree = "<group>"; };
 		66D9828017B1679400007732 /* OpenGLVBO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLVBO.m; sourceTree = "<group>"; };
+		C58122191C366E1300AE21BB /* TriangleCurveToPathElement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TriangleCurveToPathElement.h; sourceTree = "<group>"; };
+		C581221A1C366E1300AE21BB /* TriangleCurveToPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TriangleCurveToPathElement.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -302,6 +306,8 @@
 				662B55CF16A9EAC30020CFC3 /* MoveToPathElement.m */,
 				669B39DB1692B50500F12F42 /* CurveToPathElement.h */,
 				669B39DC1692B50500F12F42 /* CurveToPathElement.m */,
+				C58122191C366E1300AE21BB /* TriangleCurveToPathElement.h */,
+				C581221A1C366E1300AE21BB /* TriangleCurveToPathElement.m */,
 				66C6AAE918A2E78E0036F4BB /* FilledPathElement.h */,
 				66C6AAEA18A2E78E0036F4BB /* FilledPathElement.m */,
 			);
@@ -486,6 +492,7 @@
 				66B498811AA131D300D48094 /* JotGLTypes.h in Headers */,
 				66A575AB1B6D536B00F599FC /* MMMainOperationQueue.h in Headers */,
 				66A575A61B6D4CC700F599FC /* MMWeakTimer.h in Headers */,
+				C581221B1C366E1300AE21BB /* TriangleCurveToPathElement.h in Headers */,
 				6658ABD41A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h in Headers */,
 				66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */,
 				66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */,
@@ -637,6 +644,7 @@
 				66AC157418079B27005315C8 /* JotImmutableStroke.m in Sources */,
 				66AC157518079B27005315C8 /* SegmentSmoother.m in Sources */,
 				66AC157618079B27005315C8 /* AbstractBezierPathElement.m in Sources */,
+				C581221C1C366E1300AE21BB /* TriangleCurveToPathElement.m in Sources */,
 				66AC157718079B27005315C8 /* MoveToPathElement.m in Sources */,
 				66AC157818079B27005315C8 /* CurveToPathElement.m in Sources */,
 				66AC157918079B27005315C8 /* JotViewState.m in Sources */,

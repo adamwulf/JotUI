@@ -21,21 +21,14 @@
 #define kAbsoluteMinWidth 3.0
 
 @implementation CurveToPathElement{
-    CGRect boundsCache;
     // cache the hash, since it's expenseive to calculate
     NSUInteger hashCache;
     // the VBO
     JotBufferVBO* vbo;
-    // a boolean for if color information is encoded in the VBO
-    BOOL vertexBufferShouldContainColor;
-    // store the number of bytes of data that we've generated
-    NSInteger numberOfBytesOfVertexData;
     // cached color components so that we don't recalculate
     // every time we bind
     BOOL hasCalculatedColorComponents;
     GLfloat colorComponents[4];
-    
-    CGFloat subBezierlengthCache[1000];
     
     NSLock* lock;
 }
@@ -78,11 +71,11 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             andCurveTo:(CGPoint)curveTo
            andControl1:(CGPoint)ctrl1
            andControl2:(CGPoint)ctrl2{
-    return [[CurveToPathElement alloc] initWithStart:start andCurveTo:curveTo andControl1:ctrl1 andControl2:ctrl2];
+    return [[[self class] alloc] initWithStart:start andCurveTo:curveTo andControl1:ctrl1 andControl2:ctrl2];
 }
 
 +(id) elementWithStart:(CGPoint)start andLineTo:(CGPoint)point{
-    return [CurveToPathElement elementWithStart:start andCurveTo:point andControl1:start andControl2:point];
+    return [[self class] elementWithStart:start andCurveTo:point andControl1:start andControl2:point];
 }
 
 -(int) fullByteSize{
@@ -226,6 +219,10 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     }
 }
 
+-(NSInteger) numberOfVerticesPerStep{
+    return 1;
+}
+
 /**
  * generate a vertex buffer array for all of the points
  * along this curve for the input scale.
@@ -350,7 +347,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         // leftover)
         CGFloat distToDot = realStepSize*step + (isFirstElementInStroke ? 0 : kBrushStepSize - previousElement.extraLengthWithoutDot);
 //        DebugLog(@" dot at %f", distToDot);
-        subdivideBezierAtLength(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
+        subdivideBezierAtLength2(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
         CGPoint point = rightBez[0];
         
         GLfloat calcColor[4];
@@ -635,7 +632,7 @@ CGFloat jotLengthOfBezier(const  CGPoint bez[4], CGFloat acceptableError){
  *
  * the two curves will exactly match the original curve
  */
-static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
+CGFloat subdivideBezierAtLength2 (const CGPoint bez[4],
                                         CGPoint bez1[4],
                                         CGPoint bez2[4],
                                         CGFloat length,
