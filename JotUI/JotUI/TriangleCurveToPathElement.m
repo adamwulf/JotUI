@@ -11,7 +11,7 @@
 #import "UIColor+JotHelper.h"
 #import "JotBufferVBO.h"
 
-#define kDivideStepBy 5
+#define kDivideStepBy 5.0
 #define kAbsoluteMinWidth 3.0
 
 @implementation TriangleCurveToPathElement
@@ -116,8 +116,8 @@
     //
     // now setup what we need to calculate the changes in width
     // along the stroke
-    CGFloat prevWidth = previousElement.width;
-    CGFloat widthDiff = self.width - prevWidth;
+    CGFloat prevWidth = previousElement.width / 3.0;
+    CGFloat widthDiff = self.width / 3.0 - prevWidth;
 
 
     // setup a simple point array to represent our
@@ -137,6 +137,9 @@
 
     isFirstElementInStroke = YES;
     CGPoint prevPoint = previousElement.startPoint;
+    if([previousElement isKindOfClass:[CurveToPathElement class]]){
+        prevPoint = [(CurveToPathElement*)previousElement ctrl2];
+    }
 
     //
     // calculate points along the curve that are realStepSize
@@ -149,7 +152,7 @@
         // current width
         CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
         // ensure min width for dots
-        if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
+        if(stepWidth < kAbsoluteMinWidth / 4.0) stepWidth = kAbsoluteMinWidth / 4.0;
 
         // calculate the point that is realStepSize distance
         // along the curve * which step we're on
@@ -163,6 +166,7 @@
         subdivideBezierAtLength2(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
         CGPoint point = rightBez[0];
         if(step == numberOfVertices - [self numberOfVerticesPerStep]){
+            prevPoint = bez[2];
             point = bez[3];
         }else if (step == 0){
             point = bez[0];
@@ -197,11 +201,7 @@
             calcColor[1] = calcColor[1] * calcColor[3];
             calcColor[2] = calcColor[2] * calcColor[3];
         }
-
-        calcColor[0] = .5;
-        calcColor[1] = .5;
-        calcColor[2] = .5;
-        calcColor[3] = 1;
+        calcColor[3] = 1.0;
 
         // Convert locations from screen Points to GL points (screen pixels)
         struct ColorfulTriVertex* coloredVertexBuffer = (struct ColorfulTriVertex*)vertexBuffer;
