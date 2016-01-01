@@ -89,6 +89,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) drawTriangleStripCount:(GLsizei)count;
 
+-(void) drawTrianglePenStripCount:(GLsizei)count;
+
 -(void) drawPointCount:(GLsizei)count;
 
 -(void) readPixelsInto:(GLubyte *)data ofSize:(GLSize)size;

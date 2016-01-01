@@ -27,6 +27,8 @@
 
 -(void) bindForStep:(NSInteger)stepNumber;
 
+-(void)bindForTriStripForStep:(NSInteger)stepNumber;
+
 -(void) bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber;
 
 -(void) unbind;

@@ -20,12 +20,16 @@ extern const CGPoint JotCGNotFoundPoint;
     CGFloat length;
 
 
+    // the VBO
+    JotBufferVBO* vbo;
     CGRect boundsCache;
     // store the number of bytes of data that we've generated
     NSInteger numberOfBytesOfVertexData;
     CGFloat subBezierlengthCache[1000];
     // a boolean for if color information is encoded in the VBO
     BOOL vertexBufferShouldContainColor;
+
+    NSLock* lock;
 }
 
 @property (nonatomic, readonly) CGPoint curveTo;

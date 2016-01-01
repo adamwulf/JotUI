@@ -76,6 +76,10 @@ static NSUInteger staticAllocOrder = 0;
     [vbo bindForStep:stepNumber];
 }
 
+-(void)bindForTriStrip{
+    [vbo bindForTriStripForStep:stepNumber];
+}
+
 /**
  * this bind method presumes that color information is NOT included in
  * the vertex data of the VBO, and will set glColor4f

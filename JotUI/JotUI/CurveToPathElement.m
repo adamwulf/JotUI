@@ -23,14 +23,10 @@
 @implementation CurveToPathElement{
     // cache the hash, since it's expenseive to calculate
     NSUInteger hashCache;
-    // the VBO
-    JotBufferVBO* vbo;
     // cached color components so that we don't recalculate
     // every time we bind
     BOOL hasCalculatedColorComponents;
     GLfloat colorComponents[4];
-    
-    NSLock* lock;
 }
 
 const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};

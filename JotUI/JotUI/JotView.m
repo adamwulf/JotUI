@@ -1271,7 +1271,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
     
     [renderContext enableVertexArray];
     [renderContext enableColorArray];
-    [renderContext enablePointSizeArray];
+    [renderContext disablePointSizeArray];
     [renderContext disableTextureCoordArray];
 }
 

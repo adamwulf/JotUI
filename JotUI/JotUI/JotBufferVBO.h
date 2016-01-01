@@ -26,6 +26,8 @@
 
 -(void) bind;
 
+-(void)bindForTriStrip;
+
 -(void) bindForColor:(GLfloat[4])color;
 
 -(void) unbind;

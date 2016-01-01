@@ -959,6 +959,14 @@ forStenciledPath:(UIBezierPath*)clippingPath
     glDrawArrays(GL_TRIANGLE_STRIP, 0, count);
 }
 
+-(void) drawTrianglePenStripCount:(GLsizei)count{
+    ValidateCurrentContext;
+    if(enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || !enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
+        @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
+    }
+    glDrawArrays(GL_TRIANGLES, 0, count);
+}
+
 -(void) drawPointCount:(GLsizei)count{
     ValidateCurrentContext;
     if(enabled_GL_TEXTURE_COORD_ARRAY || !enabled_GL_POINT_SIZE_ARRAY_OES || !enabled_GL_VERTEX_ARRAY){

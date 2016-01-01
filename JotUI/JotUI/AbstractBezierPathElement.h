@@ -13,6 +13,11 @@
 #ifndef AbstractBezierPathElement_H
 #define AbstractBezierPathElement_H
 
+struct ColorfulTriVertex{
+    GLfloat Position[2];    // x,y position   // 8
+    GLfloat Color [4];      // rgba color     // 16
+};
+
 struct ColorfulVertex{
     GLfloat Position[2];    // x,y position   // 8
     GLfloat Color [4];      // rgba color     // 16

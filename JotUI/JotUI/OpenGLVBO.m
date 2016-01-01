@@ -147,6 +147,22 @@
     }];
 }
 
+-(void)bindForTriStripForStep:(NSInteger)stepNumber{
+    [JotGLContext runBlock:^(JotGLContext* context){
+        if(!lock){
+            NSLog(@"what");
+        }
+        [lock lock];
+        [context bindArrayBuffer:glBuffer.vbo];
+        [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorfulTriVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulTriVertex, Position))];
+        [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulTriVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulTriVertex, Color))];
+        [context disableTextureCoordArray];
+        [context enableVertexArray];
+        [context enableColorArray];
+        [context disablePointSizeArray];
+        [context glColor4f:1 and:.1 and:1 and:1];
+    }];
+}
 
 /**
  * this will bind the VBO with pointers to the input step number,

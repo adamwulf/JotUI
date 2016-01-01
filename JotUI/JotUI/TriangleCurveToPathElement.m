@@ -9,10 +9,10 @@
 #import "TriangleCurveToPathElement.h"
 #import "AbstractBezierPathElement-Protected.h"
 #import "UIColor+JotHelper.h"
+#import "JotBufferVBO.h"
 
 #define kDivideStepBy 5
 #define kAbsoluteMinWidth 3.0
-
 
 @implementation TriangleCurveToPathElement
 
@@ -38,16 +38,16 @@
     // find out how many steps we can put inside this segment length
     NSInteger numberOfVertices = [self numberOfVerticesGivenPreviousElement:previousElement];
     NSInteger numberOfBytes;
-    if([self shouldContainVertexColorDataGivenPreviousElement:previousElement]){
-        numberOfBytes = numberOfVertices*sizeof(struct ColorfulVertex);
-    }else{
-        numberOfBytes = numberOfVertices*sizeof(struct ColorlessVertex);
-    }
+    numberOfBytes = numberOfVertices*sizeof(struct ColorfulTriVertex);
     return numberOfBytes;
 }
 
 -(NSInteger) numberOfVerticesPerStep{
-    return 1;
+    return 3;
+}
+
+-(CGFloat) width{
+    return 10;
 }
 
 /**
@@ -117,6 +117,8 @@
         //        DebugLog(@"nil buffer");
         dataVertexBuffer = [NSData data];
         return nil;
+    }else if(numberOfVertices == 1){
+        numberOfVertices = 2;
     }
 
     void* vertexBuffer = malloc(numberOfBytesOfVertexData);
@@ -198,8 +200,14 @@
             calcColor[1] = calcColor[1] * calcColor[3];
             calcColor[2] = calcColor[2] * calcColor[3];
         }
+
+        calcColor[0] = .5;
+        calcColor[1] = .5;
+        calcColor[2] = .5;
+        calcColor[3] = 1;
+
         // Convert locations from screen Points to GL points (screen pixels)
-        struct ColorfulVertex* coloredVertexBuffer = (struct ColorfulVertex*)vertexBuffer;
+        struct ColorfulTriVertex* coloredVertexBuffer = (struct ColorfulTriVertex*)vertexBuffer;
         // set colors to the array
         coloredVertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
         coloredVertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
@@ -207,8 +215,20 @@
         coloredVertexBuffer[step].Color[1] = calcColor[1];
         coloredVertexBuffer[step].Color[2] = calcColor[2];
         coloredVertexBuffer[step].Color[3] = calcColor[3];
-        coloredVertexBuffer[step].Size = stepWidth;
-        [self validateVertexData:coloredVertexBuffer[step]];
+
+        coloredVertexBuffer[step+1].Position[0] = (GLfloat) (point.x * scaleOfVertexBuffer + 10.0f);
+        coloredVertexBuffer[step+1].Position[1] = (GLfloat) (point.y * scaleOfVertexBuffer + 10.0f);
+        coloredVertexBuffer[step+1].Color[0] = calcColor[0];
+        coloredVertexBuffer[step+1].Color[1] = calcColor[1];
+        coloredVertexBuffer[step+1].Color[2] = calcColor[2];
+        coloredVertexBuffer[step+1].Color[3] = calcColor[3];
+
+        coloredVertexBuffer[step+2].Position[0] = (GLfloat) (point.x * scaleOfVertexBuffer - 10.0f);
+        coloredVertexBuffer[step+2].Position[1] = (GLfloat) (point.y * scaleOfVertexBuffer + 10.0f);
+        coloredVertexBuffer[step+2].Color[0] = calcColor[0];
+        coloredVertexBuffer[step+2].Color[1] = calcColor[1];
+        coloredVertexBuffer[step+2].Color[2] = calcColor[2];
+        coloredVertexBuffer[step+2].Color[3] = calcColor[3];
     }
 
     dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytesOfVertexData];
@@ -217,13 +237,58 @@
 }
 
 
+/**
+ * this method has become quite a bit more complex
+ * than it was originally.
+ *
+ * when this method is called from a background thread,
+ * it will generate and bind the VBO only. it won't create
+ * a VAO
+ *
+ * when this method is called on the main thread, it will
+ * create the VAO, and will also create the VBO to go with
+ * it if needed. otherwise it'll bind the VBO from the
+ * background thread into the VAO
+ *
+ * the [unbind] method will unbind either the VAO or VBO
+ * depending on which was created/bound in this method+thread
+ */
+-(BOOL) bind{
+    if(![lock tryLock]){
+        NSLog(@"gotcha");
+        [lock lock];
+    }
+    if(!dataVertexBuffer.length){
+        //        DebugLog(@"refusing to bind, we have no data");
+        [lock unlock];
+        return NO;
+    }
+    [JotGLContext runBlock:^(JotGLContext* context){
+        // we're only allowed to create vbo
+        // on the main thread.
+        // if we need a vbo, then create it
+        [self loadDataIntoVBOIfNeeded];
+        [vbo bindForTriStrip];
+        [context unbindTexture];
+    }];
+    return YES;
+}
+
+-(void) unbind{
+    [JotGLContext runBlock:^(JotGLContext* context){
+        if(dataVertexBuffer.length){
+            [vbo unbind];
+        }
+        [lock unlock];
+    }];
+}
 
 -(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
     if([self bind]){
         // VBO
         [JotGLContext runBlock:^(JotGLContext* context){
             if([self numberOfStepsGivenPreviousElement:previousElement]){
-                [context drawPointCount:(int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep])];
+                [context drawTrianglePenStripCount:(int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep])];
             }
         }];
         [self unbind];
