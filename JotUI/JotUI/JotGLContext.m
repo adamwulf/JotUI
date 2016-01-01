@@ -964,7 +964,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
     if(enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || !enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
         @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
     }
-    glDrawArrays(GL_TRIANGLES, 0, count);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, count);
 }
 
 -(void) drawPointCount:(GLsizei)count{
@@ -1059,6 +1059,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
     glGenRenderbuffersOES(1, viewRenderbuffer);
     
     [self bindFramebuffer:framebufferID[0]];
+    glResolveMultisampleFramebufferAPPLE();
     [self bindRenderbuffer:viewRenderbuffer[0]];
     // This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
     // allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).

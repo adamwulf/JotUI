@@ -43,13 +43,13 @@
 }
 
 -(NSInteger) numberOfVerticesPerStep{
-    return 3;
+    return 2;
 }
 
--(CGFloat) width{
-    return 10;
+-(NSInteger) numberOfStepsGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
+    NSInteger num = [super numberOfStepsGivenPreviousElement:previousElement];
+    return num <= 1 ? 2 : num;
 }
-
 /**
  * generate a vertex buffer array for all of the points
  * along this curve for the input scale.
@@ -99,26 +99,12 @@
     //
     // this'll help make the segment join its neighboring segments
     // without any artifacts of the start/end double drawing
-    CGFloat realLength = [self lengthOfElement];
     CGFloat realStepSize = kBrushStepSize; // numberOfVertices ? realLength / numberOfVertices : 0;
-    CGFloat lengthPlusPrevExtra = realLength + previousElement.extraLengthWithoutDot;
-    NSInteger divisionOfBrushStroke = floorf(lengthPlusPrevExtra / kBrushStepSize);
-    // our extra length is whatever's leftover after chopping our length + previous extra
-    // into kBrushStepSize sized segments.
-    //
-    // ie, if previous extra was .3, our length is 3.3, and our brush size is 2, then
-    // our extra is:
-    // divisionOfBrushStroke = floor(3.3 + .3) / 2 => floor(1.8) => 1
-    // our extra = (3.6 - 1 * 2) => 1.6
-    self.extraLengthWithoutDot = (lengthPlusPrevExtra - divisionOfBrushStroke * kBrushStepSize);
-    //    DebugLog(@"realStepSize len: %f vert: %ld (prevextra: %f myextra: %f)", realLength, (long)numberOfVertices, previousElement.extraLengthWithoutDot, self.extraLengthWithoutDot);
 
     if(!numberOfVertices){
         //        DebugLog(@"nil buffer");
         dataVertexBuffer = [NSData data];
         return nil;
-    }else if(numberOfVertices == 1){
-        numberOfVertices = 2;
     }
 
     void* vertexBuffer = malloc(numberOfBytesOfVertexData);
@@ -149,6 +135,9 @@
     // include the first dot in the stroke.
     BOOL isFirstElementInStroke = [previousElement isKindOfClass:[MoveToPathElement class]];
 
+    isFirstElementInStroke = YES;
+    CGPoint prevPoint = previousElement.startPoint;
+
     //
     // calculate points along the curve that are realStepSize
     // length along the curve. since this is fairly intensive for
@@ -169,10 +158,18 @@
         // have the dot at the beginning of our element. otherwise, we should only
         // add an element after kBrushStepSize (including whatever distance was
         // leftover)
-        CGFloat distToDot = realStepSize*step + (isFirstElementInStroke ? 0 : kBrushStepSize - previousElement.extraLengthWithoutDot);
+        CGFloat distToDot = realStepSize*step;
         //        DebugLog(@" dot at %f", distToDot);
         subdivideBezierAtLength2(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
         CGPoint point = rightBez[0];
+        if(step == numberOfVertices - [self numberOfVerticesPerStep]){
+            point = bez[3];
+        }else if (step == 0){
+            point = bez[0];
+        }
+
+        CGFloat angle = [self angleBetweenPoint:point andPoint:prevPoint];
+        prevPoint = point;
 
         GLfloat calcColor[4];
         // set colors to the array
@@ -209,26 +206,19 @@
         // Convert locations from screen Points to GL points (screen pixels)
         struct ColorfulTriVertex* coloredVertexBuffer = (struct ColorfulTriVertex*)vertexBuffer;
         // set colors to the array
-        coloredVertexBuffer[step].Position[0] = (GLfloat) point.x * scaleOfVertexBuffer;
-        coloredVertexBuffer[step].Position[1] = (GLfloat) point.y * scaleOfVertexBuffer;
+        coloredVertexBuffer[step].Position[0] = (GLfloat) (point.x * scaleOfVertexBuffer - .5 * cosf(angle) * stepWidth);
+        coloredVertexBuffer[step].Position[1] = (GLfloat) (point.y * scaleOfVertexBuffer - .5 * sinf(angle) * stepWidth);
         coloredVertexBuffer[step].Color[0] = calcColor[0];
         coloredVertexBuffer[step].Color[1] = calcColor[1];
         coloredVertexBuffer[step].Color[2] = calcColor[2];
         coloredVertexBuffer[step].Color[3] = calcColor[3];
 
-        coloredVertexBuffer[step+1].Position[0] = (GLfloat) (point.x * scaleOfVertexBuffer + 10.0f);
-        coloredVertexBuffer[step+1].Position[1] = (GLfloat) (point.y * scaleOfVertexBuffer + 10.0f);
+        coloredVertexBuffer[step+1].Position[0] = (GLfloat) (point.x * scaleOfVertexBuffer + .5 * cosf(angle) * stepWidth);
+        coloredVertexBuffer[step+1].Position[1] = (GLfloat) (point.y * scaleOfVertexBuffer + .5 * sinf(angle) * stepWidth);
         coloredVertexBuffer[step+1].Color[0] = calcColor[0];
         coloredVertexBuffer[step+1].Color[1] = calcColor[1];
         coloredVertexBuffer[step+1].Color[2] = calcColor[2];
         coloredVertexBuffer[step+1].Color[3] = calcColor[3];
-
-        coloredVertexBuffer[step+2].Position[0] = (GLfloat) (point.x * scaleOfVertexBuffer - 10.0f);
-        coloredVertexBuffer[step+2].Position[1] = (GLfloat) (point.y * scaleOfVertexBuffer + 10.0f);
-        coloredVertexBuffer[step+2].Color[0] = calcColor[0];
-        coloredVertexBuffer[step+2].Color[1] = calcColor[1];
-        coloredVertexBuffer[step+2].Color[2] = calcColor[2];
-        coloredVertexBuffer[step+2].Color[3] = calcColor[3];
     }
 
     dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytesOfVertexData];
