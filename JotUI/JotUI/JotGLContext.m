@@ -965,6 +965,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
         // enabled_GL_COLOR_ARRAY is optional for point drawing
         @throw [NSException exceptionWithName:@"GLDrawPointException" reason:@"bad state" userInfo:nil];
     }
+    glEnable(GL_POINT_SMOOTH);
     glDrawArrays(GL_POINTS, 0, count);
 }
 

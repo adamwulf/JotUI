@@ -18,7 +18,7 @@
 #import "JotTrashManager.h"
 
 #define kDivideStepBy 5
-#define kAbsoluteMinWidth 3.0
+#define kAbsoluteMinWidth 0.5
 
 @implementation CurveToPathElement{
     CGRect boundsCache;
@@ -213,7 +213,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             if(alpha > 1) alpha = 1;
             
             // set alpha first, because we'll premultiply immediately after
-            colorComponents[3] = alpha;
+            colorComponents[3] = 1.0;//alpha;
             colorComponents[0] = colorComponents[0] * colorComponents[3];
             colorComponents[1] = colorComponents[1] * colorComponents[3];
             colorComponents[2] = colorComponents[2] * colorComponents[3];
@@ -224,6 +224,24 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             colorComponents[3] = 1.0;
         }
     }
+}
+
+-(CGFloat) stepSizeWithPreviousElement:(AbstractBezierPathElement*)previousElement{
+    return .5;//MIN(kBrushStepSize, MIN(self.width, previousElement.width) / 3.0);
+}
+/**
+ * the ideal number of steps we should take along
+ * this line to render it with vertex points
+ */
+-(NSInteger) numberOfStepsGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
+    NSInteger ret = MAX(floorf(([self lengthOfElement] + previousElement.extraLengthWithoutDot) / [self stepSizeWithPreviousElement:previousElement]), 0);
+    // if we are beginning the stroke, then we have 1 more
+    // dot to begin the stroke. otherwise we skip the first dot
+    // and pick up after kBrushStepSize
+    if([previousElement isKindOfClass:[MoveToPathElement class]]){
+        ret += 1;
+    }
+    return ret;
 }
 
 /**
@@ -281,9 +299,9 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // this'll help make the segment join its neighboring segments
     // without any artifacts of the start/end double drawing
     CGFloat realLength = [self lengthOfElement];
-    CGFloat realStepSize = kBrushStepSize; // numberOfVertices ? realLength / numberOfVertices : 0;
+    CGFloat realStepSize = [self stepSizeWithPreviousElement:previousElement]; // numberOfVertices ? realLength / numberOfVertices : 0;
     CGFloat lengthPlusPrevExtra = realLength + previousElement.extraLengthWithoutDot;
-    NSInteger divisionOfBrushStroke = floorf(lengthPlusPrevExtra / kBrushStepSize);
+    NSInteger divisionOfBrushStroke = floorf(lengthPlusPrevExtra / realStepSize);
     // our extra length is whatever's leftover after chopping our length + previous extra
     // into kBrushStepSize sized segments.
     //
@@ -291,7 +309,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // our extra is:
     // divisionOfBrushStroke = floor(3.3 + .3) / 2 => floor(1.8) => 1
     // our extra = (3.6 - 1 * 2) => 1.6
-    self.extraLengthWithoutDot = (lengthPlusPrevExtra - divisionOfBrushStroke * kBrushStepSize);
+    self.extraLengthWithoutDot = (lengthPlusPrevExtra - divisionOfBrushStroke * realStepSize);
 //    DebugLog(@"realStepSize len: %f vert: %ld (prevextra: %f myextra: %f)", realLength, (long)numberOfVertices, previousElement.extraLengthWithoutDot, self.extraLengthWithoutDot);
     
     if(!numberOfVertices){
@@ -348,7 +366,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
         // have the dot at the beginning of our element. otherwise, we should only
         // add an element after kBrushStepSize (including whatever distance was
         // leftover)
-        CGFloat distToDot = realStepSize*step + (isFirstElementInStroke ? 0 : kBrushStepSize - previousElement.extraLengthWithoutDot);
+        CGFloat distToDot = realStepSize*step + (isFirstElementInStroke ? 0 : realStepSize - previousElement.extraLengthWithoutDot);
 //        DebugLog(@" dot at %f", distToDot);
         subdivideBezierAtLength(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
         CGPoint point = rightBez[0];
@@ -368,7 +386,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             calcColor[1] = prevColor[1] + colorSteps[1] * t;
             calcColor[2] = prevColor[2] + colorSteps[2] * t;
             calcColor[3] = prevColor[3] + colorSteps[3] * t;
-            
+
             calcColor[3] = calcColor[3] / (stepWidth / kDivideStepBy);
             if(calcColor[3] > 1){
                 calcColor[3] = 1;
@@ -554,7 +572,7 @@ static CGFloat screenHeight;
  */
 
 -(void) setColor:(UIColor *)_color{
-    color = _color;
+    color = [_color colorWithAlphaComponent:1.0];
 }
 
 /**
