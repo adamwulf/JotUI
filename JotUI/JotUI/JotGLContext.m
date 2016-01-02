@@ -13,6 +13,7 @@
 #import <GLKit/GLKit.h>
 #import <mach/mach_time.h>  // for mach_absolute_time() and friends
 #import "ShaderHelper.h"
+#import "JotGLLayerBackedFrameBuffer.h"
 
 int printOglError(char *file, int line)
 {
@@ -839,6 +840,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
 //        // enabled_GL_COLOR_ARRAY is optional for point drawing
 //        @throw [NSException exceptionWithName:@"GLDrawPointException" reason:@"bad state" userInfo:nil];
 //    }
+
+    glUseProgram(program[PROGRAM_POINT].id);
     glDrawArrays(GL_POINTS, 0, count);
 }
 

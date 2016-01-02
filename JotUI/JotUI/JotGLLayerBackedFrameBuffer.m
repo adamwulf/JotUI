@@ -50,7 +50,7 @@ programInfo_t program[NUM_PROGRAMS] = {
         [JotGLContext runBlock:^(JotGLContext* context){
             
             GLSize backingSize = [context generateFramebuffer:&framebufferID andRenderbuffer:&viewRenderbuffer andDepthRenderBuffer:&depthRenderbuffer forLayer:layer];
-            
+
             CGRect frame = layer.bounds;
             CGFloat scale = layer.contentsScale;
             
@@ -65,6 +65,11 @@ programInfo_t program[NUM_PROGRAMS] = {
             // Load the brush texture
             brushTexture = [JotGLLayerBackedFrameBuffer textureFromName:@"Particle.png"];
 
+            brushColor[0] = 0 * kBrushOpacity;
+            brushColor[1] = 0 * kBrushOpacity;
+            brushColor[2] = 1.0 * kBrushOpacity;
+            brushColor[3] = kBrushOpacity;
+
             // Load shaders
             [self setupShadersWithSize:backingSize];
 
@@ -78,6 +83,9 @@ programInfo_t program[NUM_PROGRAMS] = {
     [super bind];
     [JotGLContext runBlock:^(JotGLContext * context) {
         [context bindRenderbuffer:viewRenderbuffer];
+
+        glUseProgram(program[PROGRAM_POINT].id);
+        glUniform4fv(program[PROGRAM_POINT].uniform[UNIFORM_VERTEX_COLOR], 1, brushColor);
     }];
 }
 
@@ -199,6 +207,8 @@ programInfo_t program[NUM_PROGRAMS] = {
 
 - (void)setupShadersWithSize:(GLSize)backingSize
 {
+    brushTexture = [JotGLLayerBackedFrameBuffer textureFromName:@"Particle.png"];
+
     for (int i = 0; i < NUM_PROGRAMS; i++)
     {
         char *vsrc = readFile(pathForResource(program[i].vert));

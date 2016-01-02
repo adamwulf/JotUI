@@ -47,6 +47,7 @@
 		C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */; };
 		C584F8321C37C14C00413840 /* point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F8301C37C14C00413840 /* point.vsh */; };
 		C584F8331C37C14C00413840 /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F8311C37C14C00413840 /* point.fsh */; };
+		C584F8351C37C4AB00413840 /* Particle.png in Resources */ = {isa = PBXBuildFile; fileRef = C584F8341C37C4AB00413840 /* Particle.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -99,6 +100,7 @@
 		C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		C584F8301C37C14C00413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
 		C584F8311C37C14C00413840 /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.fsh; sourceTree = "<group>"; };
+		C584F8341C37C4AB00413840 /* Particle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Particle.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -260,6 +262,7 @@
 		C584F82F1C37C14100413840 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
+				C584F8341C37C4AB00413840 /* Particle.png */,
 				C584F8301C37C14C00413840 /* point.vsh */,
 				C584F8311C37C14C00413840 /* point.fsh */,
 			);
@@ -341,6 +344,7 @@
 				66AA5F5E169949AA0046CA26 /* ViewController.xib in Resources */,
 				66AA5F6B169A86C70046CA26 /* Icon-Gradient@2x.png in Resources */,
 				66AA5F6E169A86CC0046CA26 /* Icon-Gradient.png in Resources */,
+				C584F8351C37C4AB00413840 /* Particle.png in Resources */,
 				6661A70E16EE60BC00DD58D1 /* background.jpg in Resources */,
 				6645055616EFCD7E00B90511 /* check.png in Resources */,
 				6645055716EFCD7E00B90511 /* check@2x.png in Resources */,
