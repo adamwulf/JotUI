@@ -97,6 +97,13 @@
 		66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FF18079BD700B8CE3B /* JotViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B3A971692BADA00F12F42 /* JotViewDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F20018079C6C00B8CE3B /* JotUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39F21692B52800F12F42 /* JotUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C584F8201C37B35400413840 /* point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F81E1C37B35400413840 /* point.vsh */; };
+		C584F8211C37B35400413840 /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F81F1C37B35400413840 /* point.fsh */; };
+		C584F8271C37B38C00413840 /* debug.h in Headers */ = {isa = PBXBuildFile; fileRef = C584F8221C37B38C00413840 /* debug.h */; };
+		C584F8281C37B38C00413840 /* fileUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = C584F8231C37B38C00413840 /* fileUtil.h */; };
+		C584F8291C37B38C00413840 /* fileUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = C584F8241C37B38C00413840 /* fileUtil.m */; };
+		C584F82A1C37B38C00413840 /* shaderUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = C584F8251C37B38C00413840 /* shaderUtil.h */; };
+		C584F82B1C37B38C00413840 /* shaderUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = C584F8261C37B38C00413840 /* shaderUtil.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -195,6 +202,15 @@
 		66C6AAEA18A2E78E0036F4BB /* FilledPathElement.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FilledPathElement.m; sourceTree = "<group>"; };
 		66D9827F17B1679400007732 /* OpenGLVBO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLVBO.h; sourceTree = "<group>"; };
 		66D9828017B1679400007732 /* OpenGLVBO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLVBO.m; sourceTree = "<group>"; };
+		C584F81E1C37B35400413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
+		C584F81F1C37B35400413840 /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.fsh; sourceTree = "<group>"; };
+		C584F8221C37B38C00413840 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
+		C584F8231C37B38C00413840 /* fileUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileUtil.h; sourceTree = "<group>"; };
+		C584F8241C37B38C00413840 /* fileUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = fileUtil.m; sourceTree = "<group>"; };
+		C584F8251C37B38C00413840 /* shaderUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shaderUtil.h; sourceTree = "<group>"; };
+		C584F8261C37B38C00413840 /* shaderUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shaderUtil.c; sourceTree = "<group>"; };
+		C584F82C1C37B41200413840 /* ShaderHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderHelper.h; sourceTree = "<group>"; };
+		C584F82D1C37B46B00413840 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -262,6 +278,7 @@
 		669B39AB1692B46A00F12F42 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C584F82D1C37B46B00413840 /* GLKit.framework */,
 				66A32026170242D200692C71 /* UIKit.framework */,
 				66AA213516FCE26600E86922 /* JotTouchSDK.framework */,
 				669B39AC1692B46A00F12F42 /* Foundation.framework */,
@@ -283,6 +300,7 @@
 		669B39AF1692B46A00F12F42 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				C584F81D1C37B34A00413840 /* Shaders */,
 				669B39B01692B46A00F12F42 /* JotUI-Info.plist */,
 				669B39B11692B46A00F12F42 /* InfoPlist.strings */,
 				669B39B41692B46A00F12F42 /* JotUI-Prefix.pch */,
@@ -440,6 +458,21 @@
 			name = Plist;
 			sourceTree = "<group>";
 		};
+		C584F81D1C37B34A00413840 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				C584F82C1C37B41200413840 /* ShaderHelper.h */,
+				C584F8221C37B38C00413840 /* debug.h */,
+				C584F8231C37B38C00413840 /* fileUtil.h */,
+				C584F8241C37B38C00413840 /* fileUtil.m */,
+				C584F8251C37B38C00413840 /* shaderUtil.h */,
+				C584F8261C37B38C00413840 /* shaderUtil.c */,
+				C584F81E1C37B35400413840 /* point.vsh */,
+				C584F81F1C37B35400413840 /* point.fsh */,
+			);
+			name = Shaders;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -459,6 +492,7 @@
 				66F1F1E918079BD700B8CE3B /* JotBufferManager.h in Headers */,
 				66F1F1EA18079BD700B8CE3B /* JotBufferVBO.h in Headers */,
 				66F1F1EB18079BD700B8CE3B /* OpenGLVBO.h in Headers */,
+				C584F8281C37B38C00413840 /* fileUtil.h in Headers */,
 				66F1F1EC18079BD700B8CE3B /* PlistSaving.h in Headers */,
 				66F1F1ED18079BD700B8CE3B /* JotBrushTexture.h in Headers */,
 				66F1F1EE18079BD700B8CE3B /* JotDefaultBrushTexture.h in Headers */,
@@ -470,6 +504,7 @@
 				66F1F1F318079BD700B8CE3B /* JotStrokeDelegate.h in Headers */,
 				66F1F1F418079BD700B8CE3B /* JotStrokeManager.h in Headers */,
 				66F1F1F518079BD700B8CE3B /* JotImmutableStroke.h in Headers */,
+				C584F8271C37B38C00413840 /* debug.h in Headers */,
 				66F1F1F618079BD700B8CE3B /* SegmentSmoother.h in Headers */,
 				66F1F1F718079BD700B8CE3B /* AbstractBezierPathElement.h in Headers */,
 				66A64EF419FB5B8E0026305B /* NSMutableArray+RemoveSingle.h in Headers */,
@@ -495,6 +530,7 @@
 				66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */,
 				66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */,
 				66F1F1FF18079BD700B8CE3B /* JotViewDelegate.h in Headers */,
+				C584F82A1C37B38C00413840 /* shaderUtil.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -554,6 +590,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C584F8211C37B35400413840 /* point.fsh in Resources */,
+				C584F8201C37B35400413840 /* point.vsh in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -632,10 +670,12 @@
 				66AC157018079B27005315C8 /* JotGLTextureBackedFrameBuffer.m in Sources */,
 				66AC157118079B27005315C8 /* JotGLContext.m in Sources */,
 				667EC03C1A01F4F60069FF33 /* JotDiskAssetManager.m in Sources */,
+				C584F82B1C37B38C00413840 /* shaderUtil.c in Sources */,
 				66AC157218079B27005315C8 /* JotStroke.m in Sources */,
 				66AC157318079B27005315C8 /* JotStrokeManager.m in Sources */,
 				66AC157418079B27005315C8 /* JotImmutableStroke.m in Sources */,
 				66AC157518079B27005315C8 /* SegmentSmoother.m in Sources */,
+				C584F8291C37B38C00413840 /* fileUtil.m in Sources */,
 				66AC157618079B27005315C8 /* AbstractBezierPathElement.m in Sources */,
 				66AC157718079B27005315C8 /* MoveToPathElement.m in Sources */,
 				66AC157818079B27005315C8 /* CurveToPathElement.m in Sources */,

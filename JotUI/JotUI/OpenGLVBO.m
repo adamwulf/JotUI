@@ -165,9 +165,9 @@
         [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
         [context enablePointSizeArrayForStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
         [context disableTextureCoordArray];
-        [context enableVertexArray];
-        [context enableColorArray];
-        [context enablePointSizeArray];
+//        [context enableVertexArray];
+//        [context enableColorArray];
+//        [context enablePointSizeArray];
     }];
 }
 
@@ -189,10 +189,10 @@
         
         [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
         [context enablePointSizeArrayForStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
-        [context enableVertexArray];
-        [context disableColorArray];
-        [context enablePointSizeArray];
-        [context disableTextureCoordArray];
+//        [context enableVertexArray];
+//        [context disableColorArray];
+//        [context enablePointSizeArray];
+//        [context disableTextureCoordArray];
 
         [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
     }];

@@ -9,10 +9,10 @@
 #import "JotGLContext.h"
 #import "JotUI.h"
 #import <UIKit/UIKit.h>
-#import <OpenGLES/ES1/gl.h>
-#import <OpenGLES/ES1/glext.h>
+#import <OpenGLES/EAGLDrawable.h>
+#import <GLKit/GLKit.h>
 #import <mach/mach_time.h>  // for mach_absolute_time() and friends
-
+#import "ShaderHelper.h"
 
 int printOglError(char *file, int line)
 {
@@ -71,7 +71,6 @@ typedef enum UndfBOOL{
     UndfBOOL enabled_GL_TEXTURE_2D;
     UndfBOOL enabled_GL_BLEND;
     UndfBOOL enabled_GL_DITHER;
-    UndfBOOL enabled_GL_POINT_SPRITE_OES;
     UndfBOOL enabled_GL_SCISSOR_TEST;
     UndfBOOL enabled_GL_STENCIL_TEST;
     UndfBOOL enabled_GL_ALPHA_TEST;
@@ -165,7 +164,6 @@ typedef enum UndfBOOL{
     lastClearBlue = -1;
     lastClearGreen = -1;
     lastClearAlpha = -1;
-    matrixMode = GL_MODELVIEW;
     enabled_GL_VERTEX_ARRAY = UNKNOWN;
     enabled_GL_COLOR_ARRAY = UNKNOWN;
     enabled_GL_POINT_SIZE_ARRAY_OES = UNKNOWN;
@@ -173,7 +171,6 @@ typedef enum UndfBOOL{
     enabled_GL_TEXTURE_2D = UNKNOWN;
     enabled_GL_BLEND = UNKNOWN;
     enabled_GL_DITHER = UNKNOWN;
-    enabled_GL_POINT_SPRITE_OES = UNKNOWN;
     enabled_GL_SCISSOR_TEST = UNKNOWN;
     enabled_GL_STENCIL_TEST = UNKNOWN;
     enabled_GL_ALPHA_TEST = UNKNOWN;
@@ -226,8 +223,8 @@ typedef enum UndfBOOL{
     contextProperties = [NSMutableDictionary dictionary];
 }
 
--(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
-    if(self = [super initWithAPI:api]){
+-(id) initWithName:(NSString*)_name andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
+    if(self = [super initWithAPI:kEAGLRenderingAPIOpenGLES2]){
         name = _name;
         validateThreadBlock = _validateThreadBlock;
         [self initAllProperties];
@@ -235,8 +232,8 @@ typedef enum UndfBOOL{
     return self;
 }
 
--(id) initWithName:(NSString*)_name andAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
-    if(self = [super initWithAPI:api sharegroup:sharegroup]){
+-(id) initWithName:(NSString*)_name andSharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThreadBlock{
+    if(self = [super initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:sharegroup]){
         name = _name;
         validateThreadBlock = _validateThreadBlock;
         [self initAllProperties];
@@ -303,7 +300,7 @@ typedef enum UndfBOOL{
 -(void) runBlockAndMaintainCurrentFramebuffer:(void(^)())block{
     [self runBlock:^{
         GLint currBoundFrBuff = -1;
-        glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+        glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currBoundFrBuff);
         
         if(currBoundFrBuff != currentlyBoundFramebuffer){
             @throw [NSException exceptionWithName:@"GLCurrentFramebufferException" reason:@"Unexpected current framebufer" userInfo:nil];
@@ -409,15 +406,6 @@ typedef enum UndfBOOL{
 
 #pragma mark - Enable Disable State
 
--(void) glAlphaFunc:(GLenum)func ref:(GLclampf) ref{
-    ValidateCurrentContext;
-    if(alphaFuncFunc != func || alphaFuncRef != ref){
-        alphaFuncFunc = func;
-        alphaFuncRef = ref;
-        glAlphaFunc(func, ref);
-    }
-}
-
 -(void) glStencilOp:(GLenum)fail zfail:(GLenum)zfail zpass:(GLenum)zpass{
     ValidateCurrentContext;
     if(stencilOpFail != fail || stencilOpZfail != zfail || stencilOpZpass != zpass){
@@ -470,22 +458,6 @@ typedef enum UndfBOOL{
         enabled_glColorMask_green = green ? YEP : NOPE;
         enabled_glColorMask_blue = blue ? YEP : NOPE;
         enabled_glColorMask_alpha = alpha ? YEP : NOPE;
-    }
-}
-
--(void) glDisableAlphaTest{
-    ValidateCurrentContext;
-    if(enabled_GL_ALPHA_TEST == YEP || enabled_GL_ALPHA_TEST == UNKNOWN){
-        glDisable(GL_ALPHA_TEST);
-        enabled_GL_ALPHA_TEST = NOPE;
-    }
-}
-
--(void) glEnableAlphaTest{
-    ValidateCurrentContext;
-    if(enabled_GL_ALPHA_TEST == NOPE || enabled_GL_ALPHA_TEST == UNKNOWN){
-        glEnable(GL_ALPHA_TEST);
-        enabled_GL_ALPHA_TEST = YEP;
     }
 }
 
@@ -545,37 +517,9 @@ typedef enum UndfBOOL{
     }
 }
 
--(void) glEnablePointSprites{
-    ValidateCurrentContext;
-    if(enabled_GL_POINT_SPRITE_OES == NOPE || enabled_GL_POINT_SPRITE_OES == UNKNOWN){
-        glEnable(GL_POINT_SPRITE_OES);
-        glTexEnvf(GL_POINT_SPRITE_OES, GL_COORD_REPLACE_OES, GL_TRUE);
-        enabled_GL_POINT_SPRITE_OES = YEP;
-    }
-}
-
--(void) glMatrixModeModelView{
-    [self glMatrixMode:GL_MODELVIEW];
-}
-
--(void) glMatrixModeProjection{
-    [self glMatrixMode:GL_PROJECTION];
-}
-
--(void) glMatrixMode:(GLenum)mode{
-    ValidateCurrentContext;
-    if(matrixMode != mode){
-        glMatrixMode(mode);
-        matrixMode = mode;
-    }
-}
-
--(void) enableVertexArray{
-    [self glEnableClientState:GL_VERTEX_ARRAY];
-}
 -(void) enableVertexArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
-    [self glEnableClientState:GL_VERTEX_ARRAY];
-    glVertexPointer(size, GL_FLOAT, stride, pointer);
+    glEnableVertexAttribArray(ATTRIB_VERTEX);
+    glVertexAttribPointer(ATTRIB_VERTEX, size, GL_FLOAT, GL_FALSE, stride, pointer);
     vertex_pointer_size = size;
     vertex_pointer_type = GL_FLOAT;
     vertex_pointer_stride = stride;
@@ -585,111 +529,51 @@ typedef enum UndfBOOL{
     }
 }
 -(void) disableVertexArray{
-    [self glDisableClientState:GL_VERTEX_ARRAY];
+    glDisableVertexAttribArray(ATTRIB_VERTEX);
 }
 
 -(void) enableColorArray{
-    [self glEnableClientState:GL_COLOR_ARRAY];
+//    [self glEnableClientState:GL_COLOR_ARRAY];
 }
 -(void) enableColorArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
-    [self glEnableClientState:GL_COLOR_ARRAY];
-    glColorPointer(size, GL_FLOAT, stride, pointer);
-    color_pointer_size = size;
-    color_pointer_type = GL_FLOAT;
-    color_pointer_stride = stride;
-    color_pointer_pointer = pointer;
+//    [self glEnableClientState:GL_COLOR_ARRAY];
+//    glColorPointer(size, GL_FLOAT, stride, pointer);
+//    color_pointer_size = size;
+//    color_pointer_type = GL_FLOAT;
+//    color_pointer_stride = stride;
+//    color_pointer_pointer = pointer;
 }
 -(void) disableColorArray{
-    [self glDisableClientState:GL_COLOR_ARRAY];
+//    [self glDisableClientState:GL_COLOR_ARRAY];
 }
 
 -(void) enablePointSizeArray{
-    [self glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+//    [self glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
 }
 -(void) enablePointSizeArrayForStride:(GLsizei) stride andPointer:(const GLvoid *)pointer{
-    [self glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-    glPointSizePointerOES(GL_FLOAT, stride, pointer);
-    point_pointer_type = GL_FLOAT;
-    point_pointer_stride = stride;
-    point_pointer_pointer = pointer;
+//    [self glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
+//    glPointSizePointerOES(GL_FLOAT, stride, pointer);
+//    point_pointer_type = GL_FLOAT;
+//    point_pointer_stride = stride;
+//    point_pointer_pointer = pointer;
 }
 -(void) disablePointSizeArray{
-    [self glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
+//    [self glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
 }
 
 -(void) enableTextureCoordArray{
-    [self glEnableClientState:GL_TEXTURE_COORD_ARRAY];
+//    [self glEnableClientState:GL_TEXTURE_COORD_ARRAY];
 }
 -(void) enableTextureCoordArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
-    [self glEnableClientState:GL_TEXTURE_COORD_ARRAY];
-    glTexCoordPointer(size, GL_FLOAT, stride, pointer);
-    texcoord_pointer_size = size;
-    texcoord_pointer_type = GL_FLOAT;
-    texcoord_pointer_stride = stride;
-    texcoord_pointer_pointer = pointer;
+//    [self glEnableClientState:GL_TEXTURE_COORD_ARRAY];
+//    glTexCoordPointer(size, GL_FLOAT, stride, pointer);
+//    texcoord_pointer_size = size;
+//    texcoord_pointer_type = GL_FLOAT;
+//    texcoord_pointer_stride = stride;
+//    texcoord_pointer_pointer = pointer;
 }
 -(void) disableTextureCoordArray{
-    [self glDisableClientState:GL_TEXTURE_COORD_ARRAY];
-}
-
--(void) glEnableClientState:(GLenum)array{
-    ValidateCurrentContext;
-    if(array == GL_VERTEX_ARRAY){
-        if(enabled_GL_VERTEX_ARRAY == NOPE || enabled_GL_VERTEX_ARRAY == UNKNOWN){
-            enabled_GL_VERTEX_ARRAY = YES;
-            glEnableClientState(array);
-        }
-    }else if(array == GL_COLOR_ARRAY){
-        if(enabled_GL_COLOR_ARRAY == NOPE || enabled_GL_COLOR_ARRAY == UNKNOWN){
-            enabled_GL_COLOR_ARRAY = YES;
-            glEnableClientState(array);
-            CGFloat alphaToSet = lastAlpha;
-            lastAlpha = -1; // need to reset glColor4f http://lwjgl.org/forum/index.php?topic=2424.0
-            [self glColor4f:lastRed and:lastGreen and:lastBlue and:alphaToSet];
-        }
-    }else if(array == GL_POINT_SIZE_ARRAY_OES){
-        if(enabled_GL_POINT_SIZE_ARRAY_OES == NOPE || enabled_GL_POINT_SIZE_ARRAY_OES == UNKNOWN){
-            enabled_GL_POINT_SIZE_ARRAY_OES = YES;
-            glEnableClientState(array);
-        }
-    }else if(array == GL_TEXTURE_COORD_ARRAY){
-        if(enabled_GL_TEXTURE_COORD_ARRAY == NOPE || enabled_GL_TEXTURE_COORD_ARRAY == UNKNOWN){
-            enabled_GL_TEXTURE_COORD_ARRAY = YES;
-            glEnableClientState(array);
-        }
-    }else{
-        @throw [NSException exceptionWithName:@"GLStateException" reason:@"Unknown state" userInfo:nil];
-    }
-}
-    
--(void) glDisableClientState:(GLenum)array{
-    ValidateCurrentContext;
-    if(array == GL_VERTEX_ARRAY){
-        if(enabled_GL_VERTEX_ARRAY == YEP || enabled_GL_VERTEX_ARRAY == UNKNOWN){
-            enabled_GL_VERTEX_ARRAY = NOPE;
-            glDisableClientState(array);
-        }
-    }else if(array == GL_COLOR_ARRAY){
-        if(enabled_GL_COLOR_ARRAY == YEP || enabled_GL_COLOR_ARRAY == UNKNOWN){
-            enabled_GL_COLOR_ARRAY = NOPE;
-            glDisableClientState(array);
-            CGFloat alphaToSet = lastAlpha;
-            lastAlpha = -1; // need to reset glColor4f http://lwjgl.org/forum/index.php?topic=2424.0
-            [self glColor4f:lastRed and:lastGreen and:lastBlue and:alphaToSet];
-        }
-    }else if(array == GL_POINT_SIZE_ARRAY_OES){
-        if(enabled_GL_POINT_SIZE_ARRAY_OES == YEP || enabled_GL_POINT_SIZE_ARRAY_OES == UNKNOWN){
-            enabled_GL_POINT_SIZE_ARRAY_OES = NOPE;
-            glDisableClientState(array);
-        }
-    }else if(array == GL_TEXTURE_COORD_ARRAY){
-        if(enabled_GL_TEXTURE_COORD_ARRAY == YEP || enabled_GL_TEXTURE_COORD_ARRAY == UNKNOWN){
-            enabled_GL_TEXTURE_COORD_ARRAY = NOPE;
-            glDisableClientState(array);
-        }
-    }else{
-        @throw [NSException exceptionWithName:@"GLStateException" reason:@"Unknown state" userInfo:nil];
-    }
+//    [self glDisableClientState:GL_TEXTURE_COORD_ARRAY];
 }
 
 
@@ -785,11 +669,11 @@ forStenciledPath:(UIBezierPath*)clippingPath
             [self glBlendFuncONE];
             
             // setup stencil buffers
-            glGenRenderbuffersOES(1, &stencil_rb);
+            glGenRenderbuffers(1, &stencil_rb);
             //        DebugLog(@"new renderbuffer: %d", stencil_rb);
             [self bindRenderbuffer:stencil_rb];
-            glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_STENCIL_INDEX8_OES, resolution.width, resolution.height);
-            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, stencil_rb);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, resolution.width, resolution.height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencil_rb);
             
             [self assertCheckFramebuffer];
             
@@ -801,8 +685,12 @@ forStenciledPath:(UIBezierPath*)clippingPath
             [self glDisableDepthMask];
             [self glStencilFunc:GL_NEVER ref:1 mask:0xFF];
             [self glStencilOp:GL_REPLACE zfail:GL_KEEP zpass:GL_KEEP];  // draw 1s on test fail (always)
-            [self glEnableAlphaTest];
-            [self glAlphaFunc:GL_GREATER ref:0.5];
+
+// TODO: is this ok to leave out in OpenGL ES 2.0?
+// or is there something else i need to do here?
+//            [self glEnableAlphaTest];
+//            [self glAlphaFunc:GL_GREATER ref:0.5];
+
             [self glStencilMask:0xFF];
             glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
             
@@ -853,9 +741,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
             //
             [clipping unbind];
             [self glDisableStencilTest];
-            [self glDisableAlphaTest];
             [self unbindRenderbuffer];
-            glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_STENCIL_ATTACHMENT_OES, GL_RENDERBUFFER_OES, 0);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
             [self deleteRenderbuffer:stencil_rb];
             
             
@@ -885,7 +772,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha{
     ValidateCurrentContext;
     if(red != lastRed || green != lastGreen || blue != lastBlue || alpha != lastAlpha){
-        glColor4f(red, green, blue, alpha);
+//        glColor4f(red, green, blue, alpha);
         lastRed = red;
         lastGreen = green;
         lastBlue = blue;
@@ -921,19 +808,6 @@ forStenciledPath:(UIBezierPath*)clippingPath
     }
 }
 
--(void) glOrthof:(GLfloat)left right:(GLfloat)right bottom:(GLfloat)bottom top:(GLfloat)top zNear:(GLfloat)zNear zFar:(GLfloat)zFar{
-    ValidateCurrentContext;
-    if(ortho_left != left || ortho_right != right || ortho_top != top || ortho_bottom != bottom || ortho_znear != zNear || ortho_zfar != zFar){
-        glOrthof(left, right, bottom, top, zNear, zFar);
-        ortho_left = left;
-        ortho_right = right;
-        ortho_top = top;
-        ortho_bottom = bottom;
-        ortho_znear = zNear;
-        ortho_zfar = zFar;
-    }
-}
-
 -(void) glViewportWithX:(GLint)x y:(GLint)y width:(GLsizei)width  height:(GLsizei)height{
     ValidateCurrentContext;
     if(viewport_x != x || viewport_y != y || viewport_width != width || viewport_height != height){
@@ -953,18 +827,18 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) drawTriangleStripCount:(GLsizei)count{
     ValidateCurrentContext;
-    if(!enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
-        @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
-    }
+//    if(!enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
+//        @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
+//    }
     glDrawArrays(GL_TRIANGLE_STRIP, 0, count);
 }
 
 -(void) drawPointCount:(GLsizei)count{
     ValidateCurrentContext;
-    if(enabled_GL_TEXTURE_COORD_ARRAY || !enabled_GL_POINT_SIZE_ARRAY_OES || !enabled_GL_VERTEX_ARRAY){
-        // enabled_GL_COLOR_ARRAY is optional for point drawing
-        @throw [NSException exceptionWithName:@"GLDrawPointException" reason:@"bad state" userInfo:nil];
-    }
+//    if(enabled_GL_TEXTURE_COORD_ARRAY || !enabled_GL_POINT_SIZE_ARRAY_OES || !enabled_GL_VERTEX_ARRAY){
+//        // enabled_GL_COLOR_ARRAY is optional for point drawing
+//        @throw [NSException exceptionWithName:@"GLDrawPointException" reason:@"bad state" userInfo:nil];
+//    }
     glDrawArrays(GL_POINTS, 0, count);
 }
 
@@ -1023,13 +897,13 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(GLuint) generateFramebufferWithTextureBacking:(JotGLTexture *)texture{
     __block GLuint framebufferID;
     [self runBlockAndMaintainCurrentFramebuffer:^{
-        glGenFramebuffersOES(1, &framebufferID);
+        glGenFramebuffers(1, &framebufferID);
         if(framebufferID){
             // generate FBO
             [self bindFramebuffer:framebufferID];
             [texture bind];
             // associate texture with FBO
-            glFramebufferTexture2DOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_TEXTURE_2D, texture.textureID, 0);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.textureID, 0);
             [texture unbind];
         }
         [self assertCheckFramebuffer];
@@ -1038,7 +912,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
     return framebufferID;
 }
 
--(GLSize) generateFramebuffer:(GLuint*)framebufferID
+-(GLSize) generateFramebuffer:(GLuint*)viewFramebuffer
               andRenderbuffer:(GLuint*)viewRenderbuffer
          andDepthRenderBuffer:(GLuint*)depthRenderbuffer
                      forLayer:(CALayer<EAGLDrawable>*)layer{
@@ -1047,32 +921,39 @@ forStenciledPath:(UIBezierPath*)clippingPath
     GLint backingWidth, backingHeight;
     
     // Generate IDs for a framebuffer object and a color renderbuffer
-    glGenFramebuffersOES(1, framebufferID);
-    glGenRenderbuffersOES(1, viewRenderbuffer);
+    glGenFramebuffers(1, viewFramebuffer);
+    glGenRenderbuffers(1, viewRenderbuffer);
     
-    [self bindFramebuffer:framebufferID[0]];
+    [self bindFramebuffer:viewFramebuffer[0]];
     [self bindRenderbuffer:viewRenderbuffer[0]];
     // This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
     // allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
-    [self renderbufferStorage:GL_RENDERBUFFER_OES fromDrawable:layer];
-    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_COLOR_ATTACHMENT0_OES, GL_RENDERBUFFER_OES, *viewRenderbuffer);
+    [self renderbufferStorage:GL_RENDERBUFFER fromDrawable:layer];
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, *viewRenderbuffer);
     
-    glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_WIDTH_OES, &backingWidth);
-    glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES, GL_RENDERBUFFER_HEIGHT_OES, &backingHeight);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight);
     
     // For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
-    glGenRenderbuffersOES(1, depthRenderbuffer);
+    glGenRenderbuffers(1, depthRenderbuffer);
     [self bindRenderbuffer:depthRenderbuffer[0]];
-    glRenderbufferStorageOES(GL_RENDERBUFFER_OES, GL_DEPTH_COMPONENT16_OES, backingWidth, backingHeight);
-    glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES, GL_DEPTH_ATTACHMENT_OES, GL_RENDERBUFFER_OES, *depthRenderbuffer);
-    
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, backingWidth, backingHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *depthRenderbuffer);
+
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        NSLog(@"failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+        NSAssert(NO, @"failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+        return GLSizeFromCGSize(CGSizeZero);
+    }
+
     return GLSizeMake(backingWidth, backingHeight);
 }
 
 -(void) bindFramebuffer:(GLuint)framebuffer{
     ValidateCurrentContext;
     if(framebuffer && currentlyBoundFramebuffer != framebuffer){
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         currentlyBoundFramebuffer = framebuffer;
     }else if(!framebuffer){
         @throw [NSException exceptionWithName:@"GLBindFramebufferExcpetion" reason:@"Trying to bind nil framebuffer" userInfo:nil];
@@ -1081,7 +962,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(void) unbindFramebuffer{
     ValidateCurrentContext;
     if(currentlyBoundFramebuffer != 0){
-        glBindFramebufferOES(GL_FRAMEBUFFER_OES, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
         currentlyBoundFramebuffer = 0;
     }
 }
@@ -1091,7 +972,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
     if(framebufferID && currentlyBoundFramebuffer == framebufferID){
         @throw [NSException exceptionWithName:@"GLDeleteBoundBufferException" reason:@"deleting currently boudn buffer" userInfo:nil];
     }
-    glDeleteFramebuffersOES(1, &framebufferID);
+    glDeleteFramebuffers(1, &framebufferID);
 }
 
 -(void) deleteRenderbuffer:(GLuint)viewRenderbuffer{
@@ -1099,13 +980,13 @@ forStenciledPath:(UIBezierPath*)clippingPath
     if(viewRenderbuffer && currentlyBoundRenderbuffer == viewRenderbuffer){
         @throw [NSException exceptionWithName:@"GLDeleteBoundBufferException" reason:@"deleting currently boudn buffer" userInfo:nil];
     }
-    glDeleteRenderbuffersOES(1, &viewRenderbuffer);
+    glDeleteRenderbuffers(1, &viewRenderbuffer);
 }
 
 -(void) bindRenderbuffer:(GLuint)renderBufferId{
     ValidateCurrentContext;
     if(renderBufferId && currentlyBoundRenderbuffer != renderBufferId){
-        glBindRenderbufferOES(GL_RENDERBUFFER_OES, renderBufferId);
+        glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId);
         currentlyBoundRenderbuffer = renderBufferId;
     }else if(!renderBufferId){
         @throw [NSException exceptionWithName:@"GLBindRenderbufferExceptoin" reason:@"trying to bind nil renderbuffer" userInfo:nil];
@@ -1115,7 +996,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(void) unbindRenderbuffer{
     ValidateCurrentContext;
     if(currentlyBoundRenderbuffer){
-        glBindRenderbufferOES(GL_RENDERBUFFER_OES, 0);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
         currentlyBoundRenderbuffer = 0;
     }
 }
@@ -1123,16 +1004,16 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(BOOL) presentRenderbuffer{
     ValidateCurrentContext;
     printOpenGLError();
-    return [super presentRenderbuffer:GL_RENDERBUFFER_OES];
+    return [super presentRenderbuffer:GL_RENDERBUFFER];
 }
 
 #pragma mark - Assert
 
 -(void) assertCheckFramebuffer{
     ValidateCurrentContext;
-    if(glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES) != GL_FRAMEBUFFER_COMPLETE_OES)
+    if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-        NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatusOES(GL_FRAMEBUFFER_OES)];
+        NSString* str = [NSString stringWithFormat:@"failed to make complete framebuffer object %x", glCheckFramebufferStatus(GL_FRAMEBUFFER)];
         DebugLog(@"%@", str);
         @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
     }
@@ -1141,9 +1022,9 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(void) assertCurrentBoundFramebufferIs:(GLuint)framebufferID andRenderBufferIs:(GLuint)viewRenderbuffer{
     ValidateCurrentContext;
     GLint currBoundFrBuff = -1;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING_OES, &currBoundFrBuff);
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &currBoundFrBuff);
     GLint currBoundRendBuff = -1;
-    glGetIntegerv(GL_RENDERBUFFER_BINDING_OES, &currBoundRendBuff);
+    glGetIntegerv(GL_RENDERBUFFER_BINDING, &currBoundRendBuff);
     if(currBoundFrBuff != framebufferID){
         @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:[NSString stringWithFormat:@"Expected %d but was %d", framebufferID, currBoundFrBuff] userInfo:nil];
     }

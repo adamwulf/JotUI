@@ -35,9 +35,9 @@ int printOglError(char *file, int line);
 
 -(id) initWithAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup __attribute__((unavailable("Must use initWithAPI:sharegroup:andValidateThreadWith: instead.")));
 
--(id) initWithName:(NSString*)name andAPI:(EAGLRenderingAPI)api andValidateThreadWith:(BOOL(^)())_validateThread;
+-(id) initWithName:(NSString*)name andValidateThreadWith:(BOOL(^)())_validateThread;
 
--(id) initWithName:(NSString*)name andAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThread;
+-(id) initWithName:(NSString*)name andSharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThread;
 
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha;
 
@@ -81,8 +81,6 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) glBlendFuncZERO;
 
--(void) glOrthof:(GLfloat)left right:(GLfloat)right bottom:(GLfloat)bottom top:(GLfloat)top zNear:(GLfloat)zNear zFar:(GLfloat)zFar;
-
 -(void) glViewportWithX:(GLint)x y:(GLint)y width:(GLsizei)width  height:(GLsizei)height;
 
 -(void) clear;
@@ -109,14 +107,10 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(BOOL) presentRenderbuffer;
 
--(void) glMatrixModeModelView;
--(void) glMatrixModeProjection;
 -(void) glDisableDither;
 -(void) glEnableTextures;
 -(void) glEnableBlend;
--(void) glEnablePointSprites;
 
--(void) enableVertexArray;
 -(void) enableVertexArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
 -(void) disableVertexArray;
 

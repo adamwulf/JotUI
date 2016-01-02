@@ -185,13 +185,13 @@ static JotGLContext *mainThreadContext;
                                     [NSNumber numberWithBool:YES], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
     
     if(!mainThreadContext){
-        context = [[JotGLContext alloc] initWithName:@"JotViewMainThreadContext" andAPI:kEAGLRenderingAPIOpenGLES1 andValidateThreadWith:^BOOL{
+        context = [[JotGLContext alloc] initWithName:@"JotViewMainThreadContext" andValidateThreadWith:^BOOL{
             return [NSThread isMainThread];
         }];
         mainThreadContext = context;
         [[JotTrashManager sharedInstance] setGLContext:mainThreadContext];
     }else{
-        context = [[JotGLContext alloc] initWithName:@"JotViewMainThreadContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+        context = [[JotGLContext alloc] initWithName:@"JotViewMainThreadContext" andSharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
             return [NSThread isMainThread];
         }];
     }
@@ -202,17 +202,10 @@ static JotGLContext *mainThreadContext;
     [context runBlock:^{
         // Set the view's scale factor
         self.contentScaleFactor = [[UIScreen mainScreen] scale];
-        
-        // Setup OpenGL states
-        [context glMatrixModeProjection];
-        
-        // Setup the view port in Pixels
-        [context glMatrixModeModelView];
-        
+
         [context glDisableDither];
         [context glEnableTextures];
         [context glEnableBlend];
-        [context glEnablePointSprites];
         // Set a blending function appropriate for premultiplied alpha pixel data
         [context glBlendFuncONE];
         
@@ -221,8 +214,6 @@ static JotGLContext *mainThreadContext;
     }];
 
     [JotGLContext validateEmptyContextStack];
-    
-    
     
     return self;
 }
@@ -292,7 +283,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         // this code will generate a new context
         // that can be used to clean up any
         // GL assets.
-        destroyContext = [[JotGLContext alloc] initWithName:@"JotViewDestroyFBOContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+        destroyContext = [[JotGLContext alloc] initWithName:@"JotViewDestroyFBOContext" andSharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
             return YES;
         }];
     }
@@ -611,18 +602,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 return;
             }
 
-            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithName:@"JotViewExportToImageContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithName:@"JotViewExportToImageContext" andSharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
                 return [JotView isImportExportImageQueue];
             }];
             [secondSubContext runBlock:^{
                 //            // finish current gl calls
                 //            glFinish();
-                
-                // Setup OpenGL states
-                [secondSubContext glMatrixModeProjection];
-                
-                // Setup the view port in Pixels
-                [secondSubContext glMatrixModeModelView];
                 
                 [secondSubContext glDisableDither];
                 [secondSubContext glEnableTextures];
@@ -631,12 +616,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // Set a blending function appropriate for premultiplied alpha pixel data
                 [secondSubContext glBlendFuncONE];
                 
-                [secondSubContext glEnablePointSprites];
-                
                 CGSize fullSize = viewFramebuffer.initialViewport;
                 CGSize exportSize = CGSizeMake(ceilf(fullSize.width * outputScale), ceilf(fullSize.height * outputScale));;
                 
-                [secondSubContext glOrthof:0 right:(GLsizei) fullSize.width bottom:0 top:(GLsizei) fullSize.height zNear:-1 zFar:1];
                 [secondSubContext glViewportWithX:0 y:0 width:(GLsizei) fullSize.width height:(GLsizei) fullSize.height];
                 
                 // create the texture
@@ -680,11 +662,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // now render strokes
                 [secondSubContext bindFramebuffer:exportFramebuffer];
                 
-                [secondSubContext enableVertexArray];
-                [secondSubContext enableColorArray];
-                [secondSubContext enablePointSizeArray];
-                [secondSubContext disableTextureCoordArray];
-                
+//                [secondSubContext enableVertexArray];
+//                [secondSubContext enableColorArray];
+//                [secondSubContext enablePointSizeArray];
+//                [secondSubContext disableTextureCoordArray];
+
                 for(JotStroke* stroke in strokesAtTimeOfExport){
                     [stroke lock];
                     // make sure our texture is the correct one for this stroke
@@ -851,18 +833,12 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 return;
             }
 
-            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithName:@"JotViewExportInkTextureContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+            JotGLContext* secondSubContext = [[JotGLContext alloc] initWithName:@"JotViewExportInkTextureContext" andSharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
                 return [JotView isImportExportImageQueue];
             }];
             [secondSubContext runBlock:^{
                 // finish current gl calls
                 //            glFinish();
-                
-                // Setup OpenGL states
-                [secondSubContext glMatrixModeProjection];
-                
-                // Setup the view port in Pixels
-                [secondSubContext glMatrixModeModelView];
                 
                 [secondSubContext glDisableDither];
                 [secondSubContext glEnableTextures];
@@ -871,11 +847,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // Set a blending function appropriate for premultiplied alpha pixel data
                 [secondSubContext glBlendFuncONE];
                 
-                [secondSubContext glEnablePointSprites];
-                
                 CGSize initialViewport = viewFramebuffer.initialViewport;
                 
-                [secondSubContext glOrthof:0 right:(GLsizei) initialViewport.width bottom:0 top:(GLsizei) initialViewport.height zNear:-1 zFar:1];
                 [secondSubContext glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
                 
                 CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
@@ -1269,10 +1242,10 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
 -(void) prepOpenGLStateForFBO:(AbstractJotGLFrameBuffer*)frameBuffer toContext:(JotGLContext*)renderContext{
     CheckMainThread;
     
-    [renderContext enableVertexArray];
-    [renderContext enableColorArray];
-    [renderContext enablePointSizeArray];
-    [renderContext disableTextureCoordArray];
+//    [renderContext enableVertexArray];
+//    [renderContext enableColorArray];
+//    [renderContext enablePointSizeArray];
+//    [renderContext disableTextureCoordArray];
 }
 
 /**
@@ -1877,8 +1850,8 @@ static int undoCounter;
     [self.context runBlock:^{
         
         JotStroke* stroke = state.currentStroke;
-        BOOL strokeHasColor = [[stroke.segments lastObject] color] != nil;
-        BOOL elementsHaveColor = [[elements firstObject] color] != nil;
+        BOOL strokeHasColor = [(AbstractBezierPathElement*)[stroke.segments lastObject] color] != nil;
+        BOOL elementsHaveColor = [(AbstractBezierPathElement*)[elements firstObject] color] != nil;
         
         
         if(!stroke || strokeHasColor != elementsHaveColor || [stroke isKindOfClass:[JotFilledPathStroke class]]){
@@ -2089,29 +2062,23 @@ static int undoCounter;
             
             
     CheckMainThread;
-    JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotViewDrawBackingTextureContext" andAPI:kEAGLRenderingAPIOpenGLES1 sharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
+    JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotViewDrawBackingTextureContext" andSharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
     }];
     [subContext runBlock:^{
         // render it to the backing texture
         [state.backgroundFramebuffer bind];
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:subContext];
-        // Setup OpenGL states
-        [subContext glMatrixModeProjection];
-        // Setup the view port in Pixels
-        [subContext glMatrixModeModelView];
         [subContext glDisableDither];
         [subContext glEnableTextures];
         [subContext glEnableBlend];
         // Set a blending function appropriate for premultiplied alpha pixel data
         [subContext glBlendFuncONE];
-        [subContext glEnablePointSprites];
         CGRect frame = self.layer.bounds;
         CGFloat scale = self.contentScaleFactor;
         
         CGSize initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
         
-        [subContext glOrthof:0 right:(GLsizei) initialViewport.width bottom:0 top:(GLsizei) initialViewport.height zNear:-1 zFar:1];
         [subContext glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
         
         [subContext assertCheckFramebuffer];

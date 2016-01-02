@@ -45,6 +45,8 @@
 		66F923021677C83F00B1F868 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F923011677C83F00B1F868 /* AudioToolbox.framework */; };
 		C5018DED1C2BCE4A00A68A1C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */; };
 		C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */; };
+		C584F8321C37C14C00413840 /* point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F8301C37C14C00413840 /* point.vsh */; };
+		C584F8331C37C14C00413840 /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F8311C37C14C00413840 /* point.fsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -95,6 +97,8 @@
 		66F923011677C83F00B1F868 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		C584F8301C37C14C00413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
+		C584F8311C37C14C00413840 /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.fsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +179,7 @@
 		66F9213816734FF000B1F868 = {
 			isa = PBXGroup;
 			children = (
+				C584F82F1C37C14100413840 /* Shaders */,
 				6634758C17623366008EB6DA /* JotUI.framework */,
 				66F9214D16734FF000B1F868 /* jotuiexample */,
 				66F9214616734FF000B1F868 /* Frameworks */,
@@ -252,6 +257,15 @@
 			name = JotUI;
 			sourceTree = "<group>";
 		};
+		C584F82F1C37C14100413840 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				C584F8301C37C14C00413840 /* point.vsh */,
+				C584F8311C37C14C00413840 /* point.fsh */,
+			);
+			name = Shaders;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -310,8 +324,10 @@
 			files = (
 				66F9215216734FF000B1F868 /* InfoPlist.strings in Resources */,
 				66F9215A16734FF000B1F868 /* Default.png in Resources */,
+				C584F8321C37C14C00413840 /* point.vsh in Resources */,
 				66F9215C16734FF000B1F868 /* Default@2x.png in Resources */,
 				66F9215E16734FF000B1F868 /* Default-568h@2x.png in Resources */,
+				C584F8331C37C14C00413840 /* point.fsh in Resources */,
 				669B3AC61692C6E300F12F42 /* FadedCircle.png in Resources */,
 				669B3ACB1692CB4C00F12F42 /* Circle.png in Resources */,
 				669B3ACD169378DB00F12F42 /* Square.png in Resources */,

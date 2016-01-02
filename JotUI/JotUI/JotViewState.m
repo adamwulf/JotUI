@@ -134,7 +134,7 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
         @throw [NSException exceptionWithName:@"InconsistentQueueException" reason:@"loading texture in wrong queue" userInfo:nil];
     }
     if(!backgroundLoadTexturesThreadContext){
-        backgroundLoadTexturesThreadContext = [[JotGLContext alloc] initWithName:@"JotBackgroundTextureLoadContext" andAPI:glContext.API sharegroup:glContext.sharegroup andValidateThreadWith:^BOOL{
+        backgroundLoadTexturesThreadContext = [[JotGLContext alloc] initWithName:@"JotBackgroundTextureLoadContext" andSharegroup:glContext.sharegroup andValidateThreadWith:^BOOL{
             return [JotView isImportExportImageQueue];
         }];
     }
@@ -161,7 +161,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         @throw [NSException exceptionWithName:@"InconsistentQueueException" reason:@"loading jotViewState in wrong queue" userInfo:nil];
     }
     if(!backgroundLoadStrokesThreadContext){
-        backgroundLoadStrokesThreadContext = [[JotGLContext alloc] initWithName:@"JotBackgroundStrokeLoadContext" andAPI:glContext.API sharegroup:glContext.sharegroup andValidateThreadWith:^BOOL{
+        backgroundLoadStrokesThreadContext = [[JotGLContext alloc] initWithName:@"JotBackgroundStrokeLoadContext" andSharegroup:glContext.sharegroup andValidateThreadWith:^BOOL{
             return [JotView isImportExportStateQueue];
         }];
     }
