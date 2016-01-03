@@ -36,6 +36,7 @@ programInfo_t program[NUM_PROGRAMS] = {
 
 
     // TODO: pull this into somewhere else
+    GLSize backingSize;
     textureInfo_t brushTexture;     // brush texture
     GLfloat brushColor[4];          // brush color
 }
@@ -49,7 +50,7 @@ programInfo_t program[NUM_PROGRAMS] = {
         layer = _layer;
         [JotGLContext runBlock:^(JotGLContext* context){
             
-            GLSize backingSize = [context generateFramebuffer:&framebufferID andRenderbuffer:&viewRenderbuffer andDepthRenderBuffer:&depthRenderbuffer forLayer:layer];
+            backingSize = [context generateFramebuffer:&framebufferID andRenderbuffer:&viewRenderbuffer andDepthRenderBuffer:&depthRenderbuffer forLayer:layer];
 
             CGRect frame = layer.bounds;
             CGFloat scale = layer.contentsScale;
@@ -85,6 +86,19 @@ programInfo_t program[NUM_PROGRAMS] = {
         [context bindRenderbuffer:viewRenderbuffer];
 
         glUseProgram(program[PROGRAM_POINT].id);
+        glUniform4fv(program[PROGRAM_POINT].uniform[UNIFORM_VERTEX_COLOR], 1, brushColor);
+
+        // viewing matrices
+        GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, backingSize.width, 0, backingSize.height, -1, 1);
+        GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
+        GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
+
+        glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
+
+        // point size
+        glUniform1f(program[PROGRAM_POINT].uniform[UNIFORM_POINT_SIZE], brushTexture.width / kBrushScale);
+
+        // initialize brush color
         glUniform4fv(program[PROGRAM_POINT].uniform[UNIFORM_VERTEX_COLOR], 1, brushColor);
     }];
 }
@@ -205,7 +219,7 @@ programInfo_t program[NUM_PROGRAMS] = {
     return texture;
 }
 
-- (void)setupShadersWithSize:(GLSize)backingSize
+- (void)setupShadersWithSize:(GLSize)_backingSize
 {
     brushTexture = [JotGLLayerBackedFrameBuffer textureFromName:@"Particle.png"];
 
@@ -251,7 +265,7 @@ programInfo_t program[NUM_PROGRAMS] = {
             glUniform1i(program[PROGRAM_POINT].uniform[UNIFORM_TEXTURE], 0);
 
             // viewing matrices
-            GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, backingSize.width, 0, backingSize.height, -1, 1);
+            GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, _backingSize.width, 0, _backingSize.height, -1, 1);
             GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
             GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
