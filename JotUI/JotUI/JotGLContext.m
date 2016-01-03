@@ -15,6 +15,7 @@
 #import "ShaderHelper.h"
 #import "JotGLLayerBackedFrameBuffer.h"
 #import "JotGLTextureBackedFrameBuffer+Private.h"
+#import "JotGLTexture+Private.h"
 
 int printOglError(char *file, int line)
 {

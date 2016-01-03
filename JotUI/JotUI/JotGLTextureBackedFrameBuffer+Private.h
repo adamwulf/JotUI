@@ -9,8 +9,4 @@
 #ifndef JotGLTextureBackedFrameBuffer_Private_h
 #define JotGLTextureBackedFrameBuffer_Private_h
 
-#import "ShaderHelper.h"
-
-extern tex_programInfo_t quad_program[NUM_PROGRAMS];
-
 #endif /* JotGLTextureBackedFrameBuffer_Private_h */

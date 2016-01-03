@@ -13,6 +13,15 @@
 #import <OpenGLES/ES1/glext.h>
 #import "AbstractBezierPathElement-Protected.h"
 #import "ShaderHelper.h"
+#import "JotGLTexture+Private.h"
+
+tex_programInfo_t quad_program[NUM_PROGRAMS] = {
+    { "quad.vsh",   "quad.fsh" },     // PROGRAM_QUAD
+};
+
+
+
+
 
 static int totalTextureBytes;
 
@@ -23,6 +32,8 @@ static int totalTextureBytes;
 
     int lockCount;
     JotGLContext* contextOfBinding;
+
+    BOOL hasEverSetup;
 }
 
 @synthesize textureID;
@@ -184,6 +195,28 @@ static int totalTextureBytes;
     }];
 }
 
+-(void) bindForRenderToQuad{
+
+    [self setupShaders];
+
+    glUseProgram(quad_program[PROGRAM_QUAD].id);
+    printOpenGLError();
+    glBindTexture(GL_TEXTURE_2D, self.textureID);
+    printOpenGLError();
+    glDisable(GL_CULL_FACE);
+    printOpenGLError();
+    glUniform1i(quad_program[PROGRAM_QUAD].uniform[UNIFORM_VIDEOFRAME], 0);
+    printOpenGLError();
+
+    // viewing matrices
+    GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, 2048, 0, 2732, -1, 1);
+    GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
+    GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
+
+    glUniformMatrix4fv(quad_program[PROGRAM_QUAD].uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
+    printOpenGLError();
+}
+
 -(void) rebind{
     // rebinds the texture, while maintaining lock count
     // and lock ownership
@@ -320,6 +353,8 @@ static int totalTextureBytes;
             // the stencil, if any
             [self bind];
 
+            [self bindForRenderToQuad];
+
 
             [context enableVertexArrayAtIndex:ATTRIB_TEX_VERTEX forSize:2 andStride:0 andPointer:squareVertices];
             [context enableTextureCoordArrayAtIndex:ATTRIB_TEX_TEXTUREPOSITON forSize:2 andStride:0 andPointer:textureVertices];
@@ -356,6 +391,69 @@ static int totalTextureBytes;
     }
 	[self deleteAssets];
     [lock unlock];
+}
+
+
+- (void)setupShaders
+{
+    if(!hasEverSetup){
+        hasEverSetup = YES;
+
+        for (int i = 0; i < NUM_TEX_PROGRAMS; i++)
+        {
+            // Set constant/initalize uniforms
+            if (i == PROGRAM_QUAD)
+            {
+                char *vsrc = readFile(pathForResource(quad_program[i].vert));
+                char *fsrc = readFile(pathForResource(quad_program[i].frag));
+                GLsizei attribCt = 0;
+                GLchar *attribUsed[NUM_TEX_ATTRIBUTES];
+                GLint attrib[NUM_TEX_ATTRIBUTES];
+                GLchar *attribName[NUM_TEX_ATTRIBUTES] = {
+                    "position", "inputTextureCoordinate"
+                };
+                const GLchar *uniformName[NUM_TEX_UNIFORMS] = {
+                    "MVP", "videoFrame",
+                };
+
+                // auto-assign known attribs
+                for (int j = 0; j < NUM_TEX_ATTRIBUTES; j++)
+                {
+                    if (strstr(vsrc, attribName[j]))
+                    {
+                        attrib[attribCt] = j;
+                        attribUsed[attribCt++] = attribName[j];
+                    }
+                }
+
+                GLint status = glueCreateProgram(vsrc, fsrc,
+                                                 attribCt, (const GLchar **)&attribUsed[0], attrib,
+                                                 NUM_TEX_UNIFORMS, &uniformName[0], quad_program[i].uniform,
+                                                 &quad_program[i].id);
+
+                NSLog(@"quad program: %d => %d %d %d", status, quad_program[0].id, quad_program[0].uniform[0], quad_program[0].uniform[1]);
+
+                free(vsrc);
+                free(fsrc);
+
+                glUseProgram(quad_program[PROGRAM_QUAD].id);
+                printOpenGLError();
+
+                // viewing matrices
+                GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, 2048, 0, 2732, -1, 1);
+                GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
+                GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
+
+                glUniformMatrix4fv(quad_program[PROGRAM_QUAD].uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
+
+                // our texture will be bound to texture 0
+                glUniform1i(quad_program[PROGRAM_QUAD].uniform[UNIFORM_VIDEOFRAME], 0);
+                printOpenGLError();
+            }
+        }
+        
+        glError();
+    }
 }
 
 @end

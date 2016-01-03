@@ -200,6 +200,7 @@
 		66D9827F17B1679400007732 /* OpenGLVBO.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpenGLVBO.h; sourceTree = "<group>"; };
 		66D9828017B1679400007732 /* OpenGLVBO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLVBO.m; sourceTree = "<group>"; };
 		C569DB331C38FE2300ABFEC8 /* JotGLTextureBackedFrameBuffer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLTextureBackedFrameBuffer+Private.h"; sourceTree = "<group>"; };
+		C569DB351C39132200ABFEC8 /* JotGLTexture+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLTexture+Private.h"; sourceTree = "<group>"; };
 		C584F81E1C37B35400413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
 		C584F81F1C37B35400413840 /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.fsh; sourceTree = "<group>"; };
 		C584F8221C37B38C00413840 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
@@ -240,6 +241,7 @@
 				66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */,
 				6658ABCE1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h */,
 				6658ABCF1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.m */,
+				C569DB351C39132200ABFEC8 /* JotGLTexture+Private.h */,
 			);
 			name = OpenGL;
 			sourceTree = "<group>";
