@@ -298,14 +298,31 @@ static int totalTextureBytes;
                 t3.x, t3.y,
                 t4.x, t4.y
             };
+
+
+            static const GLfloat squareVertices[] = {
+                -1.0f, -1.0f,
+                1.0f, -1.0f,
+                -1.0f,  1.0f,
+                1.0f,  1.0f,
+            };
+
+            static const GLfloat textureVertices[] = {
+                1.0f, 1.0f,
+                1.0f, 0.0f,
+                0.0f,  1.0f,
+                0.0f,  0.0f,
+            };
+
+
             // now draw our own texture, which will be drawn
             // for only the input texture coords and will respect
             // the stencil, if any
             [self bind];
 
 
-            [context enableVertexArrayAtIndex:ATTRIB_TEX_VERTEX forSize:2 andStride:0 andPointer:vertices];
-            [context enableTextureCoordArrayAtIndex:ATTRIB_TEX_TEXTUREPOSITON forSize:2 andStride:0 andPointer:texCoords];
+            [context enableVertexArrayAtIndex:ATTRIB_TEX_VERTEX forSize:2 andStride:0 andPointer:squareVertices];
+            [context enableTextureCoordArrayAtIndex:ATTRIB_TEX_TEXTUREPOSITON forSize:2 andStride:0 andPointer:textureVertices];
             [context drawTriangleStripCount:4];
         };
         
