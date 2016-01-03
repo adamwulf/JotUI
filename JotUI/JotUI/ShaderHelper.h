@@ -55,10 +55,10 @@ enum {
 
 // Uniform index.
 enum {
+    UNIFORM_TEX_MVP,
     UNIFORM_VIDEOFRAME,
     NUM_TEX_UNIFORMS
 };
-GLint uniforms[NUM_TEX_UNIFORMS];
 
 typedef struct {
     char *vert, *frag;

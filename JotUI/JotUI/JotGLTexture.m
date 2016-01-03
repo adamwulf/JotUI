@@ -286,13 +286,13 @@ static int totalTextureBytes;
             //
             // this allows the caller to ask us to render a portion of our
             // texture in any size rect it needs
-            Vertex3D vertices[] = {
+            Vertex3D squareVertices[] = {
                 { p1.x, p1.y},
                 { p2.x, p2.y},
                 { p3.x, p3.y},
                 { p4.x, p4.y}
             };
-            const GLfloat texCoords[] = {
+            const GLfloat textureVertices[] = {
                 t1.x, t1.y,
                 t2.x, t2.y,
                 t3.x, t3.y,
@@ -300,19 +300,19 @@ static int totalTextureBytes;
             };
 
 
-            static const GLfloat squareVertices[] = {
-                1.0f,  1.0f,
-                1.0f, -1.0f,
-                -1.0f,  1.0f,
-                -1.0f, -1.0f,
-            };
-
-            static const GLfloat textureVertices[] = {
-                1.0f, 1.0f,
-                1.0f, 0.0f,
-                0.0f,  1.0f,
-                0.0f,  0.0f,
-            };
+//            static const GLfloat squareVertices[] = {
+//                1.0f,  1.0f,
+//                1.0f, -1.0f,
+//                -1.0f,  1.0f,
+//                -1.0f, -1.0f,
+//            };
+//
+//            static const GLfloat textureVertices[] = {
+//                1.0f, 1.0f,
+//                1.0f, 0.0f,
+//                0.0f,  1.0f,
+//                0.0f,  0.0f,
+//            };
 
 
             // now draw our own texture, which will be drawn
