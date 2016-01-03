@@ -195,10 +195,11 @@ static int totalTextureBytes;
     }];
 }
 
--(void) bindForRenderToQuad{
+-(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize{
 
     [self setupShaders];
 
+    NSLog(@"Using program: QUAD");
     glUseProgram(quad_program[PROGRAM_QUAD].id);
     printOpenGLError();
     glBindTexture(GL_TEXTURE_2D, self.textureID);
@@ -209,10 +210,11 @@ static int totalTextureBytes;
     printOpenGLError();
 
     // viewing matrices
-    GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, 2048, 0, 2732, -1, 1);
+    GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, canvasSize.width, 0, canvasSize.height, -1, 1);
     GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
     GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
+    NSLog(@"Using matrix3: %.2f4", canvasSize.width);
     glUniformMatrix4fv(quad_program[PROGRAM_QUAD].uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
     printOpenGLError();
 }
@@ -253,7 +255,7 @@ static int totalTextureBytes;
  * this will draw the texture at coordinates (0,0)
  * for its full pixel size
  */
--(void) drawInContext:(JotGLContext*)context{
+-(void) drawInContext:(JotGLContext*)context withCanvasSize:(CGSize)canvasSize{
     [self drawInContext:context atT1:CGPointMake(0, 1)
                   andT2:CGPointMake(1, 1)
                   andT3:CGPointMake(0, 0)
@@ -265,7 +267,8 @@ static int totalTextureBytes;
          withResolution:fullPixelSize
                 andClip:nil
         andClippingSize:CGSizeZero
-              asErase:NO]; // default to draw full texture w/o color modification
+              asErase:NO
+     withCanvasSize:canvasSize]; // default to draw full texture w/o color modification
 }
 
 
@@ -289,7 +292,8 @@ static int totalTextureBytes;
        withResolution:(CGSize)resolution
               andClip:(UIBezierPath*)clippingPath
       andClippingSize:(CGSize)clipSize
-            asErase:(BOOL)asErase{
+            asErase:(BOOL)asErase
+       withCanvasSize:(CGSize)canvasSize{
     // save our clipping texture and stencil buffer, if any
     [JotGLContext runBlock:^(JotGLContext* context){
         
@@ -332,28 +336,12 @@ static int totalTextureBytes;
                 t4.x, t4.y
             };
 
-
-//            static const GLfloat squareVertices[] = {
-//                1.0f,  1.0f,
-//                1.0f, -1.0f,
-//                -1.0f,  1.0f,
-//                -1.0f, -1.0f,
-//            };
-//
-//            static const GLfloat textureVertices[] = {
-//                1.0f, 1.0f,
-//                1.0f, 0.0f,
-//                0.0f,  1.0f,
-//                0.0f,  0.0f,
-//            };
-
-
             // now draw our own texture, which will be drawn
             // for only the input texture coords and will respect
             // the stencil, if any
             [self bind];
 
-            [self bindForRenderToQuad];
+            [self bindForRenderToQuadWithCanvasSize:canvasSize];
 
 
             [context enableVertexArrayAtIndex:ATTRIB_TEX_VERTEX forSize:2 andStride:0 andPointer:squareVertices];
@@ -436,6 +424,7 @@ static int totalTextureBytes;
                 free(vsrc);
                 free(fsrc);
 
+                NSLog(@"Using program: QUAD3");
                 glUseProgram(quad_program[PROGRAM_QUAD].id);
                 printOpenGLError();
 
@@ -444,6 +433,7 @@ static int totalTextureBytes;
                 GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
                 GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
+                NSLog(@"Using matrix: %.2f", self.pixelSize.width);
                 glUniformMatrix4fv(quad_program[PROGRAM_QUAD].uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
 
                 // our texture will be bound to texture 0

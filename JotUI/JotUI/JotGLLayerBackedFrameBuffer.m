@@ -85,6 +85,7 @@ programInfo_t program[NUM_PROGRAMS] = {
     [JotGLContext runBlock:^(JotGLContext * context) {
         [context bindRenderbuffer:viewRenderbuffer];
 
+        NSLog(@"Using program: POINT2");
         glUseProgram(program[PROGRAM_POINT].id);
         glUniform4fv(program[PROGRAM_POINT].uniform[UNIFORM_VERTEX_COLOR], 1, brushColor);
 
@@ -93,6 +94,7 @@ programInfo_t program[NUM_PROGRAMS] = {
         GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
         GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
+        NSLog(@"Using matrix2: %.2f", (CGFloat) backingSize.width);
         glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
 
         // point size
@@ -259,6 +261,7 @@ programInfo_t program[NUM_PROGRAMS] = {
             free(vsrc);
             free(fsrc);
 
+            NSLog(@"Using program: POINT3");
             glUseProgram(program[PROGRAM_POINT].id);
 
             // the brush texture will be bound to texture unit 0
@@ -269,6 +272,7 @@ programInfo_t program[NUM_PROGRAMS] = {
             GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
             GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
+            NSLog(@"Using matrix3: %.2f", (CGFloat) _backingSize.width);
             glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
 
             // point size

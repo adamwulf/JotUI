@@ -172,7 +172,8 @@
             withResolution:texture.pixelSize
                    andClip:nil
            andClippingSize:CGSizeZero
-                   asErase:YES]; // erase
+                   asErase:YES
+            withCanvasSize:CGSizeZero]; // erase
     
     //
     // should make a drawInQuad: method that takes four points

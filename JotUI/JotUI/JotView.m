@@ -642,7 +642,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // step 2:
                 // load a texture and draw it into a quad
                 // that fills the screen
-                [state.backgroundTexture drawInContext:secondSubContext];
+                [state.backgroundTexture drawInContext:secondSubContext withCanvasSize:state.backgroundTexture.pixelSize];
                 
                 // reset our viewport
                 [secondSubContext glViewportWithX:0 y:0 width:viewFramebuffer.initialViewport.width height:viewFramebuffer.initialViewport.height];
@@ -875,7 +875,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // step 2:
                 // load a texture and draw it into a quad
                 // that fills the screen
-                [state.backgroundTexture drawInContext:secondSubContext];
+                [state.backgroundTexture drawInContext:secondSubContext withCanvasSize:state.backgroundTexture.pixelSize];
                 
                 // reset our viewport
                 [secondSubContext glViewportWithX:0 y:0 width:initialViewport.width height:initialViewport.height];
@@ -1002,6 +1002,10 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
  * strokes except for that undone/cancelled stroke
  */
 -(void) renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(AbstractJotGLFrameBuffer*)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect{
+    [self renderAllStrokesToContext:renderContext inFramebuffer:theFramebuffer andPresentBuffer:shouldPresent inRect:scissorRect withBlock:nil];
+}
+
+-(void) renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(AbstractJotGLFrameBuffer*)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect withBlock:(void(^)(void))block{
     @autoreleasepool {
         
         CheckMainThread;
@@ -1022,7 +1026,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             // step 2:
             // load a texture and draw it into a quad
             // that fills the screen
-            [state.backgroundTexture drawInContext:renderContext];
+            [state.backgroundTexture drawInContext:renderContext withCanvasSize:state.backgroundTexture.pixelSize];
             
             if(!state.backgroundTexture){
                 DebugLog(@"what5");
@@ -1053,6 +1057,11 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [stroke.texture unbind];
                 [stroke unlock];
             }
+
+            if(block){
+                block();
+            }
+
             [self unprepOpenGLState];
 
             //    DebugLog(@"done render all: %d", c);
@@ -2007,6 +2016,7 @@ static int undoCounter;
 
 -(JotGLTexture*) generateTexture{
     CheckMainThread;
+    // adam
     __block JotGLTexture* canvasTexture = nil;
     [context runBlock:^{
         CGSize maxTextureSize = [UIScreen mainScreen].portraitBounds.size;
@@ -2025,12 +2035,138 @@ static int undoCounter;
             
             // set viewport to round up to the pixel, if needed
             [context glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
+
+
+
+
             
+        CGSize initialViewport = CGSizeMake(fullSize.width, fullSize.height);
+
+
+        NSLog(@"maxTextureSize1: %.2f %.2f", maxTextureSize.width, maxTextureSize.height);
+        NSLog(@"initialViewport1: %.2f %.2f", initialViewport.width, initialViewport.height);
+
+        // viewing matrices
+        GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, initialViewport.width, 0, initialViewport.height, -1, 1);
+        GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
+        GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
+
+            glUseProgram(program[PROGRAM_POINT].id);
+            NSLog(@"Using matrix3: %.2f5", initialViewport.width);
+        glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
+
+
+            NSLog(@"=======================================");
+            NSLog(@"=======================================");
+
             // ok, everything is setup at this point, so render all
             // of the strokes over the backing texture to our
             // export texture
-            [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero];
-            
+            [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero withBlock:^{
+
+
+                NSLog(@"=======================================");
+                NSLog(@"=======================================");
+
+
+
+
+
+                // step 3:
+                // read the image from OpenGL and push it into a data buffer
+                NSInteger dataLength = fullSize.width * fullSize.height * 4;
+                GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
+                if(!data){
+                    @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
+                }
+                // Read pixel data from the framebuffer
+                [context readPixelsInto:data ofSize:GLSizeFromCGSize(fullSize)];
+
+                // Create a CGImage with the pixel data from OpenGL
+                // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+                // otherwise, use kCGImageAlphaPremultipliedLast
+                CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
+                CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+                CGImageRef iref = CGImageCreate(fullSize.width, fullSize.height, 8, 32, fullSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+                                                kCGImageAlphaPremultipliedLast,
+                                                ref, NULL, true, kCGRenderingIntentDefault);
+
+                // ok, now we have the pixel data from the OpenGL frame buffer.
+                // next we need to setup the image context to composite the
+                // background color, background image, and opengl image
+
+                // OpenGL ES measures data in PIXELS
+                // Create a graphics context with the target size measured in POINTS
+                CGContextRef bitmapContext = CGBitmapContextCreate(NULL, initialViewport.width, initialViewport.height, 8, initialViewport.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
+                if(!bitmapContext){
+                    @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+                }
+
+                // can I clear less stuff and still be ok?
+                CGContextClearRect(bitmapContext, CGRectMake(0, 0, initialViewport.width, initialViewport.height));
+
+                if(!bitmapContext){
+                    DebugLog(@"oh no1");
+                }
+
+                // flip vertical for our drawn content, since OpenGL is opposite core graphics
+                CGContextTranslateCTM(bitmapContext, 0, initialViewport.height);
+                CGContextScaleCTM(bitmapContext, 1.0, -1.0);
+
+                //
+                // ok, now render our actual content
+                CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, initialViewport.width, initialViewport.height), iref);
+
+                // Retrieve the UIImage from the current context
+                CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
+                if(!cgImage){
+                    @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+                }
+
+                UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
+
+
+                NSString* docPath;
+                NSArray* userDocumentsPaths;
+                if(!userDocumentsPaths){
+                    userDocumentsPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+                }
+                docPath = [userDocumentsPaths objectAtIndex:0];
+                
+                if(image){
+                    [UIImagePNGRepresentation(image) writeToFile:[docPath stringByAppendingPathComponent:@"test.png"] atomically:YES];
+                }else{
+                    NSLog(@"no image");
+                }
+                
+                
+                NSLog(@"got texture");
+                
+                
+                
+
+            }];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             // now all of the content has been pushed to the texture,
             // so delete the framebuffer
             exportFramebuffer = nil;
@@ -2039,7 +2175,10 @@ static int undoCounter;
         
         // reset back to exact viewport
         [context glViewportWithX:0 y:0 width:viewFramebuffer.initialViewport.width height:viewFramebuffer.initialViewport.height];
-        
+
+
+        NSLog(@"initialViewport2: %.2f %.2f", viewFramebuffer.initialViewport.width, viewFramebuffer.initialViewport.height);
+
         // we have to flush here to push all
         // the pixels to the texture so they're
         // available in the background thread's
@@ -2102,7 +2241,8 @@ static int undoCounter;
                 withResolution:state.backgroundTexture.pixelSize
                        andClip:clipPath
                andClippingSize:clipSize
-                       asErase:NO];
+                       asErase:NO
+                withCanvasSize:initialViewport];
         [texture unbind];
         [self unprepOpenGLState];
         [state.backgroundFramebuffer unbind];
@@ -2116,6 +2256,22 @@ static int undoCounter;
     [context runBlock:^{
         [viewFramebuffer bind];
         [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
+
+//        CGRect frame = self.layer.bounds;
+//        CGFloat scale = self.contentScaleFactor;
+//
+//        CGSize initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
+//
+//        NSLog(@"initialViewport: %.2f %.2f", initialViewport.width, initialViewport.height);
+//
+//        // viewing matrices
+//        GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, initialViewport.width, 0, initialViewport.height, -1, 1);
+//        GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
+//        GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
+//
+//        glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
+
+
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
         [viewFramebuffer unbind];
         // flush after drawing to texture

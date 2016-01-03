@@ -862,6 +862,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 //    if(!enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
 //        @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
 //    }
+    NSLog(@"Using program: QUAD2");
     glUseProgram(quad_program[PROGRAM_QUAD].id);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, count);
     printOpenGLError();
@@ -874,6 +875,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 //        @throw [NSException exceptionWithName:@"GLDrawPointException" reason:@"bad state" userInfo:nil];
 //    }
 
+    NSLog(@"Using program: POINT");
     glUseProgram(program[PROGRAM_POINT].id);
     glDrawArrays(GL_POINTS, 0, count);
     printOpenGLError();

@@ -27,9 +27,11 @@
 -(void) rebind;
 -(void) unbind;
 
+-(void) bindForRenderToQuad;
+
 +(int) totalTextureBytes;
 
--(void) drawInContext:(JotGLContext*)context;
+-(void) drawInContext:(JotGLContext*)context withCanvasSize:(CGSize)canvasSize;
 -(void) drawInContext:(JotGLContext*)context
                  atT1:(CGPoint)p1
                 andT2:(CGPoint)p2
@@ -42,6 +44,7 @@
        withResolution:(CGSize)size
               andClip:(UIBezierPath*)clippingPath
       andClippingSize:(CGSize)clipSize
-            asErase:(BOOL)asErase;
+            asErase:(BOOL)asErase
+       withCanvasSize:(CGSize)canvasSize;
 
 @end
