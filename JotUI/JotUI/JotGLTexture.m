@@ -301,10 +301,10 @@ static int totalTextureBytes;
 
 
             static const GLfloat squareVertices[] = {
-                -1.0f, -1.0f,
+                1.0f,  1.0f,
                 1.0f, -1.0f,
                 -1.0f,  1.0f,
-                1.0f,  1.0f,
+                -1.0f, -1.0f,
             };
 
             static const GLfloat textureVertices[] = {
