@@ -53,7 +53,9 @@ forStenciledPath:(UIBezierPath*)clippingPath
            andP3:(CGPoint)p3
            andP4:(CGPoint)p4
  andClippingSize:(CGSize)clipSize
-  withResolution:(CGSize)resolution;
+  withResolution:(CGSize)resolution
+ withVertexIndex:(GLuint)vertIndex
+ andTextureIndex:(GLuint)texIndex;
 
 -(void) runBlockAndMaintainCurrentFramebuffer:(void(^)())block;
 
@@ -108,10 +110,9 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(BOOL) presentRenderbuffer;
 
 -(void) glDisableDither;
--(void) glEnableTextures;
 -(void) glEnableBlend;
 
--(void) enableVertexArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
+-(void) enableVertexArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
 -(void) disableVertexArray;
 
 -(void) enableColorArray;
@@ -123,7 +124,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(void) disablePointSizeArray;
 
 -(void) enableTextureCoordArray;
--(void) enableTextureCoordArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
+-(void) enableTextureCoordArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
 -(void) disableTextureCoordArray;
 
 

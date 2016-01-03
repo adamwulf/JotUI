@@ -12,6 +12,7 @@
 #import "AbstractBezierPathElement-Protected.h"
 #import "JotBufferManager.h"
 #import "JotGLContext+Buffers.h"
+#import "ShaderHelper.h"
 #include <stddef.h>
 
 @interface OpenGLBuffer : NSObject
@@ -161,7 +162,7 @@
         }
         [lock lock];
         [context bindArrayBuffer:glBuffer.vbo];
-        [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
+        [context enableVertexArrayAtIndex:ATTRIB_VERTEX forSize:2 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
         [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
         [context enablePointSizeArrayForStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
         [context disableTextureCoordArray];
@@ -187,7 +188,7 @@
         
         [context bindArrayBuffer:glBuffer.vbo];
         
-        [context enableVertexArrayForSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
+        [context enableVertexArrayAtIndex:ATTRIB_VERTEX forSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
         [context enablePointSizeArrayForStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
 //        [context enableVertexArray];
 //        [context disableColorArray];

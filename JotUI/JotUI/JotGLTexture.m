@@ -12,6 +12,7 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 #import "AbstractBezierPathElement-Protected.h"
+#import "ShaderHelper.h"
 
 static int totalTextureBytes;
 
@@ -301,21 +302,25 @@ static int totalTextureBytes;
             // for only the input texture coords and will respect
             // the stencil, if any
             [self bind];
-            [context enableVertexArrayForSize:2 andStride:0 andPointer:vertices];
-            [context enableTextureCoordArrayForSize:2 andStride:0 andPointer:texCoords];
+
+
+            [context enableVertexArrayAtIndex:ATTRIB_TEX_VERTEX forSize:2 andStride:0 andPointer:vertices];
+            [context enableTextureCoordArrayAtIndex:ATTRIB_TEX_TEXTUREPOSITON forSize:2 andStride:0 andPointer:texCoords];
             [context drawTriangleStripCount:4];
         };
         
         // cleanup
         [context runBlock:possiblyStenciledRenderBlock1
                  andBlock:possiblyStenciledRenderBlock2
-         forStenciledPath:clippingPath
+         forStenciledPath:nil
                      atP1:p1
                     andP2:p2
                     andP3:p3
                     andP4:p4
           andClippingSize:clipSize
-           withResolution:resolution];
+           withResolution:resolution
+         withVertexIndex:ATTRIB_TEX_VERTEX
+          andTextureIndex:ATTRIB_TEX_TEXTUREPOSITON];
 
         [self unbind];
     }];

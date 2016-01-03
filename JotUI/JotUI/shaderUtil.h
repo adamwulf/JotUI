@@ -64,8 +64,8 @@ GLint glueCreateProgram(const GLchar *vertSource, const GLchar *fragSource,
                     GLint *uniformLocations,
                     GLuint *program);
 
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 #endif /* SHADERUTIL_H */

@@ -9,7 +9,13 @@
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotUI.h"
 #import <OpenGLES/EAGL.h>
+#import "ShaderHelper.h"
+#import "JotGLLayerBackedFrameBuffer.h"
+#import "JotGLTextureBackedFrameBuffer+Private.h"
 
+tex_programInfo_t quad_program[NUM_PROGRAMS] = {
+    { "quad.vsh",   "quad.fsh" },     // PROGRAM_QUAD
+};
 
 dispatch_queue_t importExportTextureQueue;
 
@@ -27,6 +33,8 @@ dispatch_queue_t importExportTextureQueue;
  */
 @implementation JotGLTextureBackedFrameBuffer{
     __strong JotGLTexture* texture;
+
+    BOOL hasEverSetup;
 }
 
 @synthesize texture;
@@ -42,8 +50,23 @@ dispatch_queue_t importExportTextureQueue;
 }
 
 -(void) bind{
+    glActiveTexture(GL_TEXTURE0);
+    printOpenGLError();
+
     [texture bind];
     [super bind];
+
+    [self setupShaders];
+
+    glUseProgram(quad_program[PROGRAM_QUAD].id);
+    printOpenGLError();
+    glBindTexture(GL_TEXTURE_2D, self.texture.textureID);
+    printOpenGLError();
+    glDisable(GL_CULL_FACE);
+    printOpenGLError();
+    glUniform1i(uniforms[UNIFORM_VIDEOFRAME], 0);
+    printOpenGLError();
+
 }
 
 -(void) unbind{
@@ -97,5 +120,61 @@ dispatch_queue_t importExportTextureQueue;
     [self deleteAssets];
 }
 
+
+
+- (void)setupShaders
+{
+    if(!hasEverSetup){
+        hasEverSetup = YES;
+
+        for (int i = 0; i < NUM_TEX_PROGRAMS; i++)
+        {
+            // Set constant/initalize uniforms
+            if (i == PROGRAM_QUAD)
+            {
+                char *vsrc = readFile(pathForResource(quad_program[i].vert));
+                char *fsrc = readFile(pathForResource(quad_program[i].frag));
+                GLsizei attribCt = 0;
+                GLchar *attribUsed[NUM_TEX_ATTRIBUTES];
+                GLint attrib[NUM_TEX_ATTRIBUTES];
+                GLchar *attribName[NUM_TEX_ATTRIBUTES] = {
+                    "position", "inputTextureCoordinate"
+                };
+                const GLchar *uniformName[NUM_TEX_UNIFORMS] = {
+                    "videoFrame",
+                };
+
+                // auto-assign known attribs
+                for (int j = 0; j < NUM_TEX_ATTRIBUTES; j++)
+                {
+                    if (strstr(vsrc, attribName[j]))
+                    {
+                        attrib[attribCt] = j;
+                        attribUsed[attribCt++] = attribName[j];
+                    }
+                }
+
+                GLint status = glueCreateProgram(vsrc, fsrc,
+                                                 attribCt, (const GLchar **)&attribUsed[0], attrib,
+                                                 NUM_TEX_UNIFORMS, &uniformName[0], quad_program[i].uniform,
+                                                 &quad_program[i].id);
+
+                NSLog(@"quad program: %d => %d %d", status, quad_program[0].id, quad_program[0].uniform[0]);
+
+                free(vsrc);
+                free(fsrc);
+
+                glUseProgram(quad_program[PROGRAM_QUAD].id);
+                printOpenGLError();
+
+                // our texture will be bound to texture 0
+                glUniform1i(quad_program[PROGRAM_QUAD].uniform[UNIFORM_VIDEOFRAME], 0);
+                printOpenGLError();
+            }
+        }
+        
+        glError();
+    }
+}
 
 @end

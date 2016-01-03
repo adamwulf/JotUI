@@ -204,7 +204,6 @@ static JotGLContext *mainThreadContext;
         self.contentScaleFactor = [[UIScreen mainScreen] scale];
 
         [context glDisableDither];
-        [context glEnableTextures];
         [context glEnableBlend];
         // Set a blending function appropriate for premultiplied alpha pixel data
         [context glBlendFuncONE];
@@ -610,7 +609,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 //            glFinish();
                 
                 [secondSubContext glDisableDither];
-                [secondSubContext glEnableTextures];
                 [secondSubContext glEnableBlend];
                 
                 // Set a blending function appropriate for premultiplied alpha pixel data
@@ -839,9 +837,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             [secondSubContext runBlock:^{
                 // finish current gl calls
                 //            glFinish();
-                
+                printOpenGLError();
+
                 [secondSubContext glDisableDither];
-                [secondSubContext glEnableTextures];
                 [secondSubContext glEnableBlend];
 
                 // Set a blending function appropriate for premultiplied alpha pixel data
@@ -2070,7 +2068,6 @@ static int undoCounter;
         [state.backgroundFramebuffer bind];
         [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:subContext];
         [subContext glDisableDither];
-        [subContext glEnableTextures];
         [subContext glEnableBlend];
         // Set a blending function appropriate for premultiplied alpha pixel data
         [subContext glBlendFuncONE];

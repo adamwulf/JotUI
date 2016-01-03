@@ -80,8 +80,8 @@
     totalNumberOfBytes += numOfElementBytes + numOfCacheBytes;
     
     if([segments count]){
-        if((element.color && ![[segments lastObject] color]) ||
-           (!element.color && [[segments lastObject] color])){
+        if((element.color && ![(AbstractBezierPathElement*)[segments lastObject] color]) ||
+           (!element.color && [(AbstractBezierPathElement*)[segments lastObject] color])){
             DebugLog(@"gotcha!");
         }
     }

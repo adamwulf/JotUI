@@ -211,38 +211,40 @@ programInfo_t program[NUM_PROGRAMS] = {
 
     for (int i = 0; i < NUM_PROGRAMS; i++)
     {
-        char *vsrc = readFile(pathForResource(program[i].vert));
-        char *fsrc = readFile(pathForResource(program[i].frag));
-        GLsizei attribCt = 0;
-        GLchar *attribUsed[NUM_ATTRIBS];
-        GLint attrib[NUM_ATTRIBS];
-        GLchar *attribName[NUM_ATTRIBS] = {
-            "inVertex",
-        };
-        const GLchar *uniformName[NUM_UNIFORMS] = {
-            "MVP", "pointSize", "vertexColor", "texture",
-        };
-
-        // auto-assign known attribs
-        for (int j = 0; j < NUM_ATTRIBS; j++)
-        {
-            if (strstr(vsrc, attribName[j]))
-            {
-                attrib[attribCt] = j;
-                attribUsed[attribCt++] = attribName[j];
-            }
-        }
-
-        glueCreateProgram(vsrc, fsrc,
-                          attribCt, (const GLchar **)&attribUsed[0], attrib,
-                          NUM_UNIFORMS, &uniformName[0], program[i].uniform,
-                          &program[i].id);
-        free(vsrc);
-        free(fsrc);
-
         // Set constant/initalize uniforms
         if (i == PROGRAM_POINT)
         {
+            char *vsrc = readFile(pathForResource(program[i].vert));
+            char *fsrc = readFile(pathForResource(program[i].frag));
+            GLsizei attribCt = 0;
+            GLchar *attribUsed[NUM_ATTRIBS];
+            GLint attrib[NUM_ATTRIBS];
+            GLchar *attribName[NUM_ATTRIBS] = {
+                "inVertex",
+            };
+            const GLchar *uniformName[NUM_UNIFORMS] = {
+                "MVP", "pointSize", "vertexColor", "texture",
+            };
+
+            // auto-assign known attribs
+            for (int j = 0; j < NUM_ATTRIBS; j++)
+            {
+                if (strstr(vsrc, attribName[j]))
+                {
+                    attrib[attribCt] = j;
+                    attribUsed[attribCt++] = attribName[j];
+                }
+            }
+
+            GLint status = glueCreateProgram(vsrc, fsrc,
+                              attribCt, (const GLchar **)&attribUsed[0], attrib,
+                              NUM_UNIFORMS, &uniformName[0], program[i].uniform,
+                              &program[i].id);
+            NSLog(@"point program: %d", status);
+
+            free(vsrc);
+            free(fsrc);
+
             glUseProgram(program[PROGRAM_POINT].id);
 
             // the brush texture will be bound to texture unit 0
