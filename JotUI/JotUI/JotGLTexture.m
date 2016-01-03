@@ -440,7 +440,7 @@ static int totalTextureBytes;
                 printOpenGLError();
 
                 // viewing matrices
-                GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, 2048, 0, 2732, -1, 1);
+                GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, self.pixelSize.width, 0, self.pixelSize.height, -1, 1);
                 GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
                 GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
