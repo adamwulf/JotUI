@@ -164,7 +164,7 @@
         [context bindArrayBuffer:glBuffer.vbo];
         [context enableVertexArrayAtIndex:ATTRIB_VERTEX forSize:2 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
         [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
-        [context enablePointSizeArrayForStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
+        [context enablePointSizeArrayAtIndex:ATTRIB_POINT_SIZE forStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
         [context disableTextureCoordArray];
 //        [context enableVertexArray];
 //        [context enableColorArray];
@@ -189,7 +189,7 @@
         [context bindArrayBuffer:glBuffer.vbo];
         
         [context enableVertexArrayAtIndex:ATTRIB_VERTEX forSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
-        [context enablePointSizeArrayForStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
+        [context enablePointSizeArrayAtIndex:ATTRIB_POINT_SIZE forStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
 //        [context enableVertexArray];
 //        [context disableColorArray];
 //        [context enablePointSizeArray];

@@ -87,7 +87,8 @@ programInfo_t program[NUM_PROGRAMS] = {
 
         NSLog(@"Using program: POINT2");
         glUseProgram(program[PROGRAM_POINT].id);
-        glUniform4fv(program[PROGRAM_POINT].uniform[UNIFORM_VERTEX_COLOR], 1, brushColor);
+
+        glUniform1i(program[PROGRAM_POINT].uniform[UNIFORM_TEXTURE], 0);
 
         // viewing matrices
         GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, backingSize.width, 0, backingSize.height, -1, 1);
@@ -96,9 +97,6 @@ programInfo_t program[NUM_PROGRAMS] = {
 
         NSLog(@"Using matrix2: %.2f", (CGFloat) backingSize.width);
         glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
-
-        // point size
-        glUniform1f(program[PROGRAM_POINT].uniform[UNIFORM_POINT_SIZE], brushTexture.width / kBrushScale);
 
         // initialize brush color
         glUniform4fv(program[PROGRAM_POINT].uniform[UNIFORM_VERTEX_COLOR], 1, brushColor);
@@ -236,10 +234,10 @@ programInfo_t program[NUM_PROGRAMS] = {
             GLchar *attribUsed[NUM_ATTRIBS];
             GLint attrib[NUM_ATTRIBS];
             GLchar *attribName[NUM_ATTRIBS] = {
-                "inVertex",
+                "inVertex", "pointSize",
             };
             const GLchar *uniformName[NUM_UNIFORMS] = {
-                "MVP", "pointSize", "vertexColor", "texture",
+                "MVP", "vertexColor", "texture",
             };
 
             // auto-assign known attribs
@@ -265,6 +263,9 @@ programInfo_t program[NUM_PROGRAMS] = {
             glUseProgram(program[PROGRAM_POINT].id);
 
             // the brush texture will be bound to texture unit 0
+            // right now, i'm only ever using glActiveTexture(GL_TEXTURE0);
+            // so every time i bind a texture it's being bound into texture0
+            // if i ever use more textures, i'll need to be careful about this
             glUniform1i(program[PROGRAM_POINT].uniform[UNIFORM_TEXTURE], 0);
 
             // viewing matrices
@@ -275,9 +276,6 @@ programInfo_t program[NUM_PROGRAMS] = {
             NSLog(@"Using matrix3: %.2f", (CGFloat) _backingSize.width);
             glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
 
-            // point size
-            glUniform1f(program[PROGRAM_POINT].uniform[UNIFORM_POINT_SIZE], brushTexture.width / kBrushScale);
-            
             // initialize brush color
             glUniform4fv(program[PROGRAM_POINT].uniform[UNIFORM_VERTEX_COLOR], 1, brushColor);
         }

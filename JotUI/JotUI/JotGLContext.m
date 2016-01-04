@@ -565,18 +565,21 @@ typedef enum UndfBOOL{
 //    [self glDisableClientState:GL_COLOR_ARRAY];
 }
 
--(void) enablePointSizeArray{
-//    [self glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-}
--(void) enablePointSizeArrayForStride:(GLsizei) stride andPointer:(const GLvoid *)pointer{
-//    [self glEnableClientState:GL_POINT_SIZE_ARRAY_OES];
-//    glPointSizePointerOES(GL_FLOAT, stride, pointer);
-//    point_pointer_type = GL_FLOAT;
-//    point_pointer_stride = stride;
-//    point_pointer_pointer = pointer;
+-(void) enablePointSizeArrayAtIndex:(GLuint)index forStride:(GLsizei) stride andPointer:(const GLvoid *)pointer{
+    glEnableVertexAttribArray(index);
+    printOpenGLError();
+    glVertexAttribPointer(index, 1, GL_FLOAT, GL_FALSE, stride, pointer);
+    point_pointer_type = GL_FLOAT;
+    point_pointer_stride = stride;
+    point_pointer_pointer = pointer;
+    if(!stride){
+        [NSException exceptionWithName:@"StrideException" reason:@"stride cannot be zero" userInfo:nil];
+    }
+    printOpenGLError();
 }
 -(void) disablePointSizeArray{
-//    [self glDisableClientState:GL_POINT_SIZE_ARRAY_OES];
+    glDisableVertexAttribArray(ATTRIB_POINT_SIZE);
+    printOpenGLError();
 }
 
 -(void) enableTextureCoordArray{

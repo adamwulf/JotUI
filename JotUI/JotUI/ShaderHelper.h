@@ -43,7 +43,6 @@ enum {
 
 enum {
     UNIFORM_MVP,
-    UNIFORM_POINT_SIZE,
     UNIFORM_VERTEX_COLOR,
     UNIFORM_TEXTURE,
     NUM_UNIFORMS
@@ -51,6 +50,7 @@ enum {
 
 enum {
     ATTRIB_VERTEX,
+    ATTRIB_POINT_SIZE,
     NUM_ATTRIBS
 };
 
