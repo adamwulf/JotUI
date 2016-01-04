@@ -625,8 +625,7 @@ typedef enum UndfBOOL{
 
 #pragma mark - Stencil
 
--(void) runBlock:(void(^)())block1
-        andBlock:(void(^)())block2
+-(void) runBlock:(void(^)())block
 forStenciledPath:(UIBezierPath*)clippingPath
             atP1:(CGPoint)p1
            andP2:(CGPoint)p2
@@ -673,10 +672,6 @@ forStenciledPath:(UIBezierPath*)clippingPath
         }
         printOpenGLError();
 
-        //
-        // run block 1
-        block1();
-        printOpenGLError();
         GLint currBoundRendBuff = currentlyBoundRenderbuffer;
         
         if(clippingPath){
@@ -704,16 +699,15 @@ forStenciledPath:(UIBezierPath*)clippingPath
             // setup the stencil test and alpha test. the stencil test
             // ensures all pixels are turned "on" in the stencil buffer,
             // and the alpha test ensures we ignore transparent pixels
+            glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            glClearStencil(0);
             [self glEnableStencilTest];
             [self glColorMaskRed:GL_FALSE green:GL_FALSE blue:GL_FALSE alpha:GL_FALSE];
             [self glDisableDepthMask];
-            [self glStencilFunc:GL_NEVER ref:1 mask:0xFF];
-            [self glStencilOp:GL_REPLACE zfail:GL_KEEP zpass:GL_KEEP];  // draw 1s on test fail (always)
 
-// TODO: is this ok to leave out in OpenGL ES 2.0?
-// or is there something else i need to do here?
-//            [self glEnableAlphaTest];
-//            [self glAlphaFunc:GL_GREATER ref:0.5];
+            [self glStencilFunc:GL_ALWAYS ref:1 mask:1];
+            [self glStencilOp:GL_KEEP zfail:GL_KEEP zpass:GL_REPLACE];  // draw 1s on test fail (always)
 
             [self glStencilMask:0xFF];
             glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
@@ -735,14 +729,15 @@ forStenciledPath:(UIBezierPath*)clippingPath
             };
             // bind our clipping texture, and draw it
             [clipping bind];
-            
+            [clipping bindForRenderToQuadWithCanvasSize:resolution forProgram:&(quad_program[PROGRAM_STENCIL])];
+
             [self disableColorArray];
             [self disablePointSizeArray];
             [self glColor4f:1 and:1 and:1 and:1];
             
             [self enableVertexArrayAtIndex:vertIndex forSize:2 andStride:0 andPointer:vertices];
             [self enableTextureCoordArrayAtIndex:texIndex forSize:2 andStride:0 andPointer:texCoords];
-            [self drawTriangleStripCount:4];
+            [self drawTriangleStripCount:4 withProgram:quad_program[PROGRAM_STENCIL].id];
             
             
             // now setup the next draw operations to respect
@@ -756,7 +751,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
         ////////////////////////////
         // stencil is setup
-        block2();
+        block();
         //
         
         printOpenGLError();
@@ -771,7 +766,9 @@ forStenciledPath:(UIBezierPath*)clippingPath
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
             [self deleteRenderbuffer:stencil_rb];
             
-            
+            [self glStencilFunc:GL_ALWAYS ref:0 mask:1];
+            [self glStencilOp:GL_KEEP zfail:GL_KEEP zpass:GL_KEEP];
+
             // restore bound render buffer
             if(currBoundRendBuff){
                 [self bindRenderbuffer:currBoundRendBuff];
@@ -857,13 +854,19 @@ forStenciledPath:(UIBezierPath*)clippingPath
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
--(void) drawTriangleStripCount:(GLsizei)count{
+-(void) drawTriangleStripCount:(GLsizei)count withProgram:(GLuint)program{
     ValidateCurrentContext;
 //    if(!enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
 //        @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
 //    }
-    NSLog(@"Using program: QUAD2");
-    glUseProgram(quad_program[PROGRAM_QUAD].id);
+    if(program == quad_program[PROGRAM_QUAD].id){
+        NSLog(@"Using program: QUAD2");
+    }else if(program == quad_program[PROGRAM_STENCIL].id){
+        NSLog(@"Using program: STENCIL");
+    }else{
+        NSLog(@"Using program: UNKNOWN");
+    }
+    glUseProgram(program);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, count);
     printOpenGLError();
 }

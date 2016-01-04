@@ -27,8 +27,6 @@
 -(void) rebind;
 -(void) unbind;
 
--(void) bindForRenderToQuad;
-
 +(int) totalTextureBytes;
 
 -(void) drawInContext:(JotGLContext*)context withCanvasSize:(CGSize)canvasSize;

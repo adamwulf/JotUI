@@ -15,8 +15,9 @@
 #import "ShaderHelper.h"
 #import "JotGLTexture+Private.h"
 
-tex_programInfo_t quad_program[NUM_PROGRAMS] = {
+tex_programInfo_t quad_program[NUM_TEX_PROGRAMS] = {
     { "quad.vsh",   "quad.fsh" },     // PROGRAM_QUAD
+    { "quad.vsh",   "stencil.fsh" },     // PROGRAM_STENCIL
 };
 
 
@@ -195,18 +196,18 @@ static int totalTextureBytes;
     }];
 }
 
--(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize{
+-(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(tex_programInfo_t*)program{
 
     [self setupShaders];
 
     NSLog(@"Using program: QUAD");
-    glUseProgram(quad_program[PROGRAM_QUAD].id);
+    glUseProgram((*program).id);
     printOpenGLError();
     glBindTexture(GL_TEXTURE_2D, self.textureID);
     printOpenGLError();
     glDisable(GL_CULL_FACE);
     printOpenGLError();
-    glUniform1i(quad_program[PROGRAM_QUAD].uniform[UNIFORM_VIDEOFRAME], 0);
+    glUniform1i((*program).uniform[UNIFORM_VIDEOFRAME], 0);
     printOpenGLError();
 
     // viewing matrices
@@ -215,7 +216,7 @@ static int totalTextureBytes;
     GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
     NSLog(@"Using matrix3: %.2f4", canvasSize.width);
-    glUniformMatrix4fv(quad_program[PROGRAM_QUAD].uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
+    glUniformMatrix4fv((*program).uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
     printOpenGLError();
 }
 
@@ -301,19 +302,8 @@ static int totalTextureBytes;
         // prep our context to draw our texture as a quad.
         // now prep to draw the actual texture
         // always draw
-        
-        void(^possiblyStenciledRenderBlock1)() = ^{
-            //
-            // prep our context to draw our texture as a quad.
-            // now prep to draw the actual texture
-            // always draw
-//            [context enableVertexArray];
-//            [context disableColorArray];
-//            [context disablePointSizeArray];
-//            [context enableTextureCoordArray];
-//            [context glColor4f:1 and:1 and:1 and:1];
-        };
-        void(^possiblyStenciledRenderBlock2)() = ^{
+
+        void(^possiblyStenciledRenderBlock)() = ^{
             
             [context prepOpenGLBlendModeForColor:asErase ? nil : [UIColor whiteColor]];
             
@@ -341,18 +331,17 @@ static int totalTextureBytes;
             // the stencil, if any
             [self bind];
 
-            [self bindForRenderToQuadWithCanvasSize:canvasSize];
+            [self bindForRenderToQuadWithCanvasSize:canvasSize forProgram:&(quad_program[PROGRAM_QUAD])];
 
 
             [context enableVertexArrayAtIndex:ATTRIB_TEX_VERTEX forSize:2 andStride:0 andPointer:squareVertices];
             [context enableTextureCoordArrayAtIndex:ATTRIB_TEX_TEXTUREPOSITON forSize:2 andStride:0 andPointer:textureVertices];
-            [context drawTriangleStripCount:4];
+            [context drawTriangleStripCount:4 withProgram:quad_program[PROGRAM_QUAD].id];
         };
         
         // cleanup
-        [context runBlock:possiblyStenciledRenderBlock1
-                 andBlock:possiblyStenciledRenderBlock2
-         forStenciledPath:nil
+        [context runBlock:possiblyStenciledRenderBlock
+         forStenciledPath:clippingPath
                      atP1:p1
                     andP2:p2
                     andP3:p3
@@ -390,7 +379,7 @@ static int totalTextureBytes;
         for (int i = 0; i < NUM_TEX_PROGRAMS; i++)
         {
             // Set constant/initalize uniforms
-            if (i == PROGRAM_QUAD)
+            if (i == PROGRAM_QUAD || i == PROGRAM_STENCIL)
             {
                 char *vsrc = readFile(pathForResource(quad_program[i].vert));
                 char *fsrc = readFile(pathForResource(quad_program[i].frag));
@@ -425,8 +414,12 @@ static int totalTextureBytes;
                 free(fsrc);
 
                 NSLog(@"Using program: QUAD3");
-                glUseProgram(quad_program[PROGRAM_QUAD].id);
+                glUseProgram(quad_program[i].id);
                 printOpenGLError();
+
+                if(quad_program[i].id == 0 || !status){
+                    NSLog(@"bad program");
+                }
 
                 // viewing matrices
                 GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, self.pixelSize.width, 0, self.pixelSize.height, -1, 1);
@@ -434,10 +427,10 @@ static int totalTextureBytes;
                 GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
                 NSLog(@"Using matrix: %.2f", self.pixelSize.width);
-                glUniformMatrix4fv(quad_program[PROGRAM_QUAD].uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
+                glUniformMatrix4fv(quad_program[i].uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
 
                 // our texture will be bound to texture 0
-                glUniform1i(quad_program[PROGRAM_QUAD].uniform[UNIFORM_VIDEOFRAME], 0);
+                glUniform1i(quad_program[i].uniform[UNIFORM_VIDEOFRAME], 0);
                 printOpenGLError();
             }
         }

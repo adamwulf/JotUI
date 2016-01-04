@@ -230,6 +230,7 @@
 			isa = PBXGroup;
 			children = (
 				66455F8C175FC47200C66DFA /* JotGLTexture.h */,
+				C569DB351C39132200ABFEC8 /* JotGLTexture+Private.h */,
 				66455F8D175FC47200C66DFA /* JotGLTexture.m */,
 				6648A52217F0E09000117ECB /* JotGLContext.h */,
 				66B498821AA1481F00D48094 /* JotGLContext+Buffers.h */,
@@ -241,7 +242,6 @@
 				66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */,
 				6658ABCE1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h */,
 				6658ABCF1A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.m */,
-				C569DB351C39132200ABFEC8 /* JotGLTexture+Private.h */,
 			);
 			name = OpenGL;
 			sourceTree = "<group>";

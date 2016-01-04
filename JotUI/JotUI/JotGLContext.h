@@ -45,8 +45,7 @@ int printOglError(char *file, int line);
 
 -(void) finish;
 
--(void) runBlock:(void(^)())block1
-        andBlock:(void(^)())block2
+-(void) runBlock:(void(^)())block
 forStenciledPath:(UIBezierPath*)clippingPath
             atP1:(CGPoint)p1
            andP2:(CGPoint)p2
@@ -87,7 +86,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) clear;
 
--(void) drawTriangleStripCount:(GLsizei)count;
+-(void) drawTriangleStripCount:(GLsizei)count withProgram:(GLuint)program;
 
 -(void) drawPointCount:(GLsizei)count;
 

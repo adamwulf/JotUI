@@ -37,6 +37,7 @@ enum {
 // Shaders
 enum {
     PROGRAM_QUAD,
+    PROGRAM_STENCIL,
     NUM_TEX_PROGRAMS
 };
 
