@@ -2138,13 +2138,7 @@ static int undoCounter;
                 }else{
                     NSLog(@"no image");
                 }
-                
-                
                 NSLog(@"got texture");
-                
-                
-                
-
             }];
 
 

@@ -159,7 +159,11 @@
 
 -(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
     [self bind];
-    
+
+    CGSize screenSize = [[[UIScreen mainScreen] fixedCoordinateSpace] bounds].size;
+    screenSize.width *= [[UIScreen mainScreen] scale];
+    screenSize.height *= [[UIScreen mainScreen] scale];
+
     [texture drawInContext:(JotGLContext*)[JotGLContext currentContext]
                       atT1:CGPointMake(0, 1)
                      andT2:CGPointMake(1, 1)
@@ -173,7 +177,7 @@
                    andClip:nil
            andClippingSize:CGSizeZero
                    asErase:YES
-            withCanvasSize:CGSizeZero]; // erase
+            withCanvasSize:screenSize]; // erase
     
     //
     // should make a drawInQuad: method that takes four points
