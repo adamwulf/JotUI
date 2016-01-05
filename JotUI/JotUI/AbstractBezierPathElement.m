@@ -10,7 +10,7 @@
 #import "AbstractBezierPathElement-Protected.h"
 #import "UIColor+JotHelper.h"
 #import "JotUI.h"
-
+#import "JotGLPointProgram.h"
 
 @implementation AbstractBezierPathElement{
     JotBufferManager* bufferManager;
