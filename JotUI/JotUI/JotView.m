@@ -2039,21 +2039,23 @@ static int undoCounter;
 
 
 
+
+            CGSize initialViewport = CGSizeMake(fullSize.width, fullSize.height);
             
-        CGSize initialViewport = CGSizeMake(fullSize.width, fullSize.height);
+            
+            NSLog(@"maxTextureSize1: %.2f %.2f", maxTextureSize.width, maxTextureSize.height);
+            NSLog(@"initialViewport1: %.2f %.2f", initialViewport.width, initialViewport.height);
+
+            // viewing matrices
+            GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, initialViewport.width, 0, initialViewport.height, -1, 1);
+            GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
+            GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
 
-        NSLog(@"maxTextureSize1: %.2f %.2f", maxTextureSize.width, maxTextureSize.height);
-        NSLog(@"initialViewport1: %.2f %.2f", initialViewport.width, initialViewport.height);
+            [[context pointProgram] use];
 
-        // viewing matrices
-        GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, initialViewport.width, 0, initialViewport.height, -1, 1);
-        GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
-        GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
-
-            glUseProgram(program[PROGRAM_POINT].id);
             NSLog(@"Using matrix3: %.2f5", initialViewport.width);
-        glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
+            glUniformMatrix4fv([[context pointProgram] uniformIndex:@"MVP"], 1, GL_FALSE, MVPMatrix.m);
 
 
             NSLog(@"=======================================");

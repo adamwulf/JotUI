@@ -162,13 +162,18 @@
         }
         [lock lock];
         [context bindArrayBuffer:glBuffer.vbo];
-        [context enableVertexArrayAtIndex:ATTRIB_VERTEX forSize:2 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
-        [context enableColorArrayForSize:4 andStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
-        [context enablePointSizeArrayAtIndex:ATTRIB_POINT_SIZE forStride:sizeof(struct ColorfulVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
+
+        [context enableVertexArrayAtIndex:[[context pointProgram] attributeIndex:@"inVertex"]
+                                  forSize:2
+                                andStride:sizeof(struct ColorfulVertex)
+                               andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
+        [context enableColorArrayForSize:4
+                               andStride:sizeof(struct ColorfulVertex)
+                              andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
+        [context enablePointSizeArrayAtIndex:[[context pointProgram] attributeIndex:@"pointSize"]
+                                   forStride:sizeof(struct ColorfulVertex)
+                                  andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
         [context disableTextureCoordArray];
-//        [context enableVertexArray];
-//        [context enableColorArray];
-//        [context enablePointSizeArray];
     }];
 }
 
@@ -188,8 +193,13 @@
         
         [context bindArrayBuffer:glBuffer.vbo];
         
-        [context enableVertexArrayAtIndex:ATTRIB_VERTEX forSize:2 andStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
-        [context enablePointSizeArrayAtIndex:ATTRIB_POINT_SIZE forStride:sizeof(struct ColorlessVertex) andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
+        [context enableVertexArrayAtIndex:[[context pointProgram] attributeIndex:@"inVertex"]
+                                  forSize:2
+                                andStride:sizeof(struct ColorlessVertex)
+                               andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
+        [context enablePointSizeArrayAtIndex:[[context pointProgram] attributeIndex:@"pointSize"]
+                                   forStride:sizeof(struct ColorlessVertex)
+                                  andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
 //        [context enableVertexArray];
 //        [context disableColorArray];
 //        [context enablePointSizeArray];

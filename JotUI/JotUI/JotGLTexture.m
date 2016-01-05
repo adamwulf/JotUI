@@ -15,13 +15,6 @@
 #import "ShaderHelper.h"
 #import "JotGLTexture+Private.h"
 
-tex_programInfo_t quad_program[NUM_TEX_PROGRAMS] = {
-    { "quad.vsh",   "quad.fsh" },     // PROGRAM_QUAD
-    { "quad.vsh",   "stencil.fsh" },     // PROGRAM_STENCIL
-};
-
-
-
 
 
 static int totalTextureBytes;
@@ -196,18 +189,16 @@ static int totalTextureBytes;
     }];
 }
 
--(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(tex_programInfo_t*)program{
-
-    [self setupShaders];
+-(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLProgram*)program{
 
     NSLog(@"Using program: QUAD");
-    glUseProgram((*program).id);
+    [program use];
     printOpenGLError();
     glBindTexture(GL_TEXTURE_2D, self.textureID);
     printOpenGLError();
     glDisable(GL_CULL_FACE);
     printOpenGLError();
-    glUniform1i((*program).uniform[UNIFORM_VIDEOFRAME], 0);
+    glUniform1i([program uniformIndex:@"videoFrame"], 0);
     printOpenGLError();
 
     // viewing matrices
@@ -216,7 +207,7 @@ static int totalTextureBytes;
     GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
     NSLog(@"Using matrix3: %.2f4", canvasSize.width);
-    glUniformMatrix4fv((*program).uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
+    glUniformMatrix4fv([program uniformIndex:@"MVP"], 1, GL_FALSE, MVPMatrix.m);
     printOpenGLError();
 }
 
@@ -331,12 +322,12 @@ static int totalTextureBytes;
             // the stencil, if any
             [self bind];
 
-            [self bindForRenderToQuadWithCanvasSize:canvasSize forProgram:&(quad_program[PROGRAM_QUAD])];
+            [self bindForRenderToQuadWithCanvasSize:canvasSize forProgram:[context quadProgram]];
 
 
-            [context enableVertexArrayAtIndex:ATTRIB_TEX_VERTEX forSize:2 andStride:0 andPointer:squareVertices];
-            [context enableTextureCoordArrayAtIndex:ATTRIB_TEX_TEXTUREPOSITON forSize:2 andStride:0 andPointer:textureVertices];
-            [context drawTriangleStripCount:4 withProgram:quad_program[PROGRAM_QUAD].id];
+            [context enableVertexArrayAtIndex:[[context quadProgram] attributeIndex:@"position"] forSize:2 andStride:0 andPointer:squareVertices];
+            [context enableTextureCoordArrayAtIndex:[[context quadProgram] attributeIndex:@"inputTextureCoordinate"] forSize:2 andStride:0 andPointer:textureVertices];
+            [context drawTriangleStripCount:4 withProgram:[context quadProgram]];
         };
         
         // cleanup
@@ -348,8 +339,8 @@ static int totalTextureBytes;
                     andP4:p4
           andClippingSize:clipSize
            withResolution:resolution
-         withVertexIndex:ATTRIB_TEX_VERTEX
-          andTextureIndex:ATTRIB_TEX_TEXTUREPOSITON];
+         withVertexIndex:[[context quadProgram] attributeIndex:@"position"]
+          andTextureIndex:[[context quadProgram] attributeIndex:@"inputTextureCoordinate"]];
 
         [self unbind];
     }];
@@ -370,73 +361,5 @@ static int totalTextureBytes;
     [lock unlock];
 }
 
-
-- (void)setupShaders
-{
-    if(!hasEverSetup){
-        hasEverSetup = YES;
-
-        for (int i = 0; i < NUM_TEX_PROGRAMS; i++)
-        {
-            // Set constant/initalize uniforms
-            if (i == PROGRAM_QUAD || i == PROGRAM_STENCIL)
-            {
-                char *vsrc = readFile(pathForResource(quad_program[i].vert));
-                char *fsrc = readFile(pathForResource(quad_program[i].frag));
-                GLsizei attribCt = 0;
-                GLchar *attribUsed[NUM_TEX_ATTRIBUTES];
-                GLint attrib[NUM_TEX_ATTRIBUTES];
-                GLchar *attribName[NUM_TEX_ATTRIBUTES] = {
-                    "position", "inputTextureCoordinate"
-                };
-                const GLchar *uniformName[NUM_TEX_UNIFORMS] = {
-                    "MVP", "videoFrame",
-                };
-
-                // auto-assign known attribs
-                for (int j = 0; j < NUM_TEX_ATTRIBUTES; j++)
-                {
-                    if (strstr(vsrc, attribName[j]))
-                    {
-                        attrib[attribCt] = j;
-                        attribUsed[attribCt++] = attribName[j];
-                    }
-                }
-
-                GLint status = glueCreateProgram(vsrc, fsrc,
-                                                 attribCt, (const GLchar **)&attribUsed[0], attrib,
-                                                 NUM_TEX_UNIFORMS, &uniformName[0], quad_program[i].uniform,
-                                                 &quad_program[i].id);
-
-                NSLog(@"quad program: %d => %d %d %d", status, quad_program[0].id, quad_program[0].uniform[0], quad_program[0].uniform[1]);
-
-                free(vsrc);
-                free(fsrc);
-
-                NSLog(@"Using program: QUAD3");
-                glUseProgram(quad_program[i].id);
-                printOpenGLError();
-
-                if(quad_program[i].id == 0 || !status){
-                    NSLog(@"bad program");
-                }
-
-                // viewing matrices
-                GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, self.pixelSize.width, 0, self.pixelSize.height, -1, 1);
-                GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
-                GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
-
-                NSLog(@"Using matrix: %.2f", self.pixelSize.width);
-                glUniformMatrix4fv(quad_program[i].uniform[UNIFORM_TEX_MVP], 1, GL_FALSE, MVPMatrix.m);
-
-                // our texture will be bound to texture 0
-                glUniform1i(quad_program[i].uniform[UNIFORM_VIDEOFRAME], 0);
-                printOpenGLError();
-            }
-        }
-        
-        glError();
-    }
-}
 
 @end

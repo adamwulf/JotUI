@@ -21,7 +21,7 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
 
 #pragma mark -
 
-@implementation GLProgram
+@implementation JotGLProgram
 
 
 - (id)initWithVertexShaderFilename:(NSString *)vShaderFilename
@@ -38,13 +38,15 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
     if ((self = [super init]))
     {
         _programId = glCreateProgram();
+        _attributes = [NSMutableArray array];
+        _uniforms = [NSMutableArray array];
 
         if (![self compileShader:&_vertShader
                             type:GL_VERTEX_SHADER
                           string:vShaderString])
         {
             NSLog(@"Failed to compile vertex shader");
-            return nil;
+            @throw [NSException exceptionWithName:@"JotGLProgramException" reason:@"Failed to compile vertex shader" userInfo:@{ @"log" : _vertexShaderLog }];
         }
 
         // Create and compile fragment shader
@@ -53,7 +55,7 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
                           string:fShaderString])
         {
             NSLog(@"Failed to compile fragment shader");
-            return nil;
+            @throw [NSException exceptionWithName:@"JotGLProgramException" reason:@"Failed to compile fragment shader" userInfo:@{ @"log" : _fragmentShaderLog }];
         }
 
         glAttachShader(_programId, _vertShader);
@@ -66,7 +68,7 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
         [_uniforms addObjectsFromArray:uniforms];
 
         if(![self link]){
-            return nil;
+            @throw [NSException exceptionWithName:@"JotGLProgramException" reason:@"Failed to link program" userInfo:nil];
         }
 
         [self validate];
@@ -126,7 +128,11 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
 
 - (GLuint)attributeIndex:(NSString *)attributeName
 {
-    return (GLuint)[_attributes indexOfObject:attributeName];
+    if([_attributes containsObject:attributeName]){
+        return (GLuint)[_attributes indexOfObject:attributeName];
+    }else{
+        @throw [NSException exceptionWithName:@"GLProgramException" reason:[NSString stringWithFormat:@"Program does not contain a attribute '%@'", attributeName] userInfo:nil];
+    }
 }
 
 - (GLuint)uniformIndex:(NSString *)uniformName
@@ -134,7 +140,7 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
     if([_uniforms containsObject:uniformName]){
         return glGetUniformLocation(_programId, [uniformName UTF8String]);
     }else{
-        @throw [NSException exceptionWithName:@"GLProgramException" reason:[NSString stringWithFormat:@"Program does not contain a uniform named '%@'", uniformName] userInfo:nil];
+        @throw [NSException exceptionWithName:@"GLProgramException" reason:[NSString stringWithFormat:@"Program does not contain a uniform '%@'", uniformName] userInfo:nil];
     }
 }
 
@@ -184,6 +190,7 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
         _programLog = [NSString stringWithFormat:@"%s", log];
         free(log);
     }
+    NSLog(@"Program Log: %@", _programLog);
 }
 
 - (void)addAttribute:(NSString *)attributeName

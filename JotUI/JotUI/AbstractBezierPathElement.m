@@ -144,7 +144,8 @@
         // VBO
         [JotGLContext runBlock:^(JotGLContext* context){
             if([self numberOfStepsGivenPreviousElement:previousElement]){
-                [context drawPointCount:(int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep])];
+                [context drawPointCount:(int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep])
+                            withProgram:[context pointProgram]];
             }
         }];
         [self unbind];

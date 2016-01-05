@@ -12,8 +12,6 @@
 #import "AbstractJotGLFrameBuffer.h"
 #import "ShaderHelper.h"
 
-extern programInfo_t program[NUM_PROGRAMS];
-
 @interface JotGLLayerBackedFrameBuffer : AbstractJotGLFrameBuffer<DeleteAssets>
 
 @property (readonly) CGSize initialViewport;

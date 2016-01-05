@@ -96,7 +96,7 @@
 		66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */ = {isa = PBXBuildFile; fileRef = 668E838317FCB27D003B00D3 /* MMWeakTimerTarget.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F1FF18079BD700B8CE3B /* JotViewDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B3A971692BADA00F12F42 /* JotViewDelegate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66F1F20018079C6C00B8CE3B /* JotUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39F21692B52800F12F42 /* JotUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		C51F68701C3B7C3E003C046F /* JotGLProgram.h in Headers */ = {isa = PBXBuildFile; fileRef = C51F686E1C3B7C3E003C046F /* JotGLProgram.h */; };
+		C51F68701C3B7C3E003C046F /* JotGLProgram.h in Headers */ = {isa = PBXBuildFile; fileRef = C51F686E1C3B7C3E003C046F /* JotGLProgram.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C51F68711C3B7C3E003C046F /* JotGLProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = C51F686F1C3B7C3E003C046F /* JotGLProgram.m */; };
 		C569DB341C38FF2800ABFEC8 /* JotGLTextureBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */; };
 		C584F8201C37B35400413840 /* point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F81E1C37B35400413840 /* point.vsh */; };
@@ -497,7 +497,6 @@
 				66C6AAE718A2E4D50036F4BB /* JotFilledPathStroke.h in Headers */,
 				66F1F1E818079BD700B8CE3B /* JotTrashManager.h in Headers */,
 				66F1F1E918079BD700B8CE3B /* JotBufferManager.h in Headers */,
-				C51F68701C3B7C3E003C046F /* JotGLProgram.h in Headers */,
 				66F1F1EA18079BD700B8CE3B /* JotBufferVBO.h in Headers */,
 				66F1F1EB18079BD700B8CE3B /* OpenGLVBO.h in Headers */,
 				66F1F1EC18079BD700B8CE3B /* PlistSaving.h in Headers */,
@@ -526,6 +525,7 @@
 				66B498811AA131D300D48094 /* JotGLTypes.h in Headers */,
 				66A575AB1B6D536B00F599FC /* MMMainOperationQueue.h in Headers */,
 				66F1F1F018079BD700B8CE3B /* JotGLTextureBackedFrameBuffer.h in Headers */,
+				C51F68701C3B7C3E003C046F /* JotGLProgram.h in Headers */,
 				66A575A61B6D4CC700F599FC /* MMWeakTimer.h in Headers */,
 				6658ABD41A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h in Headers */,
 				66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */,

@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <OpenGLES/EAGL.h>
 #import "JotGLTypes.h"
+#import "JotGLProgram.h"
 
 @class JotGLTexture;
 
@@ -38,6 +39,16 @@ int printOglError(char *file, int line);
 -(id) initWithName:(NSString*)name andValidateThreadWith:(BOOL(^)())_validateThread;
 
 -(id) initWithName:(NSString*)name andSharegroup:(EAGLSharegroup *)sharegroup andValidateThreadWith:(BOOL(^)())_validateThread;
+
+#pragma mark - Shaders
+
+-(JotGLProgram*) pointProgram;
+
+-(JotGLProgram*) quadProgram;
+
+-(JotGLProgram*) stencilProgram;
+
+#pragma mark - Context Properties
 
 -(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha;
 
@@ -86,9 +97,9 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) clear;
 
--(void) drawTriangleStripCount:(GLsizei)count withProgram:(GLuint)program;
+-(void) drawTriangleStripCount:(GLsizei)count withProgram:(JotGLProgram*)program;
 
--(void) drawPointCount:(GLsizei)count;
+-(void) drawPointCount:(GLsizei)count withProgram:(JotGLProgram*)program;
 
 -(void) readPixelsInto:(GLubyte *)data ofSize:(GLSize)size;
 

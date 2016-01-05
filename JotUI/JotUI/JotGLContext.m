@@ -56,6 +56,10 @@ typedef enum UndfBOOL{
 
 @implementation JotGLContext{
     NSString* name;
+
+    JotGLProgram* pointProgram;
+    JotGLProgram* quadProgram;
+    JotGLProgram* stencilProgram;
     
     CGFloat lastRed;
     CGFloat lastBlue;
@@ -243,6 +247,46 @@ typedef enum UndfBOOL{
     }
     return self;
 }
+
+#pragma mark - Shaders
+
+-(JotGLProgram*) pointProgram{
+    if(!pointProgram){
+        [self runBlock:^{
+            pointProgram = [[JotGLProgram alloc] initWithVertexShaderFilename:@"point"
+                                                       fragmentShaderFilename:@"point"
+                                                               withAttributes:@[@"inVertex", @"pointSize"]
+                                                                  andUniforms:@[@"MVP", @"vertexColor", @"texture"]];
+        }];
+    }
+    return pointProgram;
+}
+
+-(JotGLProgram*) quadProgram{
+    if(!quadProgram){
+        [self runBlock:^{
+            quadProgram = [[JotGLProgram alloc] initWithVertexShaderFilename:@"quad"
+                                                       fragmentShaderFilename:@"quad"
+                                                               withAttributes:@[@"position", @"inputTextureCoordinate"]
+                                                                  andUniforms:@[@"MVP", @"videoFrame"]];
+        }];
+    }
+    return quadProgram;
+}
+
+-(JotGLProgram*) stencilProgram{
+    if(!stencilProgram){
+        [self runBlock:^{
+            stencilProgram = [[JotGLProgram alloc] initWithVertexShaderFilename:@"quad"
+                                                       fragmentShaderFilename:@"stencil"
+                                                               withAttributes:@[@"position", @"inputTextureCoordinate"]
+                                                                  andUniforms:@[@"MVP", @"videoFrame"]];
+        }];
+    }
+    return stencilProgram;
+}
+
+
 
 #pragma mark - Run Blocks
 
@@ -546,7 +590,7 @@ typedef enum UndfBOOL{
     printOpenGLError();
 }
 -(void) disableVertexArray{
-    glDisableVertexAttribArray(ATTRIB_VERTEX);
+//    glDisableVertexAttribArray(ATTRIB_VERTEX);
     printOpenGLError();
 }
 
@@ -578,7 +622,7 @@ typedef enum UndfBOOL{
     printOpenGLError();
 }
 -(void) disablePointSizeArray{
-    glDisableVertexAttribArray(ATTRIB_POINT_SIZE);
+//    glDisableVertexAttribArray(ATTRIB_POINT_SIZE);
     printOpenGLError();
 }
 
@@ -732,7 +776,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
             };
             // bind our clipping texture, and draw it
             [clipping bind];
-            [clipping bindForRenderToQuadWithCanvasSize:resolution forProgram:&(quad_program[PROGRAM_STENCIL])];
+
+            [clipping bindForRenderToQuadWithCanvasSize:resolution forProgram:[self stencilProgram]];
 
             [self disableColorArray];
             [self disablePointSizeArray];
@@ -740,7 +785,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
             
             [self enableVertexArrayAtIndex:vertIndex forSize:2 andStride:0 andPointer:vertices];
             [self enableTextureCoordArrayAtIndex:texIndex forSize:2 andStride:0 andPointer:texCoords];
-            [self drawTriangleStripCount:4 withProgram:quad_program[PROGRAM_STENCIL].id];
+            [self drawTriangleStripCount:4 withProgram:[self stencilProgram]];
             
             
             // now setup the next draw operations to respect
@@ -857,24 +902,24 @@ forStenciledPath:(UIBezierPath*)clippingPath
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
--(void) drawTriangleStripCount:(GLsizei)count withProgram:(GLuint)program{
+-(void) drawTriangleStripCount:(GLsizei)count withProgram:(JotGLProgram*)program{
     ValidateCurrentContext;
 //    if(!enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
 //        @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
 //    }
-    if(program == quad_program[PROGRAM_QUAD].id){
+    if(program == [self quadProgram]){
         NSLog(@"Using program: QUAD2");
-    }else if(program == quad_program[PROGRAM_STENCIL].id){
+    }else if(program == [self stencilProgram]){
         NSLog(@"Using program: STENCIL");
     }else{
         NSLog(@"Using program: UNKNOWN");
     }
-    glUseProgram(program);
+    [program use];
     glDrawArrays(GL_TRIANGLE_STRIP, 0, count);
     printOpenGLError();
 }
 
--(void) drawPointCount:(GLsizei)count{
+-(void) drawPointCount:(GLsizei)count withProgram:(JotGLProgram*)program{
     ValidateCurrentContext;
 //    if(enabled_GL_TEXTURE_COORD_ARRAY || !enabled_GL_POINT_SIZE_ARRAY_OES || !enabled_GL_VERTEX_ARRAY){
 //        // enabled_GL_COLOR_ARRAY is optional for point drawing
@@ -882,7 +927,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 //    }
 
     NSLog(@"Using program: POINT");
-    glUseProgram(program[PROGRAM_POINT].id);
+    [program use];
     glDrawArrays(GL_POINTS, 0, count);
     printOpenGLError();
 }

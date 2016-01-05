@@ -9,11 +9,7 @@
 #import "JotGLLayerBackedFrameBuffer.h"
 #import "JotView.h"
 #import "ShaderHelper.h"
-
-programInfo_t program[NUM_PROGRAMS] = {
-    { "point.vsh",   "point.fsh" },     // PROGRAM_POINT
-};
-
+#import "JotGLProgram.h"
 
 @implementation JotGLLayerBackedFrameBuffer{
     // OpenGL names for the renderbuffer and framebuffers used to render to this view
@@ -37,7 +33,6 @@ programInfo_t program[NUM_PROGRAMS] = {
 
     // TODO: pull this into somewhere else
     GLSize backingSize;
-    textureInfo_t brushTexture;     // brush texture
     GLfloat brushColor[4];          // brush color
 }
 
@@ -63,16 +58,10 @@ programInfo_t program[NUM_PROGRAMS] = {
             
             [context bindRenderbuffer:viewRenderbuffer];
             
-            // Load the brush texture
-            brushTexture = [JotGLLayerBackedFrameBuffer textureFromName:@"Particle.png"];
-
             brushColor[0] = 0 * kBrushOpacity;
             brushColor[1] = 0 * kBrushOpacity;
             brushColor[2] = 1.0 * kBrushOpacity;
             brushColor[3] = kBrushOpacity;
-
-            // Load shaders
-            [self setupShadersWithSize:backingSize];
 
             [self clear];
         }];
@@ -86,9 +75,9 @@ programInfo_t program[NUM_PROGRAMS] = {
         [context bindRenderbuffer:viewRenderbuffer];
 
         NSLog(@"Using program: POINT2");
-        glUseProgram(program[PROGRAM_POINT].id);
+        [[context pointProgram] use];
 
-        glUniform1i(program[PROGRAM_POINT].uniform[UNIFORM_TEXTURE], 0);
+        glUniform1i([[context pointProgram] uniformIndex:@"texture"], 0);
 
         // viewing matrices
         GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, backingSize.width, 0, backingSize.height, -1, 1);
@@ -96,10 +85,10 @@ programInfo_t program[NUM_PROGRAMS] = {
         GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
         NSLog(@"Using matrix2: %.2f", (CGFloat) backingSize.width);
-        glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
+        glUniformMatrix4fv([[context pointProgram] uniformIndex:@"MVP"], 1, GL_FALSE, MVPMatrix.m);
 
         // initialize brush color
-        glUniform4fv(program[PROGRAM_POINT].uniform[UNIFORM_VERTEX_COLOR], 1, brushColor);
+        glUniform4fv([[context pointProgram] uniformIndex:@"vertexColor"], 1, brushColor);
     }];
 }
 
@@ -169,119 +158,5 @@ programInfo_t program[NUM_PROGRAMS] = {
     [self deleteAssets];
 }
 
-
-
-
-
-// Create a texture from an image
-+ (textureInfo_t)textureFromName:(NSString *)name
-{
-    CGImageRef		brushImage;
-    CGContextRef	brushContext;
-    GLubyte			*brushData;
-    size_t			width, height;
-    GLuint          texId;
-    textureInfo_t   texture;
-
-    // First create a UIImage object from the data in a image file, and then extract the Core Graphics image
-    brushImage = [UIImage imageNamed:name].CGImage;
-
-    // Get the width and height of the image
-    width = CGImageGetWidth(brushImage);
-    height = CGImageGetHeight(brushImage);
-
-    // Make sure the image exists
-    if(brushImage) {
-        // Allocate  memory needed for the bitmap context
-        brushData = (GLubyte *) calloc(width * height * 4, sizeof(GLubyte));
-        // Use  the bitmatp creation function provided by the Core Graphics framework.
-        brushContext = CGBitmapContextCreate(brushData, width, height, 8, width * 4, CGImageGetColorSpace(brushImage), kCGImageAlphaPremultipliedLast);
-        // After you create the context, you can draw the  image to the context.
-        CGContextDrawImage(brushContext, CGRectMake(0.0, 0.0, (CGFloat)width, (CGFloat)height), brushImage);
-        // You don't need the context at this point, so you need to release it to avoid memory leaks.
-        CGContextRelease(brushContext);
-        // Use OpenGL ES to generate a name for the texture.
-        glGenTextures(1, &texId);
-        // Bind the texture name.
-        glBindTexture(GL_TEXTURE_2D, texId);
-        // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        // Specify a 2D texture image, providing the a pointer to the image data in memory
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, (int)width, (int)height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
-        // Release  the image data; it's no longer needed
-        free(brushData);
-
-        texture.id = texId;
-        texture.width = (int)width;
-        texture.height = (int)height;
-    }
-
-    return texture;
-}
-
-- (void)setupShadersWithSize:(GLSize)_backingSize
-{
-    brushTexture = [JotGLLayerBackedFrameBuffer textureFromName:@"Particle.png"];
-
-    for (int i = 0; i < NUM_PROGRAMS; i++)
-    {
-        // Set constant/initalize uniforms
-        if (i == PROGRAM_POINT)
-        {
-            char *vsrc = readFile(pathForResource(program[i].vert));
-            char *fsrc = readFile(pathForResource(program[i].frag));
-            GLsizei attribCt = 0;
-            GLchar *attribUsed[NUM_ATTRIBS];
-            GLint attrib[NUM_ATTRIBS];
-            GLchar *attribName[NUM_ATTRIBS] = {
-                "inVertex", "pointSize",
-            };
-            const GLchar *uniformName[NUM_UNIFORMS] = {
-                "MVP", "vertexColor", "texture",
-            };
-
-            // auto-assign known attribs
-            for (int j = 0; j < NUM_ATTRIBS; j++)
-            {
-                if (strstr(vsrc, attribName[j]))
-                {
-                    attrib[attribCt] = j;
-                    attribUsed[attribCt++] = attribName[j];
-                }
-            }
-
-            GLint status = glueCreateProgram(vsrc, fsrc,
-                              attribCt, (const GLchar **)&attribUsed[0], attrib,
-                              NUM_UNIFORMS, &uniformName[0], program[i].uniform,
-                              &program[i].id);
-            NSLog(@"point program: %d", status);
-
-            free(vsrc);
-            free(fsrc);
-
-            NSLog(@"Using program: POINT3");
-            glUseProgram(program[PROGRAM_POINT].id);
-
-            // the brush texture will be bound to texture unit 0
-            // right now, i'm only ever using glActiveTexture(GL_TEXTURE0);
-            // so every time i bind a texture it's being bound into texture0
-            // if i ever use more textures, i'll need to be careful about this
-            glUniform1i(program[PROGRAM_POINT].uniform[UNIFORM_TEXTURE], 0);
-
-            // viewing matrices
-            GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, _backingSize.width, 0, _backingSize.height, -1, 1);
-            GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
-            GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
-
-            NSLog(@"Using matrix3: %.2f", (CGFloat) _backingSize.width);
-            glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
-
-            // initialize brush color
-            glUniform4fv(program[PROGRAM_POINT].uniform[UNIFORM_VERTEX_COLOR], 1, brushColor);
-        }
-    }
-    
-    glError();
-}
 
 @end

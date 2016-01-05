@@ -12,11 +12,9 @@
 
 #import "ShaderHelper.h"
 
-extern tex_programInfo_t quad_program[NUM_TEX_PROGRAMS];
-
 @interface JotGLTexture ()
 
--(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(tex_programInfo_t*)program;
+-(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLProgram*)program;
 
 @end
 
