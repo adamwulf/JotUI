@@ -11,7 +11,8 @@
 #import "JotGLTypes.h"
 #import "JotGLProgram.h"
 
-@class JotGLTexture;
+
+@class JotGLTexture, JotGLPointProgram, JotGLQuadProgram;
 
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
 
@@ -42,11 +43,11 @@ int printOglError(char *file, int line);
 
 #pragma mark - Shaders
 
--(JotGLProgram*) pointProgram;
+-(JotGLPointProgram*) pointProgram;
 
--(JotGLProgram*) quadProgram;
+-(JotGLQuadProgram*) quadProgram;
 
--(JotGLProgram*) stencilProgram;
+-(JotGLQuadProgram*) stencilProgram;
 
 #pragma mark - Context Properties
 

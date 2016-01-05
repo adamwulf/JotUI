@@ -98,6 +98,10 @@
 		66F1F20018079C6C00B8CE3B /* JotUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 669B39F21692B52800F12F42 /* JotUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C51F68701C3B7C3E003C046F /* JotGLProgram.h in Headers */ = {isa = PBXBuildFile; fileRef = C51F686E1C3B7C3E003C046F /* JotGLProgram.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C51F68711C3B7C3E003C046F /* JotGLProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = C51F686F1C3B7C3E003C046F /* JotGLProgram.m */; };
+		C535AA5E1C3B98BD0032D688 /* JotGLQuadProgram.h in Headers */ = {isa = PBXBuildFile; fileRef = C535AA5C1C3B98BD0032D688 /* JotGLQuadProgram.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C535AA5F1C3B98BD0032D688 /* JotGLQuadProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = C535AA5D1C3B98BD0032D688 /* JotGLQuadProgram.m */; };
+		C535AA631C3B99F10032D688 /* JotGLPointProgram.h in Headers */ = {isa = PBXBuildFile; fileRef = C535AA611C3B99F10032D688 /* JotGLPointProgram.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C535AA641C3B99F10032D688 /* JotGLPointProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = C535AA621C3B99F10032D688 /* JotGLPointProgram.m */; };
 		C569DB341C38FF2800ABFEC8 /* JotGLTextureBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */; };
 		C584F8201C37B35400413840 /* point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F81E1C37B35400413840 /* point.vsh */; };
 		C584F8211C37B35400413840 /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F81F1C37B35400413840 /* point.fsh */; };
@@ -203,6 +207,11 @@
 		66D9828017B1679400007732 /* OpenGLVBO.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OpenGLVBO.m; sourceTree = "<group>"; };
 		C51F686E1C3B7C3E003C046F /* JotGLProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLProgram.h; sourceTree = "<group>"; };
 		C51F686F1C3B7C3E003C046F /* JotGLProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLProgram.m; sourceTree = "<group>"; };
+		C535AA5C1C3B98BD0032D688 /* JotGLQuadProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLQuadProgram.h; sourceTree = "<group>"; };
+		C535AA5D1C3B98BD0032D688 /* JotGLQuadProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLQuadProgram.m; sourceTree = "<group>"; };
+		C535AA601C3B99580032D688 /* JotGLProgram+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLProgram+Private.h"; sourceTree = "<group>"; };
+		C535AA611C3B99F10032D688 /* JotGLPointProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLPointProgram.h; sourceTree = "<group>"; };
+		C535AA621C3B99F10032D688 /* JotGLPointProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLPointProgram.m; sourceTree = "<group>"; };
 		C569DB331C38FE2300ABFEC8 /* JotGLTextureBackedFrameBuffer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLTextureBackedFrameBuffer+Private.h"; sourceTree = "<group>"; };
 		C569DB351C39132200ABFEC8 /* JotGLTexture+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLTexture+Private.h"; sourceTree = "<group>"; };
 		C584F81E1C37B35400413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
@@ -233,8 +242,7 @@
 		66455F8B175FC45600C66DFA /* OpenGL */ = {
 			isa = PBXGroup;
 			children = (
-				C51F686E1C3B7C3E003C046F /* JotGLProgram.h */,
-				C51F686F1C3B7C3E003C046F /* JotGLProgram.m */,
+				C535AA5B1C3B97720032D688 /* Shaders */,
 				66455F8C175FC47200C66DFA /* JotGLTexture.h */,
 				C569DB351C39132200ABFEC8 /* JotGLTexture+Private.h */,
 				66455F8D175FC47200C66DFA /* JotGLTexture.m */,
@@ -465,6 +473,20 @@
 			name = Plist;
 			sourceTree = "<group>";
 		};
+		C535AA5B1C3B97720032D688 /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				C51F686E1C3B7C3E003C046F /* JotGLProgram.h */,
+				C535AA601C3B99580032D688 /* JotGLProgram+Private.h */,
+				C51F686F1C3B7C3E003C046F /* JotGLProgram.m */,
+				C535AA5C1C3B98BD0032D688 /* JotGLQuadProgram.h */,
+				C535AA5D1C3B98BD0032D688 /* JotGLQuadProgram.m */,
+				C535AA611C3B99F10032D688 /* JotGLPointProgram.h */,
+				C535AA621C3B99F10032D688 /* JotGLPointProgram.m */,
+			);
+			name = Shaders;
+			sourceTree = "<group>";
+		};
 		C584F81D1C37B34A00413840 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
@@ -526,7 +548,9 @@
 				66A575AB1B6D536B00F599FC /* MMMainOperationQueue.h in Headers */,
 				66F1F1F018079BD700B8CE3B /* JotGLTextureBackedFrameBuffer.h in Headers */,
 				C51F68701C3B7C3E003C046F /* JotGLProgram.h in Headers */,
+				C535AA631C3B99F10032D688 /* JotGLPointProgram.h in Headers */,
 				66A575A61B6D4CC700F599FC /* MMWeakTimer.h in Headers */,
+				C535AA5E1C3B98BD0032D688 /* JotGLQuadProgram.h in Headers */,
 				6658ABD41A7B1ED500F32506 /* AbstractJotGLFrameBuffer.h in Headers */,
 				66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */,
 				66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */,
@@ -664,6 +688,7 @@
 				66696F801828501B00B7442F /* JotViewStateProxy.m in Sources */,
 				66AC156818079B27005315C8 /* NSArray+JotMapReduce.m in Sources */,
 				66AC156918079B27005315C8 /* JotTrashManager.m in Sources */,
+				C535AA641C3B99F10032D688 /* JotGLPointProgram.m in Sources */,
 				66AC156A18079B27005315C8 /* JotBufferManager.m in Sources */,
 				66AC156B18079B27005315C8 /* JotBufferVBO.m in Sources */,
 				66B7E0531A0B4D94000797E4 /* UIScreen+PortraitBounds.m in Sources */,
@@ -682,6 +707,7 @@
 				66AC157418079B27005315C8 /* JotImmutableStroke.m in Sources */,
 				66AC157518079B27005315C8 /* SegmentSmoother.m in Sources */,
 				C584F8291C37B38C00413840 /* fileUtil.m in Sources */,
+				C535AA5F1C3B98BD0032D688 /* JotGLQuadProgram.m in Sources */,
 				66AC157618079B27005315C8 /* AbstractBezierPathElement.m in Sources */,
 				66AC157718079B27005315C8 /* MoveToPathElement.m in Sources */,
 				66AC157818079B27005315C8 /* CurveToPathElement.m in Sources */,

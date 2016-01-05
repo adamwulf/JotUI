@@ -10,6 +10,7 @@
 #import "JotView.h"
 #import "ShaderHelper.h"
 #import "JotGLProgram.h"
+#import "JotGLPointProgram.h"
 
 @implementation JotGLLayerBackedFrameBuffer{
     // OpenGL names for the renderbuffer and framebuffers used to render to this view
@@ -77,7 +78,7 @@
         NSLog(@"Using program: POINT2");
         [[context pointProgram] use];
 
-        glUniform1i([[context pointProgram] uniformIndex:@"texture"], 0);
+        glUniform1i([[context pointProgram] uniformTextureIndex], 0);
 
         // viewing matrices
         GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, backingSize.width, 0, backingSize.height, -1, 1);
@@ -85,10 +86,10 @@
         GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
         NSLog(@"Using matrix2: %.2f", (CGFloat) backingSize.width);
-        glUniformMatrix4fv([[context pointProgram] uniformIndex:@"MVP"], 1, GL_FALSE, MVPMatrix.m);
+        glUniformMatrix4fv([[context pointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
 
         // initialize brush color
-        glUniform4fv([[context pointProgram] uniformIndex:@"vertexColor"], 1, brushColor);
+        glUniform4fv([[context pointProgram] uniformVertexColorIndex], 1, brushColor);
     }];
 }
 

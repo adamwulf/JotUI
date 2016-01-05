@@ -14,7 +14,7 @@
 #import "AbstractBezierPathElement-Protected.h"
 #import "ShaderHelper.h"
 #import "JotGLTexture+Private.h"
-
+#import "JotGLQuadProgram.h"
 
 
 static int totalTextureBytes;
@@ -189,7 +189,7 @@ static int totalTextureBytes;
     }];
 }
 
--(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLProgram*)program{
+-(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLQuadProgram*)program{
 
     NSLog(@"Using program: QUAD");
     [program use];
@@ -198,7 +198,7 @@ static int totalTextureBytes;
     printOpenGLError();
     glDisable(GL_CULL_FACE);
     printOpenGLError();
-    glUniform1i([program uniformIndex:@"videoFrame"], 0);
+    glUniform1i([program uniformTextureIndex], 0);
     printOpenGLError();
 
     // viewing matrices
@@ -207,7 +207,7 @@ static int totalTextureBytes;
     GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
     NSLog(@"Using matrix3: %.2f4", canvasSize.width);
-    glUniformMatrix4fv([program uniformIndex:@"MVP"], 1, GL_FALSE, MVPMatrix.m);
+    glUniformMatrix4fv([program uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
     printOpenGLError();
 }
 
@@ -325,8 +325,8 @@ static int totalTextureBytes;
             [self bindForRenderToQuadWithCanvasSize:canvasSize forProgram:[context quadProgram]];
 
 
-            [context enableVertexArrayAtIndex:[[context quadProgram] attributeIndex:@"position"] forSize:2 andStride:0 andPointer:squareVertices];
-            [context enableTextureCoordArrayAtIndex:[[context quadProgram] attributeIndex:@"inputTextureCoordinate"] forSize:2 andStride:0 andPointer:textureVertices];
+            [context enableVertexArrayAtIndex:[[context quadProgram] attributePositionIndex] forSize:2 andStride:0 andPointer:squareVertices];
+            [context enableTextureCoordArrayAtIndex:[[context quadProgram] attributeTextureCoordinateIndex] forSize:2 andStride:0 andPointer:textureVertices];
             [context drawTriangleStripCount:4 withProgram:[context quadProgram]];
         };
         
@@ -339,8 +339,8 @@ static int totalTextureBytes;
                     andP4:p4
           andClippingSize:clipSize
            withResolution:resolution
-         withVertexIndex:[[context quadProgram] attributeIndex:@"position"]
-          andTextureIndex:[[context quadProgram] attributeIndex:@"inputTextureCoordinate"]];
+         withVertexIndex:[[context quadProgram] attributePositionIndex]
+          andTextureIndex:[[context quadProgram] attributeTextureCoordinateIndex]];
 
         [self unbind];
     }];

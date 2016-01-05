@@ -29,9 +29,6 @@
                     withAttributes:(NSArray<NSString*>*)attributes
                        andUniforms:(NSArray<NSString*>*)uniforms;
 
-- (GLuint)attributeIndex:(NSString *)attributeName;
-- (GLuint)uniformIndex:(NSString *)uniformName;
-
 - (void)use;
 
 @end

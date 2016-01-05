@@ -33,6 +33,7 @@
 #import <JotTouchSDK/JotStylusManager.h>
 #import "JotGLLayerBackedFrameBuffer.h"
 #import "UIScreen+PortraitBounds.h"
+#import "JotGLPointProgram.h"
 
 #define kJotValidateUndoTimer .06
 
@@ -2055,7 +2056,7 @@ static int undoCounter;
             [[context pointProgram] use];
 
             NSLog(@"Using matrix3: %.2f5", initialViewport.width);
-            glUniformMatrix4fv([[context pointProgram] uniformIndex:@"MVP"], 1, GL_FALSE, MVPMatrix.m);
+            glUniformMatrix4fv([[context pointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
 
 
             NSLog(@"=======================================");
@@ -2066,13 +2067,8 @@ static int undoCounter;
             // export texture
             [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero withBlock:^{
 
-
                 NSLog(@"=======================================");
                 NSLog(@"=======================================");
-
-
-
-
 
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer

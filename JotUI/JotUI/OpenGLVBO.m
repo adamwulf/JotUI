@@ -13,6 +13,7 @@
 #import "JotBufferManager.h"
 #import "JotGLContext+Buffers.h"
 #import "ShaderHelper.h"
+#import "JotGLPointProgram.h"
 #include <stddef.h>
 
 @interface OpenGLBuffer : NSObject
@@ -163,14 +164,14 @@
         [lock lock];
         [context bindArrayBuffer:glBuffer.vbo];
 
-        [context enableVertexArrayAtIndex:[[context pointProgram] attributeIndex:@"inVertex"]
+        [context enableVertexArrayAtIndex:[[context pointProgram] attributeVertexIndex]
                                   forSize:2
                                 andStride:sizeof(struct ColorfulVertex)
                                andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
         [context enableColorArrayForSize:4
                                andStride:sizeof(struct ColorfulVertex)
                               andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
-        [context enablePointSizeArrayAtIndex:[[context pointProgram] attributeIndex:@"pointSize"]
+        [context enablePointSizeArrayAtIndex:[[context pointProgram] attributePointSizeIndex]
                                    forStride:sizeof(struct ColorfulVertex)
                                   andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
         [context disableTextureCoordArray];
@@ -193,11 +194,11 @@
         
         [context bindArrayBuffer:glBuffer.vbo];
         
-        [context enableVertexArrayAtIndex:[[context pointProgram] attributeIndex:@"inVertex"]
+        [context enableVertexArrayAtIndex:[[context pointProgram] attributeVertexIndex]
                                   forSize:2
                                 andStride:sizeof(struct ColorlessVertex)
                                andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
-        [context enablePointSizeArrayAtIndex:[[context pointProgram] attributeIndex:@"pointSize"]
+        [context enablePointSizeArrayAtIndex:[[context pointProgram] attributePointSizeIndex]
                                    forStride:sizeof(struct ColorlessVertex)
                                   andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
 //        [context enableVertexArray];

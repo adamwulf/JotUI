@@ -16,6 +16,8 @@
 #import "JotGLLayerBackedFrameBuffer.h"
 #import "JotGLTextureBackedFrameBuffer+Private.h"
 #import "JotGLTexture+Private.h"
+#import "JotGLQuadProgram.h"
+#import "JotGLPointProgram.h"
 
 int printOglError(char *file, int line)
 {
@@ -57,9 +59,9 @@ typedef enum UndfBOOL{
 @implementation JotGLContext{
     NSString* name;
 
-    JotGLProgram* pointProgram;
-    JotGLProgram* quadProgram;
-    JotGLProgram* stencilProgram;
+    JotGLPointProgram* pointProgram;
+    JotGLQuadProgram* quadProgram;
+    JotGLQuadProgram* stencilProgram;
     
     CGFloat lastRed;
     CGFloat lastBlue;
@@ -250,37 +252,31 @@ typedef enum UndfBOOL{
 
 #pragma mark - Shaders
 
--(JotGLProgram*) pointProgram{
+-(JotGLPointProgram*) pointProgram{
     if(!pointProgram){
         [self runBlock:^{
-            pointProgram = [[JotGLProgram alloc] initWithVertexShaderFilename:@"point"
-                                                       fragmentShaderFilename:@"point"
-                                                               withAttributes:@[@"inVertex", @"pointSize"]
-                                                                  andUniforms:@[@"MVP", @"vertexColor", @"texture"]];
+            pointProgram = [[JotGLPointProgram alloc] initWithVertexShaderFilename:@"point"
+                                                       fragmentShaderFilename:@"point"];
         }];
     }
     return pointProgram;
 }
 
--(JotGLProgram*) quadProgram{
+-(JotGLQuadProgram*) quadProgram{
     if(!quadProgram){
         [self runBlock:^{
-            quadProgram = [[JotGLProgram alloc] initWithVertexShaderFilename:@"quad"
-                                                       fragmentShaderFilename:@"quad"
-                                                               withAttributes:@[@"position", @"inputTextureCoordinate"]
-                                                                  andUniforms:@[@"MVP", @"videoFrame"]];
+            quadProgram = [[JotGLQuadProgram alloc] initWithVertexShaderFilename:@"quad"
+                                                       fragmentShaderFilename:@"quad"];
         }];
     }
     return quadProgram;
 }
 
--(JotGLProgram*) stencilProgram{
+-(JotGLQuadProgram*) stencilProgram{
     if(!stencilProgram){
         [self runBlock:^{
-            stencilProgram = [[JotGLProgram alloc] initWithVertexShaderFilename:@"quad"
-                                                       fragmentShaderFilename:@"stencil"
-                                                               withAttributes:@[@"position", @"inputTextureCoordinate"]
-                                                                  andUniforms:@[@"MVP", @"videoFrame"]];
+            stencilProgram = [[JotGLQuadProgram alloc] initWithVertexShaderFilename:@"quad"
+                                                       fragmentShaderFilename:@"stencil"];
         }];
     }
     return stencilProgram;
