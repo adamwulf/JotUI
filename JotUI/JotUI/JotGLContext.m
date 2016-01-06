@@ -762,8 +762,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
             [clipping bindForRenderToQuadWithCanvasSize:resolution forProgram:[self stencilProgram]];
 
-            [self glColor4f:1 and:1 and:1 and:1];
-            
+//            [self glColor4f:1 and:1 and:1 and:1];
+
             [self enableVertexArrayAtIndex:vertIndex forSize:2 andStride:0 andPointer:vertices];
             [self enableTextureCoordArrayAtIndex:texIndex forSize:2 andStride:0 andPointer:texCoords];
             [self drawTriangleStripCount:4 withProgram:[self stencilProgram]];

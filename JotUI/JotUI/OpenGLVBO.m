@@ -211,7 +211,7 @@
 //        [context enablePointSizeArray];
 //        [context disableTextureCoordArray];
 
-        [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
+//        [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
     }];
 }
 
