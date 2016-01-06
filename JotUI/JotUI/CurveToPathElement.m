@@ -216,7 +216,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             if(alpha > 1) alpha = 1;
             
             // set alpha first, because we'll premultiply immediately after
-            colorComponents[3] = 1.0;//alpha;
+            colorComponents[3] = alpha;
             colorComponents[0] = colorComponents[0] * colorComponents[3];
             colorComponents[1] = colorComponents[1] * colorComponents[3];
             colorComponents[2] = colorComponents[2] * colorComponents[3];
@@ -230,7 +230,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 }
 
 -(CGFloat) stepSizeWithPreviousElement:(AbstractBezierPathElement*)previousElement{
-    return .5;//MIN(kBrushStepSize, MIN(self.width, previousElement.width) / 3.0);
+    return MIN(kBrushStepSize, MIN(self.width, previousElement.width) / 3.0);
 }
 /**
  * the ideal number of steps we should take along
@@ -591,7 +591,7 @@ static CGFloat screenHeight;
  */
 
 -(void) setColor:(UIColor *)_color{
-    color = [_color colorWithAlphaComponent:1.0];
+    color = _color;
 }
 
 /**
