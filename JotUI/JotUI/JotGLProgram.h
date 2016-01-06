@@ -23,7 +23,6 @@
 @property(nonatomic, readonly) NSArray<NSString*>* attributes;
 @property(nonatomic, readonly) NSArray<NSString*>* uniforms;
 
-
 - (id)initWithVertexShaderFilename:(NSString *)vShaderFilename
             fragmentShaderFilename:(NSString *)fShaderFilename
                     withAttributes:(NSArray<NSString*>*)attributes

@@ -16,6 +16,9 @@
 #import "MoveToPathElement.h"
 #import "JotGLContext.h"
 #import "JotTrashManager.h"
+#import "JotGLPointProgram.h"
+#import "JotGLColorlessPointProgram.h"
+#import "JotGLColoredPointProgram.h"
 
 #define kDivideStepBy 5
 #define kAbsoluteMinWidth 3.0
@@ -481,6 +484,8 @@ static CGFloat screenHeight;
         // we're only allowed to create vbo
         // on the main thread.
         // if we need a vbo, then create it
+        [[self glProgramForContext:context] use];
+
         [self loadDataIntoVBOIfNeeded];
         if(vertexBufferShouldContainColor){
             [vbo bind];
@@ -526,6 +531,20 @@ static CGFloat screenHeight;
         }
         [lock unlock];
     }];
+}
+
+-(JotGLProgram*) glProgramForContext:(JotGLContext*)context{
+    if(vertexBufferShouldContainColor){
+        return [context coloredPointProgram];
+    }else{
+        JotGLColorlessPointProgram* clpp = [context colorlessPointProgram];
+        clpp.colorRed = colorComponents[0];
+        clpp.colorGreen = colorComponents[1];
+        clpp.colorBlue = colorComponents[2];
+        clpp.colorAlpha = colorComponents[3];
+
+        return [context colorlessPointProgram];
+    }
 }
 
 

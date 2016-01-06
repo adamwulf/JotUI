@@ -18,6 +18,8 @@
 #import "JotGLTexture+Private.h"
 #import "JotGLQuadProgram.h"
 #import "JotGLPointProgram.h"
+#import "JotGLColorlessPointProgram.h"
+#import "JotGLColoredPointProgram.h"
 
 int printOglError(char *file, int line)
 {
@@ -59,7 +61,8 @@ typedef enum UndfBOOL{
 @implementation JotGLContext{
     NSString* name;
 
-    JotGLPointProgram* pointProgram;
+    JotGLColoredPointProgram* coloredPointProgram;
+    JotGLColorlessPointProgram* colorlessPointProgram;
     JotGLQuadProgram* quadProgram;
     JotGLQuadProgram* stencilProgram;
     
@@ -252,14 +255,22 @@ typedef enum UndfBOOL{
 
 #pragma mark - Shaders
 
--(JotGLPointProgram*) pointProgram{
-    if(!pointProgram){
+-(JotGLColorlessPointProgram*) colorlessPointProgram{
+    if(!colorlessPointProgram){
         [self runBlock:^{
-            pointProgram = [[JotGLPointProgram alloc] initWithVertexShaderFilename:@"point"
-                                                       fragmentShaderFilename:@"point"];
+            colorlessPointProgram = [[JotGLColorlessPointProgram alloc] init];
         }];
     }
-    return pointProgram;
+    return colorlessPointProgram;
+}
+
+-(JotGLColoredPointProgram*) coloredPointProgram{
+    if(!coloredPointProgram){
+        [self runBlock:^{
+            coloredPointProgram = [[JotGLColoredPointProgram alloc] init];
+        }];
+    }
+    return coloredPointProgram;
 }
 
 -(JotGLQuadProgram*) quadProgram{
@@ -593,13 +604,18 @@ typedef enum UndfBOOL{
 -(void) enableColorArray{
 //    [self glEnableClientState:GL_COLOR_ARRAY];
 }
--(void) enableColorArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
-//    [self glEnableClientState:GL_COLOR_ARRAY];
-//    glColorPointer(size, GL_FLOAT, stride, pointer);
-//    color_pointer_size = size;
-//    color_pointer_type = GL_FLOAT;
-//    color_pointer_stride = stride;
-//    color_pointer_pointer = pointer;
+-(void) enableColorArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
+    glEnableVertexAttribArray(index);
+    printOpenGLError();
+    glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, pointer);
+    color_pointer_size = size;
+    color_pointer_type = GL_FLOAT;
+    color_pointer_stride = stride;
+    color_pointer_pointer = pointer;
+    if(!stride){
+        [NSException exceptionWithName:@"StrideException" reason:@"stride cannot be zero" userInfo:nil];
+    }
+    printOpenGLError();
 }
 -(void) disableColorArray{
 //    [self glDisableClientState:GL_COLOR_ARRAY];

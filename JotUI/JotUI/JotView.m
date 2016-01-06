@@ -33,7 +33,8 @@
 #import <JotTouchSDK/JotStylusManager.h>
 #import "JotGLLayerBackedFrameBuffer.h"
 #import "UIScreen+PortraitBounds.h"
-#import "JotGLPointProgram.h"
+#import "JotGLColorlessPointProgram.h"
+#import "JotGLColoredPointProgram.h"
 
 #define kJotValidateUndoTimer .06
 
@@ -2053,11 +2054,16 @@ static int undoCounter;
             GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
 
-            [[context pointProgram] use];
+            [[context colorlessPointProgram] use];
 
             NSLog(@"Using matrix3: %.2f5", initialViewport.width);
-            glUniformMatrix4fv([[context pointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
+            glUniformMatrix4fv([[context colorlessPointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
 
+            [[context coloredPointProgram] use];
+
+            NSLog(@"Using matrix3: %.2f5", initialViewport.width);
+            glUniformMatrix4fv([[context coloredPointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
+            
 
             NSLog(@"=======================================");
             NSLog(@"=======================================");

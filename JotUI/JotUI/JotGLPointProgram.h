@@ -14,10 +14,7 @@
 - (id)initWithVertexShaderFilename:(NSString *)vShaderFilename
             fragmentShaderFilename:(NSString *)fShaderFilename
                     withAttributes:(NSArray<NSString*>*)attributes
-                       andUniforms:(NSArray<NSString*>*)uniforms NS_UNAVAILABLE;
-
--(id)initWithVertexShaderFilename:(NSString *)vShaderFilename
-           fragmentShaderFilename:(NSString *)fShaderFilename;
+                       andUniforms:(NSArray<NSString*>*)uniforms;
 
 -(GLuint) attributeVertexIndex;
 
@@ -26,7 +23,5 @@
 -(GLuint) uniformTextureIndex;
 
 -(GLuint) uniformMVPIndex;
-
--(GLuint) uniformVertexColorIndex;
 
 @end

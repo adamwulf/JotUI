@@ -10,7 +10,7 @@
 #import "AbstractBezierPathElement-Protected.h"
 #import "UIColor+JotHelper.h"
 #import "JotUI.h"
-#import "JotGLPointProgram.h"
+#import "JotGLColorlessPointProgram.h"
 
 @implementation AbstractBezierPathElement{
     JotBufferManager* bufferManager;
@@ -139,13 +139,17 @@
     @throw kAbstractMethodException;
 }
 
+-(JotGLProgram*) glProgramForContext:(JotGLContext*)context{
+    return [context colorlessPointProgram];
+}
+
 -(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
     if([self bind]){
         // VBO
         [JotGLContext runBlock:^(JotGLContext* context){
             if([self numberOfStepsGivenPreviousElement:previousElement]){
                 [context drawPointCount:(int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep])
-                            withProgram:[context pointProgram]];
+                            withProgram:[self glProgramForContext:context]];
             }
         }];
         [self unbind];

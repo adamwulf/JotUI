@@ -11,6 +11,8 @@
 
 #import <OpenGLES/EAGLDrawable.h>
 #import <OpenGLES/EAGL.h>
+#import "JotGLProgram.h"
+#import "JotGLContext.h"
 
 @interface AbstractBezierPathElement ()
 
@@ -37,6 +39,8 @@
 -(BOOL) bind;
 
 -(void) unbind;
+
+-(JotGLProgram*) glProgramForContext:(JotGLContext*)context;
 
 -(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement;
 

@@ -12,7 +12,7 @@
 #import "JotGLProgram.h"
 
 
-@class JotGLTexture, JotGLPointProgram, JotGLQuadProgram;
+@class JotGLTexture, JotGLPointProgram, JotGLQuadProgram, JotGLColorlessPointProgram, JotGLColoredPointProgram;
 
 #define printOpenGLError() printOglError(__FILE__, __LINE__)
 
@@ -43,7 +43,9 @@ int printOglError(char *file, int line);
 
 #pragma mark - Shaders
 
--(JotGLPointProgram*) pointProgram;
+-(JotGLColorlessPointProgram*) colorlessPointProgram;
+
+-(JotGLColoredPointProgram*) coloredPointProgram;
 
 -(JotGLQuadProgram*) quadProgram;
 
@@ -126,8 +128,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(void) enableVertexArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
 -(void) disableVertexArray;
 
--(void) enableColorArray;
--(void) enableColorArrayForSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
+-(void) enableColorArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
 -(void) disableColorArray;
 
 -(void) enablePointSizeArrayAtIndex:(GLuint)index forStride:(GLsizei) stride andPointer:(const GLvoid *)pointer;

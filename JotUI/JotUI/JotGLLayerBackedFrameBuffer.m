@@ -10,7 +10,8 @@
 #import "JotView.h"
 #import "ShaderHelper.h"
 #import "JotGLProgram.h"
-#import "JotGLPointProgram.h"
+#import "JotGLColorlessPointProgram.h"
+#import "JotGLColoredPointProgram.h"
 
 @implementation JotGLLayerBackedFrameBuffer{
     // OpenGL names for the renderbuffer and framebuffers used to render to this view
@@ -34,7 +35,6 @@
 
     // TODO: pull this into somewhere else
     GLSize backingSize;
-    GLfloat brushColor[4];          // brush color
 }
 
 @synthesize initialViewport;
@@ -59,11 +59,6 @@
             
             [context bindRenderbuffer:viewRenderbuffer];
             
-            brushColor[0] = 0 * kBrushOpacity;
-            brushColor[1] = 0 * kBrushOpacity;
-            brushColor[2] = 1.0 * kBrushOpacity;
-            brushColor[3] = kBrushOpacity;
-
             [self clear];
         }];
     }
@@ -76,9 +71,7 @@
         [context bindRenderbuffer:viewRenderbuffer];
 
         NSLog(@"Using program: POINT2");
-        [[context pointProgram] use];
-
-        glUniform1i([[context pointProgram] uniformTextureIndex], 0);
+        [[context colorlessPointProgram] use];
 
         // viewing matrices
         GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, backingSize.width, 0, backingSize.height, -1, 1);
@@ -86,10 +79,13 @@
         GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
         NSLog(@"Using matrix2: %.2f", (CGFloat) backingSize.width);
-        glUniformMatrix4fv([[context pointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
+        glUniformMatrix4fv([[context colorlessPointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
 
-        // initialize brush color
-        glUniform4fv([[context pointProgram] uniformVertexColorIndex], 1, brushColor);
+        [[context coloredPointProgram] use];
+
+        NSLog(@"Using matrix2: %.2f", (CGFloat) backingSize.width);
+        glUniformMatrix4fv([[context coloredPointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
+
     }];
 }
 

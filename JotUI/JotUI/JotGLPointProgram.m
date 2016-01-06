@@ -11,11 +11,11 @@
 
 @implementation JotGLPointProgram
 
--(id) initWithVertexShaderFilename:(NSString *)vShaderFilename fragmentShaderFilename:(NSString *)fShaderFilename{
+-(id) initWithVertexShaderFilename:(NSString *)vShaderFilename fragmentShaderFilename:(NSString *)fShaderFilename withAttributes:(NSArray<NSString *> *)attributes andUniforms:(NSArray<NSString *> *)uniforms{
     if(self = [super initWithVertexShaderFilename:vShaderFilename
                            fragmentShaderFilename:fShaderFilename
-                                   withAttributes:@[@"inVertex", @"pointSize"]
-                                      andUniforms:@[@"MVP", @"vertexColor", @"texture"]]){
+                                   withAttributes:[@[@"inVertex", @"pointSize"] arrayByAddingObjectsFromArray:attributes]
+                                      andUniforms:[@[@"MVP", @"texture"] arrayByAddingObjectsFromArray:uniforms]]){
 
     }
     return self;
@@ -37,8 +37,10 @@
     return [self uniformIndex:@"MVP"];
 }
 
--(GLuint) uniformVertexColorIndex{
-    return [self uniformIndex:@"vertexColor"];
+-(void) use{
+    [super use];
+
+    glUniform1i([self uniformTextureIndex], 0);
 }
 
 @end
