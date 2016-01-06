@@ -2048,22 +2048,8 @@ static int undoCounter;
             NSLog(@"maxTextureSize1: %.2f %.2f", maxTextureSize.width, maxTextureSize.height);
             NSLog(@"initialViewport1: %.2f %.2f", initialViewport.width, initialViewport.height);
 
-            // viewing matrices
-            GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, initialViewport.width, 0, initialViewport.height, -1, 1);
-            GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
-            GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
-
-
-            [[context colorlessPointProgram] use];
-
-            NSLog(@"Using matrix3: %.2f5", initialViewport.width);
-            glUniformMatrix4fv([[context colorlessPointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
-
-            [[context coloredPointProgram] use];
-
-            NSLog(@"Using matrix3: %.2f5", initialViewport.width);
-            glUniformMatrix4fv([[context coloredPointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
-            
+            [context colorlessPointProgram].canvasSize = GLSizeFromCGSize(initialViewport);
+            [context coloredPointProgram].canvasSize = GLSizeFromCGSize(initialViewport);
 
             NSLog(@"=======================================");
             NSLog(@"=======================================");
@@ -2254,21 +2240,6 @@ static int undoCounter;
     [context runBlock:^{
         [viewFramebuffer bind];
         [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
-
-//        CGRect frame = self.layer.bounds;
-//        CGFloat scale = self.contentScaleFactor;
-//
-//        CGSize initialViewport = CGSizeMake(frame.size.width * scale, frame.size.height * scale);
-//
-//        NSLog(@"initialViewport: %.2f %.2f", initialViewport.width, initialViewport.height);
-//
-//        // viewing matrices
-//        GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, initialViewport.width, 0, initialViewport.height, -1, 1);
-//        GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
-//        GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
-//
-//        glUniformMatrix4fv(program[PROGRAM_POINT].uniform[UNIFORM_MVP], 1, GL_FALSE, MVPMatrix.m);
-
 
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
         [viewFramebuffer unbind];

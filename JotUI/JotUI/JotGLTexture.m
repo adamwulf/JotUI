@@ -191,6 +191,8 @@ static int totalTextureBytes;
 
 -(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLQuadProgram*)program{
 
+    program.canvasSize = GLSizeFromCGSize(canvasSize);
+
     NSLog(@"Using program: QUAD");
     [program use];
     printOpenGLError();
@@ -199,15 +201,6 @@ static int totalTextureBytes;
     glDisable(GL_CULL_FACE);
     printOpenGLError();
     glUniform1i([program uniformTextureIndex], 0);
-    printOpenGLError();
-
-    // viewing matrices
-    GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, canvasSize.width, 0, canvasSize.height, -1, 1);
-    GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
-    GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
-
-    NSLog(@"Using matrix3: %.2f4", canvasSize.width);
-    glUniformMatrix4fv([program uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
     printOpenGLError();
 }
 

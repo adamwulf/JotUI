@@ -33,8 +33,4 @@
     return [self uniformIndex:@"texture"];
 }
 
--(GLuint) uniformMVPIndex{
-    return [self uniformIndex:@"MVP"];
-}
-
 @end

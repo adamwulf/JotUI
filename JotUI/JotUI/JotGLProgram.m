@@ -4,6 +4,8 @@
 
 
 #import "JotGLProgram.h"
+#import <GLKit/GLKit.h>
+#import "JotGLContext.h"
 
 #pragma mark Function Pointer Definitions
 typedef void (*GLInfoFunction)(GLuint program, GLenum pname, GLint* params);
@@ -149,6 +151,26 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
 - (void)use
 {
     glUseProgram(_programId);
+
+    if(!self.canvasSize.width){
+        [NSException exceptionWithName:@"JotGLProgramException" reason:@"Attempting to use program without a canvas size" userInfo:nil];
+    }
+    if(!self.canvasSize.height){
+        [NSException exceptionWithName:@"JotGLProgramException" reason:@"Attempting to use program without a canvas size" userInfo:nil];
+    }
+
+    // viewing matrices
+    GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, self.canvasSize.width, 0, self.canvasSize.height, -1, 1);
+    GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
+    GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
+
+    NSLog(@"Using matrix2: %.2f", (CGFloat) self.canvasSize.width);
+    glUniformMatrix4fv([self uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
+
+}
+
+-(GLuint) uniformMVPIndex{
+    return [self uniformIndex:@"MVP"];
 }
 
 #pragma mark - Private

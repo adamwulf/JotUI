@@ -69,23 +69,8 @@
     [super bind];
     [JotGLContext runBlock:^(JotGLContext * context) {
         [context bindRenderbuffer:viewRenderbuffer];
-
-        NSLog(@"Using program: POINT2");
-        [[context colorlessPointProgram] use];
-
-        // viewing matrices
-        GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, backingSize.width, 0, backingSize.height, -1, 1);
-        GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
-        GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
-
-        NSLog(@"Using matrix2: %.2f", (CGFloat) backingSize.width);
-        glUniformMatrix4fv([[context colorlessPointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
-
-        [[context coloredPointProgram] use];
-
-        NSLog(@"Using matrix2: %.2f", (CGFloat) backingSize.width);
-        glUniformMatrix4fv([[context coloredPointProgram] uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
-
+        [context colorlessPointProgram].canvasSize = backingSize;
+        [context coloredPointProgram].canvasSize = backingSize;
     }];
 }
 

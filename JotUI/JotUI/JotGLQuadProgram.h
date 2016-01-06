@@ -25,6 +25,4 @@
 
 -(GLuint) uniformTextureIndex;
 
--(GLuint) uniformMVPIndex;
-
 @end

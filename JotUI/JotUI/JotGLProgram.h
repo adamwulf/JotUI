@@ -7,6 +7,8 @@
 
 #import <OpenGLES/ES2/gl.h>
 #import <OpenGLES/ES2/glext.h>
+#import <GLKit/GLKit.h>
+#import "JotGLTypes.h"
 
 @interface JotGLProgram : NSObject
 {
@@ -17,6 +19,7 @@
     GLuint _fragShader;
 }
 
+@property(nonatomic, assign) GLSize canvasSize;
 @property(readonly, copy, nonatomic) NSString *vertexShaderLog;
 @property(readonly, copy, nonatomic) NSString *fragmentShaderLog;
 @property(readonly, copy, nonatomic) NSString *programLog;
@@ -29,5 +32,7 @@
                        andUniforms:(NSArray<NSString*>*)uniforms;
 
 - (void)use;
+
+-(GLuint) uniformMVPIndex;
 
 @end

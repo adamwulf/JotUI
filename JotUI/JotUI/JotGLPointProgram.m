@@ -33,10 +33,6 @@
     return [self uniformIndex:@"texture"];
 }
 
--(GLuint) uniformMVPIndex{
-    return [self uniformIndex:@"MVP"];
-}
-
 -(void) use{
     [super use];
 
