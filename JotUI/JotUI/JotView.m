@@ -655,10 +655,9 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // context
                 [secondSubContext flush];
                 
-                
-                
-                
-                
+                [secondSubContext colorlessPointProgram].canvasSize = GLSizeFromCGSize(state.backgroundTexture.pixelSize);
+                [secondSubContext coloredPointProgram].canvasSize = GLSizeFromCGSize(state.backgroundTexture.pixelSize);
+
                 // now render strokes
                 [secondSubContext bindFramebuffer:exportFramebuffer];
                 
@@ -2037,10 +2036,6 @@ static int undoCounter;
             
             // set viewport to round up to the pixel, if needed
             [context glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
-
-
-
-
 
             CGSize initialViewport = CGSizeMake(fullSize.width, fullSize.height);
             
