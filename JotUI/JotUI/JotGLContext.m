@@ -823,18 +823,6 @@ forStenciledPath:(UIBezierPath*)clippingPath
     printOpenGLError();
 }
 
--(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha{
-    ValidateCurrentContext;
-    if(red != lastRed || green != lastGreen || blue != lastBlue || alpha != lastAlpha){
-//        glColor4f(red, green, blue, alpha);
-        lastRed = red;
-        lastGreen = green;
-        lastBlue = blue;
-        lastAlpha = alpha;
-    }
-    printOpenGLError();
-}
-
 -(void) prepOpenGLBlendModeForColor:(UIColor*)color{
     if(!color){
         // eraser
@@ -885,16 +873,6 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) drawTriangleStripCount:(GLsizei)count withProgram:(JotGLProgram*)program{
     ValidateCurrentContext;
-//    if(!enabled_GL_TEXTURE_COORD_ARRAY || enabled_GL_POINT_SIZE_ARRAY_OES || enabled_GL_COLOR_ARRAY || !enabled_GL_VERTEX_ARRAY){
-//        @throw [NSException exceptionWithName:@"GLDrawTriangleException" reason:@"bad state" userInfo:nil];
-//    }
-    if(program == [self quadProgram]){
-        NSLog(@"Using program: QUAD2");
-    }else if(program == [self stencilProgram]){
-        NSLog(@"Using program: STENCIL");
-    }else{
-        NSLog(@"Using program: UNKNOWN");
-    }
     [program use];
     glDrawArrays(GL_TRIANGLE_STRIP, 0, count);
     printOpenGLError();
@@ -902,12 +880,6 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) drawPointCount:(GLsizei)count withProgram:(JotGLProgram*)program{
     ValidateCurrentContext;
-//    if(enabled_GL_TEXTURE_COORD_ARRAY || !enabled_GL_POINT_SIZE_ARRAY_OES || !enabled_GL_VERTEX_ARRAY){
-//        // enabled_GL_COLOR_ARRAY is optional for point drawing
-//        @throw [NSException exceptionWithName:@"GLDrawPointException" reason:@"bad state" userInfo:nil];
-//    }
-
-    NSLog(@"Using program: POINT");
     [program use];
     glDrawArrays(GL_POINTS, 0, count);
     printOpenGLError();
@@ -952,8 +924,6 @@ forStenciledPath:(UIBezierPath*)clippingPath
     printOpenGLError();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
     printOpenGLError();
-//    [self glTexParameteriWithPname:GL_TEXTURE_MIN_FILTER param:GL_LINEAR];
-//    [self glTexParameteriWithPname:GL_TEXTURE_MAG_FILTER param:GL_LINEAR];
 
     [self unbindTexture];
     printOpenGLError();

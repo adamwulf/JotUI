@@ -12,6 +12,7 @@
 
 @interface JotGLProgram : NSObject
 {
+    NSMutableArray *_attributes;
     NSMutableArray *_uniforms;
     GLuint _programId;
     GLuint _vertShader;

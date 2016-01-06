@@ -193,7 +193,6 @@ static int totalTextureBytes;
 
     program.canvasSize = GLSizeFromCGSize(canvasSize);
 
-    NSLog(@"Using program: QUAD");
     [program use];
     printOpenGLError();
     glBindTexture(GL_TEXTURE_2D, self.textureID);

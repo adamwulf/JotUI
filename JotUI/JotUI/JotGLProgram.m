@@ -46,6 +46,7 @@ static NSMutableArray *_jotGLProgramAttributes;
             _jotGLProgramAttributes = [NSMutableArray array];
         });
 
+        _attributes = [NSMutableArray array];
         _programId = glCreateProgram();
         _uniforms = [NSMutableArray array];
 
@@ -158,6 +159,8 @@ static NSMutableArray *_jotGLProgramAttributes;
 {
     glUseProgram(_programId);
 
+    [self enableAndDisableAllAttributes];
+
     if(!self.canvasSize.width){
         @throw [NSException exceptionWithName:@"JotGLProgramException" reason:@"Attempting to use program without a canvas size" userInfo:nil];
     }
@@ -170,7 +173,6 @@ static NSMutableArray *_jotGLProgramAttributes;
     GLKMatrix4 modelViewMatrix = GLKMatrix4Identity; // this sample uses a constant identity modelView matrix
     GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
-    NSLog(@"Using matrix2: %.2f", (CGFloat) self.canvasSize.width);
     glUniformMatrix4fv([self uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
 
 }
@@ -227,15 +229,22 @@ static NSMutableArray *_jotGLProgramAttributes;
     {
         [_jotGLProgramAttributes addObject:attributeName];
     }
+    if(![_attributes containsObject:attributeName]){
+        [_attributes addObject:attributeName];
+    }
 
     glBindAttribLocation(_programId,
                          (GLuint)[_jotGLProgramAttributes indexOfObject:attributeName],
                          [attributeName UTF8String]);
 }
 
--(void) disableAllAttributes{
+-(void) enableAndDisableAllAttributes{
     for (NSString* attr in _jotGLProgramAttributes) {
-        glDisableVertexAttribArray([JotGLProgram attributeIndex:attr]);
+        if([_attributes containsObject:attr]){
+            glEnableVertexAttribArray([JotGLProgram attributeIndex:attr]);
+        }else{
+            glDisableVertexAttribArray([JotGLProgram attributeIndex:attr]);
+        }
     }
 }
 

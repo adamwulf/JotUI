@@ -53,8 +53,6 @@ int printOglError(char *file, int line);
 
 #pragma mark - Context Properties
 
--(void) glColor4f:(GLfloat)red and:(GLfloat)green and:(GLfloat)blue and:(GLfloat) alpha;
-
 -(void) flush;
 
 -(void) finish;
