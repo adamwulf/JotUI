@@ -178,7 +178,6 @@
         [context enablePointSizeArrayAtIndex:[[context coloredPointProgram] attributePointSizeIndex]
                                    forStride:sizeof(struct ColorfulVertex)
                                   andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
-        [context disableTextureCoordArray];
     }];
 }
 

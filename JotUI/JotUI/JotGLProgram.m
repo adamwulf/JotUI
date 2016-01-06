@@ -23,6 +23,8 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
 
 #pragma mark -
 
+static NSMutableArray *_jotGLProgramAttributes;
+
 @implementation JotGLProgram
 
 
@@ -39,8 +41,12 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
 
     if ((self = [super init]))
     {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            _jotGLProgramAttributes = [NSMutableArray array];
+        });
+
         _programId = glCreateProgram();
-        _attributes = [NSMutableArray array];
         _uniforms = [NSMutableArray array];
 
         if (![self compileShader:&_vertShader
@@ -128,10 +134,10 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
 
 #pragma mark - Attributes and Uniforms
 
-- (GLuint)attributeIndex:(NSString *)attributeName
++ (GLuint)attributeIndex:(NSString *)attributeName
 {
-    if([_attributes containsObject:attributeName]){
-        return (GLuint)[_attributes indexOfObject:attributeName];
+    if([_jotGLProgramAttributes containsObject:attributeName]){
+        return (GLuint)[_jotGLProgramAttributes indexOfObject:attributeName];
     }else{
         @throw [NSException exceptionWithName:@"GLProgramException" reason:[NSString stringWithFormat:@"Program does not contain a attribute '%@'", attributeName] userInfo:nil];
     }
@@ -153,10 +159,10 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
     glUseProgram(_programId);
 
     if(!self.canvasSize.width){
-        [NSException exceptionWithName:@"JotGLProgramException" reason:@"Attempting to use program without a canvas size" userInfo:nil];
+        @throw [NSException exceptionWithName:@"JotGLProgramException" reason:@"Attempting to use program without a canvas size" userInfo:nil];
     }
     if(!self.canvasSize.height){
-        [NSException exceptionWithName:@"JotGLProgramException" reason:@"Attempting to use program without a canvas size" userInfo:nil];
+        @throw [NSException exceptionWithName:@"JotGLProgramException" reason:@"Attempting to use program without a canvas size" userInfo:nil];
     }
 
     // viewing matrices
@@ -217,12 +223,19 @@ typedef void (*GLLogFunction) (GLuint program, GLsizei bufsize, GLsizei* length,
 
 - (void)addAttribute:(NSString *)attributeName
 {
-    if (![_attributes containsObject:attributeName])
+    if (![_jotGLProgramAttributes containsObject:attributeName])
     {
-        [_attributes addObject:attributeName];
-        glBindAttribLocation(_programId,
-                             (GLuint)[_attributes indexOfObject:attributeName],
-                             [attributeName UTF8String]);
+        [_jotGLProgramAttributes addObject:attributeName];
+    }
+
+    glBindAttribLocation(_programId,
+                         (GLuint)[_jotGLProgramAttributes indexOfObject:attributeName],
+                         [attributeName UTF8String]);
+}
+
+-(void) disableAllAttributes{
+    for (NSString* attr in _jotGLProgramAttributes) {
+        glDisableVertexAttribArray([JotGLProgram attributeIndex:attr]);
     }
 }
 

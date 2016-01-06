@@ -22,11 +22,11 @@
 }
 
 -(GLuint) attributePositionIndex{
-    return [self attributeIndex:@"position"];
+    return [JotGLProgram attributeIndex:@"position"];
 }
 
 -(GLuint) attributeTextureCoordinateIndex{
-    return [self attributeIndex:@"inputTextureCoordinate"];
+    return [JotGLProgram attributeIndex:@"inputTextureCoordinate"];
 }
 
 -(GLuint) uniformTextureIndex{

@@ -126,17 +126,12 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(void) glEnableBlend;
 
 -(void) enableVertexArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
--(void) disableVertexArray;
 
 -(void) enableColorArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
--(void) disableColorArray;
 
 -(void) enablePointSizeArrayAtIndex:(GLuint)index forStride:(GLsizei) stride andPointer:(const GLvoid *)pointer;
--(void) disablePointSizeArray;
 
--(void) enableTextureCoordArray;
 -(void) enableTextureCoordArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer;
--(void) disableTextureCoordArray;
 
 
 

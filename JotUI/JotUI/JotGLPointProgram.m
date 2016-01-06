@@ -22,11 +22,11 @@
 }
 
 -(GLuint) attributeVertexIndex{
-    return [self attributeIndex:@"inVertex"];
+    return [JotGLProgram attributeIndex:@"inVertex"];
 }
 
 -(GLuint) attributePointSizeIndex{
-    return [self attributeIndex:@"pointSize"];
+    return [JotGLProgram attributeIndex:@"pointSize"];
 }
 
 -(GLuint) uniformTextureIndex{

@@ -23,7 +23,7 @@
 
 
 -(GLuint) attributeVertexColorIndex{
-    return [self attributeIndex:@"inVertexColor"];
+    return [JotGLProgram attributeIndex:@"inVertexColor"];
 }
 
 

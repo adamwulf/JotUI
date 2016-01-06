@@ -13,7 +13,7 @@
 
 @interface JotGLProgram ()
 
-- (GLuint)attributeIndex:(NSString *)attributeName;
++ (GLuint)attributeIndex:(NSString *)attributeName;
 - (GLuint)uniformIndex:(NSString *)uniformName;
 
 @end

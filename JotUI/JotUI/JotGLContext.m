@@ -591,19 +591,9 @@ typedef enum UndfBOOL{
     vertex_pointer_type = GL_FLOAT;
     vertex_pointer_stride = stride;
     vertex_pointer_pointer = pointer;
-    if(!stride){
-        [NSException exceptionWithName:@"StrideException" reason:@"stride cannot be zero" userInfo:nil];
-    }
-    printOpenGLError();
-}
--(void) disableVertexArray{
-//    glDisableVertexAttribArray(ATTRIB_VERTEX);
     printOpenGLError();
 }
 
--(void) enableColorArray{
-//    [self glEnableClientState:GL_COLOR_ARRAY];
-}
 -(void) enableColorArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
     glEnableVertexAttribArray(index);
     printOpenGLError();
@@ -612,13 +602,7 @@ typedef enum UndfBOOL{
     color_pointer_type = GL_FLOAT;
     color_pointer_stride = stride;
     color_pointer_pointer = pointer;
-    if(!stride){
-        [NSException exceptionWithName:@"StrideException" reason:@"stride cannot be zero" userInfo:nil];
-    }
     printOpenGLError();
-}
--(void) disableColorArray{
-//    [self glDisableClientState:GL_COLOR_ARRAY];
 }
 
 -(void) enablePointSizeArrayAtIndex:(GLuint)index forStride:(GLsizei) stride andPointer:(const GLvoid *)pointer{
@@ -628,19 +612,9 @@ typedef enum UndfBOOL{
     point_pointer_type = GL_FLOAT;
     point_pointer_stride = stride;
     point_pointer_pointer = pointer;
-    if(!stride){
-        [NSException exceptionWithName:@"StrideException" reason:@"stride cannot be zero" userInfo:nil];
-    }
-    printOpenGLError();
-}
--(void) disablePointSizeArray{
-//    glDisableVertexAttribArray(ATTRIB_POINT_SIZE);
     printOpenGLError();
 }
 
--(void) enableTextureCoordArray{
-//    [self glEnableClientState:GL_TEXTURE_COORD_ARRAY];
-}
 -(void) enableTextureCoordArrayAtIndex:(GLuint)index forSize:(GLint)size andStride:(GLsizei)stride andPointer:(const GLvoid *)pointer{
     glEnableVertexAttribArray(index);
     glVertexAttribPointer(index, size, GL_FLOAT, GL_FALSE, stride, pointer);
@@ -649,9 +623,6 @@ typedef enum UndfBOOL{
     texcoord_pointer_stride = stride;
     texcoord_pointer_pointer = pointer;
     printOpenGLError();
-}
--(void) disableTextureCoordArray{
-//    [self glDisableClientState:GL_TEXTURE_COORD_ARRAY];
 }
 
 
@@ -791,8 +762,6 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
             [clipping bindForRenderToQuadWithCanvasSize:resolution forProgram:[self stencilProgram]];
 
-            [self disableColorArray];
-            [self disablePointSizeArray];
             [self glColor4f:1 and:1 and:1 and:1];
             
             [self enableVertexArrayAtIndex:vertIndex forSize:2 andStride:0 andPointer:vertices];
