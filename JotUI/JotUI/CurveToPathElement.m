@@ -20,7 +20,7 @@
 #import "JotGLColorlessPointProgram.h"
 #import "JotGLColoredPointProgram.h"
 
-#define kDivideStepBy 5
+#define kDivideStepBy 1.5
 #define kAbsoluteMinWidth 0.5
 
 @implementation CurveToPathElement{
@@ -212,7 +212,8 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             }
             CGFloat stepWidth = self.width * scaleOfVertexBuffer;
             if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
-            CGFloat alpha = colorComponents[3] / (stepWidth / kDivideStepBy);
+            NSLog(@"stepWidth: %.2f ", stepWidth);
+            CGFloat alpha = colorComponents[3] / kDivideStepBy;
             if(alpha > 1) alpha = 1;
             
             // set alpha first, because we'll premultiply immediately after
@@ -230,7 +231,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 }
 
 -(CGFloat) stepSizeWithPreviousElement:(AbstractBezierPathElement*)previousElement{
-    return MIN(kBrushStepSize, MIN(self.width, previousElement.width) / 3.0);
+    return .5; //MIN(kBrushStepSize, MIN(self.width, previousElement.width) / 3.0);
 }
 /**
  * the ideal number of steps we should take along
@@ -390,7 +391,7 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             calcColor[2] = prevColor[2] + colorSteps[2] * t;
             calcColor[3] = prevColor[3] + colorSteps[3] * t;
 
-            calcColor[3] = calcColor[3] / (stepWidth / kDivideStepBy);
+            calcColor[3] = calcColor[3] / kDivideStepBy;
             if(calcColor[3] > 1){
                 calcColor[3] = 1;
             }
