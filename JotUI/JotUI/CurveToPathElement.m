@@ -212,7 +212,6 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
             }
             CGFloat stepWidth = self.width * scaleOfVertexBuffer;
             if(stepWidth < kAbsoluteMinWidth) stepWidth = kAbsoluteMinWidth;
-            NSLog(@"stepWidth: %.2f ", stepWidth);
             CGFloat alpha = colorComponents[3] / kDivideStepBy;
             if(alpha > 1) alpha = 1;
             
