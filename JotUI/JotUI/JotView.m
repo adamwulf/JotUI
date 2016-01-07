@@ -1460,9 +1460,14 @@ static int undoCounter;
                 @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
             }
             state.currentStroke = newStroke;
+            CGPoint locInView = [jotTouch locationInView:self];
+            CGPoint preciseLocInView = locInView;
+            if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
+                preciseLocInView = [jotTouch.touch preciseLocationInView:self];
+            }
             // find the stroke that we're modifying, and then add an element and render it
             [self addLineToAndRenderStroke:newStroke
-                                   toPoint:[jotTouch locationInView:self]
+                                   toPoint:preciseLocInView
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
@@ -1485,8 +1490,13 @@ static int undoCounter;
         JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
         if(currentStroke){
             // find the stroke that we're modifying, and then add an element and render it
+            CGPoint locInView = [jotTouch locationInView:self];
+            CGPoint preciseLocInView = locInView;
+            if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
+                preciseLocInView = [jotTouch.touch preciseLocationInView:self];
+            }
             [self addLineToAndRenderStroke:currentStroke
-                                   toPoint:[jotTouch locationInView:self]
+                                   toPoint:preciseLocInView
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
@@ -1512,8 +1522,13 @@ static int undoCounter;
             // move to this endpoint
             [self jotStylusTouchMoved:touches];
             // now line to the end of the stroke
+            CGPoint locInView = [jotTouch locationInView:self];
+            CGPoint preciseLocInView = locInView;
+            if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
+                preciseLocInView = [jotTouch.touch preciseLocationInView:self];
+            }
             [self addLineToAndRenderStroke:currentStroke
-                                   toPoint:[jotTouch locationInView:self]
+                                   toPoint:preciseLocInView
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
                              andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
@@ -1605,8 +1620,13 @@ static int undoCounter;
                     newStroke.delegate = self;
                     state.currentStroke = newStroke;
                     // find the stroke that we're modifying, and then add an element and render it
+                    CGPoint locInView = [jotTouch locationInView:self];
+                    CGPoint preciseLocInView = locInView;
+                    if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
+                        preciseLocInView = [jotTouch.touch preciseLocationInView:self];
+                    }
                     [self addLineToAndRenderStroke:newStroke
-                                           toPoint:[touch locationInView:self]
+                                           toPoint:preciseLocInView
                                            toWidth:[self.delegate widthForTouch:jotTouch]
                                            toColor:[self.delegate colorForTouch:jotTouch]
                                      andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
@@ -1633,9 +1653,14 @@ static int undoCounter;
                 [self.delegate willMoveStrokeWithTouch:jotTouch];
                 JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
                 if(currentStroke){
+                    CGPoint locInView = [jotTouch locationInView:self];
+                    CGPoint preciseLocInView = locInView;
+                    if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
+                        preciseLocInView = [jotTouch.touch preciseLocationInView:self];
+                    }
                     // find the stroke that we're modifying, and then add an element and render it
                     [self addLineToAndRenderStroke:currentStroke
-                                           toPoint:[touch locationInView:self]
+                                           toPoint:preciseLocInView
                                            toWidth:[self.delegate widthForTouch:jotTouch]
                                            toColor:[self.delegate colorForTouch:jotTouch]
                                      andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
@@ -1663,8 +1688,13 @@ static int undoCounter;
                     [self touchesMoved:[NSSet setWithObject:touch] withEvent:event];
                     // now line to the end of the stroke
                     
+                    CGPoint locInView = [jotTouch locationInView:self];
+                    CGPoint preciseLocInView = locInView;
+                    if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
+                        preciseLocInView = [jotTouch.touch preciseLocationInView:self];
+                    }
                     [self addLineToAndRenderStroke:currentStroke
-                                           toPoint:[touch locationInView:self]
+                                           toPoint:preciseLocInView
                                            toWidth:[self.delegate widthForTouch:jotTouch]
                                            toColor:[self.delegate colorForTouch:jotTouch]
                                      andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
