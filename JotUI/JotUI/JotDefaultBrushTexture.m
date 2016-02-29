@@ -9,6 +9,7 @@
 #import "JotDefaultBrushTexture.h"
 #import "JotGLContext.h"
 #import "JotSharedBrushTexture.h"
+#import "UIImage+BrushTextures.h"
 
 @implementation JotDefaultBrushTexture
 
@@ -27,35 +28,16 @@
 
 #pragma mark - Singleton
 
--(JotSharedBrushTexture*)brushTexture{
-    JotGLContext* currContext = (JotGLContext*)[JotGLContext currentContext];
-    if(!currContext){
-        @throw [NSException exceptionWithName:@"NilGLContextException" reason:@"Cannot bind texture to nil gl context" userInfo:nil];
-    }
-    if(![currContext isKindOfClass:[JotGLContext class]]){
-        @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"Current GL Context must be JotGLContext" userInfo:nil];
-    }
-    JotSharedBrushTexture* texture = [currContext.contextProperties objectForKey:@"brushTexture"];
-    if(!texture){
-        texture = [[JotSharedBrushTexture alloc] init];
-        [currContext.contextProperties setObject:texture forKey:@"brushTexture"];
-    }
-    return texture;
-}
-
 -(UIImage*) texture{
-    JotSharedBrushTexture* texture = [self brushTexture];
-    return [texture texture];
+    return [[self brushTexture] texture];
 }
 
 -(NSString*) name{
-    JotSharedBrushTexture* texture = [self brushTexture];
-    return [texture name];
+    return [[self brushTexture] name];
 }
 
 -(BOOL) bind{
-    JotSharedBrushTexture* texture = [self brushTexture];
-    return [texture bind];
+    return [[self brushTexture] bind];
 }
 
 -(void) unbind{
@@ -93,5 +75,22 @@ static JotDefaultBrushTexture* _instance = nil;
 }
 
 
+#pragma mark - Private
+
+-(JotSharedBrushTexture*)brushTexture{
+    JotGLContext* currContext = (JotGLContext*)[JotGLContext currentContext];
+    if(!currContext){
+        @throw [NSException exceptionWithName:@"NilGLContextException" reason:@"Cannot bind texture to nil gl context" userInfo:nil];
+    }
+    if(![currContext isKindOfClass:[JotGLContext class]]){
+        @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"Current GL Context must be JotGLContext" userInfo:nil];
+    }
+    JotSharedBrushTexture* texture = [currContext.contextProperties objectForKey:@"brushTexture"];
+    if(!texture){
+        texture = [[JotSharedBrushTexture alloc] initWithImage:[UIImage circleBrushTexture]];
+        [currContext.contextProperties setObject:texture forKey:@"brushTexture"];
+    }
+    return texture;
+}
 
 @end

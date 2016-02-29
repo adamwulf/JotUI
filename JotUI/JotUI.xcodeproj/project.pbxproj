@@ -100,6 +100,8 @@
 		C50C0D621C3C965300DFC079 /* JotGLColorlessPointProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = C50C0D601C3C965300DFC079 /* JotGLColorlessPointProgram.m */; };
 		C50C0D671C3C9FF400DFC079 /* JotGLColoredPointProgram.h in Headers */ = {isa = PBXBuildFile; fileRef = C50C0D651C3C9FF400DFC079 /* JotGLColoredPointProgram.h */; };
 		C50C0D681C3C9FF400DFC079 /* JotGLColoredPointProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = C50C0D661C3C9FF400DFC079 /* JotGLColoredPointProgram.m */; };
+		C518C8761C841C1B00F1895C /* UIImage+BrushTextures.h in Headers */ = {isa = PBXBuildFile; fileRef = C518C8741C841C1B00F1895C /* UIImage+BrushTextures.h */; };
+		C518C8771C841C1B00F1895C /* UIImage+BrushTextures.m in Sources */ = {isa = PBXBuildFile; fileRef = C518C8751C841C1B00F1895C /* UIImage+BrushTextures.m */; };
 		C51F68701C3B7C3E003C046F /* JotGLProgram.h in Headers */ = {isa = PBXBuildFile; fileRef = C51F686E1C3B7C3E003C046F /* JotGLProgram.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C51F68711C3B7C3E003C046F /* JotGLProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = C51F686F1C3B7C3E003C046F /* JotGLProgram.m */; };
 		C535AA5E1C3B98BD0032D688 /* JotGLQuadProgram.h in Headers */ = {isa = PBXBuildFile; fileRef = C535AA5C1C3B98BD0032D688 /* JotGLQuadProgram.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -213,6 +215,8 @@
 		C50C0D601C3C965300DFC079 /* JotGLColorlessPointProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLColorlessPointProgram.m; sourceTree = "<group>"; };
 		C50C0D651C3C9FF400DFC079 /* JotGLColoredPointProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLColoredPointProgram.h; sourceTree = "<group>"; };
 		C50C0D661C3C9FF400DFC079 /* JotGLColoredPointProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLColoredPointProgram.m; sourceTree = "<group>"; };
+		C518C8741C841C1B00F1895C /* UIImage+BrushTextures.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+BrushTextures.h"; sourceTree = "<group>"; };
+		C518C8751C841C1B00F1895C /* UIImage+BrushTextures.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+BrushTextures.m"; sourceTree = "<group>"; };
 		C51F686E1C3B7C3E003C046F /* JotGLProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLProgram.h; sourceTree = "<group>"; };
 		C51F686F1C3B7C3E003C046F /* JotGLProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLProgram.m; sourceTree = "<group>"; };
 		C535AA5C1C3B98BD0032D688 /* JotGLQuadProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLQuadProgram.h; sourceTree = "<group>"; };
@@ -469,6 +473,8 @@
 				667C9F6D19FEF2C900708632 /* JotSharedBrushTexture.m */,
 				66BF7F2317667663003F4F67 /* JotDefaultBrushTexture.h */,
 				66BF7F2417667663003F4F67 /* JotDefaultBrushTexture.m */,
+				C518C8741C841C1B00F1895C /* UIImage+BrushTextures.h */,
+				C518C8751C841C1B00F1895C /* UIImage+BrushTextures.m */,
 			);
 			name = "Brush Texture";
 			sourceTree = "<group>";
@@ -552,6 +558,7 @@
 				66F1F1EA18079BD700B8CE3B /* JotBufferVBO.h in Headers */,
 				66F1F1EB18079BD700B8CE3B /* OpenGLVBO.h in Headers */,
 				66F1F1EC18079BD700B8CE3B /* PlistSaving.h in Headers */,
+				C518C8761C841C1B00F1895C /* UIImage+BrushTextures.h in Headers */,
 				66F1F1ED18079BD700B8CE3B /* JotBrushTexture.h in Headers */,
 				66F1F1EE18079BD700B8CE3B /* JotDefaultBrushTexture.h in Headers */,
 				66F1F1EF18079BD700B8CE3B /* JotGLTexture.h in Headers */,
@@ -737,6 +744,7 @@
 				C50C0D621C3C965300DFC079 /* JotGLColorlessPointProgram.m in Sources */,
 				66AC157318079B27005315C8 /* JotStrokeManager.m in Sources */,
 				66AC157418079B27005315C8 /* JotImmutableStroke.m in Sources */,
+				C518C8771C841C1B00F1895C /* UIImage+BrushTextures.m in Sources */,
 				66AC157518079B27005315C8 /* SegmentSmoother.m in Sources */,
 				C584F8291C37B38C00413840 /* fileUtil.m in Sources */,
 				C535AA5F1C3B98BD0032D688 /* JotGLQuadProgram.m in Sources */,

@@ -75,7 +75,7 @@
 -(void) finishCurrentStroke;
 
 
--(void) addUndoLevelAndFinishStrokeWithBrush:(JotBrushTexture*)brushTexture;
+-(void) addUndoLevelAndFinishStroke;
 
 -(void) forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture;
 
@@ -87,7 +87,7 @@
 
 // returns the new stroke that is the continuation
 // of the currentStroke
--(void) addUndoLevelAndContinueStrokeWithBrush:(JotBrushTexture*)brushTexture;
+-(void) addUndoLevelAndContinueStroke;
 
 #pragma mark - Debug
 

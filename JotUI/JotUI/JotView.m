@@ -1454,7 +1454,7 @@ static int undoCounter;
     
     for(JotTouch* jotTouch in touches){
         if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-            JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[JotDefaultBrushTexture sharedInstance] andBufferManager:state.bufferManager];
+            JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[self.delegate textureForStroke] andBufferManager:state.bufferManager];
             newStroke.delegate = self;
             if(state.currentStroke){
                 @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
@@ -1616,7 +1616,7 @@ static int undoCounter;
             @autoreleasepool {
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-                    JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[JotDefaultBrushTexture sharedInstance] andBufferManager:state.bufferManager];
+                    JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[self.delegate textureForStroke] andBufferManager:state.bufferManager];
                     newStroke.delegate = self;
                     state.currentStroke = newStroke;
                     // find the stroke that we're modifying, and then add an element and render it
@@ -1865,11 +1865,11 @@ static int undoCounter;
 // if no current strokes, then add an
 // empty stroke to the stack
 -(void) addUndoLevelAndContinueStroke{
-    [state addUndoLevelAndContinueStrokeWithBrush:[JotDefaultBrushTexture sharedInstance]];
+    [state addUndoLevelAndContinueStroke];
 }
 
 -(void) addUndoLevelAndFinishStroke{
-    [state addUndoLevelAndFinishStrokeWithBrush:[JotDefaultBrushTexture sharedInstance]];
+    [state addUndoLevelAndFinishStroke];
 }
 
 /**
@@ -1906,7 +1906,7 @@ static int undoCounter;
             if(state.currentStroke){
                 @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
             }
-            stroke = [[JotStroke alloc] initWithTexture:[JotDefaultBrushTexture sharedInstance] andBufferManager:self.state.bufferManager];
+            stroke = [[JotStroke alloc] initWithTexture:[self.delegate textureForStroke] andBufferManager:self.state.bufferManager];
             state.currentStroke = stroke;
         }
         [stroke lock];

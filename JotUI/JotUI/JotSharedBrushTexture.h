@@ -10,4 +10,8 @@
 
 @interface JotSharedBrushTexture : JotBrushTexture
 
+-(instancetype) init NS_UNAVAILABLE;
+
+-(instancetype) initWithImage:(UIImage*)texture;
+
 @end

@@ -361,13 +361,13 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
     }
 }
 
--(void) addUndoLevelAndFinishStrokeWithBrush:(JotBrushTexture*)brushTexture{
+-(void) addUndoLevelAndFinishStroke{
     @synchronized(self){
         if(currentStroke){
             [stackOfStrokes addObject:currentStroke];
             currentStroke = nil;
         }else{
-            [self forceAddEmptyStrokeWithBrush:brushTexture];
+            [self forceAddEmptyStrokeWithBrush:[JotDefaultBrushTexture sharedInstance]];
         }
         [[JotTrashManager sharedInstance] addObjectsToDealloc:stackOfUndoneStrokes];
         [stackOfUndoneStrokes removeAllObjects];
@@ -393,7 +393,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
     }
 }
 
--(void) addUndoLevelAndContinueStrokeWithBrush:(JotBrushTexture*)brushTexture{
+-(void) addUndoLevelAndContinueStroke{
     @synchronized(self){
         if(currentStroke){
             // we have a currentStroke, so we need to
@@ -421,7 +421,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         }else{
             // there is no current stroke, so just add an empty stroke
             // to our undo stack
-            [self forceAddEmptyStrokeWithBrush:brushTexture];
+            [self forceAddEmptyStrokeWithBrush:[JotDefaultBrushTexture sharedInstance]];
         }
         
         // since we've added an undo level, we need to

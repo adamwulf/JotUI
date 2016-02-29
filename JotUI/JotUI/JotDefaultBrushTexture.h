@@ -1,5 +1,5 @@
 //
-//  JotDefaultBrushTexture.h
+//  JotPenBrushTexture.h
 //  JotUI
 //
 //  Created by Adam Wulf on 6/10/13.

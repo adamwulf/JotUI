@@ -99,9 +99,9 @@
 
 -(void) finishCurrentStroke;
 
--(void) addUndoLevelAndFinishStrokeWithBrush:(JotBrushTexture*)brushTexture;
+-(void) addUndoLevelAndFinishStroke;
 
--(void) addUndoLevelAndContinueStrokeWithBrush:(JotBrushTexture*)brushTexture;
+-(void) addUndoLevelAndContinueStroke;
 
 -(void) forceAddStroke:(JotStroke*)stroke;
 

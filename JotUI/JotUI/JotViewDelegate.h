@@ -8,10 +8,16 @@
 
 #import <Foundation/Foundation.h>
 #import "AbstractBezierPathElement.h"
+#import "JotBrushTexture.h"
 
 @class JotTouch, JotStroke;
 
 @protocol JotViewDelegate <NSObject>
+
+/**
+ * The texture to use for the new stroke
+ */
+- (JotBrushTexture*) textureForStroke;
 
 /**
  * for the input touch, what is the desired point

@@ -42,6 +42,8 @@
 #import <JotUI/MMWeakTimer.h>
 #import <JotUI/MMMainOperationQueue.h>
 #import <JotUI/JotGLProgram.h>
+#import <JotUI/JotBrushTexture.h>
+#import <JotUI/JotDefaultBrushTexture.h>
 
 typedef struct {
 	GLfloat	x;

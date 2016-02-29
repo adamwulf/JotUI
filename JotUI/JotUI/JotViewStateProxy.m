@@ -277,8 +277,8 @@ static BOOL shouldPrint = NO;
     [self.jotViewState forceAddStroke:stroke];
 }
 
--(void) addUndoLevelAndFinishStrokeWithBrush:(JotBrushTexture*)brushTexture{
-    [self.jotViewState addUndoLevelAndFinishStrokeWithBrush:brushTexture];
+-(void) addUndoLevelAndFinishStroke{
+    [self.jotViewState addUndoLevelAndFinishStroke];
 }
 
 -(void) forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture{
@@ -289,8 +289,8 @@ static BOOL shouldPrint = NO;
     [self.jotViewState clearAllStrokes];
 }
 
--(void) addUndoLevelAndContinueStrokeWithBrush:(JotBrushTexture*)brushTexture{
-    [self.jotViewState addUndoLevelAndContinueStrokeWithBrush:brushTexture];
+-(void) addUndoLevelAndContinueStroke{
+    [self.jotViewState addUndoLevelAndContinueStroke];
 }
 
 #pragma mark - Dealloc
