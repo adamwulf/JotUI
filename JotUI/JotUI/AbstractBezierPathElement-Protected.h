@@ -16,6 +16,7 @@
 
 @interface AbstractBezierPathElement ()
 
+@property (nonatomic, assign) CGFloat stepWidth;
 @property (nonatomic, strong) UIColor* color;
 @property (nonatomic, assign) CGFloat width;
 @property (nonatomic, assign) CGFloat extraLengthWithoutDot;

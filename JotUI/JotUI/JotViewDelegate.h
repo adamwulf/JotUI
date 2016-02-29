@@ -20,6 +20,11 @@
 - (JotBrushTexture*) textureForStroke;
 
 /**
+ * The texture to use for the new stroke
+ */
+- (CGFloat) stepWidthForStroke;
+
+/**
  * for the input touch, what is the desired point
  * width that should show on screen?
  *

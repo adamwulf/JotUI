@@ -16,6 +16,7 @@
     JotBufferManager* bufferManager;
 }
 
+@synthesize stepWidth;
 @synthesize startPoint;
 @synthesize width;
 @synthesize color;
@@ -164,6 +165,7 @@
             [NSNumber numberWithFloat:startPoint.x], @"startPoint.x",
             [NSNumber numberWithFloat:startPoint.y], @"startPoint.y",
             [NSNumber numberWithFloat:width], @"width",
+            [NSNumber numberWithFloat:stepWidth], @"stepWidth",
             [NSNumber numberWithFloat:extraLengthWithoutDot], @"extraLengthWithoutDot",
             (color ? [color asDictionary] : [NSDictionary dictionary]), @"color",
             [NSNumber numberWithFloat:scaleOfVertexBuffer], @"scaleOfVertexBuffer", nil];
@@ -174,6 +176,7 @@
     if (self) {
         startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
         width = [[dictionary objectForKey:@"width"] floatValue];
+        stepWidth = [[dictionary objectForKey:@"stepWidth"] floatValue] ?: .5;
         extraLengthWithoutDot = [[dictionary objectForKey:@"extraLengthWithoutDot"] floatValue];
         color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
         scaleOfVertexBuffer = [[dictionary objectForKey:@"scaleOfVertexBuffer"] floatValue];

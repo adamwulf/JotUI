@@ -1137,7 +1137,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
  * it will smooth a rounded line from the previous segment, and will
  * also smooth the width and color transition
  */
-- (BOOL) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor{
+- (BOOL) addLineToAndRenderStroke:(JotStroke*)currentStroke toPoint:(CGPoint)end toWidth:(CGFloat)width toColor:(UIColor*)color andSmoothness:(CGFloat)smoothFactor withStepWidth:(CGFloat)stepWidth{
     CheckMainThread;
     [currentStroke lock];
     // now we render to ourselves
@@ -1163,6 +1163,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
         // ok, we have the new element, set its color/width/rotation
         addedElement.color = color;
         addedElement.width = width;
+        addedElement.stepWidth = stepWidth;
         // now tell the stroke that it's added
         
         // let our delegate have an opportunity to modify the element array
@@ -1419,23 +1420,27 @@ static int undoCounter;
                            toPoint:CGPointMake(100, 100)
                            toWidth:6
                            toColor:[UIColor redColor]
-                     andSmoothness:0.7];
+                     andSmoothness:0.7
+                     withStepWidth:.5];
     [self addLineToAndRenderStroke:newStroke
                            toPoint:CGPointMake(100, 100)
                            toWidth:6
                            toColor:[UIColor redColor]
-                     andSmoothness:0.7];
+                     andSmoothness:0.7
+                     withStepWidth:.5];
     
     [self addLineToAndRenderStroke:newStroke
                            toPoint:CGPointMake(700, 700)
                            toWidth:6
                            toColor:[UIColor redColor]
-                     andSmoothness:0.7];
+                     andSmoothness:0.7
+                     withStepWidth:.5];
     [self addLineToAndRenderStroke:newStroke
                            toPoint:CGPointMake(700, 700)
                            toWidth:30
                            toColor:[UIColor blueColor]
-                     andSmoothness:0.7];
+                     andSmoothness:0.7
+                     withStepWidth:.5];
     
     [state forceAddStroke:newStroke];
     
@@ -1470,7 +1475,8 @@ static int undoCounter;
                                    toPoint:preciseLocInView
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
-                             andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                             andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
+                             withStepWidth:[self.delegate stepWidthForStroke]];
         }
     }
     [JotGLContext validateEmptyContextStack];
@@ -1499,7 +1505,8 @@ static int undoCounter;
                                    toPoint:preciseLocInView
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
-                             andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                             andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
+                             withStepWidth:[self.delegate stepWidthForStroke]];
         }
     }
     [JotGLContext validateEmptyContextStack];
@@ -1531,8 +1538,9 @@ static int undoCounter;
                                    toPoint:preciseLocInView
                                    toWidth:[self.delegate widthForTouch:jotTouch]
                                    toColor:[self.delegate colorForTouch:jotTouch]
-                             andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-            
+                             andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
+                             withStepWidth:[self.delegate stepWidthForStroke]];
+
             // this stroke is now finished, so add it to our completed strokes stack
             // and remove it from the current strokes, and reset our undo state if any
             if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
@@ -1629,7 +1637,8 @@ static int undoCounter;
                                            toPoint:preciseLocInView
                                            toWidth:[self.delegate widthForTouch:jotTouch]
                                            toColor:[self.delegate colorForTouch:jotTouch]
-                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
+                                     withStepWidth:[self.delegate stepWidthForStroke]];
                 }
             }
         }
@@ -1663,7 +1672,8 @@ static int undoCounter;
                                            toPoint:preciseLocInView
                                            toWidth:[self.delegate widthForTouch:jotTouch]
                                            toColor:[self.delegate colorForTouch:jotTouch]
-                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
+                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
+                                     withStepWidth:[self.delegate stepWidthForStroke]];
                 }
             }
         }
@@ -1697,8 +1707,9 @@ static int undoCounter;
                                            toPoint:preciseLocInView
                                            toWidth:[self.delegate widthForTouch:jotTouch]
                                            toColor:[self.delegate colorForTouch:jotTouch]
-                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]];
-                    
+                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
+                                     withStepWidth:[self.delegate stepWidthForStroke]];
+
                     // this stroke is now finished, so add it to our completed strokes stack
                     // and remove it from the current strokes, and reset our undo state if any
                     if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){

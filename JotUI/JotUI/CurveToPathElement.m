@@ -230,7 +230,8 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
 }
 
 -(CGFloat) stepSizeWithPreviousElement:(AbstractBezierPathElement*)previousElement{
-    return .5; //MIN(kBrushStepSize, MIN(self.width, previousElement.width) / 3.0);
+    return self.stepWidth;
+//    return .5; //MIN(kBrushStepSize, MIN(self.width, previousElement.width) / 3.0);
 }
 /**
  * the ideal number of steps we should take along

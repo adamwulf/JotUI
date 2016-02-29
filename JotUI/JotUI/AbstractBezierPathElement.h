@@ -48,6 +48,7 @@ struct ColorlessVertex{
     CGFloat scaleOfVertexBuffer;
 }
 
+@property (nonatomic, readonly) CGFloat stepWidth;
 @property (nonatomic, readonly) UIColor* color;
 @property (nonatomic, readonly) CGFloat width;
 @property (nonatomic, readonly) CGPoint startPoint;
