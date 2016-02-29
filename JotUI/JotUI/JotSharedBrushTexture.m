@@ -19,4 +19,8 @@
     return self;
 }
 
+-(UIImage*) texture{
+    return textureCache;
+}
+
 @end
