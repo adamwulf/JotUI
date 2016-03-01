@@ -35,6 +35,7 @@
 #import "UIScreen+PortraitBounds.h"
 #import "JotGLColorlessPointProgram.h"
 #import "JotGLColoredPointProgram.h"
+#import "NSArray+JotMapReduce.h"
 
 #define kJotValidateUndoTimer .06
 
@@ -1164,6 +1165,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
         addedElement.color = color;
         addedElement.width = width;
         addedElement.stepWidth = stepWidth;
+        addedElement.rotation = previousElement.rotation;
         // now tell the stroke that it's added
         
         // let our delegate have an opportunity to modify the element array
@@ -1646,6 +1648,14 @@ static int undoCounter;
     [JotGLContext validateEmptyContextStack];
 }
 
+/**
+ * calculates the distance between two points
+ */
+static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
+    return hypotf( a.x - b.x, a.y - b.y );
+}
+
+
 -(void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
 
     if(!state) return;
@@ -1661,6 +1671,26 @@ static int undoCounter;
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 [self.delegate willMoveStrokeWithTouch:jotTouch];
                 JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
+
+                if([[currentStroke segments] count] < 10){
+                    CGFloat len = [[[currentStroke segments] jotReduce:^id(AbstractBezierPathElement* ele, NSUInteger index, id accum) {
+                        return @([ele lengthOfElement] + [accum floatValue]);
+                    }] floatValue];
+
+                    CGPoint start = [[[currentStroke segments] firstObject] startPoint];
+                    CGPoint end = [[[currentStroke segments] lastObject] endPoint];
+
+                    if(([[currentStroke segments] count] == 2) ||
+                       (len < 50 && distanceBetween2(start, end) < 5)){
+                        CGPoint diff = CGPointMake(end.x - start.x, end.y - start.y);
+                        CGFloat rot = atan2(diff.y, diff.x);
+
+                        [[currentStroke segments] enumerateObjectsUsingBlock:^(AbstractBezierPathElement*  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                            obj.rotation = rot;
+                        }];
+                    }
+                }
+
                 if(currentStroke){
                     CGPoint locInView = [jotTouch locationInView:self];
                     CGPoint preciseLocInView = locInView;

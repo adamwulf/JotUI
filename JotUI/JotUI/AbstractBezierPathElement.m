@@ -17,6 +17,7 @@
 }
 
 @synthesize stepWidth;
+@synthesize rotation;
 @synthesize startPoint;
 @synthesize width;
 @synthesize color;
@@ -164,6 +165,7 @@
     return [NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([self class]), @"class",
             [NSNumber numberWithFloat:startPoint.x], @"startPoint.x",
             [NSNumber numberWithFloat:startPoint.y], @"startPoint.y",
+            [NSNumber numberWithFloat:rotation], @"rotation",
             [NSNumber numberWithFloat:width], @"width",
             [NSNumber numberWithFloat:stepWidth], @"stepWidth",
             [NSNumber numberWithFloat:extraLengthWithoutDot], @"extraLengthWithoutDot",
@@ -176,6 +178,7 @@
     if (self) {
         startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
         width = [[dictionary objectForKey:@"width"] floatValue];
+        rotation = [[dictionary objectForKey:@"rotation"] floatValue];
         stepWidth = [[dictionary objectForKey:@"stepWidth"] floatValue] ?: .5;
         extraLengthWithoutDot = [[dictionary objectForKey:@"extraLengthWithoutDot"] floatValue];
         color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];

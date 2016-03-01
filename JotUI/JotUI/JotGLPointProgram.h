@@ -16,6 +16,8 @@
                     withAttributes:(NSArray<NSString*>*)attributes
                        andUniforms:(NSArray<NSString*>*)uniforms;
 
+@property (nonatomic, assign) GLfloat rotation;
+
 -(GLuint) attributeVertexIndex;
 
 -(GLuint) attributePointSizeIndex;

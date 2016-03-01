@@ -15,7 +15,7 @@
     if(self = [super initWithVertexShaderFilename:@"coloredpoint"
                            fragmentShaderFilename:@"point"
                                    withAttributes:@[@"inVertexColor"]
-                                      andUniforms:@[]]){
+                                      andUniforms:@[@"rotation"]]){
         // add inVertexColor uniform to the default uniforms
     }
     return self;

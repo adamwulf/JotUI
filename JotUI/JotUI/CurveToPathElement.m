@@ -503,7 +503,9 @@ static CGFloat screenHeight;
         // we're only allowed to create vbo
         // on the main thread.
         // if we need a vbo, then create it
-        [[self glProgramForContext:context] use];
+        JotGLPointProgram* program = (JotGLPointProgram*)[self glProgramForContext:context];
+        program.rotation = self.rotation;
+        [program use];
 
         [self loadDataIntoVBOIfNeeded];
         if(vertexBufferShouldContainColor){

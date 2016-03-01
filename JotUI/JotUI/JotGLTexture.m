@@ -199,6 +199,7 @@ static int totalTextureBytes;
     printOpenGLError();
     glDisable(GL_CULL_FACE);
     printOpenGLError();
+    // TODO: shouldn't this be inside the Program?
     glUniform1i([program uniformTextureIndex], 0);
     printOpenGLError();
 }
