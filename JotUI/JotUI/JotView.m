@@ -1166,6 +1166,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
         addedElement.width = width;
         addedElement.stepWidth = stepWidth;
         addedElement.rotation = previousElement.rotation;
+
         // now tell the stroke that it's added
         
         // let our delegate have an opportunity to modify the element array
@@ -1669,6 +1670,14 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                 // for this example, we'll simply draw every touch if
                 // the jot sdk is not enabled
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
+                CGPoint preciseLocInView = [jotTouch locationInView:self];
+                if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
+                    preciseLocInView = [jotTouch.touch preciseLocationInView:self];
+                }
+                // Convert touch point from UIView referential to OpenGL one (upside-down flip)
+                CGPoint glPreciseLocInView = preciseLocInView;
+                glPreciseLocInView.y = self.bounds.size.height - glPreciseLocInView.y;
+
                 [self.delegate willMoveStrokeWithTouch:jotTouch];
                 JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
 
@@ -1678,9 +1687,9 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                     }] floatValue];
 
                     CGPoint start = [[[currentStroke segments] firstObject] startPoint];
-                    CGPoint end = [[[currentStroke segments] lastObject] endPoint];
+                    CGPoint end = glPreciseLocInView;
 
-                    if(([[currentStroke segments] count] == 2) ||
+                    if(([[currentStroke segments] count] <= 2) ||
                        (len < 50 && distanceBetween2(start, end) < 5)){
                         CGPoint diff = CGPointMake(end.x - start.x, end.y - start.y);
                         CGFloat rot = atan2(diff.y, diff.x);
@@ -1692,8 +1701,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                 }
 
                 if(currentStroke){
-                    CGPoint locInView = [jotTouch locationInView:self];
-                    CGPoint preciseLocInView = locInView;
+                    CGPoint preciseLocInView = [jotTouch locationInView:self];
                     if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
                         preciseLocInView = [jotTouch.touch preciseLocationInView:self];
                     }

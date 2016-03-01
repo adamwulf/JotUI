@@ -220,7 +220,9 @@ static NSMutableArray *_jotGLProgramAttributes;
         _programLog = [NSString stringWithFormat:@"%s", log];
         free(log);
     }
-    NSLog(@"Program Log: %@", _programLog);
+    if([_programLog length]){
+        NSLog(@"Program Log: %@", _programLog);
+    }
 }
 
 - (void)addAttribute:(NSString *)attributeName
