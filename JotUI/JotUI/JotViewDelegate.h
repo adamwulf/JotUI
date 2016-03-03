@@ -25,6 +25,12 @@
 - (CGFloat) stepWidthForStroke;
 
 /**
+ * YES if the current pen can rotate its texture
+ * NO otherwise
+ */
+-(BOOL) supportsRotation;
+
+/**
  * for the input touch, what is the desired point
  * width that should show on screen?
  *

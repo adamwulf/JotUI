@@ -1044,20 +1044,26 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             [self prepOpenGLStateForFBO:theFramebuffer toContext:renderContext];
             // reset the texture so that we load the brush texture next
             // now draw the strokes
-            
+
+            BOOL hasScissor = !CGRectEqualToRect(scissorRect, CGRectZero);
+            CGFloat scale = self.contentScaleFactor;
+            CGRect scissorRectPts = CGRectApplyAffineTransform(scissorRect, CGAffineTransformMakeScale(1/scale, 1/scale));
+
             for(JotStroke* stroke in [state everyVisibleStroke]){
-                [stroke lock];
-                // make sure our texture is the correct one for this stroke
-                [stroke.texture bind];
-                
-                // draw each stroke element
-                AbstractBezierPathElement* prevElement = nil;
-                for(AbstractBezierPathElement* element in stroke.segments){
-                    [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil toContext:renderContext];
-                    prevElement = element;
+                if(!hasScissor || CGRectIntersectsRect(scissorRectPts, [stroke bounds])){
+                    [stroke lock];
+                    // make sure our texture is the correct one for this stroke
+                    [stroke.texture bind];
+
+                    // draw each stroke element
+                    AbstractBezierPathElement* prevElement = nil;
+                    for(AbstractBezierPathElement* element in stroke.segments){
+                        [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil toContext:renderContext];
+                        prevElement = element;
+                    }
+                    [stroke.texture unbind];
+                    [stroke unlock];
                 }
-                [stroke.texture unbind];
-                [stroke unlock];
             }
 
             if(block){
@@ -1681,19 +1687,21 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                 [self.delegate willMoveStrokeWithTouch:jotTouch];
                 JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
 
-                if([[currentStroke segments] count] < 10){
+                BOOL needsRenderAgain = NO;
+                if([self.delegate supportsRotation] && [[currentStroke segments] count] < 10){
                     CGFloat len = [[[currentStroke segments] jotReduce:^id(AbstractBezierPathElement* ele, NSUInteger index, id accum) {
                         return @([ele lengthOfElement] + [accum floatValue]);
                     }] floatValue];
 
                     CGPoint start = [[[currentStroke segments] firstObject] startPoint];
                     CGPoint end = glPreciseLocInView;
+                    CGPoint diff = CGPointMake(end.x - start.x, end.y - start.y);
+                    CGFloat rot = atan2(diff.y, diff.x);
 
                     if(([[currentStroke segments] count] <= 2) ||
-                       (len < 50 && distanceBetween2(start, end) < 5)){
-                        CGPoint diff = CGPointMake(end.x - start.x, end.y - start.y);
-                        CGFloat rot = atan2(diff.y, diff.x);
+                       (len < 20 && distanceBetween2(start, end) < 5)){
 
+                        needsRenderAgain = YES;
                         [[currentStroke segments] enumerateObjectsUsingBlock:^(AbstractBezierPathElement*  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                             obj.rotation = rot;
                         }];
@@ -1705,6 +1713,19 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                     if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
                         preciseLocInView = [jotTouch.touch preciseLocationInView:self];
                     }
+
+                    if(needsRenderAgain){
+                        CGPoint glStartPoint = [[[currentStroke segments] firstObject] startPoint];
+                        CGPoint startPoint = glStartPoint;
+                        startPoint.y = self.bounds.size.height - glStartPoint.y;
+
+                        CGFloat scale = [[UIScreen mainScreen] scale];
+                        CGRect bounds = [currentStroke bounds];
+                        bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
+
+                        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:NO inRect:bounds];
+                    }
+
                     // find the stroke that we're modifying, and then add an element and render it
                     [self addLineToAndRenderStroke:currentStroke
                                            toPoint:preciseLocInView
@@ -2246,9 +2267,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
     
     return canvasTexture;
 }
-
-
-
 
 -(void) drawBackingTexture:(JotGLTexture*)texture atP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 clippingPath:(UIBezierPath*)clipPath andClippingSize:(CGSize)clipSize withTextureSize:(CGSize)textureSize{
     
