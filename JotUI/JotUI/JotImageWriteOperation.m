@@ -12,6 +12,8 @@
     UIImage* imageToWrite;
     NSString* pathToWriteImageTo;
     void(^notifyBlock)();
+    BOOL isRunning;
+    NSObject* lock;
 }
 
 /** Initialize with the provided block. */
@@ -20,6 +22,7 @@
         pathToWriteImageTo = path;
         imageToWrite = image;
         notifyBlock = block;
+        lock = [[NSObject alloc] init];
     }
     return self;
 }
@@ -34,19 +37,27 @@
 
 // from NSOperation
 - (void) main {
-    @synchronized(self){
-        if(![self isCancelled]){
-            if(imageToWrite){
-//                DebugLog(@"wrote image to: %@", self.path);
-                
-                [UIImagePNGRepresentation(imageToWrite) writeToFile:pathToWriteImageTo atomically:YES];
-            }else{
-//                DebugLog(@"nil image, deleting file at: %@", self.path);
-                [[NSFileManager defaultManager] removeItemAtPath:pathToWriteImageTo error:nil];
+    @synchronized(lock) {
+        if([self isCancelled]){
+            if(notifyBlock){
+                notifyBlock(self);
             }
+            return;
         }else{
-            DebugLog(@"cancelled write to: %@", self.path);
+            isRunning = YES;
         }
+    }
+    if(![self isCancelled]){
+        if(imageToWrite){
+//                DebugLog(@"wrote image to: %@", self.path);
+            
+            [UIImagePNGRepresentation(imageToWrite) writeToFile:pathToWriteImageTo atomically:YES];
+        }else{
+//                DebugLog(@"nil image, deleting file at: %@", self.path);
+            [[NSFileManager defaultManager] removeItemAtPath:pathToWriteImageTo error:nil];
+        }
+    }else{
+        DebugLog(@"cancelled write to: %@", self.path);
     }
     if(notifyBlock){
         notifyBlock(self);
@@ -54,8 +65,10 @@
 }
 
 -(void) cancel{
-    @synchronized(self){
-        [super cancel];
+    @synchronized(lock){
+        if(!isRunning){
+            [super cancel];
+        }
     }
 }
 
