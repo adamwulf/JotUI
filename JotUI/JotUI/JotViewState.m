@@ -408,6 +408,8 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
             MoveToPathElement* moveTo = [MoveToPathElement elementWithMoveTo:[[currentStroke.segments lastObject] endPoint]];
             moveTo.width = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] width];
             moveTo.color = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] color];
+            moveTo.stepWidth = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] stepWidth];
+            moveTo.rotation = [(AbstractBezierPathElement*)[currentStroke.segments lastObject] rotation];
             [newStroke addElement:moveTo];
             
             // set it as our new current stroke

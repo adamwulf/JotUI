@@ -1148,6 +1148,9 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
     CheckMainThread;
     [currentStroke lock];
     // now we render to ourselves
+    if(stepWidth <= 0){
+        @throw [NSException exceptionWithName:@"StepWidthException" reason:@"Step width must be greater than zero" userInfo:nil];
+    }
     
 
     // fetch the current and previous elements
@@ -1176,7 +1179,7 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
         // now tell the stroke that it's added
         
         // let our delegate have an opportunity to modify the element array
-        NSArray* elements = [self.delegate willAddElementsToStroke:[NSArray arrayWithObject:addedElement] fromPreviousElement:previousElement];
+        NSArray* elements = [self.delegate willAddElements:[NSArray arrayWithObject:addedElement] toStroke:currentStroke fromPreviousElement:previousElement];
         
         // prepend the previous element, so that each of our new elements has a previous element to
         // render with
@@ -1633,6 +1636,12 @@ static int undoCounter;
             @autoreleasepool {
                 JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
                 if([self.delegate willBeginStrokeWithTouch:jotTouch]){
+                    if(![self.delegate textureForStroke]){
+                        NSLog(@"asdfasdf");
+                        [self.delegate textureForStroke];
+                    }
+
+
                     JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[self.delegate textureForStroke] andBufferManager:state.bufferManager];
                     newStroke.delegate = self;
                     state.currentStroke = newStroke;
@@ -1950,7 +1959,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
  * if the most recent stroke is for an eraser, then a new stroke
  * will be built if these input elements are for a pen, etc
  */
--(void) addElements:(NSArray*)elements{
+-(void) addElements:(NSArray*)elements withTexture:(JotBrushTexture*)texture{
     CheckMainThread;
     if(!state) return;
     
@@ -1976,7 +1985,8 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
             if(state.currentStroke){
                 @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
             }
-            stroke = [[JotStroke alloc] initWithTexture:[self.delegate textureForStroke] andBufferManager:self.state.bufferManager];
+
+            stroke = [[JotStroke alloc] initWithTexture:texture andBufferManager:self.state.bufferManager];
             state.currentStroke = stroke;
         }
         [stroke lock];

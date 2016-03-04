@@ -82,7 +82,7 @@
 -(void) speedUpFPS;
 
 -(NSInteger) maxCurrentStrokeByteSize;
--(void) addElements:(NSArray*)elements;
+-(void) addElements:(NSArray*)elements withTexture:(JotBrushTexture*)texture;
 -(void) addUndoLevelAndFinishStroke;
 
 -(void) forceAddEmptyStroke;

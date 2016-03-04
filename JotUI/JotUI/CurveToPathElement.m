@@ -284,6 +284,10 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // find out how many steps we can put inside this segment length
     NSInteger numberOfVertices = [self numberOfVerticesGivenPreviousElement:previousElement];
     numberOfBytesOfVertexData = [self numberOfBytesGivenPreviousElement:previousElement];
+
+    if(numberOfBytesOfVertexData < 0){
+        @throw [NSException exceptionWithName:@"MemoryException" reason:@"numberOfBytesOfVertexData must be larger than 0" userInfo:nil];
+    }
     
     // malloc the memory for our buffer, if needed
     dataVertexBuffer = nil;

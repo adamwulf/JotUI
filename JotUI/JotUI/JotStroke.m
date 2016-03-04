@@ -42,6 +42,9 @@
 
 -(id) initWithTexture:(JotBrushTexture*)_texture andBufferManager:(JotBufferManager*)_bufferManager{
     if(self = [self init]){
+        if(!_texture){
+            @throw [NSException exceptionWithName:@"TextureException" reason:@"Texture for stroke is nil" userInfo:nil];
+        }
         segmentSmoother = [[SegmentSmoother alloc] init];
         texture = _texture;
         bufferManager = _bufferManager;
