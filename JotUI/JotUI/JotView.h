@@ -17,7 +17,6 @@
 #import "JotUI/JotViewStateProxyDelegate.h"
 #import "JotUI/JotViewState.h"
 #import "JotUI/JotTextureCache.h"
-#import <JotTouchSDK/JotStylusManager.h>
 
 #define kJotMaxStrokeByteSize 256*1024
 
@@ -25,7 +24,7 @@
 
 @class SegmentSmoother, UIPalmView;
 
-@interface JotView : UIView<JotPalmRejectionDelegate,JotStrokeDelegate>
+@interface JotView : UIView<JotStrokeDelegate>
 
 @property (readonly) JotViewStateProxy* state;
 @property (nonatomic, weak) IBOutlet NSObject<JotViewDelegate>* delegate;

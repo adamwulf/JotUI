@@ -102,22 +102,4 @@
  */
 - (void) willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
-@optional
-
-/**
- * if you have additional gestures on this JotView,
- * then these delegate methods will hint at when
- * may be a good time to enable or disable these
- * extra gestures.
- *
- * these hints are forwarded from the JotTouchSDK
- * and suggest when the user is drawing or resting
- * their palm on the screen, and so disabling your
- * additional gestures here will help reduce false
- * positives
- */
-- (void) jotSuggestsToDisableGestures;
-
-- (void) jotSuggestsToEnableGestures;
-
 @end

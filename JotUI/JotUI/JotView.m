@@ -30,7 +30,6 @@
 #import "JotTextureCache.h"
 #import "NSMutableArray+RemoveSingle.h"
 #import "JotDiskAssetManager.h"
-#import <JotTouchSDK/JotStylusManager.h>
 #import "JotGLLayerBackedFrameBuffer.h"
 #import "UIScreen+PortraitBounds.h"
 #import "JotGLColorlessPointProgram.h"
@@ -1460,43 +1459,6 @@ static int undoCounter;
     [newStroke unlock];
 }
 
--(void)jotStylusTouchBegan:(NSSet *) touches{
-    // remove support for jot stylus
-}
-
--(void)jotStylusTouchMoved:(NSSet *) touches{
-    // remove support for jot stylus
-}
-
--(void)jotStylusTouchEnded:(NSSet *) touches{
-    // remove support for jot stylus
-}
-
--(void)jotStylusTouchCancelled:(NSSet *) touches{
-    // remove support for jot stylus
-}
-
-
--(void)jotSuggestsToDisableGestures{
-    
-    CheckMainThread;
-    
-    if([self.delegate respondsToSelector:@selector(jotSuggestsToDisableGestures)]){
-        [self.delegate jotSuggestsToDisableGestures];
-    }
-    
-}
--(void)jotSuggestsToEnableGestures{
-    
-    CheckMainThread;
-    
-    if([self.delegate respondsToSelector:@selector(jotSuggestsToEnableGestures)]){
-        [self.delegate jotSuggestsToEnableGestures];
-    }
-}
-
-
-
 #pragma mark - UITouch Events
 
 /**
@@ -1673,7 +1635,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
         [self.delegate didEndStrokeWithCoalescedTouch:touch fromTouch:touch];
         
         [currentStroke unlock];
-        [JotTouch cleanJotTouchFor:touch];
         
     }
     [JotGLContext validateEmptyContextStack];
@@ -1690,7 +1651,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
             if([[JotStrokeManager sharedInstance] cancelStrokeForTouch:touch]){
                 state.currentStroke = nil;
             }
-            [JotTouch cleanJotTouchFor:touch];
         }
     }
     // we need to erase the current stroke from the screen, so
@@ -1984,21 +1944,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
     }];
     validateUndoStateTimer = nil;
 }
-
--(void) willMoveToSuperview:(UIView *)newSuperview{
-    if(self.superview && newSuperview){
-        // noop, we're already registered
-    }else if(self.superview && !newSuperview){
-        // unregister
-        [[JotStylusManager sharedInstance] unregisterView:self];
-    }else if(!self.superview && newSuperview){
-        // register
-        [[JotStylusManager sharedInstance] registerView:self];
-    }else if(!self.superview && !newSuperview){
-        // noop
-    }
-}
-
 
 #pragma mark - OpenGL
 
