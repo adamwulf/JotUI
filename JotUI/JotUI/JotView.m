@@ -1408,7 +1408,7 @@ static int undoCounter;
     
     JotStroke* aStroke = state.currentStroke;
     if(aStroke == stroke){
-        [self.delegate willCancelStroke:aStroke withTouch:nil];
+        [self.delegate willCancelStroke:aStroke withCoalescedTouch:nil fromTouch:nil];
         state.currentStroke = nil;
         if([aStroke.segments count] > 1 || ![[aStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
             CGFloat scale = [[UIScreen mainScreen] scale];
@@ -1416,7 +1416,7 @@ static int undoCounter;
             bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
             [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
         }
-        [self.delegate didCancelStroke:aStroke withTouch:nil];
+        [self.delegate didCancelStroke:aStroke withCoalescedTouch:nil fromTouch:nil];
         return;
     }
 }
@@ -1456,141 +1456,24 @@ static int undoCounter;
     
     [state forceAddStroke:newStroke];
     
-    [self.delegate didEndStrokeWithTouch:nil];
+    [self.delegate didEndStrokeWithCoalescedTouch:nil fromTouch:nil];
     [newStroke unlock];
 }
 
-/**
- * Handles the start of a touch
- */
 -(void)jotStylusTouchBegan:(NSSet *) touches{
-    
-    CheckMainThread;
-    
-    if(!state) return;
-    
-    for(JotTouch* jotTouch in touches){
-        if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-            JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[self.delegate textureForStroke] andBufferManager:state.bufferManager];
-            newStroke.delegate = self;
-            if(state.currentStroke){
-                @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
-            }
-            state.currentStroke = newStroke;
-            CGPoint locInView = [jotTouch locationInView:self];
-            CGPoint preciseLocInView = locInView;
-            if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
-                preciseLocInView = [jotTouch.touch preciseLocationInView:self];
-            }
-            // find the stroke that we're modifying, and then add an element and render it
-            [self addLineToAndRenderStroke:newStroke
-                                   toPoint:preciseLocInView
-                                   toWidth:[self.delegate widthForTouch:jotTouch]
-                                   toColor:[self.delegate colorForTouch:jotTouch]
-                             andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
-                             withStepWidth:[self.delegate stepWidthForStroke]];
-        }
-    }
-    [JotGLContext validateEmptyContextStack];
+    // remove support for jot stylus
 }
 
-/**
- * Handles the continuation of a touch.
- */
 -(void)jotStylusTouchMoved:(NSSet *) touches{
-    
-    CheckMainThread;
-    
-    if(!state) return;
-
-    for(JotTouch* jotTouch in touches){
-        [self.delegate willMoveStrokeWithTouch:jotTouch];
-        JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
-        if(currentStroke){
-            // find the stroke that we're modifying, and then add an element and render it
-            CGPoint locInView = [jotTouch locationInView:self];
-            CGPoint preciseLocInView = locInView;
-            if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
-                preciseLocInView = [jotTouch.touch preciseLocationInView:self];
-            }
-            [self addLineToAndRenderStroke:currentStroke
-                                   toPoint:preciseLocInView
-                                   toWidth:[self.delegate widthForTouch:jotTouch]
-                                   toColor:[self.delegate colorForTouch:jotTouch]
-                             andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
-                             withStepWidth:[self.delegate stepWidthForStroke]];
-        }
-    }
-    [JotGLContext validateEmptyContextStack];
+    // remove support for jot stylus
 }
 
-/**
- * Handles the end of a touch event when the touch is a tap.
- */
 -(void)jotStylusTouchEnded:(NSSet *) touches{
-    
-    CheckMainThread;
-    
-    if(!state) return;
-
-    for(JotTouch* jotTouch in touches){
-        [self.delegate willEndStrokeWithTouch:jotTouch];
-        JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
-        [currentStroke lock];
-        if(currentStroke){
-            // move to this endpoint
-            [self jotStylusTouchMoved:touches];
-            // now line to the end of the stroke
-            CGPoint locInView = [jotTouch locationInView:self];
-            CGPoint preciseLocInView = locInView;
-            if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
-                preciseLocInView = [jotTouch.touch preciseLocationInView:self];
-            }
-            [self addLineToAndRenderStroke:currentStroke
-                                   toPoint:preciseLocInView
-                                   toWidth:[self.delegate widthForTouch:jotTouch]
-                                   toColor:[self.delegate colorForTouch:jotTouch]
-                             andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
-                             withStepWidth:[self.delegate stepWidthForStroke]];
-
-            // this stroke is now finished, so add it to our completed strokes stack
-            // and remove it from the current strokes, and reset our undo state if any
-            if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
-                DebugLog(@"only a move to, ignore");
-                // this happen if the entire stroke lands inside of scraps, and nothing makes it to the bottom page
-                [currentStroke empty];
-            }
-            [state finishCurrentStroke];
-
-            [[JotStrokeManager sharedInstance] removeStrokeForTouch:jotTouch.touch];
-            
-            [self.delegate didEndStrokeWithTouch:jotTouch];
-        }
-        [currentStroke unlock];
-    }
-    [JotGLContext validateEmptyContextStack];
+    // remove support for jot stylus
 }
 
-/**
- * Handles the end of a touch event.
- */
 -(void)jotStylusTouchCancelled:(NSSet *) touches{
-    
-    CheckMainThread;
-    
-    if(!state) return;
-
-    for(JotTouch* jotTouch in touches){
-        // If appropriate, add code necessary to save the state of the application.
-        // This application is not saving state.
-        if([[JotStrokeManager sharedInstance] cancelStrokeForTouch:jotTouch.touch]){
-            state.currentStroke = nil;
-        }
-    }
-    // we need to erase the current stroke from the screen, so
-    // clear the canvas and rerender all valid strokes
-    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
-    [JotGLContext validateEmptyContextStack];
+    // remove support for jot stylus
 }
 
 
@@ -1631,33 +1514,22 @@ static int undoCounter;
 -(void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event{
     if(!state) return;
 
-    if(![JotStylusManager sharedInstance].isStylusConnected){
-        for (UITouch *touch in touches) {
-            @autoreleasepool {
-                JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-                if([self.delegate willBeginStrokeWithTouch:jotTouch]){
-                    if(![self.delegate textureForStroke]){
-                        NSLog(@"asdfasdf");
-                        [self.delegate textureForStroke];
-                    }
+    for (UITouch *touch in touches) {
+        @autoreleasepool {
+            if([self.delegate willBeginStrokeWithCoalescedTouch:touch fromTouch:touch]){
+                NSAssert([self.delegate textureForStroke] != nil, @"somehow got nil texture");
 
-
-                    JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:jotTouch.touch andTexture:[self.delegate textureForStroke] andBufferManager:state.bufferManager];
-                    newStroke.delegate = self;
-                    state.currentStroke = newStroke;
-                    // find the stroke that we're modifying, and then add an element and render it
-                    CGPoint locInView = [jotTouch locationInView:self];
-                    CGPoint preciseLocInView = locInView;
-                    if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
-                        preciseLocInView = [jotTouch.touch preciseLocationInView:self];
-                    }
-                    [self addLineToAndRenderStroke:newStroke
-                                           toPoint:preciseLocInView
-                                           toWidth:[self.delegate widthForTouch:jotTouch]
-                                           toColor:[self.delegate colorForTouch:jotTouch]
-                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
-                                     withStepWidth:[self.delegate stepWidthForStroke]];
-                }
+                JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:touch andTexture:[self.delegate textureForStroke] andBufferManager:state.bufferManager];
+                newStroke.delegate = self;
+                state.currentStroke = newStroke;
+                // find the stroke that we're modifying, and then add an element and render it
+                CGPoint preciseLocInView = [touch preciseLocationInView:self];
+                [self addLineToAndRenderStroke:newStroke
+                                       toPoint:preciseLocInView
+                                       toWidth:[self.delegate widthForCoalescedTouch:touch fromTouch:touch]
+                                       toColor:[self.delegate colorForCoalescedTouch:touch fromTouch:touch]
+                                 andSmoothness:[self.delegate smoothnessForCoalescedTouch:touch fromTouch:touch]
+                                 withStepWidth:[self.delegate stepWidthForStroke]];
             }
         }
     }
@@ -1676,75 +1548,80 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
 
     if(!state) return;
 
-    if(![JotStylusManager sharedInstance].isStylusConnected){
-        for (UITouch *touch in touches) {
+    for (UITouch *touch in touches) {
+        NSArray<UITouch*> *coalesced = [event coalescedTouchesForTouch:touch];
+        if(![coalesced count]){
+            coalesced = @[touch];
+        }
+        
+        
+        JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:touch];
+        [currentStroke lock];
+
+        for(UITouch* coalescedTouch in coalesced){
             @autoreleasepool {
                 // check for other brands of stylus,
                 // or process non-Jot touches
                 //
                 // for this example, we'll simply draw every touch if
                 // the jot sdk is not enabled
-                JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-                CGPoint preciseLocInView = [jotTouch locationInView:self];
-                if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
-                    preciseLocInView = [jotTouch.touch preciseLocationInView:self];
-                }
+                CGPoint preciseLocInView = [coalescedTouch preciseLocationInView:self];
                 // Convert touch point from UIView referential to OpenGL one (upside-down flip)
                 CGPoint glPreciseLocInView = preciseLocInView;
                 glPreciseLocInView.y = self.bounds.size.height - glPreciseLocInView.y;
-
-                [self.delegate willMoveStrokeWithTouch:jotTouch];
-                JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
-
+                
+                [self.delegate willMoveStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
+                
                 BOOL needsRenderAgain = NO;
                 if([self.delegate supportsRotation] && [[currentStroke segments] count] < 10){
                     CGFloat len = [[[currentStroke segments] jotReduce:^id(AbstractBezierPathElement* ele, NSUInteger index, id accum) {
                         return @([ele lengthOfElement] + [accum floatValue]);
                     }] floatValue];
-
+                    
                     CGPoint start = [[[currentStroke segments] firstObject] startPoint];
                     CGPoint end = glPreciseLocInView;
                     CGPoint diff = CGPointMake(end.x - start.x, end.y - start.y);
                     CGFloat rot = atan2(diff.y, diff.x);
-
+                    
                     if(([[currentStroke segments] count] <= 2) ||
                        (len < 20 && distanceBetween2(start, end) < 5)){
-
+                        
                         needsRenderAgain = YES;
                         [[currentStroke segments] enumerateObjectsUsingBlock:^(AbstractBezierPathElement*  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
                             obj.rotation = rot;
                         }];
                     }
                 }
-
+                
                 if(currentStroke){
-                    CGPoint preciseLocInView = [jotTouch locationInView:self];
-                    if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
-                        preciseLocInView = [jotTouch.touch preciseLocationInView:self];
+                    CGPoint preciseLocInView = [coalescedTouch locationInView:self];
+                    if([coalescedTouch respondsToSelector:@selector(preciseLocationInView:)]){
+                        preciseLocInView = [coalescedTouch preciseLocationInView:self];
                     }
-
+                    
                     if(needsRenderAgain){
                         CGPoint glStartPoint = [[[currentStroke segments] firstObject] startPoint];
                         CGPoint startPoint = glStartPoint;
                         startPoint.y = self.bounds.size.height - glStartPoint.y;
-
+                        
                         CGFloat scale = [[UIScreen mainScreen] scale];
                         CGRect bounds = [currentStroke bounds];
                         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
-
+                        
                         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:NO inRect:bounds];
                     }
-
+                    
                     // find the stroke that we're modifying, and then add an element and render it
                     [self addLineToAndRenderStroke:currentStroke
                                            toPoint:preciseLocInView
-                                           toWidth:[self.delegate widthForTouch:jotTouch]
-                                           toColor:[self.delegate colorForTouch:jotTouch]
-                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
+                                           toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch]
+                                           toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
+                                     andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
                                      withStepWidth:[self.delegate stepWidthForStroke]];
                 }
             }
         }
+        [currentStroke unlock];
     }
     [JotGLContext validateEmptyContextStack];
 }
@@ -1752,32 +1629,32 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
 -(void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event{
 
     if(!state) return;
-
-    if(![JotStylusManager sharedInstance].isStylusConnected){
-        for(UITouch* touch in touches){
-            @autoreleasepool {
-                // now line to the end of the stroke
-                JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-                [self.delegate willEndStrokeWithTouch:jotTouch];
-                JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:jotTouch.touch];
-                [currentStroke lock];
-                if(currentStroke){
+    
+    for (UITouch *touch in touches) {
+        NSArray<UITouch*> *coalesced = [event coalescedTouchesForTouch:touch];
+        if(![coalesced count]){
+            coalesced = @[touch];
+        }
+        [self.delegate willEndStrokeWithCoalescedTouch:touch fromTouch:touch];
+        JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:touch];
+        [currentStroke lock];
+        
+        @autoreleasepool {
+            // now line to the end of the stroke
+            if(currentStroke){
+                for(UITouch* coalescedTouch in coalesced){
                     // move to this endpoint
-                    [self touchesMoved:[NSSet setWithObject:touch] withEvent:event];
+                    [self touchesMoved:[NSSet setWithObject:coalescedTouch] withEvent:event];
                     // now line to the end of the stroke
                     
-                    CGPoint locInView = [jotTouch locationInView:self];
-                    CGPoint preciseLocInView = locInView;
-                    if([jotTouch.touch respondsToSelector:@selector(preciseLocationInView:)]){
-                        preciseLocInView = [jotTouch.touch preciseLocationInView:self];
-                    }
+                    CGPoint preciseLocInView = [coalescedTouch preciseLocationInView:self];;
                     [self addLineToAndRenderStroke:currentStroke
                                            toPoint:preciseLocInView
-                                           toWidth:[self.delegate widthForTouch:jotTouch]
-                                           toColor:[self.delegate colorForTouch:jotTouch]
-                                     andSmoothness:[self.delegate smoothnessForTouch:jotTouch]
+                                           toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch]
+                                           toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
+                                     andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
                                      withStepWidth:[self.delegate stepWidthForStroke]];
-
+                    
                     // this stroke is now finished, so add it to our completed strokes stack
                     // and remove it from the current strokes, and reset our undo state if any
                     if([currentStroke.segments count] == 1 && [[currentStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]){
@@ -1785,16 +1662,19 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                         // just save an empty stroke to the stack
                         [currentStroke empty];
                     }
-                    [state finishCurrentStroke];
-                    
-                    [[JotStrokeManager sharedInstance] removeStrokeForTouch:jotTouch.touch];
-                    
-                    [self.delegate didEndStrokeWithTouch:jotTouch];
                 }
-                [currentStroke unlock];
-                [JotTouch cleanJotTouchFor:touch];
             }
         }
+        
+        [state finishCurrentStroke];
+        
+        [[JotStrokeManager sharedInstance] removeStrokeForTouch:touch];
+        
+        [self.delegate didEndStrokeWithCoalescedTouch:touch fromTouch:touch];
+        
+        [currentStroke unlock];
+        [JotTouch cleanJotTouchFor:touch];
+        
     }
     [JotGLContext validateEmptyContextStack];
 }
@@ -1803,22 +1683,19 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
     CheckMainThread;
     if(!state) return;
 
-    if(![JotStylusManager sharedInstance].isStylusConnected){
-        for(UITouch* touch in touches){
-            @autoreleasepool {
-                // If appropriate, add code necessary to save the state of the application.
-                // This application is not saving state.
-                JotTouch* jotTouch = [JotTouch jotTouchFor:touch];
-                if([[JotStrokeManager sharedInstance] cancelStrokeForTouch:jotTouch.touch]){
-                    state.currentStroke = nil;
-                }
-                [JotTouch cleanJotTouchFor:touch];
+    for(UITouch* touch in touches){
+        @autoreleasepool {
+            // If appropriate, add code necessary to save the state of the application.
+            // This application is not saving state.
+            if([[JotStrokeManager sharedInstance] cancelStrokeForTouch:touch]){
+                state.currentStroke = nil;
             }
+            [JotTouch cleanJotTouchFor:touch];
         }
-        // we need to erase the current stroke from the screen, so
-        // clear the canvas and rerender all valid strokes
-        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     }
+    // we need to erase the current stroke from the screen, so
+    // clear the canvas and rerender all valid strokes
+    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
     [JotGLContext validateEmptyContextStack];
 }
 
