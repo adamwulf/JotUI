@@ -56,7 +56,6 @@
 		66AC157B18079B27005315C8 /* JotView.m in Sources */ = {isa = PBXBuildFile; fileRef = 669B3A301692B68F00F12F42 /* JotView.m */; };
 		66AC157C18079B27005315C8 /* MMWeakTimerTarget.m in Sources */ = {isa = PBXBuildFile; fileRef = 668E838417FCB27D003B00D3 /* MMWeakTimerTarget.m */; };
 		66AC157D18079B35005315C8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66A32026170242D200692C71 /* UIKit.framework */; };
-		66AC157E18079B41005315C8 /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213516FCE26600E86922 /* JotTouchSDK.framework */; };
 		66B498811AA131D300D48094 /* JotGLTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B498801AA131D300D48094 /* JotGLTypes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		66B498831AA1481F00D48094 /* JotGLContext+Buffers.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B498821AA1481F00D48094 /* JotGLContext+Buffers.h */; };
 		66B7E0521A0B4D94000797E4 /* UIScreen+PortraitBounds.h in Headers */ = {isa = PBXBuildFile; fileRef = 66B7E0501A0B4D94000797E4 /* UIScreen+PortraitBounds.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -183,7 +182,6 @@
 		66A64EF319FB5B8E0026305B /* NSMutableArray+RemoveSingle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+RemoveSingle.m"; sourceTree = "<group>"; };
 		66A79017177251960092A28A /* JotTrashManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotTrashManager.h; sourceTree = "<group>"; };
 		66A79018177251960092A28A /* JotTrashManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotTrashManager.m; sourceTree = "<group>"; };
-		66AA213516FCE26600E86922 /* JotTouchSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotTouchSDK.framework; path = ../JotTouchSDK/JotTouchSDK.framework; sourceTree = "<group>"; };
 		66AA5FB6169E77180046CA26 /* JotStroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotStroke.h; sourceTree = "<group>"; };
 		66AA5FB7169E77180046CA26 /* JotStroke.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = JotStroke.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		66AA82E1177611D800F26904 /* JotImmutableStroke.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotImmutableStroke.h; sourceTree = "<group>"; };
@@ -250,7 +248,6 @@
 			files = (
 				66AC157D18079B35005315C8 /* UIKit.framework in Frameworks */,
 				66AC155818079A72005315C8 /* Foundation.framework in Frameworks */,
-				66AC157E18079B41005315C8 /* JotTouchSDK.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -313,7 +310,6 @@
 			children = (
 				C584F82D1C37B46B00413840 /* GLKit.framework */,
 				66A32026170242D200692C71 /* UIKit.framework */,
-				66AA213516FCE26600E86922 /* JotTouchSDK.framework */,
 				669B39AC1692B46A00F12F42 /* Foundation.framework */,
 				669B39BB1692B46B00F12F42 /* SenTestingKit.framework */,
 			);
@@ -854,10 +850,6 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../JotTouchSDK\"",
-				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "JotUI/JotUI-Prefix.pch";
@@ -888,10 +880,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../JotTouchSDK\"",
-				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "JotUI/JotUI-Prefix.pch";
