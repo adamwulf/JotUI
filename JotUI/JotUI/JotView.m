@@ -1599,11 +1599,11 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
         }
         [self.delegate willEndStrokeWithCoalescedTouch:touch fromTouch:touch];
         JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:touch];
-        [currentStroke lock];
-        
-        @autoreleasepool {
-            // now line to the end of the stroke
-            if(currentStroke){
+        if(currentStroke){
+            @autoreleasepool {
+                [currentStroke lock];
+                
+                // now line to the end of the stroke
                 for(UITouch* coalescedTouch in coalesced){
                     // move to this endpoint
                     [self touchesMoved:[NSSet setWithObject:coalescedTouch] withEvent:event];
@@ -1625,17 +1625,16 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                         [currentStroke empty];
                     }
                 }
+                
+                [state finishCurrentStroke];
+                
+                [[JotStrokeManager sharedInstance] removeStrokeForTouch:touch];
+                
+                [self.delegate didEndStrokeWithCoalescedTouch:touch fromTouch:touch];
+                
+                [currentStroke unlock];
             }
         }
-        
-        [state finishCurrentStroke];
-        
-        [[JotStrokeManager sharedInstance] removeStrokeForTouch:touch];
-        
-        [self.delegate didEndStrokeWithCoalescedTouch:touch fromTouch:touch];
-        
-        [currentStroke unlock];
-        
     }
     [JotGLContext validateEmptyContextStack];
 }
