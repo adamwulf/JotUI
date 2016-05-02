@@ -1611,26 +1611,15 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                     [self touchesMoved:[NSSet setWithObject:coalescedTouch] withEvent:event];
                     // now line to the end of the stroke
                     
-                    CGPoint preciseLocInView = [coalescedTouch preciseLocationInView:self];;
-                    [self addLineToAndRenderStroke:currentStroke
+                    CGPoint preciseLocInView = [coalescedTouch preciseLocationInView:self];
+                    
+                    // the while loop ensures we get at least a dot from the touch
+                    while(![self addLineToAndRenderStroke:currentStroke
                                            toPoint:preciseLocInView
                                            toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch]
                                            toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
                                      andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                     withStepWidth:[self.delegate stepWidthForStroke]];
-                    if(shortStrokeEnding){
-                        for (int i=0; i<3; i++) {
-                            CGPoint randP = preciseLocInView;
-                            randP.x += rand() % 2 ? rand() % 2 - 1 : rand() % 2;
-                            randP.y += rand() % 2 ? rand() % 2 - 1 : rand() % 2;
-                            [self addLineToAndRenderStroke:currentStroke
-                                                   toPoint:randP
-                                                   toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                                   toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                             andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                             withStepWidth:[self.delegate stepWidthForStroke]];
-                        }
-                    }
+                                     withStepWidth:[self.delegate stepWidthForStroke]]);
                     
                     // this stroke is now finished, so add it to our completed strokes stack
                     // and remove it from the current strokes, and reset our undo state if any
@@ -1645,9 +1634,9 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                 
                 [[JotStrokeManager sharedInstance] removeStrokeForTouch:touch];
                 
-                [self.delegate didEndStrokeWithCoalescedTouch:touch fromTouch:touch];
-                
                 [currentStroke unlock];
+
+                [self.delegate didEndStrokeWithCoalescedTouch:touch fromTouch:touch];
             }
         }
     }
