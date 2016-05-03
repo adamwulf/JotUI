@@ -151,32 +151,37 @@ static int totalTextureBytes;
     
     JotGLContext* currContext = [JotGLContext currentContext];
     
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        [[GPUImageContext sharedImageProcessingContext] useSharegroup:[[JotGLContext currentContext] sharegroup]];
-    });
-    
-    dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
-
-    GPUImageTextureInput* input = [[GPUImageTextureInput alloc] initWithTexture:self.textureID size:self.pixelSize];
-    GPUImageRawDataOutput* output = [[GPUImageRawDataOutput alloc] initWithImageSize:self.pixelSize resultsInBGRAFormat:NO];
-    __weak GPUImageRawDataOutput* weakOutput = output;
-    output.newFrameAvailableBlock = ^{
-        [weakOutput lockFramebufferForReading];
-        NSInteger dataLength = self.pixelSize.width * self.pixelSize.height * 4;
+    // This autorelease is important, it ensures the GPUImageTextureInput/Output are deallocated
+    // immediately, before the setCurrentContext. The dealloc will set the context, so we need to
+    // make sure we are resetting it after its dealloc.
+    @autoreleasepool {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            [[GPUImageContext sharedImageProcessingContext] useSharegroup:[[JotGLContext currentContext] sharegroup]];
+        });
         
-        byteBlock([weakOutput rawBytesForImage], dataLength);
-
-        [weakOutput unlockFramebufferAfterReading];
+        dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
         
-        dispatch_semaphore_signal(sema2);
-    };
-    [input addTarget:output];
-    
-    float currentTimeInMilliseconds = [[NSDate date] timeIntervalSinceReferenceDate] * 1000.0;
-    [input processTextureWithFrameTime:CMTimeMake((int)currentTimeInMilliseconds, 1000)];
-    
-    dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
+        GPUImageTextureInput* input = [[GPUImageTextureInput alloc] initWithTexture:self.textureID size:self.pixelSize];
+        GPUImageRawDataOutput* output = [[GPUImageRawDataOutput alloc] initWithImageSize:self.pixelSize resultsInBGRAFormat:NO];
+        __weak GPUImageRawDataOutput* weakOutput = output;
+        output.newFrameAvailableBlock = ^{
+            [weakOutput lockFramebufferForReading];
+            NSInteger dataLength = self.pixelSize.width * self.pixelSize.height * 4;
+            
+            byteBlock([weakOutput rawBytesForImage], dataLength);
+            
+            [weakOutput unlockFramebufferAfterReading];
+            
+            dispatch_semaphore_signal(sema2);
+        };
+        [input addTarget:output];
+        
+        float currentTimeInMilliseconds = [[NSDate date] timeIntervalSinceReferenceDate] * 1000.0;
+        [input processTextureWithFrameTime:CMTimeMake((int)currentTimeInMilliseconds, 1000)];
+        
+        dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
+    }
 
     // reset the context
     if(![JotGLContext setCurrentContext:currContext]){

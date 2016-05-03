@@ -748,8 +748,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                     CGContextRelease(bitmapContext);
                 }];
 
-                [JotGLContext setCurrentContext:secondSubContext];
-                
                 // now we're done, delete our buffers
                 [secondSubContext unbindFramebuffer];
                 [secondSubContext deleteFramebuffer:exportFramebuffer];
