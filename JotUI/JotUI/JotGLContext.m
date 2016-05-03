@@ -924,6 +924,9 @@ forStenciledPath:(UIBezierPath*)clippingPath
     printOpenGLError();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
     printOpenGLError();
+    
+    
+    
 
     [self unbindTexture];
     printOpenGLError();

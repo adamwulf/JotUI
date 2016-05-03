@@ -15,7 +15,7 @@
 #import "ShaderHelper.h"
 #import "JotGLTexture+Private.h"
 #import "JotGLQuadProgram.h"
-
+#import <GPUImage/GPUImageFramework.h>
 
 static int totalTextureBytes;
 
@@ -145,6 +145,109 @@ static int totalTextureBytes;
     }
     
     return self;
+}
+
+-(void) getBytes{
+    
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [[GPUImageContext sharedImageProcessingContext] useSharegroup:[[JotGLContext currentContext] sharegroup]];
+    });
+    
+    dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
+
+    GPUImageTextureInput* input = [[GPUImageTextureInput alloc] initWithTexture:self.textureID size:self.pixelSize];
+    GPUImageRawDataOutput* output = [[GPUImageRawDataOutput alloc] initWithImageSize:self.pixelSize resultsInBGRAFormat:NO];
+    __weak GPUImageRawDataOutput* weakOutput = output;
+    output.newFrameAvailableBlock = ^{
+        NSLog(@"frame available!");
+        [weakOutput lockFramebufferForReading];
+        NSInteger dataLength = self.pixelSize.width * self.pixelSize.height * 4;
+        NSData* data = [NSData dataWithBytes:[weakOutput rawBytesForImage] length:dataLength];
+        NSLog(@"data: %d", (int) data.length);
+        
+        CGSize fullSize = self.pixelSize;
+        CGSize exportSize = self.pixelSize;
+        
+        
+        // Create a CGImage with the pixel data from OpenGL
+        // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+        // otherwise, use kCGImageAlphaPremultipliedLast
+        CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, [weakOutput rawBytesForImage], dataLength, NULL);
+        CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+        CGImageRef iref = CGImageCreate(fullSize.width, fullSize.height, 8, 32, fullSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+                                        kCGImageAlphaPremultipliedLast,
+                                        ref, NULL, true, kCGRenderingIntentDefault);
+        
+        // ok, now we have the pixel data from the OpenGL frame buffer.
+        // next we need to setup the image context to composite the
+        // background color, background image, and opengl image
+        
+        // OpenGL ES measures data in PIXELS
+        // Create a graphics context with the target size measured in POINTS
+        CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
+        if(!bitmapContext){
+            @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+        }
+        
+        // can I clear less stuff and still be ok?
+        CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
+        
+        if(!bitmapContext){
+            DebugLog(@"oh no1");
+        }
+        
+        // flip vertical for our drawn content, since OpenGL is opposite core graphics
+        CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
+        CGContextScaleCTM(bitmapContext, 1.0, -1.0);
+        
+        //
+        // ok, now render our actual content
+        CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, exportSize.width, exportSize.height), iref);
+        
+        // Retrieve the UIImage from the current context
+        CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
+        if(!cgImage){
+            @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+        }
+        
+        UIImage* image = [UIImage imageWithCGImage:cgImage scale:2 orientation:UIImageOrientationUp];
+        
+        // Clean up
+        CFRelease(ref);
+        CFRelease(colorspace);
+        CGImageRelease(iref);
+        CGContextRelease(bitmapContext);
+        
+        // ok, we're done exporting and cleaning up
+        // so pass the newly generated image to the completion block
+        CGImageRelease(cgImage);
+
+        NSLog(@"img: %p", image);
+        
+        if(image){
+            NSData* d = UIImagePNGRepresentation(image);
+            [d writeToFile:@"/tmp/foo2.png" atomically:YES];
+            
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                UIImageView* imgv = [[UIImageView alloc] initWithFrame:CGRectMake(100, 100, 300, 300)];
+                imgv.layer.borderColor = [UIColor redColor].CGColor;
+                imgv.layer.borderWidth = 10;
+                imgv.image = image;
+                
+                [[UIApplication sharedApplication].keyWindow addSubview:imgv];
+            });
+        }
+
+        [weakOutput unlockFramebufferAfterReading];
+        dispatch_semaphore_signal(sema2);
+    };
+    [input addTarget:output];
+    
+    float currentTimeInMilliseconds = [[NSDate date] timeIntervalSinceReferenceDate] * 1000.0;
+    [input processTextureWithFrameTime:CMTimeMake((int)currentTimeInMilliseconds, 1000)];
+    
+    dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
 }
 
 -(id) initForTextureID:(GLuint)_textureID withSize:(CGSize)_size{

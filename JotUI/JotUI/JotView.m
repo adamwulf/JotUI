@@ -710,9 +710,19 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // Read pixel data from the framebuffer
                 [secondSubContext readPixelsInto:data ofSize:GLSizeFromCGSize(fullSize)];
                 
+                [secondSubContext flush];
+
+                [canvasTexture getBytes];
+
+                [JotGLContext setCurrentContext:secondSubContext];
+
                 // now we're done, delete our buffers
                 [secondSubContext unbindFramebuffer];
                 [secondSubContext deleteFramebuffer:exportFramebuffer];
+                
+                [secondSubContext flush];
+                
+                
                 [canvasTexture unbind];
                 [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
                 

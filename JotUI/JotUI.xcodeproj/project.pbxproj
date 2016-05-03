@@ -115,6 +115,7 @@
 		C584F8211C37B35400413840 /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F81F1C37B35400413840 /* point.fsh */; };
 		C584F8291C37B38C00413840 /* fileUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = C584F8241C37B38C00413840 /* fileUtil.m */; };
 		C584F82B1C37B38C00413840 /* shaderUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = C584F8261C37B38C00413840 /* shaderUtil.c */; };
+		C5D04D1D1CD906D9005D1404 /* GPUImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5D04D1C1CD906D9005D1404 /* GPUImage.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -239,6 +240,7 @@
 		C584F8261C37B38C00413840 /* shaderUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shaderUtil.c; sourceTree = "<group>"; };
 		C584F82C1C37B41200413840 /* ShaderHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderHelper.h; sourceTree = "<group>"; };
 		C584F82D1C37B46B00413840 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		C5D04D1C1CD906D9005D1404 /* GPUImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GPUImage.framework; path = "../../../../../../../Library/Developer/Xcode/DerivedData/LooseLeaf-cemwdkmzpxcrmoafjcounebazjsc/Build/Products/Debug-iphoneos/GPUImage.framework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -246,6 +248,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C5D04D1D1CD906D9005D1404 /* GPUImage.framework in Frameworks */,
 				66AC157D18079B35005315C8 /* UIKit.framework in Frameworks */,
 				66AC155818079A72005315C8 /* Foundation.framework in Frameworks */,
 			);
@@ -308,6 +311,7 @@
 		669B39AB1692B46A00F12F42 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C5D04D1C1CD906D9005D1404 /* GPUImage.framework */,
 				C584F82D1C37B46B00413840 /* GLKit.framework */,
 				66A32026170242D200692C71 /* UIKit.framework */,
 				669B39AC1692B46A00F12F42 /* Foundation.framework */,
@@ -637,7 +641,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastTestingUpgradeCheck = 0510;
-				LastUpgradeCheck = 0500;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = Adonit;
 			};
 			buildConfigurationList = 669B399F1692B46A00F12F42 /* Build configuration list for PBXProject "JotUI" */;
@@ -796,6 +800,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				ENABLE_BITCODE = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -850,6 +855,10 @@
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "JotUI/JotUI-Prefix.pch";
@@ -857,10 +866,12 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = "/Users/adamwulf/Documents/Code/loose-leaf/src/Submodules/GPUImage/framework/**";
 				INFOPLIST_FILE = "JotUI/JotUI-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				ONLY_ACTIVE_ARCH = NO;
 				ONLY_ACTIVE_PLATFORM = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.milestonemade.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;
@@ -880,6 +891,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				ENABLE_NS_ASSERTIONS = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				FRAMEWORK_VERSION = A;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "JotUI/JotUI-Prefix.pch";
@@ -887,9 +902,11 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
+				HEADER_SEARCH_PATHS = "/Users/adamwulf/Documents/Code/loose-leaf/src/Submodules/GPUImage/framework/**";
 				INFOPLIST_FILE = "JotUI/JotUI-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				ONLY_ACTIVE_PLATFORM = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.milestonemade.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				WRAPPER_EXTENSION = framework;

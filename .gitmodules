@@ -1,3 +1,6 @@
 [submodule "JotTouchSDK"]
 	path = JotTouchSDK
 	url = git@github.com:Adonit/JotTouchSDK.git
+[submodule "Submodules/GPUImage"]
+	path = Submodules/GPUImage
+	url = git@github.com:BradLarson/GPUImage.git
