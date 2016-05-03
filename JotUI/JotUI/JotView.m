@@ -661,11 +661,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // now render strokes
                 [secondSubContext bindFramebuffer:exportFramebuffer];
                 
-//                [secondSubContext enableVertexArray];
-//                [secondSubContext enableColorArray];
-//                [secondSubContext enablePointSizeArray];
-//                [secondSubContext disableTextureCoordArray];
-
                 for(JotStroke* stroke in strokesAtTimeOfExport){
                     [stroke lock];
                     // make sure our texture is the correct one for this stroke
@@ -690,8 +685,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 //
                 
                 // now read its contents
-                
                 [secondSubContext flush];
+                
                 // rebind the canvas texture, since state.backgroundTexture
                 // would have been bound when it was drawn
                 [canvasTexture rebind];
@@ -700,83 +695,67 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 [secondSubContext assertCheckFramebuffer];
 
-                // step 3:
-                // read the image from OpenGL and push it into a data buffer
-                NSInteger dataLength = fullSize.width * fullSize.height * 4;
-                GLubyte *data = calloc(fullSize.height * fullSize.width, 4);
-                if(!data){
-                    @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
-                }
-                // Read pixel data from the framebuffer
-                [secondSubContext readPixelsInto:data ofSize:GLSizeFromCGSize(fullSize)];
-                
-                [secondSubContext flush];
-
-                [canvasTexture getBytes];
+                __block CGImageRef cgImage;
+                __block UIImage* image;
+                [canvasTexture getBytes:^(GLubyte *data, NSUInteger dataLength) {
+                    // Create a CGImage with the pixel data from OpenGL
+                    // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
+                    // otherwise, use kCGImageAlphaPremultipliedLast
+                    CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
+                    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+                    CGImageRef iref = CGImageCreate(fullSize.width, fullSize.height, 8, 32, fullSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
+                                                    kCGImageAlphaPremultipliedLast,
+                                                    ref, NULL, true, kCGRenderingIntentDefault);
+                    
+                    // ok, now we have the pixel data from the OpenGL frame buffer.
+                    // next we need to setup the image context to composite the
+                    // background color, background image, and opengl image
+                    
+                    // OpenGL ES measures data in PIXELS
+                    // Create a graphics context with the target size measured in POINTS
+                    CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
+                    if(!bitmapContext){
+                        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+                    }
+                    
+                    // can I clear less stuff and still be ok?
+                    CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
+                    
+                    if(!bitmapContext){
+                        DebugLog(@"oh no1");
+                    }
+                    
+                    // flip vertical for our drawn content, since OpenGL is opposite core graphics
+                    CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
+                    CGContextScaleCTM(bitmapContext, 1.0, -1.0);
+                    
+                    //
+                    // ok, now render our actual content
+                    CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, exportSize.width, exportSize.height), iref);
+                    
+                    // Retrieve the UIImage from the current context
+                    cgImage = CGBitmapContextCreateImage(bitmapContext);
+                    if(!cgImage){
+                        @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
+                    }
+                    
+                    image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
+                    
+                    // Clean up
+                    CFRelease(ref);
+                    CFRelease(colorspace);
+                    CGImageRelease(iref);
+                    CGContextRelease(bitmapContext);
+                }];
 
                 [JotGLContext setCurrentContext:secondSubContext];
-
+                
                 // now we're done, delete our buffers
                 [secondSubContext unbindFramebuffer];
                 [secondSubContext deleteFramebuffer:exportFramebuffer];
-                
                 [secondSubContext flush];
-                
-                
                 [canvasTexture unbind];
                 [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
-                
-                
-                
-                // Create a CGImage with the pixel data from OpenGL
-                // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
-                // otherwise, use kCGImageAlphaPremultipliedLast
-                CGDataProviderRef ref = CGDataProviderCreateWithData(NULL, data, dataLength, NULL);
-                CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-                CGImageRef iref = CGImageCreate(fullSize.width, fullSize.height, 8, 32, fullSize.width * 4, colorspace, kCGBitmapByteOrderDefault |
-                                                kCGImageAlphaPremultipliedLast,
-                                                ref, NULL, true, kCGRenderingIntentDefault);
-                
-                // ok, now we have the pixel data from the OpenGL frame buffer.
-                // next we need to setup the image context to composite the
-                // background color, background image, and opengl image
-                
-                // OpenGL ES measures data in PIXELS
-                // Create a graphics context with the target size measured in POINTS
-                CGContextRef bitmapContext = CGBitmapContextCreate(NULL, exportSize.width, exportSize.height, 8, exportSize.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
-                if(!bitmapContext){
-                    @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
-                }
-                
-                // can I clear less stuff and still be ok?
-                CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
-                
-                if(!bitmapContext){
-                    DebugLog(@"oh no1");
-                }
-                
-                // flip vertical for our drawn content, since OpenGL is opposite core graphics
-                CGContextTranslateCTM(bitmapContext, 0, exportSize.height);
-                CGContextScaleCTM(bitmapContext, 1.0, -1.0);
-                
-                //
-                // ok, now render our actual content
-                CGContextDrawImage(bitmapContext, CGRectMake(0.0, 0.0, exportSize.width, exportSize.height), iref);
-                
-                // Retrieve the UIImage from the current context
-                CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
-                if(!cgImage){
-                    @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
-                }
-                
-                UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
-                
-                // Clean up
-                free(data);
-                CFRelease(ref);
-                CFRelease(colorspace);
-                CGImageRelease(iref);
-                CGContextRelease(bitmapContext);
                 
                 // ok, we're done exporting and cleaning up
                 // so pass the newly generated image to the completion block

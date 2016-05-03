@@ -400,7 +400,7 @@ typedef enum UndfBOOL{
             [[[NSThread currentThread] threadDictionary] setObject:stackOfContexts forKey:@"stackOfContexts"];
         }
     }
-    if([stackOfContexts lastObject] != context){
+    if([stackOfContexts lastObject] && [stackOfContexts lastObject] != context){
         // only flush if we get a new context on this thread
         [(JotGLContext*)[JotGLContext currentContext] flush];
     }

@@ -23,7 +23,7 @@
 
 -(id) initForTextureID:(GLuint)textureID withSize:(CGSize)size;
 
--(void) getBytes;
+-(void) getBytes:(void(^)(GLubyte * bytes, NSUInteger dataLength))byteBlock;
 -(void) bind;
 -(void) rebind;
 -(void) unbind;
