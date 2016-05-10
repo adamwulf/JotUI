@@ -83,7 +83,7 @@
  * a notification that the input will end the
  * stroke
  */
-- (void) willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+- (void) willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding;
 
 /**
  * a notification that the touch has ended. For

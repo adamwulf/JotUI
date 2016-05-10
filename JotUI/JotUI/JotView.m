@@ -1597,8 +1597,10 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
         if(![coalesced count]){
             coalesced = @[touch];
         }
-        [self.delegate willEndStrokeWithCoalescedTouch:touch fromTouch:touch];
         JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:touch];
+        BOOL shortStrokeEnding = [currentStroke.segments count] <= 1;
+        
+        [self.delegate willEndStrokeWithCoalescedTouch:touch fromTouch:touch shortStrokeEnding:shortStrokeEnding];
         if(currentStroke){
             @autoreleasepool {
                 [currentStroke lock];
@@ -1616,6 +1618,19 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                                            toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
                                      andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
                                      withStepWidth:[self.delegate stepWidthForStroke]];
+                    if(shortStrokeEnding){
+                        for (int i=0; i<3; i++) {
+                            CGPoint randP = preciseLocInView;
+                            randP.x += rand() % 2 ? rand() % 2 - 1 : rand() % 2;
+                            randP.y += rand() % 2 ? rand() % 2 - 1 : rand() % 2;
+                            [self addLineToAndRenderStroke:currentStroke
+                                                   toPoint:randP
+                                                   toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch]
+                                                   toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
+                                             andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
+                                             withStepWidth:[self.delegate stepWidthForStroke]];
+                        }
+                    }
                     
                     // this stroke is now finished, so add it to our completed strokes stack
                     // and remove it from the current strokes, and reset our undo state if any
