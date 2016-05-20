@@ -2045,7 +2045,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
 
                 UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
 
-
                 NSString* docPath;
                 NSArray* userDocumentsPaths;
                 if(!userDocumentsPaths){
@@ -2059,27 +2058,13 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                     NSLog(@"no image");
                 }
                 NSLog(@"got texture");
+                free(data);
+                CFRelease(ref);
+                CFRelease(colorspace);
+                CGImageRelease(iref);
+                CGContextRelease(bitmapContext);
+                CGImageRelease(cgImage);
             }];
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
             // now all of the content has been pushed to the texture,
             // so delete the framebuffer
