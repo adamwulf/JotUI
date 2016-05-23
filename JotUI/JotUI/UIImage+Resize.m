@@ -117,10 +117,10 @@
     CGContextRef bitmap = CGBitmapContextCreate(NULL,
                                                 newRect.size.width,
                                                 newRect.size.height,
-                                                CGImageGetBitsPerComponent(imageRef),
-                                                0,
+                                                8,
+                                                newRect.size.width * 4,
                                                 CGImageGetColorSpace(imageRef),
-                                                CGImageGetBitmapInfo(imageRef));
+                                                kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
     if(!bitmap){
         @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
     }
