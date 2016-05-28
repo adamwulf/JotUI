@@ -580,16 +580,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
         return;
     }
 
-//    [JotGLContext pushCurrentContext:context];
-//    
-//    JotGLTexture* fullTexture = [self generateTexture];
-//    [fullTexture bind];
-//    CGSize usefulTextureSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
-//    CGSize exportSize = CGSizeMake(ceilf(initialViewport.width / 2), ceilf(initialViewport.height / 2));
-//    [context flush];
-//    [fullTexture unbind];
-//    [JotGLContext popCurrentContext];
-
     NSArray* strokesAtTimeOfExport = [state everyVisibleStroke];
     
     //
@@ -661,11 +651,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 // now render strokes
                 [secondSubContext bindFramebuffer:exportFramebuffer];
                 
-//                [secondSubContext enableVertexArray];
-//                [secondSubContext enableColorArray];
-//                [secondSubContext enablePointSizeArray];
-//                [secondSubContext disableTextureCoordArray];
-
                 for(JotStroke* stroke in strokesAtTimeOfExport){
                     [stroke lock];
                     // make sure our texture is the correct one for this stroke
@@ -680,9 +665,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                     [stroke.texture unbind];
                     [stroke unlock];
                 }
-                
-                
-                
                 
                 ////////////////////////////////
                 // render to texture is done,
@@ -716,8 +698,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [canvasTexture unbind];
                 [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
                 
-                
-                
                 // Create a CGImage with the pixel data from OpenGL
                 // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
                 // otherwise, use kCGImageAlphaPremultipliedLast
@@ -742,7 +722,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
                 
                 if(!bitmapContext){
-                    DebugLog(@"oh no1");
+                    @throw [NSException exceptionWithName:@"BitmapContextException" reason:@"Cannot generate bitmap context" userInfo:nil];
                 }
                 
                 // flip vertical for our drawn content, since OpenGL is opposite core graphics
@@ -815,7 +795,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     if(!exportFinishBlock) return;
 
     if(![inkTextureLock tryLock]){
-        DebugLog(@"gotcha");
         // save failed, just exit and our
         // caller can retry later
         exportFinishBlock(nil);
@@ -826,7 +805,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     dispatch_async([JotView importExportImageQueue], ^{
         @autoreleasepool {
             if(state.isForgetful){
-                DebugLog(@"forget: skipping export for forgetful jotview");
+                // if we're forgetful, it's because we're going to be deleted soon anyways,
+                // so our export will be trashed with us. we can bail early here.
                 exportFinishBlock(nil);
                 [inkTextureLock unlock];
                 return;
@@ -888,14 +868,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext flush];
                 [secondSubContext flush];
                 
-                
-                
-                
-                
-                
-                
+                //
                 // now read its contents
-                
                 [secondSubContext flush];
                 // rebind the canvas texture, since state.backgroundTexture
                 // would have been bound when it was drawn
@@ -912,8 +886,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 if(!data){
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
-                // Read pixel data from the framebuffer
-                NSLog(@"reading pixels of size: %.2f %.2f", fullSize.width, fullSize.height);
+                // Read pixel data from the framebuffer of size fullSize
                 [secondSubContext readPixelsInto:data ofSize:GLSizeFromCGSize(fullSize)];
                 
                 // now we're done, delete our buffers
@@ -921,8 +894,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext deleteFramebuffer:exportFramebuffer];
                 [canvasTexture unbind];
                 [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
-                
-                
                 
                 // Create a CGImage with the pixel data from OpenGL
                 // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
@@ -948,7 +919,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
                 
                 if(!bitmapContext){
-                    DebugLog(@"oh no1");
+                    @throw [NSException exceptionWithName:@"BitmapContextException" reason:@"Cannot generate bitmap context" userInfo:nil];
                 }
                 
                 // flip vertical for our drawn content, since OpenGL is opposite core graphics
@@ -1039,8 +1010,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             
             //
             // step 3:
-            // draw all the strokes that we have in our undo-able stack
-            [self prepOpenGLStateForFBO:theFramebuffer toContext:renderContext];
+            // draw all the strokes that we have in our undo-able stack.
             // reset the texture so that we load the brush texture next
             // now draw the strokes
 
@@ -1069,10 +1039,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 block();
             }
 
-            [self unprepOpenGLState];
-
-            //    DebugLog(@"done render all: %d", c);
-            
             if(shouldPresent){
                 // step 4:
                 // ok, show it!
@@ -1226,7 +1192,6 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
     if(frameBuffer){
         // draw the stroke element
         [frameBuffer bind];
-        [self prepOpenGLStateForFBO:frameBuffer toContext:renderContext];
     }
     // always prep the blend mode, the context
     // will cache the result so it won't over set
@@ -1248,43 +1213,9 @@ CGFloat JotBNRTimeBlock (void (^block)(void)) {
     [element drawGivenPreviousElement:previousElement];
     
     if(frameBuffer){
-        [self unprepOpenGLState];
         [frameBuffer unbind];
     }
 }
-
-/**
- * this will prepare the OpenGL state to draw
- * a Vertex array for all of the points along
- * the line. each of our vertices contains the
- * point location, color info, and the size
- */
--(void) prepOpenGLStateForFBO:(AbstractJotGLFrameBuffer*)frameBuffer toContext:(JotGLContext*)renderContext{
-    CheckMainThread;
-    
-//    [renderContext enableVertexArray];
-//    [renderContext enableColorArray];
-//    [renderContext enablePointSizeArray];
-//    [renderContext disableTextureCoordArray];
-}
-
-/**
- * after drawing, calling this function will
- * restore the OpenGL state so that it doesn't
- * linger if we want to draw a different way
- * later
- */
--(void) unprepOpenGLState{
-    // Restore state
-    // I used to disable all the client states that I had enabled
-    // before, but now that I handle this in the JotGLContext,
-    // I get better performance, and only adjust state
-    // immediately before a draw call, and only
-    // if the state actually needs changing
-}
-
-
-
 
 static int undoCounter;
 
@@ -1331,7 +1262,6 @@ static int undoCounter;
                         [strokeToWriteToTexture lock];
                         // render it to the backing texture
                         [state.backgroundFramebuffer bind];
-                        [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:context];
 
                         [strokeToWriteToTexture.texture bind];
                         // draw each stroke element. for performance reasons, we'll only
@@ -1357,7 +1287,6 @@ static int undoCounter;
                             [[JotTrashManager sharedInstance] addObjectToDealloc:strokeToWriteToTexture];
                             prevElementForTextureWriting = nil;
                         }
-                        [self unprepOpenGLState];
                         [state.backgroundFramebuffer unbind];
 
                         //
@@ -1401,7 +1330,7 @@ static int undoCounter;
 
 #pragma mark - JotStrokeDelegate
 
--(void) jotStrokeWasCancelled:(JotStroke*)stroke{
+-(void) strokeWasCancelled:(JotStroke*)stroke{
 
     CheckMainThread;
     
@@ -1820,10 +1749,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                 // or add pen elements to an eraser stroke! otherwise this
                 // will create artifacts when saving these strokes to the
                 // backing texture.
-                //            DebugLog(@"fixed!!!!");
-            }
-            if(state.currentStroke){
-                @throw [NSException exceptionWithName:@"MultipleStrokeException" reason:@"Only 1 stroke is allowed at a time" userInfo:nil];
+                @throw [NSException exceptionWithName:@"MismatchedStrokeException" reason:@"Cannot mix pen and eraser elements into single stroke" userInfo:nil];
             }
 
             stroke = [[JotStroke alloc] initWithTexture:texture andBufferManager:self.state.bufferManager];
@@ -1842,13 +1768,11 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                 CGRect myBounds = self.bounds;
                 if(prevElement && ((!prevElement.color && element.color) ||
                                    (prevElement.color && !element.color))){
-                    DebugLog(@"gotcha!");
+                    @throw [NSException exceptionWithName:@"MismatchedStrokeException" reason:@"Cannot mix pen and eraser elements into single stroke" userInfo:nil];
                 }
                 if(CGRectIntersectsRect(myBounds, eleBounds)){
                     needsPresent = YES;
                     [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:viewFramebuffer toContext:context];
-                }else{
-                    DebugLog(@"gotcha?");
                 }
             }
         }
@@ -1908,7 +1832,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
 - (void) dealloc
 {
     if(isCurrentlyExporting){
-        DebugLog(@"what6");
+        @throw [NSException exceptionWithName:@"JotViewDeallocException" reason:@"Deallocating JotView during export" userInfo:nil];
     }
 
     [self performBlockOnMainThreadSync:^{
@@ -1916,7 +1840,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
     }];
     validateUndoStateTimer = nil;
     [self destroyFramebuffer];
-//    [JotView minusOne];
 }
 
 -(BOOL) hasLink{
@@ -1952,7 +1875,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
 
 -(JotGLTexture*) generateTexture{
     CheckMainThread;
-    // adam
+
     __block JotGLTexture* canvasTexture = nil;
     [context runBlock:^{
         CGSize maxTextureSize = [UIScreen mainScreen].portraitBounds.size;
@@ -1972,28 +1895,18 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
             // set viewport to round up to the pixel, if needed
             [context glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
 
-            CGSize initialViewport = CGSizeMake(fullSize.width, fullSize.height);
-            
-            
-            NSLog(@"maxTextureSize1: %.2f %.2f", maxTextureSize.width, maxTextureSize.height);
-            NSLog(@"initialViewport1: %.2f %.2f", initialViewport.width, initialViewport.height);
-
-            [context colorlessPointProgram].canvasSize = GLSizeFromCGSize(initialViewport);
-            [context coloredPointProgram].canvasSize = GLSizeFromCGSize(initialViewport);
-
-            NSLog(@"=======================================");
-            NSLog(@"=======================================");
+            // prep our shaders...
+            [context colorlessPointProgram].canvasSize = GLSizeFromCGSize(fullSize);
+            [context coloredPointProgram].canvasSize = GLSizeFromCGSize(fullSize);
 
             // ok, everything is setup at this point, so render all
             // of the strokes over the backing texture to our
             // export texture
             [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero withBlock:^{
-
+                // we have to finish here to push all
+                // the pixels to the texture so they're
+                // available after this method returns
                 glFinish();
-                
-                NSLog(@"=======================================");
-                NSLog(@"=======================================");
-
             }];
 
             // now all of the content has been pushed to the texture,
@@ -2004,15 +1917,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
         
         // reset back to exact viewport
         [context glViewportWithX:0 y:0 width:viewFramebuffer.initialViewport.width height:viewFramebuffer.initialViewport.height];
-
-
-        NSLog(@"initialViewport2: %.2f %.2f", viewFramebuffer.initialViewport.width, viewFramebuffer.initialViewport.height);
-
-        // we have to flush here to push all
-        // the pixels to the texture so they're
-        // available in the background thread's
-        // context
-        // popping the context will flush
     }];
     
     return canvasTexture;
@@ -2022,8 +1926,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
     
     [inkTextureLock lock];
     [imageTextureLock lock];
-            
-            
+    
     CheckMainThread;
     JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotViewDrawBackingTextureContext" andSharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL{
         return [NSThread isMainThread];
@@ -2031,7 +1934,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
     [subContext runBlock:^{
         // render it to the backing texture
         [state.backgroundFramebuffer bind];
-        [self prepOpenGLStateForFBO:state.backgroundFramebuffer toContext:subContext];
         [subContext glDisableDither];
         [subContext glEnableBlend];
         // Set a blending function appropriate for premultiplied alpha pixel data
@@ -2070,7 +1972,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                        asErase:NO
                 withCanvasSize:initialViewport];
         [texture unbind];
-        [self unprepOpenGLState];
         [state.backgroundFramebuffer unbind];
     }];
 
@@ -2081,7 +1982,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
     // issues of unsynchronized textures.
     [context runBlock:^{
         [viewFramebuffer bind];
-        [self prepOpenGLStateForFBO:viewFramebuffer toContext:context];
 
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
         [viewFramebuffer unbind];

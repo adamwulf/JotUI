@@ -252,11 +252,11 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
            currentStroke ||
            [stackOfStrokes count] > kJotDefaultUndoLimit){
             if(currentStroke){
-    //            DebugLog(@"cant save, currently drawing");
+                // can't save, currently drawing
             }else if([strokesBeingWrittenToBackingTexture count]){
-    //            DebugLog(@"can't save, writing to texture");
+                // can't save, writing to texture
             }else if([stackOfStrokes count] > kJotDefaultUndoLimit){
-    //            DebugLog(@"can't save, more strokes than undo");
+                // can't save, more strokes than our undo limit, waiting until they're written to texture
             }
             return NO;
         }
@@ -436,8 +436,8 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
 
 #pragma mark - JotStrokeDelegate
 
--(void) jotStrokeWasCancelled:(JotStroke*)stroke{
-    [delegate jotStrokeWasCancelled:stroke];
+-(void) strokeWasCancelled:(JotStroke*)stroke{
+    [delegate strokeWasCancelled:stroke];
 }
 
 

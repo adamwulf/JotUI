@@ -12,6 +12,6 @@
 
 @protocol JotStrokeDelegate <NSObject>
 
--(void) jotStrokeWasCancelled:(JotStroke*)stroke;
+-(void) strokeWasCancelled:(JotStroke*)stroke;
 
 @end

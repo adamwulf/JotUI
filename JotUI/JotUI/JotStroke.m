@@ -109,10 +109,6 @@
     [self unlock];
 }
 
--(void) cancel{
-    [self.delegate jotStrokeWasCancelled:self];
-}
-
 -(void) empty{
     @synchronized(segments){
         [segments removeAllObjects];
