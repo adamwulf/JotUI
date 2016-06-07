@@ -110,7 +110,7 @@
 }
 
 -(void) cancel{
-    [self.delegate jotStrokeWasCancelled:self];
+    [self.delegate strokeWasCancelled:self];
 }
 
 -(void) empty{
