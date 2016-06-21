@@ -68,6 +68,8 @@
    withThumbnailScale:(CGFloat)thumbScale
          onComplete:(void(^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock;
 
+-(void) exportToImageOnComplete:(void(^)(UIImage*) )exportFinishBlock withScale:(CGFloat)outputScale;
+
 // imports an image
 -(void) loadState:(JotViewStateProxy*)newState;
 
