@@ -75,26 +75,30 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
 }
 
 -(void) blockUntilCompletedForPath:(NSString*)path{
-    BOOL needsBlock = NO;
-    @synchronized(inProcessDiskWrites){
-        needsBlock = [inProcessDiskWrites objectForKey:path] != nil;
-    }
-    if(needsBlock && opQueue.operationCount){
-        DebugLog(@"JotDiskAssetManager blocking");
-        [opQueue waitUntilAllOperationsAreFinished];
+    if(path){
+        BOOL needsBlock = NO;
+        @synchronized(inProcessDiskWrites){
+            needsBlock = [inProcessDiskWrites objectForKey:path] != nil;
+        }
+        if(needsBlock && opQueue.operationCount){
+            DebugLog(@"JotDiskAssetManager blocking");
+            [opQueue waitUntilAllOperationsAreFinished];
+        }
     }
 }
 
 -(void) blockUntilCompletedForDirectory:(NSString*)dirPath{
     BOOL needsBlock = NO;
-    @synchronized(inProcessDiskWrites){
-        needsBlock = [[[inProcessDiskWrites allKeys] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
-            return [evaluatedObject hasPrefix:dirPath];
-        }]] count] > 0;
-    }
-    if(needsBlock && opQueue.operationCount){
-        DebugLog(@"JotDiskAssetManager blocking");
-        [opQueue waitUntilAllOperationsAreFinished];
+    if(dirPath){
+        @synchronized(inProcessDiskWrites){
+            needsBlock = [[[inProcessDiskWrites allKeys] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+                return [evaluatedObject hasPrefix:dirPath];
+            }]] count] > 0;
+        }
+        if(needsBlock && opQueue.operationCount){
+            DebugLog(@"JotDiskAssetManager blocking");
+            [opQueue waitUntilAllOperationsAreFinished];
+        }
     }
 }
 
