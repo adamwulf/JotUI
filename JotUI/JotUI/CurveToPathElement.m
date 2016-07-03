@@ -260,6 +260,38 @@ const CGPoint		JotCGNotFoundPoint = {-10000000.2,-999999.6};
     // if we have a buffer generated and cached,
     // then just return that
     if(dataVertexBuffer && scaleOfVertexBuffer == scale){
+        
+        
+        /**
+         * debugging code to validate vertex data when binding
+         */
+        NSInteger numberOfVertices = [self numberOfVerticesGivenPreviousElement:previousElement];
+        if(vertexBufferShouldContainColor && dataVertexBuffer){
+            struct ColorfulVertex* data = (struct ColorfulVertex*) [dataVertexBuffer bytes];
+            for(int step = 0; step < numberOfVertices; step+=[self numberOfVerticesPerStep]) {
+                struct ColorfulVertex vert = data[step];
+                if(vert.Position[0] < 0 ||
+                   vert.Position[1] < 0 ||
+                   vert.Size < 1){
+                    DebugLog(@"what2");
+                }
+            }
+        }else if(dataVertexBuffer){
+            struct ColorlessVertex* data = (struct ColorlessVertex*) [dataVertexBuffer bytes];
+            for(int step = 0; step < numberOfVertices; step+=[self numberOfVerticesPerStep]) {
+                struct ColorlessVertex vert = data[step];
+                if(vert.Position[0] < 0 ||
+                   vert.Position[1] < 0 ||
+                   vert.Size < 1){
+                    DebugLog(@"what3");
+                }
+            }
+        }
+        /* */
+        
+        
+        
+        
         return (struct ColorfulVertex*) dataVertexBuffer.bytes;
     }
     
@@ -520,31 +552,6 @@ static CGFloat screenHeight;
             // set it appropriately
             [vbo bindForColor:colorComponents];
         }
-        /**
-         * debugging code to validate vertex data when binding
-         *
-         if(vertexBufferShouldContainColor && dataVertexBuffer){
-         struct ColorfulVertex* data = (struct ColorfulVertex*) [dataVertexBuffer bytes];
-         for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
-         struct ColorfulVertex vert = data[i];
-         if(vert.Position[0] < 0 ||
-         vert.Position[1] < 0 ||
-         vert.Size < 1){
-         DebugLog(@"what2");
-         }
-         }
-         }else if(dataVertexBuffer){
-         struct ColorlessVertex* data = (struct ColorlessVertex*) [dataVertexBuffer bytes];
-         for(int i =0 ;i<50 && i<[self numberOfSteps];i++){
-         struct ColorlessVertex vert = data[i];
-         if(vert.Position[0] < 0 ||
-         vert.Position[1] < 0 ||
-         vert.Size < 1){
-         DebugLog(@"what3");
-         }
-         }
-         }
-         */
     }];
     return YES;
 }

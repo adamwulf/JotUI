@@ -69,6 +69,7 @@ static NSMutableArray *_jotGLProgramAttributes;
 
         glAttachShader(_programId, _vertShader);
         glAttachShader(_programId, _fragShader);
+        glFlush();
 
         for (NSString* attr in attributes) {
             [self addAttribute:attr];
@@ -79,6 +80,7 @@ static NSMutableArray *_jotGLProgramAttributes;
         if(![self link]){
             @throw [NSException exceptionWithName:@"JotGLProgramException" reason:@"Failed to link program" userInfo:nil];
         }
+        glFlush();
 
         [self validate];
     }
@@ -103,11 +105,13 @@ static NSMutableArray *_jotGLProgramAttributes;
         return NO;
     }
 
+    glFlush();
     *shader = glCreateShader(type);
     glShaderSource(*shader, 1, &source, NULL);
     glCompileShader(*shader);
 
     glGetShaderiv(*shader, GL_COMPILE_STATUS, &status);
+    glFlush();
 
     if (status != GL_TRUE)
     {
@@ -129,6 +133,7 @@ static NSMutableArray *_jotGLProgramAttributes;
             free(log);
         }
     }
+    glFlush();
 
     return status == GL_TRUE;
 }
@@ -158,6 +163,7 @@ static NSMutableArray *_jotGLProgramAttributes;
 - (void)use
 {
     glUseProgram(_programId);
+    glFlush();
 
     [self enableAndDisableAllAttributes];
 
@@ -167,6 +173,7 @@ static NSMutableArray *_jotGLProgramAttributes;
     if(!self.canvasSize.height){
         @throw [NSException exceptionWithName:@"JotGLProgramException" reason:@"Attempting to use program without a canvas size" userInfo:nil];
     }
+    glFlush();
 
     // viewing matrices
     GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(0, self.canvasSize.width, 0, self.canvasSize.height, -1, 1);
@@ -174,6 +181,7 @@ static NSMutableArray *_jotGLProgramAttributes;
     GLKMatrix4 MVPMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
 
     glUniformMatrix4fv([self uniformMVPIndex], 1, GL_FALSE, MVPMatrix.m);
+    glFlush();
 
 }
 
@@ -186,8 +194,10 @@ static NSMutableArray *_jotGLProgramAttributes;
 - (BOOL)link
 {
     GLint status;
+    glFlush();
 
     glLinkProgram(_programId);
+    glFlush();
 
     glGetProgramiv(_programId, GL_LINK_STATUS, &status);
     if (status == GL_FALSE)
@@ -203,6 +213,7 @@ static NSMutableArray *_jotGLProgramAttributes;
         glDeleteShader(_fragShader);
         _fragShader = 0;
     }
+    glFlush();
 
     return YES;
 }
@@ -210,6 +221,7 @@ static NSMutableArray *_jotGLProgramAttributes;
 - (void)validate;
 {
     GLint logLength;
+    glFlush();
 
     glValidateProgram(_programId);
     glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &logLength);
@@ -223,6 +235,7 @@ static NSMutableArray *_jotGLProgramAttributes;
     if([_programLog length]){
         NSLog(@"Program Log: %@", _programLog);
     }
+    glFlush();
 }
 
 - (void)addAttribute:(NSString *)attributeName
@@ -238,6 +251,7 @@ static NSMutableArray *_jotGLProgramAttributes;
     glBindAttribLocation(_programId,
                          (GLuint)[_jotGLProgramAttributes indexOfObject:attributeName],
                          [attributeName UTF8String]);
+    glFlush();
 }
 
 -(void) enableAndDisableAllAttributes{
@@ -248,6 +262,7 @@ static NSMutableArray *_jotGLProgramAttributes;
             glDisableVertexAttribArray([JotGLProgram attributeIndex:attr]);
         }
     }
+    glFlush();
 }
 
 #pragma mark -

@@ -48,6 +48,7 @@
             
             backingSize = [context generateFramebuffer:&framebufferID andRenderbuffer:&viewRenderbuffer andDepthRenderBuffer:&depthRenderbuffer forLayer:layer];
 
+            glFlush();
             CGRect frame = layer.bounds;
             CGFloat scale = layer.contentsScale;
             
@@ -55,10 +56,12 @@
             
             [context glViewportWithX:0 y:0 width:(GLsizei)initialViewport.width height:(GLsizei)initialViewport.height];
             
+            glFlush();
             [context assertCheckFramebuffer];
             
             [context bindRenderbuffer:viewRenderbuffer];
             
+            glFlush();
             [self clear];
         }];
     }
@@ -68,9 +71,13 @@
 -(void) bind{
     [super bind];
     [JotGLContext runBlock:^(JotGLContext * context) {
+        glFlush();
         [context bindRenderbuffer:viewRenderbuffer];
+        glFlush();
         [context colorlessPointProgram].canvasSize = backingSize;
+        glFlush();
         [context coloredPointProgram].canvasSize = backingSize;
+        glFlush();
     }];
 }
 
@@ -78,6 +85,7 @@
     [super unbind];
     [JotGLContext runBlock:^(JotGLContext * context) {
         [context unbindRenderbuffer];
+        glFlush();
     }];
 }
 
@@ -91,12 +99,15 @@
             [self bind];
             //        NSLog(@"presenting");
             [context assertCurrentBoundFramebufferIs:framebufferID andRenderBufferIs:viewRenderbuffer];
+            glFlush();
             [context assertCheckFramebuffer];
 
             [context presentRenderbuffer];
+            glFlush();
 
             needsPresentRenderBuffer = NO;
             [self unbind];
+            glFlush();
         }
         slowtoggle = !slowtoggle;
         if([context needsFlush]){

@@ -209,9 +209,11 @@ static JotGLContext *mainThreadContext;
         [context glEnableBlend];
         // Set a blending function appropriate for premultiplied alpha pixel data
         [context glBlendFuncONE];
-        
+        glFlush();
+
         [self destroyFramebuffer];
         [self createFramebuffer];
+        glFlush();
     }];
 
     [JotGLContext validateEmptyContextStack];
@@ -599,13 +601,15 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
             [secondSubContext runBlock:^{
                 //            // finish current gl calls
                 //            glFinish();
-                
+                glFlush();
+
                 [secondSubContext glDisableDither];
                 [secondSubContext glEnableBlend];
                 
                 // Set a blending function appropriate for premultiplied alpha pixel data
                 [secondSubContext glBlendFuncONE];
-                
+                glFlush();
+
                 CGSize fullSize = viewFramebuffer.initialViewport;
                 CGSize exportSize = CGSizeMake(ceilf(fullSize.width * outputScale), ceilf(fullSize.height * outputScale));;
                 
@@ -618,7 +622,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 maxTextureSize.height *= [UIScreen mainScreen].scale;
                 JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
                 [canvasTexture bind];
-                
+                glFlush();
+
                 GLuint exportFramebuffer = [secondSubContext generateFramebufferWithTextureBacking:canvasTexture];
                 // by default, it's unbound after generating, so bind it
                 [secondSubContext bindFramebuffer:exportFramebuffer];
@@ -626,7 +631,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext assertCheckFramebuffer];
                 
                 [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
-                
+                glFlush();
+
                 // step 1:
                 // Clear the buffer
                 [secondSubContext clear];
@@ -638,7 +644,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 // reset our viewport
                 [secondSubContext glViewportWithX:0 y:0 width:viewFramebuffer.initialViewport.width height:viewFramebuffer.initialViewport.height];
-                
+                glFlush();
+
                 // we have to flush here to push all
                 // the pixels to the texture so they're
                 // available in the background thread's
@@ -650,7 +657,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
 
                 // now render strokes
                 [secondSubContext bindFramebuffer:exportFramebuffer];
-                
+                glFlush();
+
                 for(JotStroke* stroke in strokesAtTimeOfExport){
                     [stroke lock];
                     // make sure our texture is the correct one for this stroke
@@ -665,7 +673,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                     [stroke.texture unbind];
                     [stroke unlock];
                 }
-                
+                glFlush();
+
                 ////////////////////////////////
                 // render to texture is done,
                 // now read its contents
@@ -679,8 +688,10 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [canvasTexture rebind];
                 [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
                 [secondSubContext flush];
-                
+                glFlush();
+
                 [secondSubContext assertCheckFramebuffer];
+                glFlush();
 
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer
@@ -691,13 +702,15 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 }
                 // Read pixel data from the framebuffer
                 [secondSubContext readPixelsInto:data ofSize:GLSizeFromCGSize(fullSize)];
-                
+                glFlush();
+
                 // now we're done, delete our buffers
                 [secondSubContext unbindFramebuffer];
                 [secondSubContext deleteFramebuffer:exportFramebuffer];
                 [canvasTexture unbind];
                 [[JotTextureCache sharedManager] returnTextureForReuse:canvasTexture];
-                
+                glFlush();
+
                 // Create a CGImage with the pixel data from OpenGL
                 // If your OpenGL ES content is opaque, use kCGImageAlphaNoneSkipLast to ignore the alpha channel
                 // otherwise, use kCGImageAlphaPremultipliedLast
@@ -717,7 +730,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 if(!bitmapContext){
                     @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
                 }
-                
+                glFlush();
+
                 // can I clear less stuff and still be ok?
                 CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
                 
@@ -740,7 +754,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 }
                 
                 UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
-                
+                glFlush();
+
                 // Clean up
                 free(data);
                 CFRelease(ref);
@@ -829,7 +844,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 CGSize initialViewport = viewFramebuffer.initialViewport;
                 
                 [secondSubContext glViewportWithX:0 y:0 width:(GLsizei) initialViewport.width height:(GLsizei) initialViewport.height];
-                
+                glFlush();
+
                 CGSize fullSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
                 CGSize exportSize = CGSizeMake(ceilf(initialViewport.width), ceilf(initialViewport.height));
                 
@@ -840,19 +856,22 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 maxTextureSize.height *= [UIScreen mainScreen].scale;
                 JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
                 [canvasTexture bind];
-                
+                glFlush();
+
                 GLuint exportFramebuffer = [secondSubContext generateFramebufferWithTextureBacking:canvasTexture];
                 // by default, it's unbound after generating, so bind it
                 [secondSubContext bindFramebuffer:exportFramebuffer];
 
                 [secondSubContext assertCheckFramebuffer];
-                
+                glFlush();
+
                 [secondSubContext glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
                 
                 // step 1:
                 // Clear the buffer
                 [secondSubContext clear];
-                
+                glFlush();
+
                 // step 2:
                 // load a texture and draw it into a quad
                 // that fills the screen
@@ -860,14 +879,16 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 
                 // reset our viewport
                 [secondSubContext glViewportWithX:0 y:0 width:initialViewport.width height:initialViewport.height];
-                
+                glFlush();
+
                 // we have to flush here to push all
                 // the pixels to the texture so they're
                 // available in the background thread's
                 // context
                 [secondSubContext flush];
                 [secondSubContext flush];
-                
+                glFlush();
+
                 //
                 // now read its contents
                 [secondSubContext flush];
@@ -878,6 +899,7 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 [secondSubContext flush];
                 
                 [secondSubContext assertCheckFramebuffer];
+                glFlush();
 
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer
@@ -888,7 +910,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 }
                 // Read pixel data from the framebuffer of size fullSize
                 [secondSubContext readPixelsInto:data ofSize:GLSizeFromCGSize(fullSize)];
-                
+                glFlush();
+
                 // now we're done, delete our buffers
                 [secondSubContext unbindFramebuffer];
                 [secondSubContext deleteFramebuffer:exportFramebuffer];
@@ -914,7 +937,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 if(!bitmapContext){
                     @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
                 }
-                
+                glFlush();
+
                 // can I clear less stuff and still be ok?
                 CGContextClearRect(bitmapContext, CGRectMake(0, 0, exportSize.width, exportSize.height));
                 
@@ -935,7 +959,8 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
                 if(!cgImage){
                     @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
                 }
-                
+                glFlush();
+
                 UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
                 
                 // Clean up
@@ -1894,10 +1919,12 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
             
             // set viewport to round up to the pixel, if needed
             [context glViewportWithX:0 y:0 width:fullSize.width height:fullSize.height];
+            glFlush();
 
             // prep our shaders...
             [context colorlessPointProgram].canvasSize = GLSizeFromCGSize(fullSize);
             [context coloredPointProgram].canvasSize = GLSizeFromCGSize(fullSize);
+            glFlush();
 
             // ok, everything is setup at this point, so render all
             // of the strokes over the backing texture to our
@@ -1908,11 +1935,13 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                 // available after this method returns
                 glFinish();
             }];
+            glFlush();
 
             // now all of the content has been pushed to the texture,
             // so delete the framebuffer
             exportFramebuffer = nil;
             [canvasTexture unbind];
+            glFlush();
         }
         
         // reset back to exact viewport
@@ -1933,9 +1962,11 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
     }];
     [subContext runBlock:^{
         // render it to the backing texture
+        glFlush();
         [state.backgroundFramebuffer bind];
         [subContext glDisableDither];
         [subContext glEnableBlend];
+        glFlush();
         // Set a blending function appropriate for premultiplied alpha pixel data
         [subContext glBlendFuncONE];
         CGRect frame = self.layer.bounds;
@@ -1947,6 +1978,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
         
         [subContext assertCheckFramebuffer];
         
+        glFlush();
         //
         // step 1:
         // Clear the buffer
@@ -1957,6 +1989,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
         // load a texture and draw it into a quad
         // that fills the screen
         [texture bind];
+        glFlush();
         [texture drawInContext:subContext
                           atT1:p1
                          andT2:p2
@@ -1973,6 +2006,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                 withCanvasSize:initialViewport];
         [texture unbind];
         [state.backgroundFramebuffer unbind];
+        glFlush();
     }];
 
     //
@@ -1982,6 +2016,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
     // issues of unsynchronized textures.
     [context runBlock:^{
         [viewFramebuffer bind];
+        glFlush();
 
         [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
         [viewFramebuffer unbind];

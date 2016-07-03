@@ -178,6 +178,7 @@
         [context enablePointSizeArrayAtIndex:[[context coloredPointProgram] attributePointSizeIndex]
                                    forStride:sizeof(struct ColorfulVertex)
                                   andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
+        glFlush();
     }];
 }
 
@@ -206,6 +207,7 @@
         [context enablePointSizeArrayAtIndex:[[context colorlessPointProgram] attributePointSizeIndex]
                                    forStride:sizeof(struct ColorlessVertex)
                                   andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
+        glFlush();
 //        [context enableVertexArray];
 //        [context disableColorArray];
 //        [context enablePointSizeArray];

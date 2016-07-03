@@ -346,9 +346,12 @@ typedef enum UndfBOOL{
             // noop for scissors
         }
 
+        glFlush();
+
         printOpenGLError();
         block();
         printOpenGLError();
+        glFlush();
 
         if(!CGRectEqualToRect(scissorRect, CGRectZero)){
             [self glDisableScissorTest];
@@ -366,9 +369,11 @@ typedef enum UndfBOOL{
             @throw [NSException exceptionWithName:@"GLCurrentFramebufferException" reason:@"Unexpected current framebufer" userInfo:nil];
         }
         
+        glFlush();
         printOpenGLError();
         block();
         printOpenGLError();
+        glFlush();
 
         // rebind to the buffer we began with
         // or unbind altogether
@@ -475,6 +480,7 @@ typedef enum UndfBOOL{
         stencilOpZfail = zfail;
         stencilOpZpass = zpass;
         glStencilOp(fail, zfail, zpass);
+        glFlush();
     }
     printOpenGLError();
 }
@@ -486,6 +492,7 @@ typedef enum UndfBOOL{
         stencilFuncRef = ref;
         stencilFuncMask = mask;
         glStencilFunc(func, ref, mask);
+        glFlush();
     }
     printOpenGLError();
 }
@@ -495,6 +502,7 @@ typedef enum UndfBOOL{
     if(mask != stencilMask){
         glStencilMask(mask);
         stencilMask = mask;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -504,6 +512,7 @@ typedef enum UndfBOOL{
     if(enabled_GL_DEPTH_MASK == YEP || enabled_GL_DEPTH_MASK == UNKNOWN){
         glDepthMask(GL_FALSE);
         enabled_GL_DEPTH_MASK = NOPE;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -513,6 +522,7 @@ typedef enum UndfBOOL{
     if(enabled_GL_DEPTH_MASK == NOPE || enabled_GL_DEPTH_MASK == UNKNOWN){
         glDepthMask(GL_TRUE);
         enabled_GL_DEPTH_MASK = YEP;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -525,6 +535,7 @@ typedef enum UndfBOOL{
         enabled_glColorMask_green = green ? YEP : NOPE;
         enabled_glColorMask_blue = blue ? YEP : NOPE;
         enabled_glColorMask_alpha = alpha ? YEP : NOPE;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -534,6 +545,7 @@ typedef enum UndfBOOL{
     if(enabled_GL_STENCIL_TEST == YEP || enabled_GL_STENCIL_TEST == UNKNOWN){
         glDisable(GL_STENCIL_TEST);
         enabled_GL_STENCIL_TEST = NOPE;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -543,6 +555,7 @@ typedef enum UndfBOOL{
     if(enabled_GL_STENCIL_TEST == NOPE || enabled_GL_STENCIL_TEST == UNKNOWN){
         glEnable(GL_STENCIL_TEST);
         enabled_GL_STENCIL_TEST = YEP;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -552,6 +565,7 @@ typedef enum UndfBOOL{
     if(enabled_GL_SCISSOR_TEST == YEP || enabled_GL_SCISSOR_TEST == UNKNOWN){
         glDisable(GL_SCISSOR_TEST);
         enabled_GL_SCISSOR_TEST = NOPE;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -561,7 +575,9 @@ typedef enum UndfBOOL{
     if(enabled_GL_SCISSOR_TEST == NOPE || enabled_GL_SCISSOR_TEST == UNKNOWN){
         glEnable(GL_SCISSOR_TEST);
         enabled_GL_SCISSOR_TEST = YEP;
-    }    printOpenGLError();
+        glFlush();
+    }
+    printOpenGLError();
 
 }
 
@@ -570,6 +586,7 @@ typedef enum UndfBOOL{
     if(enabled_GL_DITHER == YEP || enabled_GL_DITHER == UNKNOWN){
         glDisable(GL_DITHER);
         enabled_GL_DITHER = NOPE;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -579,6 +596,7 @@ typedef enum UndfBOOL{
     if(enabled_GL_BLEND == NOPE || enabled_GL_BLEND == UNKNOWN){
         glEnable(GL_BLEND);
         enabled_GL_BLEND = YEP;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -591,6 +609,7 @@ typedef enum UndfBOOL{
     vertex_pointer_type = GL_FLOAT;
     vertex_pointer_stride = stride;
     vertex_pointer_pointer = pointer;
+    glFlush();
     printOpenGLError();
 }
 
@@ -602,6 +621,7 @@ typedef enum UndfBOOL{
     color_pointer_type = GL_FLOAT;
     color_pointer_stride = stride;
     color_pointer_pointer = pointer;
+    glFlush();
     printOpenGLError();
 }
 
@@ -622,6 +642,7 @@ typedef enum UndfBOOL{
     texcoord_pointer_type = GL_FLOAT;
     texcoord_pointer_stride = stride;
     texcoord_pointer_pointer = pointer;
+    glFlush();
     printOpenGLError();
 }
 
@@ -650,6 +671,7 @@ typedef enum UndfBOOL{
     }else{
         @throw [NSException exceptionWithName:@"TextureParamException" reason:@"Unknown texture parameter" userInfo:nil];
     }
+    glFlush();
     printOpenGLError();
 }
 
@@ -699,6 +721,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
             // this is an image that's filled white with our path and
             // clear everywhere else
             clipping = [[JotGLTexture alloc] initForImage:image withSize:image.size];
+            glFlush();
         }
         printOpenGLError();
 
@@ -723,7 +746,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
             [self bindRenderbuffer:stencil_rb];
             glRenderbufferStorage(GL_RENDERBUFFER, GL_STENCIL_INDEX8, resolution.width, resolution.height);
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, stencil_rb);
-            
+            glFlush();
+
             [self assertCheckFramebuffer];
             
             // setup the stencil test and alpha test. the stencil test
@@ -732,16 +756,20 @@ forStenciledPath:(UIBezierPath*)clippingPath
             glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             glClearStencil(0);
+            glFlush();
             [self glEnableStencilTest];
             [self glColorMaskRed:GL_FALSE green:GL_FALSE blue:GL_FALSE alpha:GL_FALSE];
             [self glDisableDepthMask];
+            glFlush();
 
             [self glStencilFunc:GL_ALWAYS ref:1 mask:1];
             [self glStencilOp:GL_KEEP zfail:GL_KEEP zpass:GL_REPLACE];  // draw 1s on test fail (always)
+            glFlush();
 
             [self glStencilMask:0xFF];
             glClear(GL_STENCIL_BUFFER_BIT);  // needs mask=0xFF
-            
+            glFlush();
+
             
             // these vertices will stretch the stencil texture
             // across the entire size that we're drawing on
@@ -759,15 +787,18 @@ forStenciledPath:(UIBezierPath*)clippingPath
             };
             // bind our clipping texture, and draw it
             [clipping bind];
+            glFlush();
 
             [clipping bindForRenderToQuadWithCanvasSize:resolution forProgram:[self stencilProgram]];
+            glFlush();
 
 //            [self glColor4f:1 and:1 and:1 and:1];
 
             [self enableVertexArrayAtIndex:vertIndex forSize:2 andStride:0 andPointer:vertices];
             [self enableTextureCoordArrayAtIndex:texIndex forSize:2 andStride:0 andPointer:texCoords];
             [self drawTriangleStripCount:4 withProgram:[self stencilProgram]];
-            
+            glFlush();
+
             
             // now setup the next draw operations to respect
             // the new stencil buffer that's setup
@@ -776,6 +807,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
             [self glStencilMask:0x00];
             [self glStencilFunc:GL_EQUAL ref:1 mask:0xFF];
         }
+        glFlush();
         printOpenGLError();
 
         ////////////////////////////
@@ -785,6 +817,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
         
         printOpenGLError();
 
+        glFlush();
         if(clippingPath){
             ////////////////////////////
             // turn stencil off
@@ -792,13 +825,17 @@ forStenciledPath:(UIBezierPath*)clippingPath
             [clipping unbind];
             [self glDisableStencilTest];
             [self unbindRenderbuffer];
+            glFlush();
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, 0);
+            glFlush();
             [self deleteRenderbuffer:stencil_rb];
+            glFlush();
             
             [self glStencilFunc:GL_ALWAYS ref:0 mask:1];
             [self glStencilOp:GL_KEEP zfail:GL_KEEP zpass:GL_KEEP];
 
             // restore bound render buffer
+            glFlush();
             if(currBoundRendBuff){
                 [self bindRenderbuffer:currBoundRendBuff];
             }else{
@@ -806,6 +843,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
             }
         }
         printOpenGLError();
+        glFlush();
     }];
 }
 
@@ -819,6 +857,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
         lastClearGreen = green;
         lastClearBlue = blue;
         lastClearAlpha = alpha;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -831,15 +870,18 @@ forStenciledPath:(UIBezierPath*)clippingPath
         // normal brush
         [self glBlendFuncONE];
     }
+    glFlush();
     printOpenGLError();
 }
 
 -(void) glBlendFuncONE{
     [self glBlendFunc:GL_ONE and:GL_ONE_MINUS_SRC_ALPHA];
+    glFlush();
 }
 
 -(void) glBlendFuncZERO{
     [self glBlendFunc:GL_ZERO and:GL_ONE_MINUS_SRC_ALPHA];
+    glFlush();
 }
 
 -(void) glBlendFunc:(GLenum)sfactor and:(GLenum)dfactor{
@@ -849,6 +891,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
         blend_sfactor = sfactor;
         blend_dfactor = dfactor;
         glBlendFunc(blend_sfactor, blend_dfactor);
+        glFlush();
     }
     printOpenGLError();
 }
@@ -861,6 +904,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
         viewport_y = y;
         viewport_width = width;
         viewport_height = height;
+        glFlush();
     }
     printOpenGLError();
 }
@@ -869,12 +913,14 @@ forStenciledPath:(UIBezierPath*)clippingPath
     ValidateCurrentContext;
     [self glClearColor:0 and:0 and:0 and:0];
     glClear(GL_COLOR_BUFFER_BIT);
+    glFlush();
 }
 
 -(void) drawTriangleStripCount:(GLsizei)count withProgram:(JotGLProgram*)program{
     ValidateCurrentContext;
     [program use];
     glDrawArrays(GL_TRIANGLE_STRIP, 0, count);
+    glFlush();
     printOpenGLError();
 }
 
@@ -882,18 +928,22 @@ forStenciledPath:(UIBezierPath*)clippingPath
     ValidateCurrentContext;
     [program use];
     glDrawArrays(GL_POINTS, 0, count);
+    glFlush();
     printOpenGLError();
 }
 
 -(void) readPixelsInto:(GLubyte *)data ofSize:(GLSize)size{
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glFlush();
 
     // timing start
     CGFloat duration = BNRTimeBlock2(^{
         glReadPixels(0, 0, size.width, size.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        glFlush();
     });
     NSLog(@"total2 = %f", duration);
     // timing end
+    glFlush();
     printOpenGLError();
 }
 
@@ -902,67 +952,86 @@ forStenciledPath:(UIBezierPath*)clippingPath
 -(GLuint) generateTextureForSize:(CGSize)fullPixelSize withBytes:(const GLvoid *)imageData{
     ValidateCurrentContext;
     GLuint textureID = 0;
-    
+    glFlush();
+
     // create a new texture in OpenGL
     NSLog(@"textureID: %d", textureID);
     glGenTextures(1, &textureID);
+    glFlush();
     NSLog(@"textureID2: %d", textureID);
     printOpenGLError();
 
     // bind the texture that we'll be writing to
     [self bindTexture:textureID];
     printOpenGLError();
+    glFlush();
 
     // configure how this texture scales.
     [self glTexParameteriWithPname:GL_TEXTURE_MIN_FILTER param:GL_LINEAR];
+    glFlush();
     printOpenGLError();
     [self glTexParameteriWithPname:GL_TEXTURE_MAG_FILTER param:GL_LINEAR];
+    glFlush();
     printOpenGLError();
     [self glTexParameteriWithPname:GL_TEXTURE_WRAP_S param:GL_CLAMP_TO_EDGE];
+    glFlush();
     printOpenGLError();
     [self glTexParameteriWithPname:GL_TEXTURE_WRAP_T param:GL_CLAMP_TO_EDGE];
+    glFlush();
     printOpenGLError();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, fullPixelSize.width, fullPixelSize.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imageData);
+    glFlush();
     printOpenGLError();
 
+    glFlush();
     [self unbindTexture];
     printOpenGLError();
 
+    glFlush();
     return textureID;
 }
 
 -(void) bindTexture:(GLuint)textureId{
     ValidateCurrentContext;
     glBindTexture(GL_TEXTURE_2D, textureId);
+    glFlush();
     printOpenGLError();
 }
 
 -(void) unbindTexture{
     ValidateCurrentContext;
     glBindTexture(GL_TEXTURE_2D, 0);
+    glFlush();
     printOpenGLError();
 }
 
 -(void) deleteTexture:(GLuint)textureId{
     ValidateCurrentContext;
     glDeleteTextures(1, &textureId);
+    glFlush();
     printOpenGLError();
 }
 
 -(GLuint) generateFramebufferWithTextureBacking:(JotGLTexture *)texture{
     __block GLuint framebufferID;
+    glFlush();
     [self runBlockAndMaintainCurrentFramebuffer:^{
         glGenFramebuffers(1, &framebufferID);
+        glFlush();
         printOpenGLError();
         if(framebufferID){
             // generate FBO
             [self bindFramebuffer:framebufferID];
+            glFlush();
             [texture bind];
+            glFlush();
             // associate texture with FBO
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.textureID, 0);
+            glFlush();
             printOpenGLError();
             [texture unbind];
             printOpenGLError();
+            glFlush();
         }
         [self assertCheckFramebuffer];
     }];
@@ -978,38 +1047,47 @@ forStenciledPath:(UIBezierPath*)clippingPath
     
     GLint backingWidth, backingHeight;
     
+    glFlush();
     // Generate IDs for a framebuffer object and a color renderbuffer
     glGenFramebuffers(1, viewFramebuffer);
     printOpenGLError();
     glGenRenderbuffers(1, viewRenderbuffer);
     printOpenGLError();
 
+    glFlush();
     [self bindFramebuffer:viewFramebuffer[0]];
     printOpenGLError();
     [self bindRenderbuffer:viewRenderbuffer[0]];
     printOpenGLError();
+    glFlush();
     // This call associates the storage for the current render buffer with the EAGLDrawable (our CAEAGLLayer)
     // allowing us to draw into a buffer that will later be rendered to screen wherever the layer is (which corresponds with our view).
     printOpenGLError();
     [self renderbufferStorage:GL_RENDERBUFFER fromDrawable:layer];
+    glFlush();
     printOpenGLError();
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, *viewRenderbuffer);
+    glFlush();
     printOpenGLError();
 
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &backingWidth);
     printOpenGLError();
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &backingHeight);
     printOpenGLError();
+    glFlush();
 
     // For this sample, we also need a depth buffer, so we'll create and attach one via another renderbuffer.
     glGenRenderbuffers(1, depthRenderbuffer);
     printOpenGLError();
+    glFlush();
     [self bindRenderbuffer:depthRenderbuffer[0]];
     printOpenGLError();
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, backingWidth, backingHeight);
+    glFlush();
     printOpenGLError();
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, *depthRenderbuffer);
     printOpenGLError();
+    glFlush();
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
@@ -1019,17 +1097,20 @@ forStenciledPath:(UIBezierPath*)clippingPath
     }
     printOpenGLError();
 
+    glFlush();
     return GLSizeMake(backingWidth, backingHeight);
 }
 
 -(void) bindFramebuffer:(GLuint)framebuffer{
     ValidateCurrentContext;
+    glFlush();
     if(framebuffer && currentlyBoundFramebuffer != framebuffer){
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         currentlyBoundFramebuffer = framebuffer;
     }else if(!framebuffer){
         @throw [NSException exceptionWithName:@"GLBindFramebufferExcpetion" reason:@"Trying to bind nil framebuffer" userInfo:nil];
     }
+    glFlush();
     printOpenGLError();
 }
 -(void) unbindFramebuffer{
@@ -1038,6 +1119,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         currentlyBoundFramebuffer = 0;
     }
+    glFlush();
     printOpenGLError();
 }
 
@@ -1046,8 +1128,10 @@ forStenciledPath:(UIBezierPath*)clippingPath
     if(framebufferID && currentlyBoundFramebuffer == framebufferID){
         @throw [NSException exceptionWithName:@"GLDeleteBoundBufferException" reason:@"deleting currently boudn buffer" userInfo:nil];
     }
+    glFlush();
     glDeleteFramebuffers(1, &framebufferID);
     printOpenGLError();
+    glFlush();
 }
 
 -(void) deleteRenderbuffer:(GLuint)viewRenderbuffer{
@@ -1061,27 +1145,32 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 -(void) bindRenderbuffer:(GLuint)renderBufferId{
     ValidateCurrentContext;
+    glFlush();
     if(renderBufferId && currentlyBoundRenderbuffer != renderBufferId){
         glBindRenderbuffer(GL_RENDERBUFFER, renderBufferId);
         currentlyBoundRenderbuffer = renderBufferId;
     }else if(!renderBufferId){
         @throw [NSException exceptionWithName:@"GLBindRenderbufferExceptoin" reason:@"trying to bind nil renderbuffer" userInfo:nil];
     }
+    glFlush();
     printOpenGLError();
 }
 
 -(void) unbindRenderbuffer{
     ValidateCurrentContext;
+    glFlush();
     if(currentlyBoundRenderbuffer){
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
         currentlyBoundRenderbuffer = 0;
     }
+    glFlush();
     printOpenGLError();
 }
 
 -(BOOL) presentRenderbuffer{
     ValidateCurrentContext;
     printOpenGLError();
+    glFlush();
     return [super presentRenderbuffer:GL_RENDERBUFFER];
 }
 
@@ -1095,6 +1184,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
         DebugLog(@"%@", str);
         @throw [NSException exceptionWithName:@"Framebuffer Exception" reason:str userInfo:nil];
     }
+    glFlush();
     printOpenGLError();
 }
 
@@ -1110,6 +1200,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
     if(currBoundRendBuff != viewRenderbuffer){
         @throw [NSException exceptionWithName:@"Renderbuffer Exception" reason:[NSString stringWithFormat:@"Expected %d but was %d", viewRenderbuffer, currBoundRendBuff] userInfo:nil];
     }
+    glFlush();
     printOpenGLError();
 }
 
@@ -1135,6 +1226,7 @@ static void * zeroedDataCache = nil;
             }
         }
     }
+    glFlush();
     // generate the VBO in OpenGL
     glGenBuffers(1,&vbo);
     [self bindArrayBuffer:vbo];
@@ -1143,28 +1235,34 @@ static void * zeroedDataCache = nil;
         glBufferData(GL_ARRAY_BUFFER, mallocSize, zeroedDataCache, GL_DYNAMIC_DRAW);
     }
     // unbind after alloc
+    glFlush();
     [self unbindArrayBuffer];
     printOpenGLError();
+    glFlush();
     return vbo;
 }
 
 -(void) bindArrayBuffer:(GLuint)buffer{
     glBindBuffer(GL_ARRAY_BUFFER,buffer);
+    glFlush();
     printOpenGLError();
 }
 
 -(void) updateArrayBufferWithBytes:(const GLvoid *)bytes atOffset:(GLintptr)offset andLength:(GLsizeiptr)len{
     glBufferSubData(GL_ARRAY_BUFFER, offset, len, bytes);
+    glFlush();
     printOpenGLError();
 }
 
 -(void) unbindArrayBuffer{
     glBindBuffer(GL_ARRAY_BUFFER,0);
+    glFlush();
     printOpenGLError();
 }
 
 -(void) deleteArrayBuffer:(GLuint)buffer{
     glDeleteBuffers(1,&buffer);
+    glFlush();
     printOpenGLError();
 }
 
@@ -1176,6 +1274,7 @@ static void * zeroedDataCache = nil;
 
     [self runBlock:^{
         [contextProperties removeAllObjects];
+        glFlush();
     }];
 }
 

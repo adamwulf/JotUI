@@ -46,6 +46,7 @@
     [super use];
 
     glUniform1f([self uniformRotationIndex], self.rotation);
+    glFlush();
 }
 
 @end

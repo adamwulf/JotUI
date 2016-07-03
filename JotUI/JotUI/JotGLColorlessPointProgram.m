@@ -37,6 +37,7 @@
     brushColor[3] = self.colorAlpha;
     // initialize brush color
     glUniform4fv([self uniformVertexColorIndex], 1, brushColor);
+    glFlush();
 
 }
 

@@ -46,6 +46,7 @@ dispatch_queue_t importExportTextureQueue;
 -(void) bind{
     glActiveTexture(GL_TEXTURE0);
     printOpenGLError();
+    glFlush();
 
     [texture bind];
     [super bind];

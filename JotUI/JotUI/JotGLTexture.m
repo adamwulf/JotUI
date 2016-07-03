@@ -192,6 +192,7 @@ static int totalTextureBytes;
 -(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLQuadProgram*)program{
 
     program.canvasSize = GLSizeFromCGSize(canvasSize);
+    glFlush();
 
     [program use];
     printOpenGLError();
@@ -202,6 +203,7 @@ static int totalTextureBytes;
     // TODO: shouldn't this be inside the Program?
     glUniform1i([program uniformTextureIndex], 0);
     printOpenGLError();
+    glFlush();
 }
 
 -(void) rebind{
@@ -214,6 +216,7 @@ static int totalTextureBytes;
         [lock lock];
         [self unbind];
         [self bind];
+        glFlush();
         [lock unlock];
     }];
 }
@@ -317,12 +320,15 @@ static int totalTextureBytes;
 
             [self bindForRenderToQuadWithCanvasSize:canvasSize forProgram:[context quadProgram]];
 
+            glFlush();
 
             [context enableVertexArrayAtIndex:[[context quadProgram] attributePositionIndex] forSize:2 andStride:0 andPointer:squareVertices];
             [context enableTextureCoordArrayAtIndex:[[context quadProgram] attributeTextureCoordinateIndex] forSize:2 andStride:0 andPointer:textureVertices];
             [context drawTriangleStripCount:4 withProgram:[context quadProgram]];
+            glFlush();
         };
-        
+        glFlush();
+
         // cleanup
         [context runBlock:possiblyStenciledRenderBlock
          forStenciledPath:clippingPath
@@ -334,6 +340,7 @@ static int totalTextureBytes;
            withResolution:resolution
          withVertexIndex:[[context quadProgram] attributePositionIndex]
           andTextureIndex:[[context quadProgram] attributeTextureCoordinateIndex]];
+        glFlush();
 
         [self unbind];
     }];
