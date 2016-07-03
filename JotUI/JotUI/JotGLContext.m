@@ -928,8 +928,8 @@ forStenciledPath:(UIBezierPath*)clippingPath
     ValidateCurrentContext;
     [program use];
     glDrawArrays(GL_POINTS, 0, count);
-    glFlush();
     printOpenGLError();
+    glFlush();
 }
 
 -(void) readPixelsInto:(GLubyte *)data ofSize:(GLSize)size{

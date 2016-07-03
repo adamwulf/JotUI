@@ -10,7 +10,6 @@
 #import "JotGLProgram+Private.h"
 
 @implementation JotGLColorlessPointProgram{
-    BOOL hasCalculatedColorComponents;
     GLfloat brushColor[4];
 }
 

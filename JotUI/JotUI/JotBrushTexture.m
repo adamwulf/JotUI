@@ -46,6 +46,9 @@
     [JotGLContext runBlock:^(JotGLContext* context){
         // check if we already have the texture generated
         if(glBrushTextureID){
+            if(!glIsTexture(glBrushTextureID)){
+                NSLog(@"predicting crash from bad bind texture ID: %d!", glBrushTextureID);
+            }
             [context bindTexture:glBrushTextureID];
 //            [context glTexParameteriWithPname:GL_TEXTURE_MIN_FILTER param:GL_LINEAR];
 //            [context glTexParameteriWithPname:GL_TEXTURE_MAG_FILTER param:GL_LINEAR];
@@ -87,6 +90,7 @@
             CGContextRelease(brushContext);
             // Use OpenGL ES to generate a name for the texture.
             glGenTextures(1, &glBrushTextureID);
+            
             // Bind the texture name.
             [context bindTexture:glBrushTextureID];
             // Set the texture parameters to use a minifying filter and a linear filer (weighted average)
@@ -97,8 +101,14 @@
             // Specify a 2D texture image, providing the a pointer to the image data in memory
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
             
+            if(!glIsTexture(glBrushTextureID)){
+                NSLog(@"predicting crash from bad texture ID: %d!", glBrushTextureID);
+            }
+            
             // Release  the image data; it's no longer needed
-            free(brushData);
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(15 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                free(brushData);
+            });
             glFlush();
             ret = YES;
             return;
