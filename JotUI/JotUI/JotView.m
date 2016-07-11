@@ -1414,7 +1414,10 @@ static int undoCounter;
                 newStroke.delegate = self;
                 state.currentStroke = newStroke;
                 // find the stroke that we're modifying, and then add an element and render it
-                CGPoint preciseLocInView = [touch preciseLocationInView:self];
+                CGPoint preciseLocInView = [touch locationInView:self];
+                if([touch respondsToSelector:@selector(preciseLocationInView:)]){
+                    preciseLocInView = [touch preciseLocationInView:self];
+                }
                 [self addLineToAndRenderStroke:newStroke
                                        toPoint:preciseLocInView
                                        toWidth:[self.delegate widthForCoalescedTouch:touch fromTouch:touch]
@@ -1456,7 +1459,10 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                 //
                 // for this example, we'll simply draw every touch if
                 // the jot sdk is not enabled
-                CGPoint preciseLocInView = [coalescedTouch preciseLocationInView:self];
+                CGPoint preciseLocInView = [coalescedTouch locationInView:self];
+                if([coalescedTouch respondsToSelector:@selector(preciseLocationInView:)]){
+                    preciseLocInView = [coalescedTouch preciseLocationInView:self];
+                }
                 // Convert touch point from UIView referential to OpenGL one (upside-down flip)
                 CGPoint glPreciseLocInView = preciseLocInView;
                 glPreciseLocInView.y = self.bounds.size.height - glPreciseLocInView.y;
@@ -1540,7 +1546,10 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b){
                     [self touchesMoved:[NSSet setWithObject:coalescedTouch] withEvent:event];
                     // now line to the end of the stroke
                     
-                    CGPoint preciseLocInView = [coalescedTouch preciseLocationInView:self];
+                    CGPoint preciseLocInView = [coalescedTouch locationInView:self];
+                    if([coalescedTouch respondsToSelector:@selector(preciseLocationInView:)]){
+                        preciseLocInView = [coalescedTouch preciseLocationInView:self];
+                    }
                     
                     // the while loop ensures we get at least a dot from the touch
                     while(![self addLineToAndRenderStroke:currentStroke
