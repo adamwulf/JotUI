@@ -46,6 +46,9 @@
     __strong NSMutableArray* stackOfUndoneStrokes;
     NSMutableArray* strokesBeingWrittenToBackingTexture;
     JotBufferManager* bufferManager;
+    
+    CGSize fullPtSize;
+    BOOL didRequireScaleDuringLoad;
 }
 
 @synthesize delegate;
@@ -68,12 +71,13 @@
 
 -(id) initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
-            andPageSize:(CGSize)fullPtSize
+            andPageSize:(CGSize)_fullPtSize
                andScale:(CGFloat)scale
            andGLContext:(JotGLContext*)glContext
        andBufferManager:(JotBufferManager*)_bufferManager{
     if(self = [self init]){
         bufferManager = _bufferManager;
+        fullPtSize = _fullPtSize;
         // we're going to wait for two background operations to complete
         // using these semaphores
         dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -170,6 +174,9 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         NSDictionary* stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
         
         if(stateInfo){
+            
+            CGSize strokeStatePageSize = CGSizeMake([stateInfo[@"screenSize.width"] floatValue], [stateInfo[@"screenSize.height"] floatValue]);
+            
             // load our undo state if we have it
             NSString* stateDirectory = [stateInfoFile stringByDeletingLastPathComponent];
             id(^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index){
@@ -184,6 +191,18 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
                 NSString* className = [obj objectForKey:@"class"];
                 Class class = NSClassFromString(className);
                 JotStroke* stroke = [[class alloc] initFromDictionary:obj];
+                
+                if(!CGSizeEqualToSize(strokeStatePageSize, CGSizeZero)){
+                    if(fullPtSize.width != strokeStatePageSize.width && fullPtSize.height != strokeStatePageSize.height){
+                        didRequireScaleDuringLoad = YES;
+                        
+                        CGFloat widthRatio = fullPtSize.width / strokeStatePageSize.width;
+                        CGFloat heightRatio = fullPtSize.height / strokeStatePageSize.height;
+                        
+                        [stroke scaleSegmentsForWidth:widthRatio andHeight:heightRatio];
+                    }
+                }
+                
                 stroke.delegate = self;
                 return stroke;
             };
@@ -241,8 +260,15 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         // the ImmutableState object won't be able to calculate it, so we need to
         // send it in for it
         [stateDict setObject:[NSNumber numberWithUnsignedInteger:[self undoHash]] forKey:@"undoHash"];
+        
+        stateDict[@"screenSize.width"] = @(fullPtSize.width);
+        stateDict[@"screenSize.height"] = @(fullPtSize.height);
     }
-    return [[JotViewImmutableState alloc] initWithDictionary:stateDict];
+    JotViewImmutableState* ret = [[JotViewImmutableState alloc] initWithDictionary:stateDict];
+    
+    ret.mustOverwriteAllStrokeFiles = didRequireScaleDuringLoad;
+    
+    return ret;
 }
 
 -(BOOL) isReadyToExport{

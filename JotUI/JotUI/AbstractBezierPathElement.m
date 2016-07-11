@@ -187,4 +187,11 @@
     return self;
 }
 
+#pragma mark - Scaling
+
+-(void) scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio{
+    startPoint.x = startPoint.x * widthRatio;
+    startPoint.y = startPoint.y * heightRatio;
+}
+
 @end

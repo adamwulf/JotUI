@@ -65,4 +65,6 @@ struct ColorlessVertex{
 -(void) adjustStartBy:(CGPoint)adjustment;
 -(UIBezierPath*) bezierPathSegment;
 
+-(void) scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio NS_REQUIRES_SUPER;
+
 @end

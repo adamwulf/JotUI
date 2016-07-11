@@ -68,4 +68,6 @@
 -(void) lock;
 -(void) unlock;
 
+-(void) scaleSegmentsForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio;
+
 @end

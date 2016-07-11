@@ -142,4 +142,17 @@
     return self;
 }
 
+#pragma mark - Scale
+
+-(void) scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio{
+    point0.x = point0.x * widthRatio;
+    point0.y = point0.y * heightRatio;
+    point1.x = point1.x * widthRatio;
+    point1.y = point1.y * heightRatio;
+    point2.x = point2.x * widthRatio;
+    point2.y = point2.y * heightRatio;
+    point3.x = point3.x * widthRatio;
+    point3.y = point3.y * heightRatio;
+}
+
 @end

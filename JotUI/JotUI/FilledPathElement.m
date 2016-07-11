@@ -315,4 +315,23 @@
     return self == object || [self hash] == [object hash];
 }
 
+
+#pragma mark - Scaling
+
+-(void) scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio{
+    [super scaleForWidth:widthRatio andHeight:heightRatio];
+    
+    p1.x = p1.x * widthRatio;
+    p1.y = p1.y * heightRatio;
+    
+    p2.x = p2.x * widthRatio;
+    p2.y = p2.y * heightRatio;
+    
+    p3.x = p3.x * widthRatio;
+    p3.y = p3.y * heightRatio;
+    
+    p4.x = p4.x * widthRatio;
+    p4.y = p4.y * heightRatio;
+}
+
 @end

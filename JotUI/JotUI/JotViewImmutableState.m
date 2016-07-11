@@ -37,6 +37,9 @@
         [stateDict setObject:stackOfImmutableStrokes forKey:@"stackOfStrokes"];
         [stateDict setObject:stackOfImmutableUndoneStrokes forKey:@"stackOfUndoneStrokes"];
         [stateDict setObject:[stateInfo objectForKey:@"undoHash"] forKey:@"undoHash"];
+        
+        [stateDict setObject:[stateInfo objectForKey:@"screenSize.width"] forKey:@"screenSize.width"];
+        [stateDict setObject:[stateInfo objectForKey:@"screenSize.height"] forKey:@"screenSize.height"];
     }
     return self;
 }
@@ -59,7 +62,7 @@
         [[[stateDict objectForKey:@"stackOfStrokes"] arrayByAddingObjectsFromArray:[stateDict objectForKey:@"stackOfUndoneStrokes"]] jotMap:^id(id obj, NSUInteger index){
             NSString* filename = [[stateDirectory stringByAppendingPathComponent:[obj uuid]] stringByAppendingPathExtension:kJotStrokeFileExt];
             NSFileManager* manager = [NSFileManager defaultManager];
-            if(![manager fileExistsAtPath:filename]){
+            if(![manager fileExistsAtPath:filename] || self.mustOverwriteAllStrokeFiles){
                 [[obj asDictionary] writeToFile:filename atomically:YES];
             }
             [fileNamesOfStrokes addObject:filename];

@@ -194,4 +194,14 @@
     [lock unlock];
 }
 
+#pragma mark - Scaling
+
+-(void) scaleSegmentsForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio{
+    [segmentSmoother scaleForWidth:widthRatio andHeight:heightRatio];
+    
+    [segments enumerateObjectsUsingBlock:^(AbstractBezierPathElement* ele, NSUInteger idx, BOOL * _Nonnull stop) {
+        [ele scaleForWidth:widthRatio andHeight:heightRatio];
+    }];
+}
+
 @end

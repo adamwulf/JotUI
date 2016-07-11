@@ -10,6 +10,8 @@
 
 @interface JotViewImmutableState : NSObject
 
+@property (nonatomic, assign) BOOL mustOverwriteAllStrokeFiles;
+
 -(void) writeToDisk:(NSString*)plistPath;
 
 // a unique value that defines the current undo state.

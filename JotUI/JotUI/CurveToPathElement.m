@@ -824,4 +824,27 @@ static CGFloat subdivideBezierAtLength (const CGPoint bez[4],
     return self == object || [self hash] == [object hash];
 }
 
+#pragma mark - Scaling
+
+-(void) scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio{
+    [super scaleForWidth:widthRatio andHeight:heightRatio];
+    
+    curveTo.x = curveTo.x * widthRatio;
+    curveTo.y = curveTo.y * heightRatio;
+
+    ctrl1.x = ctrl1.x * widthRatio;
+    ctrl1.y = ctrl1.y * heightRatio;
+
+    ctrl2.x = ctrl2.x * widthRatio;
+    ctrl2.y = ctrl2.y * heightRatio;
+    
+    length = 0;
+    
+    dataVertexBuffer = nil;
+    if(vbo){
+        [self.bufferManager recycleBuffer:vbo];
+        vbo = nil;
+    }
+}
+
 @end
