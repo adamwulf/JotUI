@@ -495,7 +495,6 @@ static CGFloat screenHeight;
  */
 -(BOOL) bind{
     if(![lock tryLock]){
-        NSLog(@"gotcha");
         [lock lock];
     }
     if(!dataVertexBuffer.length){

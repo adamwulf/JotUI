@@ -39,7 +39,6 @@
 
 -(BOOL) bind{
     if(![lock tryLock]){
-        NSLog(@"gotcha");
         [lock lock];
     }
     __block BOOL ret = NO;

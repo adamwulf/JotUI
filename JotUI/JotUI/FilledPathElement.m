@@ -208,7 +208,6 @@
  */
 -(BOOL) bind{
     if(![lock tryLock]){
-        NSLog(@"gotcha");
         [lock lock];
     }
     [texture bind];

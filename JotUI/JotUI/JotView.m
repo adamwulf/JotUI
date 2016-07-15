@@ -573,7 +573,6 @@ static const void *const kImportExportStateQueueIdentifier = &kImportExportState
     if(!exportFinishBlock) return;
     
     if(![imageTextureLock tryLock]){
-        DebugLog(@"gotcha");
         // save failed, just exit and our
         // caller can retry later
         exportFinishBlock(nil);

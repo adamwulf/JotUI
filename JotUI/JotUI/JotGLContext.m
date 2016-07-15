@@ -390,7 +390,6 @@ typedef enum UndfBOOL{
         @throw [NSException exceptionWithName:@"OpenGLException" reason:@"cannot push nil context" userInfo:nil];
     }
     if(![[context lock] tryLock]){
-        DebugLog(@"gotcha");
         [[context lock] lock];
     }
     NSMutableArray* stackOfContexts = [[[NSThread currentThread] threadDictionary] objectForKey:@"stackOfContexts"];
