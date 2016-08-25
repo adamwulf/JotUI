@@ -903,9 +903,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
     GLuint textureID = 0;
     
     // create a new texture in OpenGL
-    NSLog(@"textureID: %d", textureID);
     glGenTextures(1, &textureID);
-    NSLog(@"textureID2: %d", textureID);
     printOpenGLError();
 
     // bind the texture that we'll be writing to
