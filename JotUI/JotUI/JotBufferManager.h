@@ -14,18 +14,19 @@
 
 @class JotBufferVBO, OpenGLVBO;
 
+
 @interface JotBufferManager : NSObject
 
-+(JotBufferManager*) sharedInstance;
++ (JotBufferManager*)sharedInstance;
 
-+(NSInteger) cacheNumberForData:(NSData*)data;
++ (NSInteger)cacheNumberForData:(NSData*)data;
 
--(JotBufferVBO*) bufferWithData:(NSData*)data;
+- (JotBufferVBO*)bufferWithData:(NSData*)data;
 
--(void) recycleBuffer:(JotBufferVBO*)buffer;
+- (void)recycleBuffer:(JotBufferVBO*)buffer;
 
--(void) openGLBufferHasDied:(OpenGLVBO*)openGLVBO;
+- (void)openGLBufferHasDied:(OpenGLVBO*)openGLVBO;
 
--(NSDictionary*) cacheMemoryStats;
+- (NSDictionary*)cacheMemoryStats;
 
 @end

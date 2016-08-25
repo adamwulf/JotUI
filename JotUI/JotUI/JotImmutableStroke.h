@@ -8,10 +8,11 @@
 
 #import <JotUI/JotUI.h>
 
+
 @interface JotImmutableStroke : JotStroke
 
 
--(id) initWithJotStroke:(JotStroke*)stroke;
+- (id)initWithJotStroke:(JotStroke*)stroke;
 
 
 @end

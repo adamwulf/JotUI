@@ -9,14 +9,15 @@
 #import <Foundation/Foundation.h>
 #import "JotGLContext.h"
 
-@interface AbstractJotGLFrameBuffer : NSObject{
+
+@interface AbstractJotGLFrameBuffer : NSObject {
     GLuint framebufferID;
 }
 
 //@property (readonly) GLuint framebufferID;
 
--(void) bind;
+- (void)bind;
 
--(void) unbind;
+- (void)unbind;
 
 @end

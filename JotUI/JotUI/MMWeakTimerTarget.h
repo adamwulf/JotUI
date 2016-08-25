@@ -8,10 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
+
 @interface MMWeakTimerTarget : NSObject
 
--(id) initWithTarget:(NSObject*)_target andSelector:(SEL)_selector;
+- (id)initWithTarget:(NSObject*)_target andSelector:(SEL)_selector;
 
-- (void)timerDidFire:(NSTimer *)timer;
+- (void)timerDidFire:(NSTimer*)timer;
 
 @end

@@ -8,16 +8,17 @@
 
 #import <Foundation/Foundation.h>
 
+
 @interface MMWeakTimer : NSObject
 
--(id) init NS_UNAVAILABLE;
+- (id)init NS_UNAVAILABLE;
 
 - (id)initScheduledTimerWithTimeInterval:(NSTimeInterval)ti target:(id)aTarget selector:(SEL)aSelector;
 
--(void) invalidate;
+- (void)invalidate;
 
--(void) fireIfNeeded;
+- (void)fireIfNeeded;
 
-+(NSArray*) allWeakTimers;
++ (NSArray*)allWeakTimers;
 
 @end

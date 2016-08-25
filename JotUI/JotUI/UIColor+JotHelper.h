@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <objc/runtime.h>
 
+
 @interface UIColor (JotHelper)
 
 /**
@@ -16,10 +17,10 @@
  * since the CG function may return a different number
  * of components for different colors
  */
--(void) getRGBAComponents:(GLfloat[4])components;
+- (void)getRGBAComponents:(GLfloat[4])components;
 
-+(id) colorWithDictionary:(NSDictionary*)components;
++ (id)colorWithDictionary:(NSDictionary*)components;
 
--(NSDictionary*) asDictionary;
+- (NSDictionary*)asDictionary;
 
 @end

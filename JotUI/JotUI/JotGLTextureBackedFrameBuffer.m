@@ -27,15 +27,15 @@ dispatch_queue_t importExportTextureQueue;
  * using this framebuffer, and to rebind the backing texture before
  * drawing with it
  */
-@implementation JotGLTextureBackedFrameBuffer{
+@implementation JotGLTextureBackedFrameBuffer {
     __strong JotGLTexture* texture;
 }
 
 @synthesize texture;
 
--(id) initForTexture:(JotGLTexture*)_texture{
-    if(self = [super init]){
-        [JotGLContext runBlock:^(JotGLContext* context){
+- (id)initForTexture:(JotGLTexture*)_texture {
+    if (self = [super init]) {
+        [JotGLContext runBlock:^(JotGLContext* context) {
             texture = _texture;
             framebufferID = [context generateFramebufferWithTextureBacking:texture];
         }];
@@ -43,7 +43,7 @@ dispatch_queue_t importExportTextureQueue;
     return self;
 }
 
--(void) bind{
+- (void)bind {
     glActiveTexture(GL_TEXTURE0);
     printOpenGLError();
 
@@ -51,22 +51,22 @@ dispatch_queue_t importExportTextureQueue;
     [super bind];
 }
 
--(void) unbind{
+- (void)unbind {
     [super unbind];
     [texture unbind];
 }
 
 #pragma mark - Dispatch Queues
 
-+(dispatch_queue_t) importExportTextureQueue{
-    if(!importExportTextureQueue){
++ (dispatch_queue_t)importExportTextureQueue {
+    if (!importExportTextureQueue) {
         importExportTextureQueue = dispatch_queue_create("com.milestonemade.looseleaf.importExportTextureQueue", DISPATCH_QUEUE_SERIAL);
     }
     return importExportTextureQueue;
 }
 
--(void) clear{
-    JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotTextureBackedFBOSubContext" andSharegroup:[JotGLContext currentContext].sharegroup andValidateThreadWith:^BOOL{
+- (void)clear {
+    JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotTextureBackedFBOSubContext" andSharegroup:[JotGLContext currentContext].sharegroup andValidateThreadWith:^BOOL {
         return [JotView isImportExportImageQueue];
     }];
     [subContext runBlock:^{
@@ -79,25 +79,23 @@ dispatch_queue_t importExportTextureQueue;
         [texture bind];
         [subContext bindFramebuffer:framebufferID];
         [subContext clear];
-        
+
         [subContext unbindFramebuffer];
         [texture unbind];
     }];
 }
 
--(void) deleteAssets{
-    if(framebufferID && ![JotGLContext currentContext]){
-        DebugLog(@"nope");
-    }
-    if(framebufferID){
-        [JotGLContext runBlock:^(JotGLContext *context) {
+- (void)deleteAssets {
+    NSAssert(!framebufferID || [JotGLContext currentContext], @"must have a valid context when we delete a framebuffer");
+    if (framebufferID) {
+        [JotGLContext runBlock:^(JotGLContext* context) {
             [context deleteFramebuffer:framebufferID];
         }];
         framebufferID = 0;
     }
 }
 
--(void) dealloc{
+- (void)dealloc {
     NSAssert([JotGLContext currentContext] != nil, @"must be on glcontext");
     [self deleteAssets];
 }

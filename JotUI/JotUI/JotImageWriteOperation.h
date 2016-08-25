@@ -9,13 +9,14 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+
 @interface JotImageWriteOperation : NSOperation
 
-@property (nonatomic, readonly) NSString* path;
-@property (nonatomic, readonly) UIImage* image;
+@property(nonatomic, readonly) NSString* path;
+@property(nonatomic, readonly) UIImage* image;
 
 - (instancetype)init NS_UNAVAILABLE;
 
-- (id) initWithImage:(UIImage*)image andPath:(NSString*)path andNotifyBlock:(void(^)(JotImageWriteOperation*))block;
+- (id)initWithImage:(UIImage*)image andPath:(NSString*)path andNotifyBlock:(void (^)(JotImageWriteOperation*))block;
 
 @end

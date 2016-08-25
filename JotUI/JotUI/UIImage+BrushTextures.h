@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
+
 @interface UIImage (BrushTextures)
 
-+(UIImage*) circleBrushTexture;
++ (UIImage*)circleBrushTexture;
 
 @end

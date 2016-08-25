@@ -10,7 +10,10 @@
 #define JotUI_h
 
 
-#define CheckMainThread if(![NSThread isMainThread]){ NSAssert(NO, @"needs to be on main thread"); }
+#define CheckMainThread                              \
+    if (![NSThread isMainThread]) {                  \
+        NSAssert(NO, @"needs to be on main thread"); \
+    }
 
 #define kJotEnableCacheStats NO
 
@@ -47,8 +50,8 @@
 #import <JotUI/JotHighlighterBrushTexture.h>
 
 typedef struct {
-	GLfloat	x;
-	GLfloat y;
+    GLfloat x;
+    GLfloat y;
 } Vertex3D;
 
 typedef Vertex3D Vector3D;

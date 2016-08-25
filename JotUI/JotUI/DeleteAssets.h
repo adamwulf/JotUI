@@ -10,6 +10,6 @@
 
 @protocol DeleteAssets <NSObject>
 
--(void) deleteAssets;
+- (void)deleteAssets;
 
 @end

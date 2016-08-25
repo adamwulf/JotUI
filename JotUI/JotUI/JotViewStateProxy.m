@@ -12,17 +12,18 @@
 
 static dispatch_queue_t loadUnloadStateQueue;
 
-@implementation JotViewStateProxy{
+
+@implementation JotViewStateProxy {
     // ideal state
     BOOL shouldKeepStateLoaded;
     BOOL isLoadingState;
     BOOL isForgetful;
-    
+
     JotViewState* jotViewState;
 }
 
-+(dispatch_queue_t) loadUnloadStateQueue{
-    if(!loadUnloadStateQueue){
++ (dispatch_queue_t)loadUnloadStateQueue {
+    if (!loadUnloadStateQueue) {
         loadUnloadStateQueue = dispatch_queue_create("com.milestonemade.looseleaf.loadUnloadStateQueue", DISPATCH_QUEUE_SERIAL);
     }
     return loadUnloadStateQueue;
@@ -32,34 +33,34 @@ static dispatch_queue_t loadUnloadStateQueue;
 @synthesize jotViewState;
 @synthesize isForgetful;
 
--(id) initWithDelegate:(NSObject<JotViewStateProxyDelegate> *)_delegate{
-    if(self = [super init]){
+- (id)initWithDelegate:(NSObject<JotViewStateProxyDelegate>*)_delegate {
+    if (self = [super init]) {
         self.delegate = _delegate;
     }
     return self;
 }
 
--(int) fullByteSize{
+- (int)fullByteSize {
     return jotViewState.fullByteSize;
 }
 
--(NSMutableArray*) strokesBeingWrittenToBackingTexture{
+- (NSMutableArray*)strokesBeingWrittenToBackingTexture {
     return jotViewState.strokesBeingWrittenToBackingTexture;
 }
 
--(void) loadJotStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager{
-    @synchronized(self){
+- (void)loadJotStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager {
+    @synchronized(self) {
         // if we're already loading our
         // state, then bail early
-        if(isLoadingState){
+        if (isLoadingState) {
             return;
         }
         // if we already have our state,
         // then bail early
-        if(jotViewState){
+        if (jotViewState) {
             return;
         }
-        
+
         shouldKeepStateLoaded = YES;
         isLoadingState = YES;
     }
@@ -67,12 +68,12 @@ static dispatch_queue_t loadUnloadStateQueue;
     void (^block2)() = ^(void) {
         @autoreleasepool {
             BOOL shouldLoadState = NO;
-            @synchronized(self){
+            @synchronized(self) {
                 shouldLoadState = !jotViewState && shouldKeepStateLoaded;
             }
-            
-            if(shouldLoadState){
-                if(!shouldKeepStateLoaded){
+
+            if (shouldLoadState) {
+                if (!shouldKeepStateLoaded) {
                     DebugLog(@"will waste some time loading a JotViewState that we don't need...");
                 }
                 jotViewState = [[JotViewState alloc] initWithImageFile:delegate.jotViewStateInkPath
@@ -81,145 +82,140 @@ static dispatch_queue_t loadUnloadStateQueue;
                                                               andScale:scale
                                                           andGLContext:context
                                                       andBufferManager:bufferManager];
-                if(!shouldKeepStateLoaded){
+                if (!shouldKeepStateLoaded) {
                     DebugLog(@"wasted some time loading a JotViewState that we didn't need...");
                 }
                 BOOL shouldNotify = NO;
-                @synchronized(self){
-                    if(shouldKeepStateLoaded){
+                @synchronized(self) {
+                    if (shouldKeepStateLoaded) {
                         lastSavedUndoHash = [jotViewState undoHash];
-//                        DebugLog(@"jotproxy load: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
                         shouldNotify = YES;
-                    }else{
+                    } else {
                         shouldNotify = NO;
                         // when loading state, we were actually
                         // told that we didn't really need the
                         // state after all, so just throw it away :(
                     }
                 }
-                if(shouldNotify){
+                if (shouldNotify) {
                     // nothing changed in our goals since we started
                     // to load state, so notify our delegate
                     [self.delegate didLoadState:self];
-                }else{
+                } else {
                     [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
-                    @synchronized(self){
+                    @synchronized(self) {
                         jotViewState = nil;
                         lastSavedUndoHash = 0;
-                        DebugLog(@"jotproxy noload: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
                     }
                 }
-                @synchronized(self){
+                @synchronized(self) {
                     isLoadingState = NO;
                 }
-            }else if(!shouldKeepStateLoaded){
-                @synchronized(self){
-//                    DebugLog(@"saved an excess load");
+            } else if (!shouldKeepStateLoaded) {
+                @synchronized(self) {
+                    // saved an excess load
                     isLoadingState = NO;
                 }
-            }else{
-                @synchronized(self){
+            } else {
+                @synchronized(self) {
                     isLoadingState = NO;
                 }
             }
         }
     };
-    
-    if(async){
+
+    if (async) {
         dispatch_async(([JotViewStateProxy loadUnloadStateQueue]), block2);
-    }else{
+    } else {
         block2();
     }
 }
 
--(void) wasSavedAtImmutableState:(JotViewImmutableState*)immutableState{
+- (void)wasSavedAtImmutableState:(JotViewImmutableState*)immutableState {
     lastSavedUndoHash = [immutableState undoHash];
     lastSavedUndoHash = [immutableState undoHash];
-//    DebugLog(@"jotproxy saved: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
 }
 
--(void) unload{
+- (void)unload {
     JotViewStateProxy* strongSelf = self;
-    @synchronized(self){
+    @synchronized(self) {
         shouldKeepStateLoaded = NO;
-        if([self isStateLoaded] && !isLoadingState){
+        if ([self isStateLoaded] && !isLoadingState) {
             dispatch_async(([JotViewStateProxy loadUnloadStateQueue]), ^{
                 @autoreleasepool {
-                    @synchronized(strongSelf){
-                        if([self isStateLoaded]){
+                    @synchronized(strongSelf) {
+                        if ([self isStateLoaded]) {
                             shouldKeepStateLoaded = NO;
-                            if(isLoadingState){
+                            if (isLoadingState) {
                                 // hrm, need to unload the state that
                                 // never loaded in the first place.
                                 // tell the state to immediately unload
                                 // after it finishes
                                 shouldKeepStateLoaded = NO;
-                            }else if([strongSelf hasEditsToSave]){
-                                DebugLog(@"what?? %lu %lu", (unsigned long)[strongSelf.jotViewState undoHash], (unsigned long)[strongSelf lastSavedUndoHash]);
+                            } else if ([strongSelf hasEditsToSave]) {
                                 @throw [NSException exceptionWithName:@"UnloadedEditedPageException" reason:@"The page has been asked to unload, but has edits pending save" userInfo:nil];
                             }
-                            if(!isLoadingState && jotViewState){
+                            if (!isLoadingState && jotViewState) {
                                 [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
                                 jotViewState = nil;
                                 lastSavedUndoHash = 0;
-//                                DebugLog(@"jotproxy unload: %p %lu",self, (unsigned long) (unsigned long)lastSavedUndoHash);
                                 [strongSelf.delegate didUnloadState:strongSelf];
                             }
-                        }else{
-                            DebugLog(@"unloading a state proxy that's already unloaded");
+                        } else {
+                            // noop, unloading a state proxy that's already unloaded
                         }
                     }
                 }
             });
-        }else{
-//            DebugLog(@"saved an extra unload");
+        } else {
+            // saved an extra unload
         }
     }
 }
 
--(BOOL) isStateLoaded{
+- (BOOL)isStateLoaded {
     return jotViewState != nil;
 }
--(BOOL) isStateLoading{
+- (BOOL)isStateLoading {
     return isLoadingState;
 }
 
--(BOOL) isReadyToExport{
+- (BOOL)isReadyToExport {
     return [jotViewState isReadyToExport];
 }
 
--(JotGLTexture*) backgroundTexture{
+- (JotGLTexture*)backgroundTexture {
     return [jotViewState backgroundTexture];
 }
 
--(NSArray*) everyVisibleStroke{
+- (NSArray*)everyVisibleStroke {
     return [jotViewState everyVisibleStroke];
 }
 
--(void) tick{
+- (void)tick {
     return [jotViewState tick];
 }
 
--(JotViewImmutableState*) immutableState{
+- (JotViewImmutableState*)immutableState {
     return [jotViewState immutableState];
 }
 
--(JotBufferManager*) bufferManager{
+- (JotBufferManager*)bufferManager {
     return [jotViewState bufferManager];
 }
 
--(JotStroke*) currentStroke{
+- (JotStroke*)currentStroke {
     return [jotViewState currentStroke];
 }
--(void) setCurrentStroke:(JotStroke *)currentStroke{
+- (void)setCurrentStroke:(JotStroke*)currentStroke {
     [jotViewState setCurrentStroke:currentStroke];
 }
 
--(JotGLTextureBackedFrameBuffer*) backgroundFramebuffer{
+- (JotGLTextureBackedFrameBuffer*)backgroundFramebuffer {
     return [jotViewState backgroundFramebuffer];
 }
 
--(NSUInteger) undoHash{
+- (NSUInteger)undoHash {
     return [jotViewState undoHash];
 }
 
@@ -228,77 +224,70 @@ static dispatch_queue_t loadUnloadStateQueue;
  * drawable view's hash does not equal to our
  * currently saved hash
  */
-static BOOL shouldPrint = NO;
-+(void) shouldPrintHasEdits:(BOOL)_shouldPrint{
-    shouldPrint = _shouldPrint;
-}
--(BOOL) hasEditsToSave{
-    if(self.isForgetful){
+- (BOOL)hasEditsToSave {
+    if (self.isForgetful) {
         return NO;
     }
-//    if(shouldPrint) DebugLog(@"checking hasEditsToSave: %p %lu %lu",self, (unsigned long) self.jotViewState.undoHash, (unsigned long)lastSavedUndoHash);
     return self.jotViewState && [self.jotViewState undoHash] != lastSavedUndoHash;
 }
 
--(NSUInteger) currentStateUndoHash{
+- (NSUInteger)currentStateUndoHash {
     return [self.jotViewState undoHash];
 }
--(NSUInteger) lastSavedUndoHash{
+- (NSUInteger)lastSavedUndoHash {
     return lastSavedUndoHash;
 }
 
 #pragma mark - Undo Redo
 
--(BOOL) canUndo{
+- (BOOL)canUndo {
     return [self.jotViewState canUndo];
 }
 
--(BOOL) canRedo{
+- (BOOL)canRedo {
     return [self.jotViewState canRedo];
 }
 
--(JotStroke*) undo{
+- (JotStroke*)undo {
     return [self.jotViewState undo];
 }
 
--(JotStroke*) redo{
+- (JotStroke*)redo {
     return [self.jotViewState redo];
 }
 
--(JotStroke*) undoAndForget{
+- (JotStroke*)undoAndForget {
     return [self.jotViewState undoAndForget];
 }
 
--(void) finishCurrentStroke{
+- (void)finishCurrentStroke {
     [self.jotViewState finishCurrentStroke];
 }
 
--(void) forceAddStroke:(JotStroke*)stroke{
+- (void)forceAddStroke:(JotStroke*)stroke {
     [self.jotViewState forceAddStroke:stroke];
 }
 
--(void) addUndoLevelAndFinishStroke{
+- (void)addUndoLevelAndFinishStroke {
     [self.jotViewState addUndoLevelAndFinishStroke];
 }
 
--(void) forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture{
+- (void)forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture {
     [self.jotViewState forceAddEmptyStrokeWithBrush:brushTexture];
 }
 
--(void) clearAllStrokes{
+- (void)clearAllStrokes {
     [self.jotViewState clearAllStrokes];
 }
 
--(void) addUndoLevelAndContinueStroke{
+- (void)addUndoLevelAndContinueStroke {
     [self.jotViewState addUndoLevelAndContinueStroke];
 }
 
 #pragma mark - Dealloc
 
--(void) dealloc{
-    if([self hasEditsToSave]){
-        DebugLog(@"oh no2 %d", [self hasEditsToSave]);
-    }
+- (void)dealloc {
+    NSAssert(![self hasEditsToSave], @"deallocating a jotview state that has pending edits");
 }
 
 @end

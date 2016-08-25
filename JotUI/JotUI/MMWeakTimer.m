@@ -9,24 +9,25 @@
 #import "MMWeakTimer.h"
 #import "MMWeakTimerTarget.h"
 
-@implementation MMWeakTimer{
+
+@implementation MMWeakTimer {
     NSTimer* timer;
     MMWeakTimerTarget* weakTimerTarget;
-    
+
     NSTimeInterval interval;
     NSTimeInterval lastTriggerTime;
 }
 
 static NSMutableArray* allWeakTimerArray;
 
-+(NSArray*) allWeakTimers{
-    @synchronized([MMWeakTimer class]){
++ (NSArray*)allWeakTimers {
+    @synchronized([MMWeakTimer class]) {
         return [allWeakTimerArray copy];
     }
 }
 
-- (id)initScheduledTimerWithTimeInterval:(NSTimeInterval)_interval target:(id)aTarget selector:(SEL)aSelector{
-    if(self = [super init]){
+- (id)initScheduledTimerWithTimeInterval:(NSTimeInterval)_interval target:(id)aTarget selector:(SEL)aSelector {
+    if (self = [super init]) {
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
             allWeakTimerArray = [[NSMutableArray alloc] init];
@@ -35,15 +36,15 @@ static NSMutableArray* allWeakTimerArray;
         weakTimerTarget = [[MMWeakTimerTarget alloc] initWithTarget:aTarget andSelector:aSelector];
         timer = [NSTimer scheduledTimerWithTimeInterval:interval target:self selector:@selector(timerDidFire:) userInfo:nil repeats:YES];
     }
-    @synchronized([MMWeakTimer class]){
+    @synchronized([MMWeakTimer class]) {
         [allWeakTimerArray addObject:self];
     }
-    
+
     return self;
 }
 
--(void) invalidate{
-    @synchronized([MMWeakTimer class]){
+- (void)invalidate {
+    @synchronized([MMWeakTimer class]) {
         [allWeakTimerArray removeObject:self];
     }
     [timer invalidate];
@@ -51,14 +52,14 @@ static NSMutableArray* allWeakTimerArray;
     return;
 }
 
--(void) timerDidFire:(NSTimer*)_timer{
+- (void)timerDidFire:(NSTimer*)_timer {
     lastTriggerTime = CFAbsoluteTimeGetCurrent();
     [weakTimerTarget timerDidFire:_timer];
 }
 
--(void) fireIfNeeded{
-    if(timer){
-        if(CFAbsoluteTimeGetCurrent() - lastTriggerTime > interval){
+- (void)fireIfNeeded {
+    if (timer) {
+        if (CFAbsoluteTimeGetCurrent() - lastTriggerTime > interval) {
             [weakTimerTarget timerDidFire:timer];
         }
     }

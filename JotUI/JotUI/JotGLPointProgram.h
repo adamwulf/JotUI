@@ -9,19 +9,20 @@
 #import <JotUI/JotUI.h>
 #import "JotGLProgram.h"
 
+
 @interface JotGLPointProgram : JotGLProgram
 
-- (id)initWithVertexShaderFilename:(NSString *)vShaderFilename
-            fragmentShaderFilename:(NSString *)fShaderFilename
+- (id)initWithVertexShaderFilename:(NSString*)vShaderFilename
+            fragmentShaderFilename:(NSString*)fShaderFilename
                     withAttributes:(NSArray<NSString*>*)attributes
                        andUniforms:(NSArray<NSString*>*)uniforms;
 
-@property (nonatomic, assign) GLfloat rotation;
+@property(nonatomic, assign) GLfloat rotation;
 
--(GLuint) attributeVertexIndex;
+- (GLuint)attributeVertexIndex;
 
--(GLuint) attributePointSizeIndex;
+- (GLuint)attributePointSizeIndex;
 
--(GLuint) uniformTextureIndex;
+- (GLuint)uniformTextureIndex;
 
 @end

@@ -17,18 +17,18 @@
 /**
  * The texture to use for the new stroke
  */
-- (JotBrushTexture*) textureForStroke;
+- (JotBrushTexture*)textureForStroke;
 
 /**
  * The texture to use for the new stroke
  */
-- (CGFloat) stepWidthForStroke;
+- (CGFloat)stepWidthForStroke;
 
 /**
  * YES if the current pen can rotate its texture
  * NO otherwise
  */
--(BOOL) supportsRotation;
+- (BOOL)supportsRotation;
 
 /**
  * for the input touch, what is the desired point
@@ -38,7 +38,7 @@
  * so the value for low vs high resolution screens
  * should be the same
  */
-- (CGFloat) widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 /**
  * what is the desired color for the touch
@@ -48,7 +48,7 @@
  *
  * return nil to erase instead of apply a color
  */
-- (UIColor*) colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 /**
  * defines how smooth the transition should be to
@@ -58,48 +58,48 @@
  * a value of 1 will be very rounded at each touch point
  * values > 1 or < 0 will be knotted or loopy at each touch point
  */
-- (CGFloat) smoothnessForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+- (CGFloat)smoothnessForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 /**
  * notifies the delegate that the input segments will be added to the stroke,
  * and allows the delegate to return a modified array of elements
  * to add instead
  */
--(NSArray*) willAddElements:(NSArray*)elements toStroke:(JotStroke*)stroke fromPreviousElement:(AbstractBezierPathElement*)previousElement;
+- (NSArray*)willAddElements:(NSArray*)elements toStroke:(JotStroke*)stroke fromPreviousElement:(AbstractBezierPathElement*)previousElement;
 
 /**
  * a notification that a new stroke is about to begin
  * with the input touch
  */
-- (BOOL) willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+- (BOOL)willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 /**
  * a notification that the input is moving to the
  * next touch
  */
-- (void) willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+- (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 /**
  * a notification that the input will end the
  * stroke
  */
-- (void) willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding;
+- (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding;
 
 /**
  * a notification that the touch has ended. For
  * any ending touch, a willMoveStrokeWithTouch:
  * will also be called before this ending call
  */
-- (void) didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+- (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 /**
  * the stroke for the input touch has been cancelled.
  */
-- (void) didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 /**
  * the stroke for the input touch will been cancelled.
  */
-- (void) willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+- (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 @end

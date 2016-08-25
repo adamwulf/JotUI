@@ -10,29 +10,29 @@
 #import <GLKit/GLKit.h>
 #import "JotGLTypes.h"
 
-@interface JotGLProgram : NSObject
-{
-    NSMutableArray *_attributes;
-    NSMutableArray *_uniforms;
+
+@interface JotGLProgram : NSObject {
+    NSMutableArray* _attributes;
+    NSMutableArray* _uniforms;
     GLuint _programId;
     GLuint _vertShader;
     GLuint _fragShader;
 }
 
 @property(nonatomic, assign) GLSize canvasSize;
-@property(readonly, copy, nonatomic) NSString *vertexShaderLog;
-@property(readonly, copy, nonatomic) NSString *fragmentShaderLog;
-@property(readonly, copy, nonatomic) NSString *programLog;
+@property(readonly, copy, nonatomic) NSString* vertexShaderLog;
+@property(readonly, copy, nonatomic) NSString* fragmentShaderLog;
+@property(readonly, copy, nonatomic) NSString* programLog;
 @property(nonatomic, readonly) NSArray<NSString*>* attributes;
 @property(nonatomic, readonly) NSArray<NSString*>* uniforms;
 
-- (id)initWithVertexShaderFilename:(NSString *)vShaderFilename
-            fragmentShaderFilename:(NSString *)fShaderFilename
+- (id)initWithVertexShaderFilename:(NSString*)vShaderFilename
+            fragmentShaderFilename:(NSString*)fShaderFilename
                     withAttributes:(NSArray<NSString*>*)attributes
                        andUniforms:(NSArray<NSString*>*)uniforms;
 
 - (void)use;
 
--(GLuint) uniformMVPIndex;
+- (GLuint)uniformMVPIndex;
 
 @end

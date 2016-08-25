@@ -18,7 +18,8 @@
 #import <OpenGLES/EAGL.h>
 #import "JotUI.h"
 
-@implementation JotStroke{
+
+@implementation JotStroke {
     // this will interpolate between points into curved segments
     SegmentSmoother* segmentSmoother;
     // this is the texture to use when drawing the stroke
@@ -40,9 +41,9 @@
 @synthesize bufferManager;
 
 
--(id) initWithTexture:(JotBrushTexture*)_texture andBufferManager:(JotBufferManager*)_bufferManager{
-    if(self = [self init]){
-        if(!_texture){
+- (id)initWithTexture:(JotBrushTexture*)_texture andBufferManager:(JotBufferManager*)_bufferManager {
+    if (self = [self init]) {
+        if (!_texture) {
             @throw [NSException exceptionWithName:@"TextureException" reason:@"Texture for stroke is nil" userInfo:nil];
         }
         segmentSmoother = [[SegmentSmoother alloc] init];
@@ -52,8 +53,8 @@
     return self;
 }
 
--(id) init{
-    if(self = [super init]){
+- (id)init {
+    if (self = [super init]) {
         segments = [NSMutableArray array];
         hashCache = 1;
         lock = [[NSRecursiveLock alloc] init];
@@ -61,11 +62,11 @@
     return self;
 }
 
--(int) fullByteSize{
+- (int)fullByteSize {
     int totalBytes = 0;
-    @synchronized(segments){
-        if(segments && [segments count]){
-            for(AbstractBezierPathElement* ele in segments){
+    @synchronized(segments) {
+        if (segments && [segments count]) {
+            for (AbstractBezierPathElement* ele in segments) {
                 totalBytes += ele.fullByteSize;
             }
         }
@@ -74,21 +75,22 @@
 }
 
 
--(void) addElement:(AbstractBezierPathElement*)element{
+- (void)addElement:(AbstractBezierPathElement*)element {
     [self lock];
     element.bufferManager = self.bufferManager;
     NSInteger numOfElementBytes = [element numberOfBytesGivenPreviousElement:[segments lastObject]];
     int numOfCacheBytes = [JotBufferVBO cacheNumberForBytes:numOfElementBytes] * kJotBufferBucketSize;
-//    DebugLog(@"number of element bytes: %d", numOfElementBytes);
     totalNumberOfBytes += numOfElementBytes + numOfCacheBytes;
-    
-    if([segments count]){
-        if((element.color && ![(AbstractBezierPathElement*)[segments lastObject] color]) ||
-           (!element.color && [(AbstractBezierPathElement*)[segments lastObject] color])){
-            DebugLog(@"gotcha!");
+
+    if ([segments count]) {
+        if ((element.color && ![(AbstractBezierPathElement*)[segments lastObject] color]) ||
+            (!element.color && [(AbstractBezierPathElement*)[segments lastObject] color])) {
+            NSAssert((element.color && [(AbstractBezierPathElement*)[segments lastObject] color]) ||
+                     (!element.color && ![(AbstractBezierPathElement*)[segments lastObject] color]),
+                     @"color (or lack thereof) must match previous segment");
         }
     }
-    @synchronized(segments){
+    @synchronized(segments) {
         [segments addObject:element];
     }
     [self updateHashWithObject:element];
@@ -101,29 +103,29 @@
  * only be used to manage memory for a slow
  * dealloc situation
  */
--(void) removeElementAtIndex:(NSInteger)index{
+- (void)removeElementAtIndex:(NSInteger)index {
     [self lock];
-    @synchronized(segments){
+    @synchronized(segments) {
         [segments removeObjectAtIndex:index];
     }
     [self unlock];
 }
 
--(void) cancel{
+- (void)cancel {
     [self.delegate strokeWasCancelled:self];
 }
 
--(void) empty{
-    @synchronized(segments){
+- (void)empty {
+    @synchronized(segments) {
         [segments removeAllObjects];
     }
 }
 
--(CGRect) bounds{
-    if([self.segments count]){
+- (CGRect)bounds {
+    if ([self.segments count]) {
         CGRect bounds = [[self.segments objectAtIndex:0] bounds];
-        @synchronized(segments){
-            for(AbstractBezierPathElement* ele in self.segments){
+        @synchronized(segments) {
+            for (AbstractBezierPathElement* ele in self.segments) {
                 bounds = CGRectUnion(bounds, ele.bounds);
             }
         }
@@ -134,25 +136,25 @@
 
 #pragma mark - PlistSaving
 
--(NSDictionary*) asDictionary{
-    @synchronized(segments){
+- (NSDictionary*)asDictionary {
+    @synchronized(segments) {
         return [NSDictionary dictionaryWithObjectsAndKeys:@"JotStroke", @"class",
-                [self.segments jotMapWithSelector:@selector(asDictionary)], @"segments",
-                [self.segmentSmoother asDictionary], @"segmentSmoother",
-                [self.texture asDictionary], @"texture", nil];
+                                                          [self.segments jotMapWithSelector:@selector(asDictionary)], @"segments",
+                                                          [self.segmentSmoother asDictionary], @"segmentSmoother",
+                                                          [self.texture asDictionary], @"texture", nil];
     }
 }
 
--(id) initFromDictionary:(NSDictionary*)dictionary{
-    if(self = [super init]){
+- (id)initFromDictionary:(NSDictionary*)dictionary {
+    if (self = [super init]) {
         hashCache = 1;
         segmentSmoother = [[SegmentSmoother alloc] initFromDictionary:[dictionary objectForKey:@"segmentSmoother"]];
         bufferManager = [dictionary objectForKey:@"bufferManager"];
         __block AbstractBezierPathElement* previousElement = nil;
-        segments = [NSMutableArray arrayWithArray:[[dictionary objectForKey:@"segments"] jotMap:^id(id obj, NSUInteger index){
+        segments = [NSMutableArray arrayWithArray:[[dictionary objectForKey:@"segments"] jotMap:^id(id obj, NSUInteger index) {
             NSString* className = [obj objectForKey:@"class"];
             Class class = NSClassFromString(className);
-            AbstractBezierPathElement* segment =  [[class alloc] initFromDictionary:obj];
+            AbstractBezierPathElement* segment = [[class alloc] initFromDictionary:obj];
             [segment setBufferManager:bufferManager];
             [self updateHashWithObject:segment];
             totalNumberOfBytes += [segment numberOfBytesGivenPreviousElement:previousElement];
@@ -169,37 +171,37 @@
 
 #pragma mark - hashing and equality
 
--(void) updateHashWithObject:(NSObject*)obj{
+- (void)updateHashWithObject:(NSObject*)obj {
     NSUInteger prime = 31;
     hashCache = prime * hashCache + [obj hash];
 }
 
--(NSUInteger) hash{
+- (NSUInteger)hash {
     return hashCache;
 }
 
--(NSString*) uuid{
+- (NSString*)uuid {
     return [NSString stringWithFormat:@"%lu", (unsigned long)[self hash]];
 }
 
--(BOOL) isEqual:(id)object{
+- (BOOL)isEqual:(id)object {
     return self == object || [self hash] == [object hash];
 }
 
--(void) lock{
+- (void)lock {
     [lock lock];
 }
 
--(void) unlock{
+- (void)unlock {
     [lock unlock];
 }
 
 #pragma mark - Scaling
 
--(void) scaleSegmentsForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio{
+- (void)scaleSegmentsForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio {
     [segmentSmoother scaleForWidth:widthRatio andHeight:heightRatio];
-    
-    [segments enumerateObjectsUsingBlock:^(AbstractBezierPathElement* ele, NSUInteger idx, BOOL * _Nonnull stop) {
+
+    [segments enumerateObjectsUsingBlock:^(AbstractBezierPathElement* ele, NSUInteger idx, BOOL* _Nonnull stop) {
         [ele scaleForWidth:widthRatio andHeight:heightRatio];
     }];
 }

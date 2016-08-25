@@ -9,20 +9,21 @@
 #import <JotUI/JotUI.h>
 #import "JotGLProgram.h"
 
+
 @interface JotGLQuadProgram : JotGLProgram
 
-- (id)initWithVertexShaderFilename:(NSString *)vShaderFilename
-            fragmentShaderFilename:(NSString *)fShaderFilename
+- (id)initWithVertexShaderFilename:(NSString*)vShaderFilename
+            fragmentShaderFilename:(NSString*)fShaderFilename
                     withAttributes:(NSArray<NSString*>*)attributes
                        andUniforms:(NSArray<NSString*>*)uniforms NS_UNAVAILABLE;
 
--(id)initWithVertexShaderFilename:(NSString *)vShaderFilename
-           fragmentShaderFilename:(NSString *)fShaderFilename;
+- (id)initWithVertexShaderFilename:(NSString*)vShaderFilename
+            fragmentShaderFilename:(NSString*)fShaderFilename;
 
--(GLuint) attributePositionIndex;
+- (GLuint)attributePositionIndex;
 
--(GLuint) attributeTextureCoordinateIndex;
+- (GLuint)attributeTextureCoordinateIndex;
 
--(GLuint) uniformTextureIndex;
+- (GLuint)uniformTextureIndex;
 
 @end

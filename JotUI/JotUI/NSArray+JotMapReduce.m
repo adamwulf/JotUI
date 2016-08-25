@@ -8,6 +8,7 @@
 
 #import "NSArray+JotMapReduce.h"
 
+
 @implementation NSArray (JotMapReduce)
 
 //NSArray* arr            = [NSArray arrayWithObjects:@"Apple", @"Banana", @"Peanut", @"Tree", NULL];
@@ -15,27 +16,27 @@
 //    return [NSString stringWithFormat:@"%@ Butter", obj];
 //}];
 - (NSArray*)jotMap:(id (^)(id obj, NSUInteger index))mapfunc {
-	NSMutableArray* result = [[NSMutableArray alloc] init];
-	NSUInteger index;
-	for( index = 0; index < [self count]; index++ ) {
-        id foo = mapfunc( [self objectAtIndex:index], index );
-        if(foo){
+    NSMutableArray* result = [[NSMutableArray alloc] init];
+    NSUInteger index;
+    for (index = 0; index < [self count]; index++) {
+        id foo = mapfunc([self objectAtIndex:index], index);
+        if (foo) {
             [result addObject:foo];
         }
-	}
-	return result;
+    }
+    return result;
 }
 
-- (NSArray*)jotMapWithSelector:(SEL)mapSelector{
-	NSMutableArray* result = [[NSMutableArray alloc] init];
-	NSUInteger index;
-	for( index = 0; index < [self count]; index++ ) {
+- (NSArray*)jotMapWithSelector:(SEL)mapSelector {
+    NSMutableArray* result = [[NSMutableArray alloc] init];
+    NSUInteger index;
+    for (index = 0; index < [self count]; index++) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-		[result addObject:[[self objectAtIndex:index] performSelector:mapSelector]];
+        [result addObject:[[self objectAtIndex:index] performSelector:mapSelector]];
 #pragma clang diagnostic pop
-	}
-	return result;
+    }
+    return result;
 }
 
 //NSNumber* sum = [numbers reduce:^(id obj, NSUInteger idx, id accum) {
@@ -45,17 +46,17 @@
 //    return (id)[NSNumber numberWithInt:[obj intValue] + [accum intValue]];
 //}];
 - (id)jotReduce:(id (^)(id obj, NSUInteger index, id accum))reducefunc {
-	id result = NULL;
-	NSUInteger index;
-	for( index = 0; index < [self count]; index++ ) {
-		result = reducefunc( [self objectAtIndex:index], index, result );
-	}
-	return result;
+    id result = NULL;
+    NSUInteger index;
+    for (index = 0; index < [self count]; index++) {
+        result = reducefunc([self objectAtIndex:index], index, result);
+    }
+    return result;
 }
 
-- (BOOL) containsObjectIdenticalTo:(id)anObject{
-    for(id obj in self){
-        if(obj == anObject){
+- (BOOL)containsObjectIdenticalTo:(id)anObject {
+    for (id obj in self) {
+        if (obj == anObject) {
             return YES;
         }
     }

@@ -8,11 +8,12 @@
 
 #import "NSMutableArray+RemoveSingle.h"
 
+
 @implementation NSMutableArray (RemoveSingle)
 
--(void) removeSingleObject:(id)obj{
+- (void)removeSingleObject:(id)obj {
     NSUInteger idx = [self indexOfObject:obj];
-    if(idx != NSNotFound){
+    if (idx != NSNotFound) {
         [self removeObjectAtIndex:idx];
     }
 }

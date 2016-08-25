@@ -10,8 +10,8 @@
 
 @protocol PlistSaving <NSObject>
 
--(NSDictionary*) asDictionary;
+- (NSDictionary*)asDictionary;
 
--(id) initFromDictionary:(NSDictionary*)dictionary;
+- (id)initFromDictionary:(NSDictionary*)dictionary;
 
 @end

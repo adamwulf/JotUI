@@ -49,7 +49,7 @@ PenaltyBreakString: 1000
 PenaltyBreakFirstLessLess: 120
 PenaltyExcessCharacter: 1000000
 PenaltyReturnTypeOnItsOwnLine: 200
-PointerAlignment: Right
+PointerAlignment: Left
 SpacesBeforeTrailingComments: 1
 Cpp11BracedListStyle: true
 Standard:        Auto

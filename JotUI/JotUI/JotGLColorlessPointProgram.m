@@ -9,26 +9,27 @@
 #import "JotGLColorlessPointProgram.h"
 #import "JotGLProgram+Private.h"
 
-@implementation JotGLColorlessPointProgram{
+
+@implementation JotGLColorlessPointProgram {
     BOOL hasCalculatedColorComponents;
     GLfloat brushColor[4];
 }
 
--(id) init{
-    if(self = [super initWithVertexShaderFilename:@"colorlesspoint"
-                           fragmentShaderFilename:@"point"
-                                   withAttributes:@[]
-                                      andUniforms:@[@"vertexColor"]]){
+- (id)init {
+    if (self = [super initWithVertexShaderFilename:@"colorlesspoint"
+                            fragmentShaderFilename:@"point"
+                                    withAttributes:@[]
+                                       andUniforms:@[@"vertexColor"]]) {
         // add vertexColor uniform to the default uniforms
     }
     return self;
 }
 
--(GLuint) uniformVertexColorIndex{
+- (GLuint)uniformVertexColorIndex {
     return [self uniformIndex:@"vertexColor"];
 }
 
--(void) use{
+- (void)use {
     [super use];
 
     brushColor[0] = self.colorRed;
@@ -37,7 +38,6 @@
     brushColor[3] = self.colorAlpha;
     // initialize brush color
     glUniform4fv([self uniformVertexColorIndex], 1, brushColor);
-
 }
 
 @end

@@ -9,17 +9,18 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+
 @interface MMMainOperationQueue : NSOperationQueue
 
-+(MMMainOperationQueue*) sharedQueue;
++ (MMMainOperationQueue*)sharedQueue;
 
-- (void)addOperation:(NSOperation *)op NS_UNAVAILABLE;
-- (void)addOperations:(NSArray *)ops waitUntilFinished:(BOOL)wait NS_AVAILABLE(10_6, 4_0) NS_UNAVAILABLE;
+- (void)addOperation:(NSOperation*)op NS_UNAVAILABLE;
+- (void)addOperations:(NSArray*)ops waitUntilFinished:(BOOL)wait NS_AVAILABLE(10_6, 4_0)NS_UNAVAILABLE;
 
 - (void)addOperationWithBlockAndWait:(void (^)(void))block;
 
--(NSUInteger) pendingBlockCount;
--(void) tick;
--(void) waitFor:(CGFloat)seconds;
+- (NSUInteger)pendingBlockCount;
+- (void)tick;
+- (void)waitFor:(CGFloat)seconds;
 
 @end

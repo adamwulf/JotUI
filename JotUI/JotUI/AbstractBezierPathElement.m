@@ -12,7 +12,8 @@
 #import "JotUI.h"
 #import "JotGLColorlessPointProgram.h"
 
-@implementation AbstractBezierPathElement{
+
+@implementation AbstractBezierPathElement {
     JotBufferManager* bufferManager;
 }
 
@@ -24,14 +25,14 @@
 @synthesize bufferManager;
 @synthesize extraLengthWithoutDot;
 
--(id) initWithStart:(CGPoint)point{
-    if(self = [super init]){
+- (id)initWithStart:(CGPoint)point {
+    if (self = [super init]) {
         startPoint = point;
     }
     return self;
 }
 
--(int) fullByteSize{
+- (int)fullByteSize {
     @throw kAbstractMethodException;
 }
 
@@ -41,27 +42,27 @@
  * the curve, not the linear distance between start
  * and end points
  */
--(CGFloat) lengthOfElement{
+- (CGFloat)lengthOfElement {
     @throw kAbstractMethodException;
 }
 
--(CGFloat) angleOfStart{
+- (CGFloat)angleOfStart {
     @throw kAbstractMethodException;
 }
 
--(CGFloat) angleOfEnd{
+- (CGFloat)angleOfEnd {
     @throw kAbstractMethodException;
 }
 
--(CGRect) bounds{
+- (CGRect)bounds {
     @throw kAbstractMethodException;
 }
 
--(CGPoint) endPoint{
+- (CGPoint)endPoint {
     @throw kAbstractMethodException;
 }
 
--(void) adjustStartBy:(CGPoint)adjustment{
+- (void)adjustStartBy:(CGPoint)adjustment {
     @throw kAbstractMethodException;
 }
 
@@ -70,7 +71,7 @@
  * step. this should be a multiple of 3,
  * since rendering is using GL_TRIANGLES
  */
--(NSInteger) numberOfVerticesPerStep{
+- (NSInteger)numberOfVerticesPerStep {
     return 1;
 }
 
@@ -78,12 +79,12 @@
  * the ideal number of steps we should take along
  * this line to render it with vertex points
  */
--(NSInteger) numberOfStepsGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
+- (NSInteger)numberOfStepsGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
     NSInteger ret = MAX(floorf(([self lengthOfElement] + previousElement.extraLengthWithoutDot) / kBrushStepSize), 0);
     // if we are beginning the stroke, then we have 1 more
     // dot to begin the stroke. otherwise we skip the first dot
     // and pick up after kBrushStepSize
-    if([previousElement isKindOfClass:[MoveToPathElement class]]){
+    if ([previousElement isKindOfClass:[MoveToPathElement class]]) {
         ret += 1;
     }
     return ret;
@@ -92,15 +93,15 @@
 /**
  * returns the total number of vertices for this element
  */
--(NSInteger) numberOfVerticesGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
+- (NSInteger)numberOfVerticesGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
     return [self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep];
 }
 
--(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
+- (NSInteger)numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
     @throw kAbstractMethodException;
 }
 
--(void) validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+- (void)validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
     @throw kAbstractMethodException;
 }
 
@@ -113,44 +114,44 @@
  * the generated vertex array should be stored in
  * vertexBuffer ivar
  */
--(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
+- (struct ColorfulVertex*)generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale {
     @throw kAbstractMethodException;
 }
 
--(UIBezierPath*) bezierPathSegment{
+- (UIBezierPath*)bezierPathSegment {
     @throw kAbstractMethodException;
 }
 
 
--(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2 {
+- (CGFloat)angleBetweenPoint:(CGPoint)point1 andPoint:(CGPoint)point2 {
     // Provides a directional bearing from point2 to the given point.
     // standard cartesian plain coords: Y goes up, X goes right
     // result returns radians, -180 to 180 ish: 0 degrees = up, -90 = left, 90 = right
     return atan2f(point1.y - point2.y, point1.x - point2.x) + M_PI_2;
 }
 
--(void) loadDataIntoVBOIfNeeded{
-   // noop
+- (void)loadDataIntoVBOIfNeeded {
+    // noop
 }
 
--(BOOL) bind{
+- (BOOL)bind {
     return NO;
 }
 
--(void) unbind{
+- (void)unbind {
     @throw kAbstractMethodException;
 }
 
--(JotGLProgram*) glProgramForContext:(JotGLContext*)context{
+- (JotGLProgram*)glProgramForContext:(JotGLContext*)context {
     return [context colorlessPointProgram];
 }
 
--(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
-    if([self bind]){
+- (void)drawGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
+    if ([self bind]) {
         // VBO
-        [JotGLContext runBlock:^(JotGLContext* context){
-            if([self numberOfStepsGivenPreviousElement:previousElement]){
-                [context drawPointCount:(int) ([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep])
+        [JotGLContext runBlock:^(JotGLContext* context) {
+            if ([self numberOfStepsGivenPreviousElement:previousElement]) {
+                [context drawPointCount:(int)([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep])
                             withProgram:[self glProgramForContext:context]];
             }
         }];
@@ -161,19 +162,19 @@
 
 #pragma mark - PlistSaving
 
--(NSDictionary*) asDictionary{
+- (NSDictionary*)asDictionary {
     return [NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([self class]), @"class",
-            [NSNumber numberWithFloat:startPoint.x], @"startPoint.x",
-            [NSNumber numberWithFloat:startPoint.y], @"startPoint.y",
-            [NSNumber numberWithFloat:rotation], @"rotation",
-            [NSNumber numberWithFloat:width], @"width",
-            [NSNumber numberWithFloat:stepWidth], @"stepWidth",
-            [NSNumber numberWithFloat:extraLengthWithoutDot], @"extraLengthWithoutDot",
-            (color ? [color asDictionary] : [NSDictionary dictionary]), @"color",
-            [NSNumber numberWithFloat:scaleOfVertexBuffer], @"scaleOfVertexBuffer", nil];
+                                                      [NSNumber numberWithFloat:startPoint.x], @"startPoint.x",
+                                                      [NSNumber numberWithFloat:startPoint.y], @"startPoint.y",
+                                                      [NSNumber numberWithFloat:rotation], @"rotation",
+                                                      [NSNumber numberWithFloat:width], @"width",
+                                                      [NSNumber numberWithFloat:stepWidth], @"stepWidth",
+                                                      [NSNumber numberWithFloat:extraLengthWithoutDot], @"extraLengthWithoutDot",
+                                                      (color ? [color asDictionary] : [NSDictionary dictionary]), @"color",
+                                                      [NSNumber numberWithFloat:scaleOfVertexBuffer], @"scaleOfVertexBuffer", nil];
 }
 
--(id) initFromDictionary:(NSDictionary*)dictionary{
+- (id)initFromDictionary:(NSDictionary*)dictionary {
     self = [super init];
     if (self) {
         startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
@@ -189,7 +190,7 @@
 
 #pragma mark - Scaling
 
--(void) scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio{
+- (void)scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio {
     startPoint.x = startPoint.x * widthRatio;
     startPoint.y = startPoint.y * heightRatio;
 }

@@ -9,46 +9,46 @@
 #import "JotDiskAssetManager.h"
 #import "JotImageWriteOperation.h"
 
-@implementation JotDiskAssetManager{
+
+@implementation JotDiskAssetManager {
     NSMutableDictionary* inProcessDiskWrites;
     NSOperationQueue* opQueue;
-    
 }
 
 #pragma mark - Queues
 
 static dispatch_queue_t diskAssetQueue;
-static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
+static const void* const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
 
-+(dispatch_queue_t) diskAssetQueue{
-    if(!diskAssetQueue){
++ (dispatch_queue_t)diskAssetQueue {
+    if (!diskAssetQueue) {
         diskAssetQueue = dispatch_queue_create("com.milestonemade.looseleaf.diskAssetQueue", DISPATCH_QUEUE_SERIAL);
-        dispatch_queue_set_specific(diskAssetQueue, kDiskAssetQueueIdentifier, (void *)kDiskAssetQueueIdentifier, NULL);
+        dispatch_queue_set_specific(diskAssetQueue, kDiskAssetQueueIdentifier, (void*)kDiskAssetQueueIdentifier, NULL);
     }
     return diskAssetQueue;
 }
 
-+(BOOL) isDiskAssetQueue{
++ (BOOL)isDiskAssetQueue {
     return dispatch_get_specific(kDiskAssetQueueIdentifier) != NULL;
 }
 
-+(UIImage*) imageWithContentsOfFile:(NSString*)path{
++ (UIImage*)imageWithContentsOfFile:(NSString*)path {
     return [[JotDiskAssetManager sharedManager] imageWithContentsOfFileHelper:path];
 }
 
 #pragma mark - Singleton
 
--(id) init{
-    if(self = [super init]){
+- (id)init {
+    if (self = [super init]) {
         inProcessDiskWrites = [NSMutableDictionary dictionary];
         opQueue = [[NSOperationQueue alloc] init];
     }
     return self;
 }
 
-+ (JotDiskAssetManager *) sharedManager {
++ (JotDiskAssetManager*)sharedManager {
     static dispatch_once_t onceToken;
-    static JotDiskAssetManager *manager;
+    static JotDiskAssetManager* manager;
     dispatch_once(&onceToken, ^{
         manager = [[[JotDiskAssetManager class] alloc] init];
     });
@@ -56,17 +56,17 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
 }
 
 
--(void) writeImage:(UIImage*)image toPath:(NSString*)path{
+- (void)writeImage:(UIImage*)image toPath:(NSString*)path {
     JotImageWriteOperation* operation = nil;
-    @synchronized(inProcessDiskWrites){
+    @synchronized(inProcessDiskWrites) {
         operation = [[JotImageWriteOperation alloc] initWithImage:image
-                                                                                  andPath:path
-                                                                           andNotifyBlock:^(JotImageWriteOperation* operation){
-                                                                               [self operationHasCompleted:operation];
-                                                                           }];
+                                                          andPath:path
+                                                   andNotifyBlock:^(JotImageWriteOperation* operation) {
+                                                       [self operationHasCompleted:operation];
+                                                   }];
 
         JotImageWriteOperation* currOp = [self cancelAnyOperationFor:path];
-        if(currOp){
+        if (currOp) {
             [operation addDependency:currOp];
         }
         [inProcessDiskWrites setObject:operation forKey:path];
@@ -74,52 +74,52 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
     [opQueue addOperation:operation];
 }
 
--(void) blockUntilCompletedForPath:(NSString*)path{
-    if(path){
+- (void)blockUntilCompletedForPath:(NSString*)path {
+    if (path) {
         BOOL needsBlock = NO;
-        @synchronized(inProcessDiskWrites){
+        @synchronized(inProcessDiskWrites) {
             needsBlock = [inProcessDiskWrites objectForKey:path] != nil;
         }
-        if(needsBlock && opQueue.operationCount){
-            DebugLog(@"JotDiskAssetManager blocking");
+        if (needsBlock && opQueue.operationCount) {
+            // blocking thread until we're done working
             [opQueue waitUntilAllOperationsAreFinished];
         }
     }
 }
 
--(void) blockUntilCompletedForDirectory:(NSString*)dirPath{
+- (void)blockUntilCompletedForDirectory:(NSString*)dirPath {
     BOOL needsBlock = NO;
-    if(dirPath){
-        @synchronized(inProcessDiskWrites){
-            needsBlock = [[[inProcessDiskWrites allKeys] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary *bindings) {
+    if (dirPath) {
+        @synchronized(inProcessDiskWrites) {
+            needsBlock = [[[inProcessDiskWrites allKeys] filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id evaluatedObject, NSDictionary* bindings) {
                 return [evaluatedObject hasPrefix:dirPath];
             }]] count] > 0;
         }
-        if(needsBlock && opQueue.operationCount){
-            DebugLog(@"JotDiskAssetManager blocking");
+        if (needsBlock && opQueue.operationCount) {
+            // blocking thread until we're done working
             [opQueue waitUntilAllOperationsAreFinished];
         }
     }
 }
 
--(void) blockUntilAllWritesHaveFinished{
+- (void)blockUntilAllWritesHaveFinished {
     [opQueue waitUntilAllOperationsAreFinished];
 }
 
 #pragma mark - Notifications
 
--(void) operationHasCompleted:(JotImageWriteOperation*)operation{
-    @synchronized(inProcessDiskWrites){
+- (void)operationHasCompleted:(JotImageWriteOperation*)operation {
+    @synchronized(inProcessDiskWrites) {
         JotImageWriteOperation* currOpForPath = [inProcessDiskWrites objectForKey:operation.path];
-        if(currOpForPath == operation){
+        if (currOpForPath == operation) {
             [inProcessDiskWrites removeObjectForKey:operation.path];
         }
     }
 }
 
--(JotImageWriteOperation*) cancelAnyOperationFor:(NSString*)path{
+- (JotImageWriteOperation*)cancelAnyOperationFor:(NSString*)path {
     JotImageWriteOperation* currentOperation = nil;
-    @synchronized(inProcessDiskWrites){
+    @synchronized(inProcessDiskWrites) {
         currentOperation = [inProcessDiskWrites objectForKey:path];
         [inProcessDiskWrites removeObjectForKey:path];
     }
@@ -129,10 +129,10 @@ static const void *const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
 
 #pragma mark - Helper
 
--(UIImage*) imageWithContentsOfFileHelper:(NSString*)path{
-    @synchronized(inProcessDiskWrites){
+- (UIImage*)imageWithContentsOfFileHelper:(NSString*)path {
+    @synchronized(inProcessDiskWrites) {
         JotImageWriteOperation* operation = [inProcessDiskWrites objectForKey:path];
-        if(operation){
+        if (operation) {
             return operation.image;
         }
     }

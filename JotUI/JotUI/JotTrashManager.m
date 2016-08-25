@@ -21,7 +21,7 @@
  *
  * this'll prevent cpu spikes just from deallocs
  */
-@implementation JotTrashManager{
+@implementation JotTrashManager {
     NSMutableArray* objectsToDealloc;
     NSTimeInterval maxTickDuration;
     JotGLContext* backgroundContext;
@@ -30,23 +30,24 @@
 static dispatch_queue_t _trashQueue;
 static JotTrashManager* _instance = nil;
 
-static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
+static const void* const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 
-+(dispatch_queue_t) trashQueue{
-    if(!_trashQueue){
++ (dispatch_queue_t)trashQueue {
+    if (!_trashQueue) {
         _trashQueue = dispatch_queue_create("com.milestonemade.looseleaf.jotTrashQueue", DISPATCH_QUEUE_SERIAL);
-        dispatch_queue_set_specific(_trashQueue, kJotTrashQueueIdentifier, (void *)kJotTrashQueueIdentifier, NULL);
+        dispatch_queue_set_specific(_trashQueue, kJotTrashQueueIdentifier, (void*)kJotTrashQueueIdentifier, NULL);
     }
     return _trashQueue;
 }
 
-+(BOOL) isTrashManagerQueue{
++ (BOOL)isTrashManagerQueue {
     return dispatch_get_specific(kJotTrashQueueIdentifier) != NULL;
 }
 
--(id) init{
-    if(_instance) return _instance;
-    if((self = [super init])){
+- (id)init {
+    if (_instance)
+        return _instance;
+    if ((self = [super init])) {
         objectsToDealloc = [[NSMutableArray alloc] init];
         maxTickDuration = 1;
         _instance = self;
@@ -54,8 +55,8 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
     return _instance;
 }
 
-+(JotTrashManager*) sharedInstance{
-    if(!_instance){
++ (JotTrashManager*)sharedInstance {
+    if (!_instance) {
         _instance = [[JotTrashManager alloc] init];
     }
     return _instance;
@@ -64,9 +65,9 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 
 #pragma mark - Public Interface
 
--(void) setGLContext:(JotGLContext*)context{
+- (void)setGLContext:(JotGLContext*)context {
     dispatch_async([JotTrashManager trashQueue], ^{
-        backgroundContext = [[JotGLContext alloc] initWithName:@"JotTrashQueueContext" andSharegroup:context.sharegroup andValidateThreadWith:^BOOL{
+        backgroundContext = [[JotGLContext alloc] initWithName:@"JotTrashQueueContext" andSharegroup:context.sharegroup andValidateThreadWith:^BOOL {
             return [JotTrashManager isTrashManagerQueue];
         }];
     });
@@ -79,7 +80,7 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
  * this way, we can throttle deallocs so that we
  * can maintain 60fps
  */
--(void) setMaxTickDuration:(NSTimeInterval)_tickSize{
+- (void)setMaxTickDuration:(NSTimeInterval)_tickSize {
     maxTickDuration = _tickSize;
 }
 
@@ -89,57 +90,57 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
  * for all objects we hold, we should be the only retain
  * for them, so releasing them will cause their dealloc
  */
--(BOOL) tick{
-    if(!backgroundContext){
+- (BOOL)tick {
+    if (!backgroundContext) {
         // not ready to dealloc if we dont have a context yet
         return NO;
     }
     NSUInteger countToDealloc = 0;
-    @synchronized(self){
+    @synchronized(self) {
         countToDealloc = [objectsToDealloc count];
     }
-    if(countToDealloc){
+    if (countToDealloc) {
         dispatch_async([JotTrashManager trashQueue], ^{
             @autoreleasepool {
                 __block NSUInteger lastKnownCountOfObjects;
-                @synchronized(self){
+                @synchronized(self) {
                     // only synchronize around objectsToDealloc
                     lastKnownCountOfObjects = [objectsToDealloc count];
                 }
 
-                if(lastKnownCountOfObjects){
+                if (lastKnownCountOfObjects) {
                     [backgroundContext runBlock:^{
                         double startTime = CACurrentMediaTime();
-                        while(lastKnownCountOfObjects && ABS(CACurrentMediaTime() - startTime) < maxTickDuration){
+                        while (lastKnownCountOfObjects && ABS(CACurrentMediaTime() - startTime) < maxTickDuration) {
                             // this array should be the last retain for these objects,
                             // so removing them will release them and cause them to dealloc
                             __weak NSObject* weakObj;
                             @autoreleasepool {
                                 id obj;
-                                @synchronized(self){
+                                @synchronized(self) {
                                     obj = [objectsToDealloc lastObject];
                                 }
-                                if(!obj){
+                                if (!obj) {
                                     break;
                                 }
                                 weakObj = obj;
                                 @autoreleasepool {
-                                    if([obj respondsToSelector:@selector(deleteAssets)]){
+                                    if ([obj respondsToSelector:@selector(deleteAssets)]) {
                                         [obj deleteAssets];
                                     }
-                                    @synchronized(self){
+                                    @synchronized(self) {
                                         [objectsToDealloc removeLastObject];
                                     }
                                 }
                             }
-                            @synchronized(weakObj){
-                                if(weakObj){
-                                    @synchronized(self){
+                            @synchronized(weakObj) {
+                                if (weakObj) {
+                                    @synchronized(self) {
                                         [objectsToDealloc insertObject:weakObj atIndex:0];
                                     }
                                 }
                             }
-                            @synchronized(self){
+                            @synchronized(self) {
                                 lastKnownCountOfObjects = [objectsToDealloc count];
                             }
                         }
@@ -151,13 +152,13 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
     return countToDealloc > 0;
 }
 
--(void) addObjectToDealloc:(NSObject*)obj{
-    if(obj){
-        @synchronized(self){
-            if([obj isKindOfClass:[JotView class]] && [(JotView*)obj hasLink]){
+- (void)addObjectToDealloc:(NSObject*)obj {
+    if (obj) {
+        @synchronized(self) {
+            if ([obj isKindOfClass:[JotView class]] && [(JotView*)obj hasLink]) {
                 @throw [NSException exceptionWithName:@"JotViewDeallocException" reason:@"Cannot dealloc JotView with active CADisplayLink" userInfo:nil];
             }
-            if(![objectsToDealloc containsObjectIdenticalTo:obj]){
+            if (![objectsToDealloc containsObjectIdenticalTo:obj]) {
                 // trash queue is FIFO
                 [objectsToDealloc insertObject:obj atIndex:0];
             }
@@ -165,10 +166,10 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
     }
 }
 
--(void) addObjectsToDealloc:(NSArray*)objs{
-    if(objs){
-        @synchronized(self){
-            for(NSObject* obj in objs){
+- (void)addObjectsToDealloc:(NSArray*)objs {
+    if (objs) {
+        @synchronized(self) {
+            for (NSObject* obj in objs) {
                 [self addObjectToDealloc:obj];
             }
         }
@@ -177,18 +178,18 @@ static const void *const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 
 #pragma mark - Profiling Helpers
 
--(NSInteger) numberOfItemsInTrash{
-    @synchronized(self){
+- (NSInteger)numberOfItemsInTrash {
+    @synchronized(self) {
         return [objectsToDealloc count];
     }
 }
 
--(int) knownBytesInTrash{
+- (int)knownBytesInTrash {
     int bytes = 0;
-    @synchronized(self){
-        for(NSObject*obj in objectsToDealloc){
-            if([obj respondsToSelector:@selector(fullByteSize)]){
-                bytes += (int) [obj performSelector:@selector(fullByteSize)];
+    @synchronized(self) {
+        for (NSObject* obj in objectsToDealloc) {
+            if ([obj respondsToSelector:@selector(fullByteSize)]) {
+                bytes += (int)[obj performSelector:@selector(fullByteSize)];
             }
         }
     }

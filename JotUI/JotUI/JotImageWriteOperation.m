@@ -8,17 +8,18 @@
 
 #import "JotImageWriteOperation.h"
 
-@implementation JotImageWriteOperation{
+
+@implementation JotImageWriteOperation {
     UIImage* imageToWrite;
     NSString* pathToWriteImageTo;
-    void(^notifyBlock)();
+    void (^notifyBlock)();
     BOOL isRunning;
     NSObject* lock;
 }
 
 /** Initialize with the provided block. */
-- (id) initWithImage:(UIImage*)image andPath:(NSString*)path andNotifyBlock:(void(^)(JotImageWriteOperation*))block{
-    if ((self = [super init])){
+- (id)initWithImage:(UIImage*)image andPath:(NSString*)path andNotifyBlock:(void (^)(JotImageWriteOperation*))block {
+    if ((self = [super init])) {
         pathToWriteImageTo = path;
         imageToWrite = image;
         notifyBlock = block;
@@ -27,46 +28,45 @@
     return self;
 }
 
--(NSString*) path{
+- (NSString*)path {
     return pathToWriteImageTo;
 }
 
--(UIImage*) image{
+- (UIImage*)image {
     return imageToWrite;
 }
 
 // from NSOperation
-- (void) main {
+- (void)main {
     @synchronized(lock) {
-        if([self isCancelled]){
-            if(notifyBlock){
+        if ([self isCancelled]) {
+            if (notifyBlock) {
                 notifyBlock(self);
             }
             return;
-        }else{
+        } else {
             isRunning = YES;
         }
     }
-    if(![self isCancelled]){
-        if(imageToWrite){
-//                DebugLog(@"wrote image to: %@", self.path);
-            
+    if (![self isCancelled]) {
+        if (imageToWrite) {
+            // if we have an image, then write it to disk
             [UIImagePNGRepresentation(imageToWrite) writeToFile:pathToWriteImageTo atomically:YES];
-        }else{
-//                DebugLog(@"nil image, deleting file at: %@", self.path);
+        } else {
+            // otherwise, we don't have an image so delete anything off disk if needed
             [[NSFileManager defaultManager] removeItemAtPath:pathToWriteImageTo error:nil];
         }
-    }else{
-        DebugLog(@"cancelled write to: %@", self.path);
+    } else {
+        // cancelled this operation, so we don't need to do anything at all
     }
-    if(notifyBlock){
+    if (notifyBlock) {
         notifyBlock(self);
     }
 }
 
--(void) cancel{
-    @synchronized(lock){
-        if(!isRunning){
+- (void)cancel {
+    @synchronized(lock) {
+        if (!isRunning) {
             [super cancel];
         }
     }

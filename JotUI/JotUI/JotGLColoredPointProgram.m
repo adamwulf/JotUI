@@ -9,20 +9,21 @@
 #import "JotGLColoredPointProgram.h"
 #import "JotGLProgram+Private.h"
 
+
 @implementation JotGLColoredPointProgram
 
--(id) init{
-    if(self = [super initWithVertexShaderFilename:@"coloredpoint"
-                           fragmentShaderFilename:@"point"
-                                   withAttributes:@[@"inVertexColor"]
-                                      andUniforms:@[@"rotation"]]){
+- (id)init {
+    if (self = [super initWithVertexShaderFilename:@"coloredpoint"
+                            fragmentShaderFilename:@"point"
+                                    withAttributes:@[@"inVertexColor"]
+                                       andUniforms:@[@"rotation"]]) {
         // add inVertexColor uniform to the default uniforms
     }
     return self;
 }
 
 
--(GLuint) attributeVertexColorIndex{
+- (GLuint)attributeVertexColorIndex {
     return [JotGLProgram attributeIndex:@"inVertexColor"];
 }
 

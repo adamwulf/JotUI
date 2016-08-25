@@ -8,10 +8,11 @@
 
 #import <JotUI/JotUI.h>
 
+
 @interface JotSharedBrushTexture : JotBrushTexture
 
--(instancetype) init NS_UNAVAILABLE;
+- (instancetype)init NS_UNAVAILABLE;
 
--(instancetype) initWithImage:(UIImage*)texture;
+- (instancetype)initWithImage:(UIImage*)texture;
 
 @end

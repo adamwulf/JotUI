@@ -8,8 +8,9 @@
 
 #import "JotBrushTexture.h"
 
+
 @interface JotDefaultBrushTexture : JotBrushTexture
 
-+(JotBrushTexture*) sharedInstance;
++ (JotBrushTexture*)sharedInstance;
 
 @end

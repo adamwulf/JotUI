@@ -9,12 +9,13 @@
 #import <Foundation/Foundation.h>
 #import "JotGLTexture.h"
 
+
 @interface JotTextureCache : NSObject
 
-+ (JotTextureCache *) sharedManager;
++ (JotTextureCache*)sharedManager;
 
--(JotGLTexture*) generateTextureForContext:(JotGLContext*)context ofSize:(CGSize)fullSize;
+- (JotGLTexture*)generateTextureForContext:(JotGLContext*)context ofSize:(CGSize)fullSize;
 
--(void) returnTextureForReuse:(JotGLTexture*)texture;
+- (void)returnTextureForReuse:(JotGLTexture*)texture;
 
 @end

@@ -9,49 +9,46 @@
 #import "JotTextureCache.h"
 #import "JotGLContext.h"
 
+
 @interface JotGLTexture (Lock)
 
--(BOOL) isLocked;
+- (BOOL)isLocked;
 
 @end
 
-@implementation JotTextureCache{
+
+@implementation JotTextureCache {
     NSMutableArray* cachedTextures;
 }
 
--(id) init{
-    if(self = [super init]){
+- (id)init {
+    if (self = [super init]) {
         cachedTextures = [NSMutableArray array];
     }
     return self;
 }
 
-+ (JotTextureCache *) sharedManager {
++ (JotTextureCache*)sharedManager {
     static dispatch_once_t onceToken;
-    static JotTextureCache *manager;
+    static JotTextureCache* manager;
     dispatch_once(&onceToken, ^{
         manager = [[JotTextureCache alloc] init];
     });
     return manager;
 }
 
--(JotGLTexture*) generateTextureForContext:(JotGLContext*)context ofSize:(CGSize)fullSize{
+- (JotGLTexture*)generateTextureForContext:(JotGLContext*)context ofSize:(CGSize)fullSize {
     __block GLuint canvastexture = 0;
 
-    @synchronized(self){
-        if([cachedTextures count]){
+    @synchronized(self) {
+        if ([cachedTextures count]) {
             JotGLTexture* reusedTexture = [cachedTextures lastObject];
             [cachedTextures removeLastObject];
-//            DebugLog(@"JotTextureCache: reused texture of size: %f %f", fullSize.width, fullSize.height);
             return reusedTexture;
         }
-    
-//    DebugLog(@"JotTextureCache: building texture of size: %f %f", fullSize.width, fullSize.height);
-    
+
         [context runBlock:^{
-            
             canvastexture = [context generateTextureForSize:fullSize withBytes:NULL];
-            
             // we have to flush here to push all
             // the pixels to the texture so they're
             // available in the background thread's
@@ -63,16 +60,16 @@
     return [[JotGLTexture alloc] initForTextureID:canvastexture withSize:fullSize];
 }
 
--(void) returnTextureForReuse:(JotGLTexture*)texture{
-    @synchronized(self){
-        if([texture isLocked]){
+- (void)returnTextureForReuse:(JotGLTexture*)texture {
+    @synchronized(self) {
+        if ([texture isLocked]) {
             @throw [NSException exceptionWithName:@"TextureCacheException" reason:@"Caching locked texture" userInfo:nil];
         }
-        if([cachedTextures containsObject:texture]){
+        if ([cachedTextures containsObject:texture]) {
             @throw [NSException exceptionWithName:@"TextureCacheException" reason:@"Recaching already cached texture" userInfo:nil];
         }
         [cachedTextures addObject:texture];
-//        DebugLog(@"texture returned, have %d in cache", (int) [cachedTextures count]);
+        //        DebugLog(@"texture returned, have %d in cache", (int) [cachedTextures count]);
     }
 }
 

@@ -12,21 +12,22 @@
 #import "AbstractJotGLFrameBuffer.h"
 #import "ShaderHelper.h"
 
-@interface JotGLLayerBackedFrameBuffer : AbstractJotGLFrameBuffer<DeleteAssets>
 
-@property (readonly) CGSize initialViewport;
-@property (assign) BOOL shouldslow;
+@interface JotGLLayerBackedFrameBuffer : AbstractJotGLFrameBuffer <DeleteAssets>
+
+@property(readonly) CGSize initialViewport;
+@property(assign) BOOL shouldslow;
 
 - (instancetype)init NS_UNAVAILABLE;
 
--(id) initForLayer:(CALayer<EAGLDrawable>*)layer;
+- (id)initForLayer:(CALayer<EAGLDrawable>*)layer;
 
 // erase the texture by setting all pixels
 // to zero opacity
--(void) clear;
+- (void)clear;
 
--(void) setNeedsPresentRenderBuffer;
+- (void)setNeedsPresentRenderBuffer;
 
--(void) presentRenderBufferInContext:(JotGLContext*)context;
+- (void)presentRenderBufferInContext:(JotGLContext*)context;
 
 @end

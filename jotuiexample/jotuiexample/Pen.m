@@ -8,7 +8,10 @@
 
 #import "Pen.h"
 
-static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
+static float clamp(min, max, value) {
+    return fmaxf(min, fminf(max, value));
+}
+
 
 @implementation Pen
 
@@ -22,13 +25,13 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
 
 @synthesize color;
 
--(id) initWithMinSize:(CGFloat)_minSize andMaxSize:(CGFloat)_maxSize andMinAlpha:(CGFloat)_minAlpha andMaxAlpha:(CGFloat)_maxAlpha{
-    if(self = [super init]){
+- (id)initWithMinSize:(CGFloat)_minSize andMaxSize:(CGFloat)_maxSize andMinAlpha:(CGFloat)_minAlpha andMaxAlpha:(CGFloat)_maxAlpha {
+    if (self = [super init]) {
         minSize = _minSize;
         maxSize = _maxSize;
         minAlpha = _minAlpha;
         maxAlpha = _maxAlpha;
-        
+
         defaultMinSize = minSize;
         defaultMaxSize = maxSize;
         color = [UIColor blackColor];
@@ -36,25 +39,25 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
     return self;
 }
 
--(id) init{
+- (id)init {
     return [self initWithMinSize:6.0 andMaxSize:15.0 andMinAlpha:0.9 andMaxAlpha:0.9];
 }
 
--(JotBrushTexture*) texture{
+- (JotBrushTexture*)texture {
     return [JotDefaultBrushTexture sharedInstance];
 }
 
 #pragma mark - Setters
 
--(void) setMinSize:(CGFloat)_minSize{
-    if(_minSize < 1){
+- (void)setMinSize:(CGFloat)_minSize {
+    if (_minSize < 1) {
         _minSize = 1;
     }
     minSize = _minSize;
 }
 
--(void) setMaxSize:(CGFloat)_maxSize{
-    if(_maxSize < 1){
+- (void)setMaxSize:(CGFloat)_maxSize {
+    if (_maxSize < 1) {
         _maxSize = 1;
     }
     maxSize = _maxSize;
@@ -69,7 +72,7 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  * from the previous touch over the duration elapsed
  * between touches
  */
--(CGFloat) velocityForTouch:(JotTouch*)touch{
+- (CGFloat)velocityForTouch:(JotTouch*)touch {
     //
     // first, find the current and previous location of the touch
     CGPoint l = [touch windowPosition];
@@ -79,13 +82,13 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
     // how long did it take?
     CGFloat duration = [[NSDate date] timeIntervalSinceDate:lastDate];
     // velocity is distance/time
-    CGFloat velocityMagnitude = distanceFromPrevious/duration;
-    
+    CGFloat velocityMagnitude = distanceFromPrevious / duration;
+
     // we need to make sure we keep velocity inside our min/max values
     float clampedVelocityMagnitude = clamp(VELOCITY_CLAMP_MIN, VELOCITY_CLAMP_MAX, velocityMagnitude);
     // now normalize it, so we return a value between 0 and 1
     float normalizedVelocity = (clampedVelocityMagnitude - VELOCITY_CLAMP_MIN) / (VELOCITY_CLAMP_MAX - VELOCITY_CLAMP_MIN);
-    
+
     return normalizedVelocity;
 }
 
@@ -96,7 +99,7 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  * that a new touch is about to be processed. we should
  * reset all of our counters/etc to base values
  */
--(BOOL) willBeginStrokeWithTouch:(JotTouch*)touch{
+- (BOOL)willBeginStrokeWithTouch:(JotTouch*)touch {
     velocity = 1;
     lastDate = [NSDate date];
     numberOfTouches = 1;
@@ -108,19 +111,20 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  * alpha/width info for this touch. let's update
  * our velocity model and state info for this new touch
  */
--(void) willMoveStrokeWithTouch:(JotTouch*)touch{
-    numberOfTouches ++;
-    if(numberOfTouches > 4) numberOfTouches = 4;
-    if([self velocityForTouch:touch]){
+- (void)willMoveStrokeWithTouch:(JotTouch*)touch {
+    numberOfTouches++;
+    if (numberOfTouches > 4)
+        numberOfTouches = 4;
+    if ([self velocityForTouch:touch]) {
         velocity = [self velocityForTouch:touch];
-    }else{
+    } else {
         // noop
     }
     lastDate = [NSDate date];
     lastLoc = [touch windowPosition];
 }
 
--(void) willEndStrokeWithTouch:(JotTouch *)touch{
+- (void)willEndStrokeWithTouch:(JotTouch*)touch {
     // noop
 }
 
@@ -128,18 +132,18 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  * user is finished with a stroke. for our purposes
  * we don't need to do anything
  */
--(void) didEndStrokeWithTouch:(JotTouch*)touch{
+- (void)didEndStrokeWithTouch:(JotTouch*)touch {
     // noop
 }
 
--(void) willCancelStroke:(JotStroke *)stroke withTouch:(JotTouch *)touch{
+- (void)willCancelStroke:(JotStroke*)stroke withTouch:(JotTouch*)touch {
     // noop
 }
 
 /**
  * the user cancelled the touch
  */
--(void) didCancelStroke:(JotStroke *)stroke withTouch:(JotTouch *)touch{
+- (void)didCancelStroke:(JotStroke*)stroke withTouch:(JotTouch*)touch {
     // noop
 }
 
@@ -151,15 +155,17 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  * but for our demo adjusting only the alpha
  * is the look we're going for.
  */
--(UIColor*) colorForTouch:(JotTouch*)touch{
-    if(shouldUseVelocity){
+- (UIColor*)colorForTouch:(JotTouch*)touch {
+    if (shouldUseVelocity) {
         CGFloat segmentAlpha = (velocity - 1);
-        if(segmentAlpha > 0) segmentAlpha = 0;
+        if (segmentAlpha > 0)
+            segmentAlpha = 0;
         segmentAlpha = minAlpha + ABS(segmentAlpha) * (maxAlpha - minAlpha);
         return [color colorWithAlphaComponent:segmentAlpha];
-    }else{
-        CGFloat segmentAlpha = minAlpha + (maxAlpha-minAlpha) * touch.pressure / JOT_MAX_PRESSURE;
-        if(segmentAlpha < minAlpha) segmentAlpha = minAlpha;
+    } else {
+        CGFloat segmentAlpha = minAlpha + (maxAlpha - minAlpha) * touch.pressure / JOT_MAX_PRESSURE;
+        if (segmentAlpha < minAlpha)
+            segmentAlpha = minAlpha;
         return [color colorWithAlphaComponent:segmentAlpha];
     }
 }
@@ -171,15 +177,17 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  * we'll use pressure data to determine width if we can, otherwise
  * we'll fall back to use velocity data
  */
--(CGFloat) widthForTouch:(JotTouch*)touch{
-    if(shouldUseVelocity){
+- (CGFloat)widthForTouch:(JotTouch*)touch {
+    if (shouldUseVelocity) {
         CGFloat width = (velocity - 1);
-        if(width > 0) width = 0;
+        if (width > 0)
+            width = 0;
         width = minSize + ABS(width) * (maxSize - minSize);
-        if(width < 1) width = 1;
+        if (width < 1)
+            width = 1;
         return width;
-    }else{
-        CGFloat newWidth = minSize + (maxSize-minSize) * touch.pressure / JOT_MAX_PRESSURE;
+    } else {
+        CGFloat newWidth = minSize + (maxSize - minSize) * touch.pressure / JOT_MAX_PRESSURE;
         return newWidth;
     }
 }
@@ -194,11 +202,11 @@ static float clamp(min, max, value) { return fmaxf(min, fminf(max, value)); }
  * > 1 is loopy
  * < 0 is knotty
  */
--(CGFloat) smoothnessForTouch:(JotTouch *)touch{
+- (CGFloat)smoothnessForTouch:(JotTouch*)touch {
     return 0.75;
 }
 
--(NSArray*) willAddElementsToStroke:(NSArray*)elements fromPreviousElement:(AbstractBezierPathElement*)previousElement{
+- (NSArray*)willAddElementsToStroke:(NSArray*)elements fromPreviousElement:(AbstractBezierPathElement*)previousElement {
     return elements;
 }
 

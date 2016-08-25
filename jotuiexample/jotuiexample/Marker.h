@@ -9,8 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "Pen.h"
 
-@interface Marker : Pen
 
+@interface Marker : Pen
 
 
 @end

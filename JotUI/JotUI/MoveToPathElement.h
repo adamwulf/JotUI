@@ -16,6 +16,6 @@
  */
 @interface MoveToPathElement : AbstractBezierPathElement
 
-+(id) elementWithMoveTo:(CGPoint)point;
++ (id)elementWithMoveTo:(CGPoint)point;
 
 @end

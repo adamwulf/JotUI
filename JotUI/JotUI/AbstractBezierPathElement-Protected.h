@@ -14,39 +14,40 @@
 #import "JotGLProgram.h"
 #import "JotGLContext.h"
 
+
 @interface AbstractBezierPathElement ()
 
-@property (nonatomic, assign) CGFloat stepWidth;
-@property (nonatomic, strong) UIColor* color;
-@property (nonatomic, assign) CGFloat width;
-@property (nonatomic, assign) CGFloat rotation;
-@property (nonatomic, assign) CGFloat extraLengthWithoutDot;
+@property(nonatomic, assign) CGFloat stepWidth;
+@property(nonatomic, strong) UIColor* color;
+@property(nonatomic, assign) CGFloat width;
+@property(nonatomic, assign) CGFloat rotation;
+@property(nonatomic, assign) CGFloat extraLengthWithoutDot;
 
--(id) initWithStart:(CGPoint)point;
+- (id)initWithStart:(CGPoint)point;
 
--(NSInteger) numberOfVerticesPerStep;
+- (NSInteger)numberOfVerticesPerStep;
 
--(NSInteger) numberOfStepsGivenPreviousElement:(AbstractBezierPathElement *)previousElement;
+- (NSInteger)numberOfStepsGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
 
--(NSInteger) numberOfVerticesGivenPreviousElement:(AbstractBezierPathElement *)previousElement;
+- (NSInteger)numberOfVerticesGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
 
--(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
+- (NSInteger)numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
 
--(void) validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
+- (void)validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
 
--(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
+- (struct ColorfulVertex*)generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
 
--(CGFloat) angleBetweenPoint:(CGPoint) point1 andPoint:(CGPoint)point2;
+- (CGFloat)angleBetweenPoint:(CGPoint)point1 andPoint:(CGPoint)point2;
 
--(BOOL) bind;
+- (BOOL)bind;
 
--(void) unbind;
+- (void)unbind;
 
--(JotGLProgram*) glProgramForContext:(JotGLContext*)context;
+- (JotGLProgram*)glProgramForContext:(JotGLContext*)context;
 
--(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement;
+- (void)drawGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
 
--(void) loadDataIntoVBOIfNeeded;
+- (void)loadDataIntoVBOIfNeeded;
 
 @end
 

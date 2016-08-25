@@ -19,7 +19,8 @@
 
 static int totalTextureBytes;
 
-@implementation JotGLTexture{
+
+@implementation JotGLTexture {
     CGSize fullPixelSize;
     int fullByteSize;
     NSRecursiveLock* lock;
@@ -33,7 +34,7 @@ static int totalTextureBytes;
 @synthesize textureID;
 @synthesize fullByteSize;
 
-+(int) totalTextureBytes{
++ (int)totalTextureBytes {
     return totalTextureBytes;
 }
 
@@ -68,73 +69,73 @@ static int totalTextureBytes;
 // loaded in ~90ms hopefully.
 //
 
--(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size{
-    if(self = [super init]){
-        JotGLContext* currContext = (JotGLContext*) [JotGLContext currentContext];
-        [JotGLContext runBlock:^(JotGLContext* context){
+- (id)initForImage:(UIImage*)imageToLoad withSize:(CGSize)size {
+    if (self = [super init]) {
+        JotGLContext* currContext = (JotGLContext*)[JotGLContext currentContext];
+        [JotGLContext runBlock:^(JotGLContext* context) {
             fullPixelSize = size;
             lock = [[NSRecursiveLock alloc] init];
             lockCount = 0;
-            
-            
+
+
             fullByteSize = fullPixelSize.width * fullPixelSize.height * 4;
-            @synchronized([JotGLTexture class]){
+            @synchronized([JotGLTexture class]) {
                 totalTextureBytes += fullByteSize;
             }
 
             //
             // load the image data if we have some, or initialize to
             // a blank texture
-            if(imageToLoad){
+            if (imageToLoad) {
                 //
                 // we have an image to load, so draw it to a bitmap context.
                 // then we can load those bytes into OpenGL directly.
                 // after they're loaded, we can free the memory for our cgcontext.
                 CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
                 void* imageData = calloc(fullPixelSize.height * fullPixelSize.width, 4);
-                if(!imageData){
+                if (!imageData) {
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
-                CGContextRef cgContext = CGBitmapContextCreate( imageData, fullPixelSize.width, fullPixelSize.height, 8, 4 * fullPixelSize.width, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big );
-                if(!cgContext){
+                CGContextRef cgContext = CGBitmapContextCreate(imageData, fullPixelSize.width, fullPixelSize.height, 8, 4 * fullPixelSize.width, colorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
+                if (!cgContext) {
                     @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
                 }
-                CGContextTranslateCTM (cgContext, 0, fullPixelSize.height);
-                CGContextScaleCTM (cgContext, 1.0, -1.0);
-                CGColorSpaceRelease( colorSpace );
-                if(currContext != [JotGLContext currentContext]){
-                    DebugLog(@"freak out");
+                CGContextTranslateCTM(cgContext, 0, fullPixelSize.height);
+                CGContextScaleCTM(cgContext, 1.0, -1.0);
+                CGColorSpaceRelease(colorSpace);
+                if (currContext != [JotGLContext currentContext]) {
                     @throw [NSException exceptionWithName:@"OpenGLException" reason:@"Mismatched Context" userInfo:nil];
                 }
-                CGContextClearRect( cgContext, CGRectMake( 0, 0, fullPixelSize.width, fullPixelSize.height ) );
-                
+                CGContextClearRect(cgContext, CGRectMake(0, 0, fullPixelSize.width, fullPixelSize.height));
+
                 // draw the new background in aspect-fill mode
                 CGSize backgroundSize = CGSizeMake(CGImageGetWidth(imageToLoad.CGImage), CGImageGetHeight(imageToLoad.CGImage));
                 CGFloat horizontalRatio = fullPixelSize.width / backgroundSize.width;
                 CGFloat verticalRatio = fullPixelSize.height / backgroundSize.height;
                 CGFloat ratio = MAX(horizontalRatio, verticalRatio); //AspectFill
                 CGSize aspectFillSize = CGSizeMake(backgroundSize.width * ratio, backgroundSize.height * ratio);
-                
-                if(currContext != [JotGLContext currentContext]){
+
+                if (currContext != [JotGLContext currentContext]) {
                     @throw [NSException exceptionWithName:@"OpenGLException" reason:@"Mismatched Context" userInfo:nil];
                 }
-                CGContextDrawImage( cgContext,  CGRectMake((fullPixelSize.width-aspectFillSize.width)/2,
-                                                           (fullPixelSize.height-aspectFillSize.height)/2,
-                                                           aspectFillSize.width,
-                                                           aspectFillSize.height), imageToLoad.CGImage );
-                if(currContext != [JotGLContext currentContext]){
+                CGContextDrawImage(cgContext, CGRectMake((fullPixelSize.width - aspectFillSize.width) / 2,
+                                                         (fullPixelSize.height - aspectFillSize.height) / 2,
+                                                         aspectFillSize.width,
+                                                         aspectFillSize.height),
+                                   imageToLoad.CGImage);
+                if (currContext != [JotGLContext currentContext]) {
                     @throw [NSException exceptionWithName:@"OpenGLException" reason:@"Mismatched Context" userInfo:nil];
                 }
-                
-                
+
+
                 textureID = [context generateTextureForSize:fullPixelSize withBytes:imageData];
-                
+
                 // cleanup
                 CGContextRelease(cgContext);
                 free(imageData);
-            }else{
+            } else {
                 void* zeroedDataCache = calloc(fullPixelSize.height * fullPixelSize.width, 4);
-                if(!zeroedDataCache){
+                if (!zeroedDataCache) {
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
                 textureID = [context generateTextureForSize:fullPixelSize withBytes:zeroedDataCache];
@@ -143,12 +144,12 @@ static int totalTextureBytes;
             }
         }];
     }
-    
+
     return self;
 }
 
--(id) initForTextureID:(GLuint)_textureID withSize:(CGSize)_size{
-    if(self = [super init]){
+- (id)initForTextureID:(GLuint)_textureID withSize:(CGSize)_size {
+    if (self = [super init]) {
         fullPixelSize = _size;
         textureID = _textureID;
         lock = [[NSRecursiveLock alloc] init];
@@ -157,40 +158,37 @@ static int totalTextureBytes;
     return self;
 }
 
--(CGSize) pixelSize{
+- (CGSize)pixelSize {
     return fullPixelSize;
 }
 
--(void) deleteAssets{
-    if (textureID){
-        [JotGLContext runBlock:^(JotGLContext* context){
+- (void)deleteAssets {
+    if (textureID) {
+        [JotGLContext runBlock:^(JotGLContext* context) {
             [context deleteTexture:textureID];
         }];
         textureID = 0;
     }
 }
 
--(void) bind{
-    if(![JotGLContext currentContext]){
-        NSLog(@"what");
-    }
-    [JotGLContext runBlock:^(JotGLContext* context){
+- (void)bind {
+    NSAssert([JotGLContext currentContext], @"Must have an active context to bind");
+    [JotGLContext runBlock:^(JotGLContext* context) {
         printOpenGLError();
         [lock lock];
+
+        NSAssert(!contextOfBinding || contextOfBinding == [JotGLContext currentContext], @"Our binding context must stay the same");
         
-        if(contextOfBinding != nil && contextOfBinding != [JotGLContext currentContext]){
-            DebugLog(@"gotcha");
-        }
         lockCount++;
-        contextOfBinding = (JotGLContext*) [JotGLContext currentContext];
-        //    DebugLog(@"locked %p (%d)", self, self.textureID);
+        contextOfBinding = (JotGLContext*)[JotGLContext currentContext];
+        // locked this texture while it's bound so that
+        // it can't be used elsewhere while in use here
         [context bindTexture:textureID];
         printOpenGLError();
     }];
 }
 
--(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLQuadProgram*)program{
-
+- (void)bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLQuadProgram*)program {
     program.canvasSize = GLSizeFromCGSize(canvasSize);
 
     [program use];
@@ -204,11 +202,11 @@ static int totalTextureBytes;
     printOpenGLError();
 }
 
--(void) rebind{
+- (void)rebind {
     // rebinds the texture, while maintaining lock count
     // and lock ownership
-    [JotGLContext runBlock:^(JotGLContext* context){
-        if(!lockCount){
+    [JotGLContext runBlock:^(JotGLContext* context) {
+        if (!lockCount) {
             @throw [NSException exceptionWithName:@"TextureBindException" reason:@"Cannot rebind unbound texture" userInfo:nil];
         }
         [lock lock];
@@ -218,17 +216,15 @@ static int totalTextureBytes;
     }];
 }
 
--(void) unbind{
-    [JotGLContext runBlock:^(JotGLContext* context){
+- (void)unbind {
+    [JotGLContext runBlock:^(JotGLContext* context) {
         printOpenGLError();
         [context unbindTexture];
         [context flush];
-        //    DebugLog(@"unlocked %p (%d)", self, self.textureID);
-        if(contextOfBinding != [JotGLContext currentContext]){
-            DebugLog(@"gotcha");
-        }
+        // unlocked the texture so it'll be free to be used elsewhere
+        NSAssert(contextOfBinding == [JotGLContext currentContext], @"Must unbind on the same context that we bound on");
         lockCount--;
-        if(lockCount == 0){
+        if (lockCount == 0) {
             contextOfBinding = nil;
         }
         [lock unlock];
@@ -240,20 +236,20 @@ static int totalTextureBytes;
  * this will draw the texture at coordinates (0,0)
  * for its full pixel size
  */
--(void) drawInContext:(JotGLContext*)context withCanvasSize:(CGSize)canvasSize{
+- (void)drawInContext:(JotGLContext*)context withCanvasSize:(CGSize)canvasSize {
     [self drawInContext:context atT1:CGPointMake(0, 1)
                   andT2:CGPointMake(1, 1)
                   andT3:CGPointMake(0, 0)
                   andT4:CGPointMake(1, 0)
                    atP1:CGPointMake(0, fullPixelSize.height)
                   andP2:CGPointMake(fullPixelSize.width, fullPixelSize.height)
-                  andP3:CGPointMake(0,0)
+                  andP3:CGPointMake(0, 0)
                   andP4:CGPointMake(fullPixelSize.width, 0)
          withResolution:fullPixelSize
                 andClip:nil
         andClippingSize:CGSizeZero
-              asErase:NO
-     withCanvasSize:canvasSize]; // default to draw full texture w/o color modification
+                asErase:NO
+         withCanvasSize:canvasSize]; // default to draw full texture w/o color modification
 }
 
 
@@ -265,7 +261,7 @@ static int totalTextureBytes;
  * clipping path is in 1.0 scale, regardless of the context.
  * so it may need to be stretched to fill the size.
  */
--(void) drawInContext:(JotGLContext*)context
+- (void)drawInContext:(JotGLContext*)context
                  atT1:(CGPoint)t1
                 andT2:(CGPoint)t2
                 andT3:(CGPoint)t3
@@ -277,20 +273,20 @@ static int totalTextureBytes;
        withResolution:(CGSize)resolution
               andClip:(UIBezierPath*)clippingPath
       andClippingSize:(CGSize)clipSize
-            asErase:(BOOL)asErase
-       withCanvasSize:(CGSize)canvasSize{
+              asErase:(BOOL)asErase
+       withCanvasSize:(CGSize)canvasSize {
     // save our clipping texture and stencil buffer, if any
-    [JotGLContext runBlock:^(JotGLContext* context){
-        
+    [JotGLContext runBlock:^(JotGLContext* context) {
+
         //
         // prep our context to draw our texture as a quad.
         // now prep to draw the actual texture
         // always draw
 
-        void(^possiblyStenciledRenderBlock)() = ^{
-            
+        void (^possiblyStenciledRenderBlock)() = ^{
+
             [context prepOpenGLBlendModeForColor:asErase ? nil : [UIColor whiteColor]];
-            
+
             //
             // these vertices make sure to draw our texture across
             // the entire size, with the input texture coordinates.
@@ -298,17 +294,15 @@ static int totalTextureBytes;
             // this allows the caller to ask us to render a portion of our
             // texture in any size rect it needs
             Vertex3D squareVertices[] = {
-                { p1.x, p1.y},
-                { p2.x, p2.y},
-                { p3.x, p3.y},
-                { p4.x, p4.y}
-            };
+                {p1.x, p1.y},
+                {p2.x, p2.y},
+                {p3.x, p3.y},
+                {p4.x, p4.y}};
             const GLfloat textureVertices[] = {
                 t1.x, t1.y,
                 t2.x, t2.y,
                 t3.x, t3.y,
-                t4.x, t4.y
-            };
+                t4.x, t4.y};
 
             // now draw our own texture, which will be drawn
             // for only the input texture coords and will respect
@@ -322,35 +316,35 @@ static int totalTextureBytes;
             [context enableTextureCoordArrayAtIndex:[[context quadProgram] attributeTextureCoordinateIndex] forSize:2 andStride:0 andPointer:textureVertices];
             [context drawTriangleStripCount:4 withProgram:[context quadProgram]];
         };
-        
+
         // cleanup
         [context runBlock:possiblyStenciledRenderBlock
-         forStenciledPath:clippingPath
-                     atP1:p1
-                    andP2:p2
-                    andP3:p3
-                    andP4:p4
-          andClippingSize:clipSize
-           withResolution:resolution
-         withVertexIndex:[[context quadProgram] attributePositionIndex]
-          andTextureIndex:[[context quadProgram] attributeTextureCoordinateIndex]];
+            forStenciledPath:clippingPath
+                        atP1:p1
+                       andP2:p2
+                       andP3:p3
+                       andP4:p4
+             andClippingSize:clipSize
+              withResolution:resolution
+             withVertexIndex:[[context quadProgram] attributePositionIndex]
+             andTextureIndex:[[context quadProgram] attributeTextureCoordinateIndex]];
 
         [self unbind];
     }];
 }
 
 
--(BOOL) isLocked{
+- (BOOL)isLocked {
     return lockCount != 0;
 }
 
--(void) dealloc{
+- (void)dealloc {
     [lock lock];
     NSAssert([JotGLContext currentContext] != nil, @"must be on glcontext");
-    @synchronized([JotGLTexture class]){
+    @synchronized([JotGLTexture class]) {
         totalTextureBytes -= fullByteSize;
     }
-	[self deleteAssets];
+    [self deleteAssets];
     [lock unlock];
 }
 

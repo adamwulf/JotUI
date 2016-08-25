@@ -12,12 +12,12 @@
 
 @protocol JotViewStateProxyDelegate
 
-@property (nonatomic, readonly) NSString* jotViewStateInkPath;
+@property(nonatomic, readonly) NSString* jotViewStateInkPath;
 
-@property (nonatomic, readonly) NSString* jotViewStatePlistPath;
+@property(nonatomic, readonly) NSString* jotViewStatePlistPath;
 
--(void) didLoadState:(JotViewStateProxy*)state;
+- (void)didLoadState:(JotViewStateProxy*)state;
 
--(void) didUnloadState:(JotViewStateProxy*)state;
+- (void)didUnloadState:(JotViewStateProxy*)state;
 
 @end

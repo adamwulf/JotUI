@@ -8,11 +8,12 @@
 
 #import "UIScreen+PortraitBounds.h"
 
+
 @implementation UIScreen (PortraitBounds)
 
--(CGRect) portraitBounds{
+- (CGRect)portraitBounds {
     CGRect b = [self bounds];
-    if(b.size.width > b.size.height){
+    if (b.size.width > b.size.height) {
         CGFloat t = b.size.height;
         b.size.height = b.size.width;
         b.size.width = t;

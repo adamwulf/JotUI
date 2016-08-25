@@ -11,15 +11,16 @@
 #import "JotSharedBrushTexture.h"
 #import "UIImage+BrushTextures.h"
 
+
 @implementation JotDefaultBrushTexture
 
 #pragma mark - PlistSaving
 
--(NSDictionary*) asDictionary{
+- (NSDictionary*)asDictionary {
     return [NSDictionary dictionaryWithObject:NSStringFromClass([self class]) forKey:@"class"];
 }
 
--(id) initFromDictionary:(NSDictionary*)dictionary{
+- (id)initFromDictionary:(NSDictionary*)dictionary {
     NSString* className = [dictionary objectForKey:@"class"];
     Class clz = NSClassFromString(className);
     return [[clz alloc] init];
@@ -28,28 +29,28 @@
 
 #pragma mark - Singleton
 
--(UIImage*) texture{
+- (UIImage*)texture {
     return [[self brushTexture] texture];
 }
 
--(NSString*) name{
+- (NSString*)name {
     return [[self brushTexture] name];
 }
 
--(BOOL) bind{
+- (BOOL)bind {
     return [[self brushTexture] bind];
 }
 
--(void) unbind{
+- (void)unbind {
     JotGLContext* currContext = (JotGLContext*)[JotGLContext currentContext];
-    if(!currContext){
+    if (!currContext) {
         @throw [NSException exceptionWithName:@"NilGLContextException" reason:@"Cannot bind texture to nil gl context" userInfo:nil];
     }
-    if(![currContext isKindOfClass:[JotGLContext class]]){
+    if (![currContext isKindOfClass:[JotGLContext class]]) {
         @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"Current GL Context must be JotGLContext" userInfo:nil];
     }
     JotBrushTexture* texture = [currContext.contextProperties objectForKey:@"brushTexture"];
-    if(!texture){
+    if (!texture) {
         @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"Cannot unbind unbuilt brush texture" userInfo:nil];
     }
     [texture unbind];
@@ -59,16 +60,17 @@
 
 static JotDefaultBrushTexture* _instance = nil;
 
--(id) init{
-    if(_instance) return _instance;
-    if((_instance = [super init])){
+- (id)init {
+    if (_instance)
+        return _instance;
+    if ((_instance = [super init])) {
         // noop
     }
     return _instance;
 }
 
-+(JotBrushTexture*) sharedInstance{
-    if(!_instance){
++ (JotBrushTexture*)sharedInstance {
+    if (!_instance) {
         _instance = [[JotDefaultBrushTexture alloc] init];
     }
     return _instance;
@@ -77,16 +79,16 @@ static JotDefaultBrushTexture* _instance = nil;
 
 #pragma mark - Private
 
--(JotSharedBrushTexture*)brushTexture{
+- (JotSharedBrushTexture*)brushTexture {
     JotGLContext* currContext = (JotGLContext*)[JotGLContext currentContext];
-    if(!currContext){
+    if (!currContext) {
         @throw [NSException exceptionWithName:@"NilGLContextException" reason:@"Cannot bind texture to nil gl context" userInfo:nil];
     }
-    if(![currContext isKindOfClass:[JotGLContext class]]){
+    if (![currContext isKindOfClass:[JotGLContext class]]) {
         @throw [NSException exceptionWithName:@"JotGLContextException" reason:@"Current GL Context must be JotGLContext" userInfo:nil];
     }
     JotSharedBrushTexture* texture = [currContext.contextProperties objectForKey:@"brushTexture"];
-    if(!texture){
+    if (!texture) {
         texture = [[JotSharedBrushTexture alloc] initWithImage:[UIImage circleBrushTexture]];
         [currContext.contextProperties setObject:texture forKey:@"brushTexture"];
     }

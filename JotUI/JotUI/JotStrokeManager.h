@@ -9,50 +9,51 @@
 #import <Foundation/Foundation.h>
 #import "JotStroke.h"
 
+
 @interface JotStrokeManager : NSObject
 
-+(JotStrokeManager*) sharedInstance;
++ (JotStrokeManager*)sharedInstance;
 
 /**
  * return a stroke for the input touch only
  * if it already exists, otherwise nil
  */
--(JotStroke*) getStrokeForTouchHash:(UITouch*)touch;
+- (JotStroke*)getStrokeForTouchHash:(UITouch*)touch;
 
 /**
  * return a new or existing stroke for the
  * input touch
  */
--(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture andBufferManager:(JotBufferManager*)bufferManager;
+- (JotStroke*)makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture andBufferManager:(JotBufferManager*)bufferManager;
 
 
 /**
  * replaces the stroke for one touch hash
  * with another stroke
  */
--(void) replaceStroke:(JotStroke*)oldStroke withStroke:(JotStroke*)newStroke;
+- (void)replaceStroke:(JotStroke*)oldStroke withStroke:(JotStroke*)newStroke;
 
 /**
  * returns true if a stroke exists and has
  * been cancelled
  */
--(BOOL) cancelStrokeForTouch:(UITouch*)touch;
+- (BOOL)cancelStrokeForTouch:(UITouch*)touch;
 
 /**
  * cancels a stroke
  */
--(BOOL) cancelStroke:(JotStroke*)stroke;
+- (BOOL)cancelStroke:(JotStroke*)stroke;
 
 
 /**
  * remove a stroke from being tracked
  */
--(void) removeStrokeForTouch:(UITouch*)touch;
+- (void)removeStrokeForTouch:(UITouch*)touch;
 
 
 /**
  * cancels all active strokes
  */
--(void) cancelAllStrokes;
+- (void)cancelAllStrokes;
 
 @end

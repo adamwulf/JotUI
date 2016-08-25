@@ -11,10 +11,11 @@
 
 #import "JotGLProgram.h"
 
+
 @interface JotGLProgram ()
 
-+ (GLuint)attributeIndex:(NSString *)attributeName;
-- (GLuint)uniformIndex:(NSString *)uniformName;
++ (GLuint)attributeIndex:(NSString*)attributeName;
+- (GLuint)uniformIndex:(NSString*)uniformName;
 
 @end
 

@@ -8,8 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+
 @interface NSMutableArray (RemoveSingle)
 
--(void) removeSingleObject:(id)obj;
+- (void)removeSingleObject:(id)obj;
 
 @end

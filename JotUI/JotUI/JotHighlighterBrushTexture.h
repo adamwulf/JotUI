@@ -8,8 +8,9 @@
 
 #import <JotUI/JotUI.h>
 
+
 @interface JotHighlighterBrushTexture : JotBrushTexture
 
-+(JotBrushTexture*) sharedInstance;
++ (JotBrushTexture*)sharedInstance;
 
 @end

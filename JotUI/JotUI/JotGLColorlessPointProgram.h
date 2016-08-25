@@ -10,13 +10,14 @@
 #import "JotGLProgram.h"
 #import "JotGLPointProgram.h"
 
+
 @interface JotGLColorlessPointProgram : JotGLPointProgram
 
-@property (nonatomic, assign) GLfloat colorRed;
-@property (nonatomic, assign) GLfloat colorGreen;
-@property (nonatomic, assign) GLfloat colorBlue;
-@property (nonatomic, assign) GLfloat colorAlpha;
+@property(nonatomic, assign) GLfloat colorRed;
+@property(nonatomic, assign) GLfloat colorGreen;
+@property(nonatomic, assign) GLfloat colorBlue;
+@property(nonatomic, assign) GLfloat colorAlpha;
 
--(GLuint) uniformVertexColorIndex;
+- (GLuint)uniformVertexColorIndex;
 
 @end

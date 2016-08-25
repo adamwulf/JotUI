@@ -12,9 +12,10 @@
 
 #import "ShaderHelper.h"
 
+
 @interface JotGLTexture ()
 
--(void) bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLProgram*)program;
+- (void)bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLProgram*)program;
 
 @end
 

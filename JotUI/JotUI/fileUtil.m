@@ -49,31 +49,29 @@
 #import <sys/stat.h>
 #import "JotGLContext.h"
 
-const char *pathForResource(const char *name)
-{
+const char* pathForResource(const char* name) {
     NSString* strName = [NSString stringWithUTF8String:name];
-    NSString *path = [[NSBundle bundleForClass:[JotGLContext class]] pathForResource:strName ofType: nil];
-    if(!path){
-        path = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:name] ofType: nil];
+    NSString* path = [[NSBundle bundleForClass:[JotGLContext class]] pathForResource:strName ofType:nil];
+    if (!path) {
+        path = [[NSBundle mainBundle] pathForResource:[NSString stringWithUTF8String:name] ofType:nil];
     }
     return [path fileSystemRepresentation];
 }
 
-char *readFile(const char *name)
-{
-	struct stat statbuf;
-	FILE *fh;
-	char *source;
-	
-	fh = fopen(name, "r");
-	if (fh == 0)
-		return 0;
-	
-	stat(name, &statbuf);
-	source = (char *) malloc((unsigned long)(statbuf.st_size + 1));
-	fread(source, (unsigned long)statbuf.st_size, 1, fh);
-	source[statbuf.st_size] = '\0';
-	fclose(fh);
-	
-	return source;
+char* readFile(const char* name) {
+    struct stat statbuf;
+    FILE* fh;
+    char* source;
+
+    fh = fopen(name, "r");
+    if (fh == 0)
+        return 0;
+
+    stat(name, &statbuf);
+    source = (char*)malloc((unsigned long)(statbuf.st_size + 1));
+    fread(source, (unsigned long)statbuf.st_size, 1, fh);
+    source[statbuf.st_size] = '\0';
+    fclose(fh);
+
+    return source;
 }

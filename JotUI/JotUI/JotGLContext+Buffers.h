@@ -13,17 +13,18 @@
 #import "JotUI.h"
 #import <UIKit/UIKit.h>
 
+
 @interface JotGLContext (Buffers)
 
--(GLuint) generateArrayBufferForSize:(GLsizeiptr)mallocSize forCacheNumber:(NSInteger)cacheNumber;
+- (GLuint)generateArrayBufferForSize:(GLsizeiptr)mallocSize forCacheNumber:(NSInteger)cacheNumber;
 
--(void) bindArrayBuffer:(GLuint)buffer;
+- (void)bindArrayBuffer:(GLuint)buffer;
 
--(void) updateArrayBufferWithBytes:(const GLvoid *)bytes atOffset:(GLintptr)offset andLength:(GLsizeiptr)length;
+- (void)updateArrayBufferWithBytes:(const GLvoid*)bytes atOffset:(GLintptr)offset andLength:(GLsizeiptr)length;
 
--(void) unbindArrayBuffer;
+- (void)unbindArrayBuffer;
 
--(void) deleteArrayBuffer:(GLuint)buffer;
+- (void)deleteArrayBuffer:(GLuint)buffer;
 
 @end
 

@@ -8,14 +8,15 @@
 
 #import "MMMainOperationQueue.h"
 
-@implementation MMMainOperationQueue{
+
+@implementation MMMainOperationQueue {
     NSMutableArray* blockQueue;
     dispatch_semaphore_t sema;
 }
 
 static MMMainOperationQueue* sharedQueue;
 
-+(MMMainOperationQueue*) sharedQueue{
++ (MMMainOperationQueue*)sharedQueue {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedQueue = [[MMMainOperationQueue alloc] init];
@@ -23,72 +24,71 @@ static MMMainOperationQueue* sharedQueue;
     return sharedQueue;
 }
 
--(id) init{
-    if(self = [super init]){
+- (id)init {
+    if (self = [super init]) {
         blockQueue = [NSMutableArray array];
     }
     return self;
 }
 
--(void) tick{
-    void(^block)();
-    @synchronized([MMMainOperationQueue class]){
-        if([blockQueue count]){
+- (void)tick {
+    void (^block)();
+    @synchronized([MMMainOperationQueue class]) {
+        if ([blockQueue count]) {
             block = [blockQueue firstObject];
             [blockQueue removeObjectAtIndex:0];
         }
     }
-    if(block){
+    if (block) {
         block();
     }
 }
 
--(NSUInteger) pendingBlockCount{
-    @synchronized([MMMainOperationQueue class]){
+- (NSUInteger)pendingBlockCount {
+    @synchronized([MMMainOperationQueue class]) {
         return [blockQueue count];
     }
 }
 
-- (void)addOperationWithBlockAndWait:(void (^)(void))block{
-    
-    if([NSThread isMainThread]){
+- (void)addOperationWithBlockAndWait:(void (^)(void))block {
+    if ([NSThread isMainThread]) {
         // if we're already on the main thread, then
         // just run the block
         block();
         return;
     }
-    
+
     // create a semaphore that we'll use to wait
     // until the block executes
     dispatch_semaphore_t localSema = dispatch_semaphore_create(0);
-    
+
     // create a new block that will signal
     // when it's complete
     void (^waitingBlock)() = ^{
         block();
         dispatch_semaphore_signal(localSema);
     };
-    
+
     // add the bock to the queue
-    @synchronized([MMMainOperationQueue class]){
+    @synchronized([MMMainOperationQueue class]) {
         [blockQueue addObject:waitingBlock];
-        if(sema){
+        if (sema) {
             dispatch_semaphore_signal(sema);
         }
     }
     [[NSOperationQueue mainQueue] addOperationWithBlock:^{
         [self tick];
     }];
-    
+
     // and now wait until it's complete
     dispatch_semaphore_wait(localSema, DISPATCH_TIME_FOREVER);
     dispatch_release(localSema);
 }
 
-- (void)addOperationWithBlock:(void (^)(void))block NS_AVAILABLE(10_6, 4_0){
-    @synchronized([MMMainOperationQueue class]){
+- (void)addOperationWithBlock:(void (^)(void))block NS_AVAILABLE(10_6, 4_0) {
+    @synchronized([MMMainOperationQueue class]) {
         [blockQueue addObject:block];
-        if(sema){
+        if (sema) {
             dispatch_semaphore_signal(sema);
         }
     }
@@ -97,17 +97,17 @@ static MMMainOperationQueue* sharedQueue;
     }];
 }
 
--(void) waitFor:(CGFloat)seconds{
-    @synchronized([MMMainOperationQueue class]){
-        if(sema){
+- (void)waitFor:(CGFloat)seconds {
+    @synchronized([MMMainOperationQueue class]) {
+        if (sema) {
             dispatch_release(sema);
         }
         sema = dispatch_semaphore_create(0);
     }
     dispatch_time_t waitTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC));
-    if(dispatch_semaphore_wait(sema, waitTime)){
+    if (dispatch_semaphore_wait(sema, waitTime)) {
         // noop, the sema has timed out
-    }else{
+    } else {
         // noop, the sema was signaled
     }
 }

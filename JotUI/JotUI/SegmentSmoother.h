@@ -12,17 +12,18 @@
 
 @class AbstractBezierPathElement;
 
-@interface SegmentSmoother : NSObject<PlistSaving>{
+
+@interface SegmentSmoother : NSObject <PlistSaving> {
     CGPoint point0;
     CGPoint point1;
     CGPoint point2;
     CGPoint point3;
 }
 
-@property (nonatomic, readonly) CGPoint point0;
-@property (nonatomic, readonly) CGPoint point1;
-@property (nonatomic, readonly) CGPoint point2;
-@property (nonatomic, readonly) CGPoint point3;
+@property(nonatomic, readonly) CGPoint point0;
+@property(nonatomic, readonly) CGPoint point1;
+@property(nonatomic, readonly) CGPoint point2;
+@property(nonatomic, readonly) CGPoint point3;
 
 
 /**
@@ -34,10 +35,10 @@
  * and subsequent points after that will generate curve
  * segments
  */
--(AbstractBezierPathElement*) addPoint:(CGPoint)inPoint andSmoothness:(CGFloat)smoothFactor;
+- (AbstractBezierPathElement*)addPoint:(CGPoint)inPoint andSmoothness:(CGFloat)smoothFactor;
 
--(void) copyStateFrom:(SegmentSmoother*)otherSmoother;
+- (void)copyStateFrom:(SegmentSmoother*)otherSmoother;
 
--(void) scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio;
+- (void)scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio;
 
 @end

@@ -8,7 +8,8 @@
 
 #import "JotImmutableStroke.h"
 
-@implementation JotImmutableStroke{
+
+@implementation JotImmutableStroke {
     SegmentSmoother* segmentSmoother;
     // this will store all the segments in drawn order
     NSArray* segments;
@@ -19,8 +20,8 @@
     NSString* strokeClassName;
 }
 
--(id) initWithJotStroke:(JotStroke*)stroke{
-    if(self = [super init]){
+- (id)initWithJotStroke:(JotStroke*)stroke {
+    if (self = [super init]) {
         segmentSmoother = stroke.segmentSmoother;
         segments = [NSArray arrayWithArray:stroke.segments];
         texture = stroke.texture;
@@ -30,23 +31,23 @@
     return self;
 }
 
--(NSMutableArray*) segments{
+- (NSMutableArray*)segments {
     return [NSMutableArray arrayWithArray:segments];
 }
 
--(SegmentSmoother*) segmentSmoother{
+- (SegmentSmoother*)segmentSmoother {
     return segmentSmoother;
 }
 
--(JotBrushTexture*) texture{
+- (JotBrushTexture*)texture {
     return texture;
 }
 
--(NSString*) uuid{
+- (NSString*)uuid {
     return uuid;
 }
 
--(NSDictionary*) asDictionary{
+- (NSDictionary*)asDictionary {
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[super asDictionary]];
     [dict setObject:strokeClassName forKey:@"class"];
     return dict;

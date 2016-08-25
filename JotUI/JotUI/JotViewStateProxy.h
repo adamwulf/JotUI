@@ -14,84 +14,83 @@
 
 @class JotViewState;
 
-@interface JotViewStateProxy : NSObject{
+
+@interface JotViewStateProxy : NSObject {
     NSUInteger lastSavedUndoHash;
     __weak NSObject<JotViewStateProxyDelegate>* delegate;
 }
 
-@property (nonatomic, weak) NSObject<JotViewStateProxyDelegate>* delegate;
-@property (readonly) JotViewState* jotViewState;
-@property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
-@property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
-@property (nonatomic, strong)  JotStroke* currentStroke;
-@property (nonatomic, readonly) int fullByteSize;
-@property (nonatomic, assign) BOOL isForgetful;
+@property(nonatomic, weak) NSObject<JotViewStateProxyDelegate>* delegate;
+@property(readonly) JotViewState* jotViewState;
+@property(nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
+@property(nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
+@property(nonatomic, strong) JotStroke* currentStroke;
+@property(nonatomic, readonly) int fullByteSize;
+@property(nonatomic, assign) BOOL isForgetful;
 
-+(void) shouldPrintHasEdits:(BOOL)_shouldPrint;
+- (id)initWithDelegate:(NSObject<JotViewStateProxyDelegate>*)delegate;
 
--(id) initWithDelegate:(NSObject<JotViewStateProxyDelegate>*)delegate;
+- (BOOL)isStateLoaded;
+- (BOOL)isStateLoading;
 
--(BOOL) isStateLoaded;
--(BOOL) isStateLoading;
+- (BOOL)isReadyToExport;
 
--(BOOL) isReadyToExport;
+- (JotViewImmutableState*)immutableState;
 
--(JotViewImmutableState*) immutableState;
+- (JotGLTexture*)backgroundTexture;
 
--(JotGLTexture*) backgroundTexture;
+- (NSArray*)everyVisibleStroke;
 
--(NSArray*) everyVisibleStroke;
+- (JotBufferManager*)bufferManager;
 
--(JotBufferManager*) bufferManager;
+- (void)tick;
 
--(void) tick;
+- (NSUInteger)undoHash;
 
--(NSUInteger) undoHash;
+- (void)loadJotStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager;
 
--(void) loadJotStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager;
+- (void)unload;
 
--(void) unload;
+- (BOOL)hasEditsToSave;
 
--(BOOL) hasEditsToSave;
-
--(void) wasSavedAtImmutableState:(JotViewImmutableState*)immutableState;
+- (void)wasSavedAtImmutableState:(JotViewImmutableState*)immutableState;
 
 #pragma mark - Undo Redo
 
--(BOOL) canUndo;
+- (BOOL)canUndo;
 
--(BOOL) canRedo;
+- (BOOL)canRedo;
 
--(JotStroke*) undo;
+- (JotStroke*)undo;
 
--(JotStroke*) redo;
+- (JotStroke*)redo;
 
 // same as undo, except the undone
 // stroke is not added to the redo stack
--(JotStroke*) undoAndForget;
+- (JotStroke*)undoAndForget;
 
 // closes the current stroke and adds it to the
 // undo stack
--(void) finishCurrentStroke;
+- (void)finishCurrentStroke;
 
 
--(void) addUndoLevelAndFinishStroke;
+- (void)addUndoLevelAndFinishStroke;
 
--(void) forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture;
+- (void)forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture;
 
 // adds the input stroke to the undo stack
 // w/o clearing the undone strokes
--(void) forceAddStroke:(JotStroke*)stroke;
+- (void)forceAddStroke:(JotStroke*)stroke;
 
--(void) clearAllStrokes;
+- (void)clearAllStrokes;
 
 // returns the new stroke that is the continuation
 // of the currentStroke
--(void) addUndoLevelAndContinueStroke;
+- (void)addUndoLevelAndContinueStroke;
 
 #pragma mark - Debug
 
--(NSUInteger) currentStateUndoHash;
--(NSUInteger) lastSavedUndoHash;
+- (NSUInteger)currentStateUndoHash;
+- (NSUInteger)lastSavedUndoHash;
 
 @end

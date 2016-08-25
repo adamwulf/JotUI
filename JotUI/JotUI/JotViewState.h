@@ -17,27 +17,28 @@
 
 #define kJotStrokeFileExt @"strokedata"
 
-@interface JotViewState : NSObject<JotStrokeDelegate>
+
+@interface JotViewState : NSObject <JotStrokeDelegate>
 
 // ability to cancel strokes
-@property (nonatomic, weak) NSObject<JotStrokeDelegate>* delegate;
+@property(nonatomic, weak) NSObject<JotStrokeDelegate>* delegate;
 
 // backing textures
-@property (nonatomic, strong) JotGLTexture* backgroundTexture;
-@property (nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
+@property(nonatomic, strong) JotGLTexture* backgroundTexture;
+@property(nonatomic, readonly) JotGLTextureBackedFrameBuffer* backgroundFramebuffer;
 // backing strokes
-@property (nonatomic, strong)  JotStroke* currentStroke;
-@property (nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
+@property(nonatomic, strong) JotStroke* currentStroke;
+@property(nonatomic, readonly) NSMutableArray* strokesBeingWrittenToBackingTexture;
 // opengl backing memory
-@property (nonatomic, readonly) JotBufferManager* bufferManager;
-@property (nonatomic, readonly) int fullByteSize;
+@property(nonatomic, readonly) JotBufferManager* bufferManager;
+@property(nonatomic, readonly) int fullByteSize;
 
 
 /**
  * synchronous init method to load textures and strokes
  * from disk
  */
--(id) initWithImageFile:(NSString*)inkImageFile
+- (id)initWithImageFile:(NSString*)inkImageFile
            andStateFile:(NSString*)stateInfoFile
             andPageSize:(CGSize)fullPtSize
                andScale:(CGFloat)scale
@@ -50,7 +51,7 @@
  *
  * otherwise it will throw an exception
  */
--(JotViewImmutableState*) immutableState;
+- (JotViewImmutableState*)immutableState;
 
 /**
  * this will return YES only
@@ -58,7 +59,7 @@
  * strokesBeingWrittenToBackingTexture and
  * currentStrokes
  */
--(BOOL) isReadyToExport;
+- (BOOL)isReadyToExport;
 
 /**
  * this will return a combined array
@@ -66,7 +67,7 @@
  * stackOfStrokes, and currentStrokes
  * in the order that they should be visible
  */
--(NSArray*) everyVisibleStroke;
+- (NSArray*)everyVisibleStroke;
 
 /**
  * this will check the state to make sure
@@ -75,38 +76,38 @@
  * move any to the strokesBeingWrittenToBackingTexture
  * that need to be
  */
--(void) tick;
+- (void)tick;
 
 /**
  * a unique value that defines the current undo state.
  * if this value is the same as when this view was exported,
  * then nothing has changed that would affect the output image
  */
--(NSUInteger) undoHash;
+- (NSUInteger)undoHash;
 
 
 #pragma mark - Undo Redo
 
--(BOOL) canUndo;
+- (BOOL)canUndo;
 
--(BOOL) canRedo;
+- (BOOL)canRedo;
 
--(JotStroke*) undo;
+- (JotStroke*)undo;
 
--(JotStroke*) redo;
+- (JotStroke*)redo;
 
--(JotStroke*) undoAndForget;
+- (JotStroke*)undoAndForget;
 
--(void) finishCurrentStroke;
+- (void)finishCurrentStroke;
 
--(void) addUndoLevelAndFinishStroke;
+- (void)addUndoLevelAndFinishStroke;
 
--(void) addUndoLevelAndContinueStroke;
+- (void)addUndoLevelAndContinueStroke;
 
--(void) forceAddStroke:(JotStroke*)stroke;
+- (void)forceAddStroke:(JotStroke*)stroke;
 
--(void) forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture;
+- (void)forceAddEmptyStrokeWithBrush:(JotBrushTexture*)brushTexture;
 
--(void) clearAllStrokes;
+- (void)clearAllStrokes;
 
 @end

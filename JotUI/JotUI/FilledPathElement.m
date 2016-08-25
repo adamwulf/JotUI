@@ -10,7 +10,8 @@
 #import "AbstractBezierPathElement-Protected.h"
 #import <MessageUI/MFMailComposeViewController.h>
 
-@implementation FilledPathElement{
+
+@implementation FilledPathElement {
     // cache the hash, since it's expenseive to calculate
     NSUInteger hashCache;
     // bezier path
@@ -22,32 +23,32 @@
     CGPoint p2;
     CGPoint p3;
     CGPoint p4;
-    
+
     CGFloat scaleToDraw;
     CGAffineTransform scaleTransform;
-    
+
     CGSize sizeOfTexture;
-    
+
     NSLock* lock;
 }
 
--(UIColor*) color{
+- (UIColor*)color {
     return [UIColor blackColor];
 }
 
 
--(id) initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4 andSize:(CGSize)size{
-    if(self = [super initWithStart:CGPointZero]){
+- (id)initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4 andSize:(CGSize)size {
+    if (self = [super initWithStart:CGPointZero]) {
         lock = [[NSLock alloc] init];
         path = [_path copy];
         path.lineWidth = 2;
         sizeOfTexture = size;
-        
+
         p1 = _p1;
         p2 = _p2;
         p3 = _p3;
         p4 = _p4;
-        
+
         NSUInteger prime = 31;
         hashCache = 1;
         hashCache = prime * hashCache + p1.x;
@@ -58,61 +59,61 @@
         hashCache = prime * hashCache + p3.y;
         hashCache = prime * hashCache + p4.x;
         hashCache = prime * hashCache + p4.y;
-        
+
         [self generateTextureFromPath];
-        
+
         scaleToDraw = 1.0;
         scaleTransform = CGAffineTransformIdentity;
     }
     return self;
 }
 
-+(id) elementWithPath:(UIBezierPath*)path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4 andSize:(CGSize)size{
++ (id)elementWithPath:(UIBezierPath*)path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4 andSize:(CGSize)size {
     return [[FilledPathElement alloc] initWithPath:path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4 andSize:(CGSize)size];
 }
 
 
--(void) generateTextureFromPath{
+- (void)generateTextureFromPath {
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
     CGContextRef bitmapContext = CGBitmapContextCreate(NULL, sizeOfTexture.width, sizeOfTexture.height, 8, sizeOfTexture.width * 4, colorspace, kCGBitmapByteOrderDefault | kCGImageAlphaPremultipliedLast);
-    if(!bitmapContext){
+    if (!bitmapContext) {
         @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
     }
-    
+
     UIGraphicsPushContext(bitmapContext);
-    
+
     CGContextClearRect(bitmapContext, CGRectMake(0, 0, sizeOfTexture.width, sizeOfTexture.height));
-    
+
     // flip vertical for our drawn content, since OpenGL is opposite core graphics
     CGContextTranslateCTM(bitmapContext, 0, sizeOfTexture.height);
     CGContextScaleCTM(bitmapContext, 1.0, -1.0);
-    
+
     //
     // ok, now render our actual content
     CGContextClearRect(bitmapContext, CGRectMake(0.0, 0.0, sizeOfTexture.width, sizeOfTexture.height));
     [[UIColor whiteColor] setFill];
     [path fill];
-    
+
     // Retrieve the UIImage from the current context
     CGImageRef cgImage = CGBitmapContextCreateImage(bitmapContext);
-    if(!cgImage){
+    if (!cgImage) {
         @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
     }
-    
+
     UIImage* image = [UIImage imageWithCGImage:cgImage scale:1.0 orientation:UIImageOrientationUp];
-    
+
     // Clean up
     CFRelease(colorspace);
     UIGraphicsPopContext();
     CGContextRelease(bitmapContext);
-    
+
     // ok, we're done exporting and cleaning up
     // so pass the newly generated image to the completion block
     texture = [[JotGLTexture alloc] initForImage:image withSize:image.size];
     CGImageRelease(cgImage);
 }
 
--(int) fullByteSize{
+- (int)fullByteSize {
     return texture.fullByteSize;
 }
 
@@ -121,18 +122,18 @@
  * since it's a curve, this will be longer than
  * the straight distance between start/end points
  */
--(CGFloat) lengthOfElement{
+- (CGFloat)lengthOfElement {
     return 0;
 }
 
--(CGRect) bounds{
+- (CGRect)bounds {
     CGPoint origin = CGPointMake(MIN(p1.x, MIN(p2.x, MIN(p3.x, p4.x))), MIN(p1.y, MIN(p2.y, MIN(p3.y, p4.y))));
     CGPoint maxP = CGPointMake(MAX(p1.x, MAX(p2.x, MAX(p3.x, p4.x))), MAX(p1.y, MAX(p2.y, MAX(p3.y, p4.y))));
     return CGRectMake(origin.x, origin.y, maxP.x - origin.x, maxP.y - origin.y);
 }
 
 
--(NSInteger) numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+- (NSInteger)numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
     // find out how many steps we can put inside this segment length
     return 0;
 }
@@ -145,19 +146,19 @@
  * a new scale is sent in later, then the cache will be rebuilt
  * for the new scale.
  */
--(struct ColorfulVertex*) generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale{
+- (struct ColorfulVertex*)generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale {
     scaleToDraw = scale;
     scaleTransform = CGAffineTransformMakeScale(scaleToDraw, scaleToDraw);
     return nil;
 }
 
 
--(void) loadDataIntoVBOIfNeeded{
+- (void)loadDataIntoVBOIfNeeded {
     // noop
 }
 
 
--(void) drawGivenPreviousElement:(AbstractBezierPathElement *)previousElement{
+- (void)drawGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
     [self bind];
 
     CGSize screenSize = [[[UIScreen mainScreen] fixedCoordinateSpace] bounds].size;
@@ -178,7 +179,7 @@
            andClippingSize:CGSizeZero
                    asErase:YES
             withCanvasSize:screenSize]; // erase
-    
+
     //
     // should make a drawInQuad: method that takes four points
     // i can just translate the mmscrap corners into the main page
@@ -206,21 +207,21 @@
  * the [unbind] method will unbind either the VAO or VBO
  * depending on which was created/bound in this method+thread
  */
--(BOOL) bind{
-    if(![lock tryLock]){
+- (BOOL)bind {
+    if (![lock tryLock]) {
         [lock lock];
     }
     [texture bind];
     return YES;
 }
 
--(void) unbind{
+- (void)unbind {
     [texture unbind];
     [lock unlock];
 }
 
 
--(void) dealloc{
+- (void)dealloc {
     [[JotTrashManager sharedInstance] addObjectToDealloc:texture];
     texture = nil;
 }
@@ -228,18 +229,18 @@
 /**
  * helpful description when debugging
  */
--(NSString*)description{
+- (NSString*)description {
     return @"[FilledPathSegment]";
 }
 
 
 #pragma mark - PlistSaving
 
--(NSDictionary*) asDictionary{
+- (NSDictionary*)asDictionary {
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[super asDictionary]];
-    
+
     [dict setObject:[NSKeyedArchiver archivedDataWithRootObject:path] forKey:@"bezierPath"];
-    
+
     [dict setObject:[NSNumber numberWithFloat:p1.x] forKey:@"p1.x"];
     [dict setObject:[NSNumber numberWithFloat:p1.y] forKey:@"p1.y"];
     [dict setObject:[NSNumber numberWithFloat:p2.x] forKey:@"p2.x"];
@@ -254,7 +255,7 @@
     return [NSDictionary dictionaryWithDictionary:dict];
 }
 
--(id) initFromDictionary:(NSDictionary*)dictionary{
+- (id)initFromDictionary:(NSDictionary*)dictionary {
     self = [super initFromDictionary:dictionary];
     if (self) {
         lock = [[NSLock alloc] init];
@@ -265,8 +266,8 @@
         p3 = CGPointMake([[dictionary objectForKey:@"p3.x"] floatValue], [[dictionary objectForKey:@"p3.y"] floatValue]);
         p4 = CGPointMake([[dictionary objectForKey:@"p4.x"] floatValue], [[dictionary objectForKey:@"p4.y"] floatValue]);
         sizeOfTexture = CGSizeMake([[dictionary objectForKey:@"sizeOfTexture.width"] floatValue], [[dictionary objectForKey:@"sizeOfTexture.height"] floatValue]);
-        
-//        CGFloat currentScale = [[dictionary objectForKey:@"scale"] floatValue];
+
+        //        CGFloat currentScale = [[dictionary objectForKey:@"scale"] floatValue];
         // we can ignore the scale that's sent in because
         // we set the scaleTransform on demand, and keep all pts
         // of this element in pts instead of pxs
@@ -295,40 +296,40 @@
  * we need to validate that we have the exact number of bytes of data to render
  * that we think we do
  */
--(void) validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement{
+- (void)validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
     // noop
 }
 
--(UIBezierPath*) bezierPathSegment{
+- (UIBezierPath*)bezierPathSegment {
     return path;
 }
 
 
 #pragma mark - hashing and equality
 
--(NSUInteger) hash{
+- (NSUInteger)hash {
     return hashCache;
 }
 
--(BOOL) isEqual:(id)object{
+- (BOOL)isEqual:(id)object {
     return self == object || [self hash] == [object hash];
 }
 
 
 #pragma mark - Scaling
 
--(void) scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio{
+- (void)scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio {
     [super scaleForWidth:widthRatio andHeight:heightRatio];
-    
+
     p1.x = p1.x * widthRatio;
     p1.y = p1.y * heightRatio;
-    
+
     p2.x = p2.x * widthRatio;
     p2.y = p2.y * heightRatio;
-    
+
     p3.x = p3.x * widthRatio;
     p3.y = p3.y * heightRatio;
-    
+
     p4.x = p4.x * widthRatio;
     p4.y = p4.y * heightRatio;
 }

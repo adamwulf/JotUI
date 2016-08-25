@@ -11,16 +11,14 @@
 
 #define kMaxSimultaneousTouchesAllowedToTrack 40
 
-struct TouchStrokeCacheItem{
+struct TouchStrokeCacheItem {
     NSUInteger touchHash;
     JotStroke* stroke;
 };
 
 
-@interface JotStrokeManager ()
-{
-    
-@private
+@interface JotStrokeManager () {
+   @private
     // this dictionary will hold all of the
     // stroke objects
     struct TouchStrokeCacheItem strokeCache[kMaxSimultaneousTouchesAllowedToTrack];
@@ -36,18 +34,19 @@ static JotStrokeManager* _instance = nil;
 
 #pragma mark - Singleton
 
--(id) init{
-    if(_instance) return _instance;
-    if((self = [super init])){
+- (id)init {
+    if (_instance)
+        return _instance;
+    if ((self = [super init])) {
         // noop
         _instance = self;
     }
     return _instance;
 }
 
-+(JotStrokeManager*) sharedInstance{
-    if(!_instance){
-        _instance = [[JotStrokeManager alloc]init];
++ (JotStrokeManager*)sharedInstance {
+    if (!_instance) {
+        _instance = [[JotStrokeManager alloc] init];
     }
     return _instance;
 }
@@ -61,30 +60,30 @@ static JotStrokeManager* _instance = nil;
  *
  * this method will return the stroke for the given touch
  */
--(JotStroke*) getStrokeForTouchHash:(UITouch*)touch{
-    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
-        if(strokeCache[i].touchHash == touch.hash){
+- (JotStroke*)getStrokeForTouchHash:(UITouch*)touch {
+    for (int i = 0; i < kMaxSimultaneousTouchesAllowedToTrack; i++) {
+        if (strokeCache[i].touchHash == touch.hash) {
             return strokeCache[i].stroke;
         }
     }
     return nil;
 }
 
--(void) replaceStroke:(JotStroke*)oldStroke withStroke:(JotStroke*)newStroke{
-    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
-        if(strokeCache[i].stroke == oldStroke){
+- (void)replaceStroke:(JotStroke*)oldStroke withStroke:(JotStroke*)newStroke {
+    for (int i = 0; i < kMaxSimultaneousTouchesAllowedToTrack; i++) {
+        if (strokeCache[i].stroke == oldStroke) {
             [oldStroke autorelease];
             strokeCache[i].stroke = [newStroke retain];
         }
     }
 }
 
--(JotStroke*) makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture andBufferManager:(JotBufferManager*)bufferManager{
+- (JotStroke*)makeStrokeForTouchHash:(UITouch*)touch andTexture:(JotBrushTexture*)texture andBufferManager:(JotBufferManager*)bufferManager {
     JotStroke* ret = [self getStrokeForTouchHash:touch];
-    if(!ret){
+    if (!ret) {
         ret = [[JotStroke alloc] initWithTexture:texture andBufferManager:bufferManager];
-        for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
-            if(strokeCache[i].touchHash == 0){
+        for (int i = 0; i < kMaxSimultaneousTouchesAllowedToTrack; i++) {
+            if (strokeCache[i].touchHash == 0) {
                 strokeCache[i].touchHash = touch.hash;
                 strokeCache[i].stroke = ret;
                 return ret;
@@ -94,12 +93,12 @@ static JotStrokeManager* _instance = nil;
     return ret;
 }
 
--(BOOL) cancelStrokeForTouch:(UITouch*)touch{
+- (BOOL)cancelStrokeForTouch:(UITouch*)touch {
     //
     // TODO: how do we notify the view that uses the stroke
     // that it should be cancelled?
-    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
-        if(strokeCache[i].touchHash == touch.hash){
+    for (int i = 0; i < kMaxSimultaneousTouchesAllowedToTrack; i++) {
+        if (strokeCache[i].touchHash == touch.hash) {
             strokeCache[i].touchHash = 0;
             [strokeCache[i].stroke cancel];
             [strokeCache[i].stroke autorelease];
@@ -110,9 +109,9 @@ static JotStrokeManager* _instance = nil;
     return NO;
 }
 
--(BOOL) cancelStroke:(JotStroke*)stroke{
-    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
-        if(strokeCache[i].stroke == stroke){
+- (BOOL)cancelStroke:(JotStroke*)stroke {
+    for (int i = 0; i < kMaxSimultaneousTouchesAllowedToTrack; i++) {
+        if (strokeCache[i].stroke == stroke) {
             strokeCache[i].touchHash = 0;
             [strokeCache[i].stroke cancel];
             [strokeCache[i].stroke autorelease];
@@ -123,9 +122,9 @@ static JotStrokeManager* _instance = nil;
     return NO;
 }
 
--(void) removeStrokeForTouch:(UITouch*)touch{
-    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
-        if(strokeCache[i].touchHash == touch.hash){
+- (void)removeStrokeForTouch:(UITouch*)touch {
+    for (int i = 0; i < kMaxSimultaneousTouchesAllowedToTrack; i++) {
+        if (strokeCache[i].touchHash == touch.hash) {
             strokeCache[i].touchHash = 0;
             [strokeCache[i].stroke autorelease];
             strokeCache[i].stroke = nil;
@@ -134,9 +133,9 @@ static JotStrokeManager* _instance = nil;
     }
 }
 
--(void) cancelAllStrokes{
-    for(int i=0;i<kMaxSimultaneousTouchesAllowedToTrack;i++){
-        if(strokeCache[i].stroke){
+- (void)cancelAllStrokes {
+    for (int i = 0; i < kMaxSimultaneousTouchesAllowedToTrack; i++) {
+        if (strokeCache[i].stroke) {
             strokeCache[i].touchHash = 0;
             [strokeCache[i].stroke cancel];
             [strokeCache[i].stroke autorelease];

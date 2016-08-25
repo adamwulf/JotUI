@@ -16,10 +16,9 @@
 
 //CONSTANTS:
 
-#define kBrushOpacity		(1.0 / 3.0)
-#define kBrushPixelStep		3
-#define kBrushScale			2
-
+#define kBrushOpacity (1.0 / 3.0)
+#define kBrushPixelStep 3
+#define kBrushScale 2
 
 
 #endif /* ShaderHelper_h */

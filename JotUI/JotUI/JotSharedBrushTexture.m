@@ -8,18 +8,19 @@
 
 #import "JotSharedBrushTexture.h"
 
-@implementation JotSharedBrushTexture{
+
+@implementation JotSharedBrushTexture {
     UIImage* textureCache;
 }
 
--(id) initWithImage:(UIImage *)texture{
-    if(self = [super init]){
+- (id)initWithImage:(UIImage*)texture {
+    if (self = [super init]) {
         textureCache = texture;
     }
     return self;
 }
 
--(UIImage*) texture{
+- (UIImage*)texture {
     return textureCache;
 }
 

@@ -17,16 +17,18 @@
 #import "JotGLColoredPointProgram.h"
 #include <stddef.h>
 
+
 @interface OpenGLBuffer : NSObject
 
-@property (readonly) GLuint vbo;
-@property (readonly) GLsizeiptr mallocSize;
+@property(readonly) GLuint vbo;
+@property(readonly) GLsizeiptr mallocSize;
 
--(id) initForBuffer:(GLuint)vbo withSize:(GLsizeiptr)mallocSize;
+- (id)initForBuffer:(GLuint)vbo withSize:(GLsizeiptr)mallocSize;
 
 @end
 
-@implementation OpenGLBuffer{
+
+@implementation OpenGLBuffer {
     // this is the vbo id in OpenGL
     GLuint vbo;
     // this is the number that will determine our malloc size, both total and step
@@ -37,24 +39,24 @@
 @synthesize vbo;
 @synthesize mallocSize;
 
--(id) initForBuffer:(GLuint)_vbo withSize:(GLsizeiptr)_mallocSize{
-    if(self = [super init]){
+- (id)initForBuffer:(GLuint)_vbo withSize:(GLsizeiptr)_mallocSize {
+    if (self = [super init]) {
         mallocSize = _mallocSize;
         vbo = _vbo;
     }
     return self;
 }
 
--(void) deleteAssets{
-    if(vbo){
-        [JotGLContext runBlock:^(JotGLContext* context){
+- (void)deleteAssets {
+    if (vbo) {
+        [JotGLContext runBlock:^(JotGLContext* context) {
             [context deleteArrayBuffer:vbo];
         }];
         vbo = 0;
     }
 }
 
--(void) dealloc{
+- (void)dealloc {
     [self deleteAssets];
 }
 
@@ -71,7 +73,7 @@
  *
  * all VBOs assume the use of ColorfulVertex or ColorlessVertex
  */
-@implementation OpenGLVBO{
+@implementation OpenGLVBO {
     // the buffer itself
     OpenGLBuffer* glBuffer;
     // this is the number that will determine our malloc size, both total and step
@@ -87,9 +89,9 @@
 @synthesize numberOfSteps;
 @synthesize cacheNumber;
 
--(id) initForCacheNumber:(NSInteger)_cacheNumber{
-    if(self = [super init]){
-        [JotGLContext runBlock:^(JotGLContext* context){
+- (id)initForCacheNumber:(NSInteger)_cacheNumber {
+    if (self = [super init]) {
+        [JotGLContext runBlock:^(JotGLContext* context) {
             // calculate all of our memory bucket sizes
             cacheNumber = _cacheNumber;
             stepMallocSize = cacheNumber * kJotBufferBucketSize;
@@ -102,45 +104,44 @@
             GLuint vbo = [context generateArrayBufferForSize:mallocSize forCacheNumber:cacheNumber];
 
             glBuffer = [[OpenGLBuffer alloc] initForBuffer:vbo withSize:mallocSize];
-            
+
             [lock unlock];
         }];
     }
     return self;
 }
 
-+(int) numberOfStepsForCacheNumber:(NSInteger)cacheNumber{
++ (int)numberOfStepsForCacheNumber:(NSInteger)cacheNumber {
     int stepMallocSize = cacheNumber * kJotBufferBucketSize;
     int mallocSize = ceilf(stepMallocSize / ((float)kJotMemoryPageSize)) * kJotMemoryPageSize;
     int numberOfSteps = floorf(mallocSize / stepMallocSize);
     return numberOfSteps;
 }
 
--(GLuint) vbo{
+- (GLuint)vbo {
     return glBuffer.vbo;
 }
 
--(int) fullByteSize{
-    return (int) glBuffer.mallocSize;
+- (int)fullByteSize {
+    return (int)glBuffer.mallocSize;
 }
 
--(int) stepByteSize{
-    return (int) stepMallocSize;
+- (int)stepByteSize {
+    return (int)stepMallocSize;
 }
-
 
 
 /**
  * this will update a single step of data inside the VBO.
  * no other steps are affected
  */
--(void) updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData{
-    [JotGLContext runBlock:^(JotGLContext* context){
-        if(!lock){
+- (void)updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData {
+    [JotGLContext runBlock:^(JotGLContext* context) {
+        if (!lock) {
             NSLog(@"what");
         }
         [lock lock];
-        GLintptr offset = stepNumber*stepMallocSize;
+        GLintptr offset = stepNumber * stepMallocSize;
         GLsizeiptr len = vertexData.length;
         [context bindArrayBuffer:glBuffer.vbo];
         [context updateArrayBufferWithBytes:vertexData.bytes atOffset:offset andLength:len];
@@ -157,9 +158,9 @@
  *
  * this assumes the VBO is filled with ColorfulVertex vertex data
  */
--(void) bindForStep:(NSInteger)stepNumber{
-    [JotGLContext runBlock:^(JotGLContext* context){
-        if(!lock){
+- (void)bindForStep:(NSInteger)stepNumber {
+    [JotGLContext runBlock:^(JotGLContext* context) {
+        if (!lock) {
             NSLog(@"what");
         }
         [lock lock];
@@ -170,14 +171,14 @@
         [context enableVertexArrayAtIndex:[[context coloredPointProgram] attributeVertexIndex]
                                   forSize:2
                                 andStride:sizeof(struct ColorfulVertex)
-                               andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Position))];
+                               andPointer:(void*)(stepNumber * stepMallocSize + offsetof(struct ColorfulVertex, Position))];
         [context enableColorArrayAtIndex:[[context coloredPointProgram] attributeVertexColorIndex]
                                  forSize:4
                                andStride:sizeof(struct ColorfulVertex)
-                              andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Color))];
+                              andPointer:(void*)(stepNumber * stepMallocSize + offsetof(struct ColorfulVertex, Color))];
         [context enablePointSizeArrayAtIndex:[[context coloredPointProgram] attributePointSizeIndex]
                                    forStride:sizeof(struct ColorfulVertex)
-                                  andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorfulVertex, Size))];
+                                  andPointer:(void*)(stepNumber * stepMallocSize + offsetof(struct ColorfulVertex, Size))];
     }];
 }
 
@@ -188,44 +189,44 @@
  * this will also set glColor4f for the input color, and assumes
  * that the VBO is filled with ColorlessVertex vertex data
  */
--(void) bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber{
-    [JotGLContext runBlock:^(JotGLContext* context){
-        if(!lock){
+- (void)bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber {
+    [JotGLContext runBlock:^(JotGLContext* context) {
+        if (!lock) {
             NSLog(@"what");
         }
         [lock lock];
 
         [[context colorlessPointProgram] use];
-        
+
         [context bindArrayBuffer:glBuffer.vbo];
-        
+
         [context enableVertexArrayAtIndex:[[context colorlessPointProgram] attributeVertexIndex]
                                   forSize:2
                                 andStride:sizeof(struct ColorlessVertex)
-                               andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Position))];
+                               andPointer:(void*)(stepNumber * stepMallocSize + offsetof(struct ColorlessVertex, Position))];
         [context enablePointSizeArrayAtIndex:[[context colorlessPointProgram] attributePointSizeIndex]
                                    forStride:sizeof(struct ColorlessVertex)
-                                  andPointer:(void*)(stepNumber*stepMallocSize + offsetof(struct ColorlessVertex, Size))];
-//        [context enableVertexArray];
-//        [context disableColorArray];
-//        [context enablePointSizeArray];
-//        [context disableTextureCoordArray];
+                                  andPointer:(void*)(stepNumber * stepMallocSize + offsetof(struct ColorlessVertex, Size))];
+        //        [context enableVertexArray];
+        //        [context disableColorArray];
+        //        [context enablePointSizeArray];
+        //        [context disableTextureCoordArray];
 
-//        [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
+        //        [context glColor4f:color[0] and:color[1] and:color[2] and:color[3]];
     }];
 }
 
--(void) unbind{
-    if(!lock){
+- (void)unbind {
+    if (!lock) {
         NSLog(@"what");
     }
-    [JotGLContext runBlock:^(JotGLContext* context){
+    [JotGLContext runBlock:^(JotGLContext* context) {
         [context unbindArrayBuffer];
     }];
     [lock unlock];
 }
 
--(void) dealloc{
+- (void)dealloc {
     [[JotBufferManager sharedInstance] openGLBufferHasDied:self];
     [[JotTrashManager sharedInstance] addObjectToDealloc:glBuffer];
     glBuffer = nil;

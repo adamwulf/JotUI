@@ -16,15 +16,19 @@ struct GLSize {
 typedef struct GLSize GLSize;
 
 CG_INLINE GLSize
-GLSizeMake(GLuint width, GLuint height)
-{
-    GLSize size; size.width = width; size.height = height; return size;
+GLSizeMake(GLuint width, GLuint height) {
+    GLSize size;
+    size.width = width;
+    size.height = height;
+    return size;
 }
 
 CG_INLINE GLSize
-GLSizeFromCGSize(CGSize cgSize)
-{
-    GLSize size; size.width = ceilf(cgSize.width); size.height = ceilf(cgSize.height); return size;
+GLSizeFromCGSize(CGSize cgSize) {
+    GLSize size;
+    size.width = ceilf(cgSize.width);
+    size.height = ceilf(cgSize.height);
+    return size;
 }
 
 #endif

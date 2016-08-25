@@ -11,26 +11,27 @@
 #import "JotGLContext.h"
 #import "DeleteAssets.h"
 
-@interface JotGLTexture : NSObject<DeleteAssets>{
+
+@interface JotGLTexture : NSObject <DeleteAssets> {
     GLuint textureID;
 }
 
-@property (readonly) GLuint textureID;
-@property (readonly) CGSize pixelSize;
-@property (readonly) int fullByteSize;
+@property(readonly) GLuint textureID;
+@property(readonly) CGSize pixelSize;
+@property(readonly) int fullByteSize;
 
--(id) initForImage:(UIImage*)imageToLoad withSize:(CGSize)size;
+- (id)initForImage:(UIImage*)imageToLoad withSize:(CGSize)size;
 
--(id) initForTextureID:(GLuint)textureID withSize:(CGSize)size;
+- (id)initForTextureID:(GLuint)textureID withSize:(CGSize)size;
 
--(void) bind;
--(void) rebind;
--(void) unbind;
+- (void)bind;
+- (void)rebind;
+- (void)unbind;
 
-+(int) totalTextureBytes;
++ (int)totalTextureBytes;
 
--(void) drawInContext:(JotGLContext*)context withCanvasSize:(CGSize)canvasSize;
--(void) drawInContext:(JotGLContext*)context
+- (void)drawInContext:(JotGLContext*)context withCanvasSize:(CGSize)canvasSize;
+- (void)drawInContext:(JotGLContext*)context
                  atT1:(CGPoint)p1
                 andT2:(CGPoint)p2
                 andT3:(CGPoint)p3
@@ -42,7 +43,7 @@
        withResolution:(CGSize)size
               andClip:(UIBezierPath*)clippingPath
       andClippingSize:(CGSize)clipSize
-            asErase:(BOOL)asErase
+              asErase:(BOOL)asErase
        withCanvasSize:(CGSize)canvasSize;
 
 @end

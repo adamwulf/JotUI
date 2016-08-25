@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
+
 @interface UIScreen (PortraitBounds)
 
--(CGRect) portraitBounds;
+- (CGRect)portraitBounds;
 
 @end

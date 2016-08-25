@@ -11,23 +11,24 @@
 #import "UIColor+JotHelper.h"
 #import "OpenGLVBO.h"
 
+
 @interface JotBufferVBO : NSObject
 
-@property (nonatomic, readonly) int fullByteSize;
-@property (nonatomic, readonly) NSUInteger allocOrder;
+@property(nonatomic, readonly) int fullByteSize;
+@property(nonatomic, readonly) NSUInteger allocOrder;
 
--(id) initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber;
+- (id)initWithData:(NSData*)vertexData andOpenGLVBO:(OpenGLVBO*)_vbo andStepNumber:(NSInteger)_stepNumber;
 
-+(int) cacheNumberForBytes:(NSInteger)bytes;
++ (int)cacheNumberForBytes:(NSInteger)bytes;
 
--(NSInteger) cacheNumber;
+- (NSInteger)cacheNumber;
 
--(void) updateBufferWithData:(NSData*)vertexData;
+- (void)updateBufferWithData:(NSData*)vertexData;
 
--(void) bind;
+- (void)bind;
 
--(void) bindForColor:(GLfloat[4])color;
+- (void)bindForColor:(GLfloat[4])color;
 
--(void) unbind;
+- (void)unbind;
 
 @end

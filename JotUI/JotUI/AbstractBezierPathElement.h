@@ -13,15 +13,15 @@
 #ifndef AbstractBezierPathElement_H
 #define AbstractBezierPathElement_H
 
-struct ColorfulVertex{
-    GLfloat Position[2];    // x,y position   // 8
-    GLfloat Color [4];      // rgba color     // 16
-    GLfloat Size;           // pixel size     // 4
+struct ColorfulVertex {
+    GLfloat Position[2]; // x,y position   // 8
+    GLfloat Color[4]; // rgba color     // 16
+    GLfloat Size; // pixel size     // 4
 };
 
-struct ColorlessVertex{
-    GLfloat Position[2];    // x,y position   // 8
-    GLfloat Size;           // pixel size     // 4
+struct ColorlessVertex {
+    GLfloat Position[2]; // x,y position   // 8
+    GLfloat Size; // pixel size     // 4
 };
 
 #endif
@@ -37,34 +37,35 @@ struct ColorlessVertex{
  * small values will also give a smoother line, but will
  * cost more in CPU
  */
-#define kBrushStepSize		1
+#define kBrushStepSize 1
 
-@interface AbstractBezierPathElement : NSObject<PlistSaving>{
+
+@interface AbstractBezierPathElement : NSObject <PlistSaving> {
     CGPoint startPoint;
     CGFloat width;
     UIColor* color;
-    
+
     NSData* dataVertexBuffer;
     CGFloat scaleOfVertexBuffer;
 }
 
-@property (nonatomic, readonly) CGFloat stepWidth;
-@property (nonatomic, readonly) UIColor* color;
-@property (nonatomic, readonly) CGFloat width;
-@property (nonatomic, readonly) CGFloat rotation;
-@property (nonatomic, readonly) CGPoint startPoint;
-@property (nonatomic, readonly) CGPoint endPoint;
-@property (nonatomic, readonly) CGRect bounds;
-@property (nonatomic, strong) JotBufferManager* bufferManager;
-@property (nonatomic, readonly) int fullByteSize;
-@property (nonatomic, readonly) CGFloat extraLengthWithoutDot;
+@property(nonatomic, readonly) CGFloat stepWidth;
+@property(nonatomic, readonly) UIColor* color;
+@property(nonatomic, readonly) CGFloat width;
+@property(nonatomic, readonly) CGFloat rotation;
+@property(nonatomic, readonly) CGPoint startPoint;
+@property(nonatomic, readonly) CGPoint endPoint;
+@property(nonatomic, readonly) CGRect bounds;
+@property(nonatomic, strong) JotBufferManager* bufferManager;
+@property(nonatomic, readonly) int fullByteSize;
+@property(nonatomic, readonly) CGFloat extraLengthWithoutDot;
 
--(CGFloat) lengthOfElement;
--(CGFloat) angleOfStart;
--(CGFloat) angleOfEnd;
--(void) adjustStartBy:(CGPoint)adjustment;
--(UIBezierPath*) bezierPathSegment;
+- (CGFloat)lengthOfElement;
+- (CGFloat)angleOfStart;
+- (CGFloat)angleOfEnd;
+- (void)adjustStartBy:(CGPoint)adjustment;
+- (UIBezierPath*)bezierPathSegment;
 
--(void) scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio NS_REQUIRES_SUPER;
+- (void)scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio NS_REQUIRES_SUPER;
 
 @end

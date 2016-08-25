@@ -9,27 +9,27 @@
 #import "JotGLQuadProgram.h"
 #import "JotGLProgram+Private.h"
 
+
 @implementation JotGLQuadProgram
 
--(id) initWithVertexShaderFilename:(NSString *)vShaderFilename fragmentShaderFilename:(NSString *)fShaderFilename{
-    if(self = [super initWithVertexShaderFilename:vShaderFilename
-                           fragmentShaderFilename:fShaderFilename
-                                   withAttributes:@[@"position", @"inputTextureCoordinate"]
-                                      andUniforms:@[@"MVP", @"texture"]]){
-
+- (id)initWithVertexShaderFilename:(NSString*)vShaderFilename fragmentShaderFilename:(NSString*)fShaderFilename {
+    if (self = [super initWithVertexShaderFilename:vShaderFilename
+                            fragmentShaderFilename:fShaderFilename
+                                    withAttributes:@[@"position", @"inputTextureCoordinate"]
+                                       andUniforms:@[@"MVP", @"texture"]]) {
     }
     return self;
 }
 
--(GLuint) attributePositionIndex{
+- (GLuint)attributePositionIndex {
     return [JotGLProgram attributeIndex:@"position"];
 }
 
--(GLuint) attributeTextureCoordinateIndex{
+- (GLuint)attributeTextureCoordinateIndex {
     return [JotGLProgram attributeIndex:@"inputTextureCoordinate"];
 }
 
--(GLuint) uniformTextureIndex{
+- (GLuint)uniformTextureIndex {
     return [self uniformIndex:@"texture"];
 }
 

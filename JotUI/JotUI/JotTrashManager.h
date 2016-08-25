@@ -9,24 +9,25 @@
 #import <Foundation/Foundation.h>
 #import "JotGLContext.h"
 
+
 @interface JotTrashManager : NSObject
 
-+(JotTrashManager*) sharedInstance;
++ (JotTrashManager*)sharedInstance;
 
-+(BOOL) isTrashManagerQueue;
++ (BOOL)isTrashManagerQueue;
 
--(void) setMaxTickDuration:(NSTimeInterval)tickSize;
+- (void)setMaxTickDuration:(NSTimeInterval)tickSize;
 
--(BOOL) tick;
+- (BOOL)tick;
 
--(void) addObjectToDealloc:(NSObject*)obj;
+- (void)addObjectToDealloc:(NSObject*)obj;
 
--(void) addObjectsToDealloc:(NSArray*)objs;
+- (void)addObjectsToDealloc:(NSArray*)objs;
 
--(void) setGLContext:(JotGLContext*)context;
+- (void)setGLContext:(JotGLContext*)context;
 
--(NSInteger) numberOfItemsInTrash;
+- (NSInteger)numberOfItemsInTrash;
 
--(int) knownBytesInTrash;
+- (int)knownBytesInTrash;
 
 @end
