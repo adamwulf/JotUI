@@ -169,28 +169,17 @@
 
 
 - (IBAction)saveImage {
-    [jotView exportToImageOnComplete:^(UIImage * image) {
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
-    } withScale:[self.view.window contentScaleFactor]];
+    [jotView exportImageTo:[self jotViewStateInkPath] andThumbnailTo:[self jotViewStateThumbPath] andStateTo:[self jotViewStatePlistPath] withThumbnailScale:1.0 onComplete:^(UIImage *ink, UIImage *thumb, JotViewImmutableState *state) {
+        UIImageWriteToSavedPhotosAlbum(thumb, nil, nil, nil);
+    }];
 }
 
 - (IBAction)loadImageFromLibary:(UIButton*)sender {
-    if (popoverController) {
-        [popoverController dismissPopoverAnimated:NO];
-        popoverController = nil;
-    }
-    UIImagePickerController* pickerLibrary = [[UIImagePickerController alloc] init];
-    pickerLibrary.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-    pickerLibrary.delegate = self;
-    popoverController = [[UIPopoverController alloc] initWithContentViewController:pickerLibrary];
-    popoverController.delegate = self;
-    [popoverController presentPopoverFromRect:sender.frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    [[jotView state] setIsForgetful:YES];
+    JotViewStateProxy* state = [[JotViewStateProxy alloc] initWithDelegate:self];
+    [state loadJotStateAsynchronously:NO withSize:jotView.bounds.size andScale:[[UIScreen mainScreen] scale] andContext:jotView.context andBufferManager:[JotBufferManager sharedInstance]];
+    [jotView loadState:state];
 }
-- (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingImage:(UIImage*)image editingInfo:(NSDictionary*)editingInfo {
-    [popoverController dismissPopoverAnimated:YES];
-    popoverController = nil;
-}
-
 
 #pragma mark - Jot Stylus Button Callbacks
 
@@ -311,6 +300,10 @@
 
 - (NSString*)jotViewStateInkPath {
     return [[self documentsDir] stringByAppendingPathComponent:@"ink.png"];
+}
+
+- (NSString*)jotViewStateThumbPath {
+    return [[self documentsDir] stringByAppendingPathComponent:@"thumb.png"];
 }
 
 - (NSString*)jotViewStatePlistPath {
