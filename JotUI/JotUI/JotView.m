@@ -507,12 +507,10 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                 // we have the backing ink texture to save
                 // so write it to disk
                 [[JotDiskAssetManager sharedManager] writeImage:ink toPath:inkPath];
-                //            DebugLog(@"writing ink to disk");
             } else {
                 // the backing texture either hasn't changed, or
                 // doesn't have anything written to it at all
                 // so skip writing a blank PNG to disk
-                //            DebugLog(@"skipping writing ink, nothing changed");
             }
 
             [[JotDiskAssetManager sharedManager] writeImage:thumb toPath:thumbnailPath];

@@ -169,9 +169,9 @@
 
 
 - (IBAction)saveImage {
-    [jotView exportImageTo:nil andThumbnailTo:nil andStateTo:nil withThumbnailScale:1.0 onComplete:^(UIImage* ink, UIImage* thumb, JotViewImmutableState* state) {
-        UIImageWriteToSavedPhotosAlbum(thumb, nil, nil, nil);
-    }];
+    [jotView exportToImageOnComplete:^(UIImage * image) {
+        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil);
+    } withScale:[self.view.window contentScaleFactor]];
 }
 
 - (IBAction)loadImageFromLibary:(UIButton*)sender {
