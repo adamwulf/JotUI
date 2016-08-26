@@ -3,7 +3,7 @@
 //  JotUI
 //
 //  Created by Adam Wulf on 10/29/14.
-//  Copyright (c) 2014 Adonit. All rights reserved.
+//  Copyright (c) 2014 Milestone Made. All rights reserved.
 //
 
 #import "JotDiskAssetManager.h"

@@ -3,7 +3,7 @@
 //  JotUI
 //
 //  Created by Adam Wulf on 1/2/13.
-//  Copyright (c) 2013 Adonit. All rights reserved.
+//  Copyright (c) 2013 Milestone Made. All rights reserved.
 //
 
 #import "UIColor+JotHelper.h"

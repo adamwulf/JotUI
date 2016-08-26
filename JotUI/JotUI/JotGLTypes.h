@@ -3,7 +3,7 @@
 //  JotUI
 //
 //  Created by Adam Wulf on 2/26/15.
-//  Copyright (c) 2015 Adonit. All rights reserved.
+//  Copyright (c) 2015 Milestone Made. All rights reserved.
 //
 
 #ifndef JotUI_JotGLTypes_h

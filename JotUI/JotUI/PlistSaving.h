@@ -3,7 +3,7 @@
 //  JotUI
 //
 //  Created by Adam Wulf on 6/10/13.
-//  Copyright (c) 2013 Adonit. All rights reserved.
+//  Copyright (c) 2013 Milestone Made. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
