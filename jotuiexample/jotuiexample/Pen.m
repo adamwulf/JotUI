@@ -103,59 +103,6 @@ static float clamp(min, max, value) {
 #pragma mark - JotViewDelegate
 
 /**
- * delegate method - a notification from the JotView
- * that a new touch is about to be processed. we should
- * reset all of our counters/etc to base values
- */
-- (BOOL)willBeginStrokeWithTouch:(JotTouch*)touch {
-    velocity = 1;
-    lastDate = [NSDate date];
-    numberOfTouches = 1;
-    return YES;
-}
-
-/**
- * notification that the JotView is about to ask for
- * alpha/width info for this touch. let's update
- * our velocity model and state info for this new touch
- */
-- (void)willMoveStrokeWithTouch:(UITouch*)touch {
-    numberOfTouches++;
-    if (numberOfTouches > 4)
-        numberOfTouches = 4;
-    if ([self velocityForTouch:touch]) {
-        velocity = [self velocityForTouch:touch];
-    } else {
-        // noop
-    }
-    lastDate = [NSDate date];
-    lastLoc = [touch preciseLocationInView:nil];
-}
-
-- (void)willEndStrokeWithTouch:(JotTouch*)touch {
-    // noop
-}
-
-/**
- * user is finished with a stroke. for our purposes
- * we don't need to do anything
- */
-- (void)didEndStrokeWithTouch:(JotTouch*)touch {
-    // noop
-}
-
-- (void)willCancelStroke:(JotStroke*)stroke withTouch:(JotTouch*)touch {
-    // noop
-}
-
-/**
- * the user cancelled the touch
- */
-- (void)didCancelStroke:(JotStroke*)stroke withTouch:(JotTouch*)touch {
-    // noop
-}
-
-/**
  * we'll adjust the alpha of the ink
  * based on pressure or velocity.
  *
@@ -225,11 +172,23 @@ static float clamp(min, max, value) {
 }
 
 -(BOOL) willBeginStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
+    velocity = 1;
+    lastDate = [NSDate date];
+    numberOfTouches = 1;
     return YES;
 }
 
 - (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
-    
+    numberOfTouches++;
+    if (numberOfTouches > 4)
+        numberOfTouches = 4;
+    if ([self velocityForTouch:touch]) {
+        velocity = [self velocityForTouch:touch];
+    } else {
+        // noop
+    }
+    lastDate = [NSDate date];
+    lastLoc = [touch preciseLocationInView:nil];
 }
 
 - (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding{
