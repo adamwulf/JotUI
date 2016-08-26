@@ -267,7 +267,7 @@
 }
 
 - (void)willEndStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch shortStrokeEnding:(BOOL)shortStrokeEnding{
-    NSLog(@"will end");
+    // noop
 }
 
 - (void)didEndStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
