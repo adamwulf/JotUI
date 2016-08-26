@@ -3,7 +3,7 @@
 //  JotUI
 //
 //  Created by Adam Wulf on 1/5/16.
-//  Copyright © 2016 Adonit. All rights reserved.
+//  Copyright © 2016 Milestone Made. All rights reserved.
 //
 
 #import "JotGLPointProgram.h"

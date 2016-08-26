@@ -234,6 +234,10 @@
     [jotView redo];
 }
 
+-(IBAction)clearScreen:(id)sender{
+    [jotView clear:YES];
+}
+
 
 #pragma mark - JotViewDelegate
 

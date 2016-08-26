@@ -39,7 +39,7 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>net.adonit.jotuiexample</string>
+			<string>com.milestonemade.jotuiexample</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>jotuiexampleapp</string>

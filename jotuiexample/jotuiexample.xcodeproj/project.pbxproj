@@ -10,7 +10,6 @@
 		6625FBB1174C219D009CC541 /* Filled.png in Resources */ = {isa = PBXBuildFile; fileRef = 6625FBB0174C219D009CC541 /* Filled.png */; };
 		6645055616EFCD7E00B90511 /* check.png in Resources */ = {isa = PBXBuildFile; fileRef = 6645055416EFCD7E00B90511 /* check.png */; };
 		6645055716EFCD7E00B90511 /* check@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6645055516EFCD7E00B90511 /* check@2x.png */; };
-		6661A70E16EE60BC00DD58D1 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 6661A70D16EE60BC00DD58D1 /* background.jpg */; };
 		668B560916F25B24000F6674 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B3AA11692BC7D00F12F42 /* CoreGraphics.framework */; };
 		668B560A16F25BA6000F6674 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B3AA31692BD6E00F12F42 /* QuartzCore.framework */; };
 		66910E8916803FCF0046EE12 /* Pen.m in Sources */ = {isa = PBXBuildFile; fileRef = 66910E8816803FCF0046EE12 /* Pen.m */; };
@@ -23,12 +22,8 @@
 		66AA5F55169946A60046CA26 /* button-reset-ruby.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F4D169946A60046CA26 /* button-reset-ruby.png */; };
 		66AA5F56169946A60046CA26 /* button-reset-ruby@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F4E169946A60046CA26 /* button-reset-ruby@2x.png */; };
 		66AA5F57169946A60046CA26 /* button-reset.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F4F169946A60046CA26 /* button-reset.png */; };
-		66AA5F58169946A60046CA26 /* Adonit_Header.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F50169946A60046CA26 /* Adonit_Header.png */; };
 		66AA5F59169946A60046CA26 /* button-reset@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F51169946A60046CA26 /* button-reset@2x.png */; };
-		66AA5F5A169946A60046CA26 /* Adonit_Header@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F52169946A60046CA26 /* Adonit_Header@2x.png */; };
 		66AA5F5E169949AA0046CA26 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F5D169949A90046CA26 /* ViewController.xib */; };
-		66AA5F6B169A86C70046CA26 /* Icon-Gradient@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F6A169A86C70046CA26 /* Icon-Gradient@2x.png */; };
-		66AA5F6E169A86CC0046CA26 /* Icon-Gradient.png in Resources */ = {isa = PBXBuildFile; fileRef = 66AA5F6D169A86CC0046CA26 /* Icon-Gradient.png */; };
 		66AA5F8C169E20420046CA26 /* Eraser.m in Sources */ = {isa = PBXBuildFile; fileRef = 66AA5F8B169E20420046CA26 /* Eraser.m */; };
 		66F9214816734FF000B1F868 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F9214716734FF000B1F868 /* UIKit.framework */; };
 		66F9214A16734FF000B1F868 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F9214916734FF000B1F868 /* Foundation.framework */; };
@@ -63,7 +58,6 @@
 		6625FBB0174C219D009CC541 /* Filled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Filled.png; sourceTree = "<group>"; };
 		6645055416EFCD7E00B90511 /* check.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check.png; sourceTree = "<group>"; };
 		6645055516EFCD7E00B90511 /* check@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check@2x.png"; sourceTree = "<group>"; };
-		6661A70D16EE60BC00DD58D1 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = background.jpg; sourceTree = "<group>"; };
 		66910E8716803FCF0046EE12 /* Pen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pen.h; sourceTree = "<group>"; };
 		66910E8816803FCF0046EE12 /* Pen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pen.m; sourceTree = "<group>"; };
 		66910E92168043400046EE12 /* Marker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Marker.h; sourceTree = "<group>"; };
@@ -78,12 +72,8 @@
 		66AA5F4D169946A60046CA26 /* button-reset-ruby.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset-ruby.png"; sourceTree = "<group>"; };
 		66AA5F4E169946A60046CA26 /* button-reset-ruby@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset-ruby@2x.png"; sourceTree = "<group>"; };
 		66AA5F4F169946A60046CA26 /* button-reset.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset.png"; sourceTree = "<group>"; };
-		66AA5F50169946A60046CA26 /* Adonit_Header.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Adonit_Header.png; sourceTree = "<group>"; };
 		66AA5F51169946A60046CA26 /* button-reset@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset@2x.png"; sourceTree = "<group>"; };
-		66AA5F52169946A60046CA26 /* Adonit_Header@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Adonit_Header@2x.png"; sourceTree = "<group>"; };
 		66AA5F5D169949A90046CA26 /* ViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ViewController.xib; sourceTree = "<group>"; };
-		66AA5F6A169A86C70046CA26 /* Icon-Gradient@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Gradient@2x.png"; path = "../Icon-Gradient@2x.png"; sourceTree = "<group>"; };
-		66AA5F6D169A86CC0046CA26 /* Icon-Gradient.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Icon-Gradient.png"; path = "../Icon-Gradient.png"; sourceTree = "<group>"; };
 		66AA5F8A169E20420046CA26 /* Eraser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Eraser.h; sourceTree = "<group>"; };
 		66AA5F8B169E20420046CA26 /* Eraser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Eraser.m; sourceTree = "<group>"; };
 		66F9214316734FF000B1F868 /* jotuiexample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = jotuiexample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -129,8 +119,6 @@
 		6645055316EFCD1F00B90511 /* Default and Icon */ = {
 			isa = PBXGroup;
 			children = (
-				66AA5F6D169A86CC0046CA26 /* Icon-Gradient.png */,
-				66AA5F6A169A86C70046CA26 /* Icon-Gradient@2x.png */,
 				66F9215916734FF000B1F868 /* Default.png */,
 				66F9215B16734FF000B1F868 /* Default@2x.png */,
 				66F9215D16734FF000B1F868 /* Default-568h@2x.png */,
@@ -168,13 +156,10 @@
 			children = (
 				6645055416EFCD7E00B90511 /* check.png */,
 				6645055516EFCD7E00B90511 /* check@2x.png */,
-				6661A70D16EE60BC00DD58D1 /* background.jpg */,
 				66AA5F4D169946A60046CA26 /* button-reset-ruby.png */,
 				66AA5F4E169946A60046CA26 /* button-reset-ruby@2x.png */,
 				66AA5F4F169946A60046CA26 /* button-reset.png */,
 				66AA5F51169946A60046CA26 /* button-reset@2x.png */,
-				66AA5F50169946A60046CA26 /* Adonit_Header.png */,
-				66AA5F52169946A60046CA26 /* Adonit_Header@2x.png */,
 			);
 			name = Images;
 			sourceTree = "<group>";
@@ -325,14 +310,9 @@
 				66AA5F55169946A60046CA26 /* button-reset-ruby.png in Resources */,
 				66AA5F56169946A60046CA26 /* button-reset-ruby@2x.png in Resources */,
 				66AA5F57169946A60046CA26 /* button-reset.png in Resources */,
-				66AA5F58169946A60046CA26 /* Adonit_Header.png in Resources */,
 				66AA5F59169946A60046CA26 /* button-reset@2x.png in Resources */,
-				66AA5F5A169946A60046CA26 /* Adonit_Header@2x.png in Resources */,
 				66AA5F5E169949AA0046CA26 /* ViewController.xib in Resources */,
-				66AA5F6B169A86C70046CA26 /* Icon-Gradient@2x.png in Resources */,
-				66AA5F6E169A86CC0046CA26 /* Icon-Gradient.png in Resources */,
 				C584F8351C37C4AB00413840 /* Particle.png in Resources */,
-				6661A70E16EE60BC00DD58D1 /* background.jpg in Resources */,
 				6645055616EFCD7E00B90511 /* check.png in Resources */,
 				6645055716EFCD7E00B90511 /* check@2x.png in Resources */,
 				6625FBB1174C219D009CC541 /* Filled.png in Resources */,

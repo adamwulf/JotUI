@@ -3,7 +3,7 @@
 //  JotTouchExample
 //
 //  Created by Adam Wulf on 1/9/13.
-//  Copyright (c) 2013 Adonit, LLC. All rights reserved.
+//  Copyright (c) 2013 Milestone Made. All rights reserved.
 //
 
 #import "JotStroke.h"
