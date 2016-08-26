@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		6625FBB1174C219D009CC541 /* Filled.png in Resources */ = {isa = PBXBuildFile; fileRef = 6625FBB0174C219D009CC541 /* Filled.png */; };
-		6634758D17623366008EB6DA /* JotUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6634758C17623366008EB6DA /* JotUI.framework */; };
 		6645055616EFCD7E00B90511 /* check.png in Resources */ = {isa = PBXBuildFile; fileRef = 6645055416EFCD7E00B90511 /* check.png */; };
 		6645055716EFCD7E00B90511 /* check@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6645055516EFCD7E00B90511 /* check@2x.png */; };
 		6661A70E16EE60BC00DD58D1 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 6661A70D16EE60BC00DD58D1 /* background.jpg */; };
@@ -42,14 +41,26 @@
 		66F9216116734FF000B1F868 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F9216016734FF000B1F868 /* ViewController.m */; };
 		C5018DED1C2BCE4A00A68A1C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */; };
 		C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */; };
-		C584F8321C37C14C00413840 /* point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F8301C37C14C00413840 /* point.vsh */; };
-		C584F8331C37C14C00413840 /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F8311C37C14C00413840 /* point.fsh */; };
+		C53F80971D6FE7C700BA9A58 /* JotUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C53F80961D6FE7C700BA9A58 /* JotUI.framework */; };
+		C53F80981D6FE7D100BA9A58 /* JotUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C53F80961D6FE7C700BA9A58 /* JotUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		C584F8351C37C4AB00413840 /* Particle.png in Resources */ = {isa = PBXBuildFile; fileRef = C584F8341C37C4AB00413840 /* Particle.png */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		C53F80941D6FE79200BA9A58 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				C53F80981D6FE7D100BA9A58 /* JotUI.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		6625FBB0174C219D009CC541 /* Filled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Filled.png; sourceTree = "<group>"; };
-		6634758C17623366008EB6DA /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../JotUI/build/Release-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
 		6645055416EFCD7E00B90511 /* check.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check.png; sourceTree = "<group>"; };
 		6645055516EFCD7E00B90511 /* check@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check@2x.png"; sourceTree = "<group>"; };
 		6661A70D16EE60BC00DD58D1 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = background.jpg; sourceTree = "<group>"; };
@@ -89,11 +100,10 @@
 		66F9215D16734FF000B1F868 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		66F9215F16734FF000B1F868 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		66F9216016734FF000B1F868 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		66F922B416736C8600B1F868 /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../DerivedData/JotUI/Build/Products/Debug-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
 		C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		C53F80961D6FE7C700BA9A58 /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../../../../../../../Library/Developer/Xcode/DerivedData/JotUI-dxdyxatezizuftgklcirqzdiqjmv/Build/Products/Debug-iphonesimulator/JotUI.framework"; sourceTree = "<group>"; };
 		C584F8301C37C14C00413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
-		C584F8311C37C14C00413840 /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.fsh; sourceTree = "<group>"; };
 		C584F8341C37C4AB00413840 /* Particle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Particle.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -102,9 +112,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C53F80971D6FE7C700BA9A58 /* JotUI.framework in Frameworks */,
 				C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */,
 				C5018DED1C2BCE4A00A68A1C /* SystemConfiguration.framework in Frameworks */,
-				6634758D17623366008EB6DA /* JotUI.framework in Frameworks */,
 				668B560916F25B24000F6674 /* CoreGraphics.framework in Frameworks */,
 				669B3A9E1692BC4500F12F42 /* OpenGLES.framework in Frameworks */,
 				668B560A16F25BA6000F6674 /* QuartzCore.framework in Frameworks */,
@@ -173,7 +183,6 @@
 			isa = PBXGroup;
 			children = (
 				C584F82F1C37C14100413840 /* Shaders */,
-				6634758C17623366008EB6DA /* JotUI.framework */,
 				66F9214D16734FF000B1F868 /* jotuiexample */,
 				66F9214616734FF000B1F868 /* Frameworks */,
 				66F9214416734FF000B1F868 /* Products */,
@@ -191,6 +200,7 @@
 		66F9214616734FF000B1F868 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				C53F80961D6FE7C700BA9A58 /* JotUI.framework */,
 				C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */,
 				C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */,
 				66F923061677C85F00B1F868 /* JotUI */,
@@ -234,7 +244,6 @@
 				669B3AA31692BD6E00F12F42 /* QuartzCore.framework */,
 				669B3AA11692BC7D00F12F42 /* CoreGraphics.framework */,
 				669B3A9D1692BC4500F12F42 /* OpenGLES.framework */,
-				66F922B416736C8600B1F868 /* JotUI.framework */,
 			);
 			name = JotUI;
 			sourceTree = "<group>";
@@ -244,7 +253,6 @@
 			children = (
 				C584F8341C37C4AB00413840 /* Particle.png */,
 				C584F8301C37C14C00413840 /* point.vsh */,
-				C584F8311C37C14C00413840 /* point.fsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
@@ -259,6 +267,7 @@
 				66F9213F16734FF000B1F868 /* Sources */,
 				66F9214016734FF000B1F868 /* Frameworks */,
 				66F9214116734FF000B1F868 /* Resources */,
+				C53F80941D6FE79200BA9A58 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -307,10 +316,8 @@
 			files = (
 				66F9215216734FF000B1F868 /* InfoPlist.strings in Resources */,
 				66F9215A16734FF000B1F868 /* Default.png in Resources */,
-				C584F8321C37C14C00413840 /* point.vsh in Resources */,
 				66F9215C16734FF000B1F868 /* Default@2x.png in Resources */,
 				66F9215E16734FF000B1F868 /* Default-568h@2x.png in Resources */,
-				C584F8331C37C14C00413840 /* point.fsh in Resources */,
 				669B3AC61692C6E300F12F42 /* FadedCircle.png in Resources */,
 				669B3ACB1692CB4C00F12F42 /* Circle.png in Resources */,
 				669B3ACD169378DB00F12F42 /* Square.png in Resources */,
