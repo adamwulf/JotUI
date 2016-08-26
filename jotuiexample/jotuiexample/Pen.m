@@ -47,6 +47,14 @@ static float clamp(min, max, value) {
     return [JotDefaultBrushTexture sharedInstance];
 }
 
+- (CGFloat)stepWidthForStroke{
+    return 2;
+}
+
+-(BOOL) supportsRotation{
+    return NO;
+}
+
 #pragma mark - Setters
 
 - (void)setMinSize:(CGFloat)_minSize {
@@ -72,11 +80,11 @@ static float clamp(min, max, value) {
  * from the previous touch over the duration elapsed
  * between touches
  */
-- (CGFloat)velocityForTouch:(JotTouch*)touch {
+- (CGFloat)velocityForTouch:(UITouch*)touch {
     //
     // first, find the current and previous location of the touch
-    CGPoint l = [touch windowPosition];
-    CGPoint previousPoint = [touch previousWindowPosition];
+    CGPoint l = [touch preciseLocationInView:nil];
+    CGPoint previousPoint = [touch precisePreviousLocationInView:nil];
     // find how far we've travelled
     float distanceFromPrevious = sqrtf((l.x - previousPoint.x) * (l.x - previousPoint.x) + (l.y - previousPoint.y) * (l.y - previousPoint.y));
     // how long did it take?
@@ -111,7 +119,7 @@ static float clamp(min, max, value) {
  * alpha/width info for this touch. let's update
  * our velocity model and state info for this new touch
  */
-- (void)willMoveStrokeWithTouch:(JotTouch*)touch {
+- (void)willMoveStrokeWithTouch:(UITouch*)touch {
     numberOfTouches++;
     if (numberOfTouches > 4)
         numberOfTouches = 4;
@@ -121,7 +129,7 @@ static float clamp(min, max, value) {
         // noop
     }
     lastDate = [NSDate date];
-    lastLoc = [touch windowPosition];
+    lastLoc = [touch preciseLocationInView:nil];
 }
 
 - (void)willEndStrokeWithTouch:(JotTouch*)touch {
@@ -155,7 +163,7 @@ static float clamp(min, max, value) {
  * but for our demo adjusting only the alpha
  * is the look we're going for.
  */
-- (UIColor*)colorForTouch:(JotTouch*)touch {
+- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
     if (shouldUseVelocity) {
         CGFloat segmentAlpha = (velocity - 1);
         if (segmentAlpha > 0)
@@ -163,7 +171,7 @@ static float clamp(min, max, value) {
         segmentAlpha = minAlpha + ABS(segmentAlpha) * (maxAlpha - minAlpha);
         return [color colorWithAlphaComponent:segmentAlpha];
     } else {
-        CGFloat segmentAlpha = minAlpha + (maxAlpha - minAlpha) * touch.pressure / JOT_MAX_PRESSURE;
+        CGFloat segmentAlpha = minAlpha + (maxAlpha - minAlpha) * touch.force;
         if (segmentAlpha < minAlpha)
             segmentAlpha = minAlpha;
         return [color colorWithAlphaComponent:segmentAlpha];
@@ -177,7 +185,7 @@ static float clamp(min, max, value) {
  * we'll use pressure data to determine width if we can, otherwise
  * we'll fall back to use velocity data
  */
-- (CGFloat)widthForTouch:(JotTouch*)touch {
+- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     if (shouldUseVelocity) {
         CGFloat width = (velocity - 1);
         if (width > 0)
@@ -187,11 +195,17 @@ static float clamp(min, max, value) {
             width = 1;
         return width;
     } else {
-        CGFloat newWidth = minSize + (maxSize - minSize) * touch.pressure / JOT_MAX_PRESSURE;
-        return newWidth;
+        CGFloat width = (maxSize + minSize) / 2.0;
+        width *= coalescedTouch.force;
+        if(width < minSize) width = minSize;
+        if(width > maxSize) width = maxSize;
+        return width;
     }
 }
 
+- (JotBrushTexture*)textureForStroke{
+    return [JotDefaultBrushTexture sharedInstance];
+}
 
 /**
  * we'll keep this pen fairly smooth, and using 0.75 gives
@@ -202,13 +216,36 @@ static float clamp(min, max, value) {
  * > 1 is loopy
  * < 0 is knotty
  */
-- (CGFloat)smoothnessForTouch:(JotTouch*)touch {
+- (CGFloat)smoothnessForCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
     return 0.75;
 }
 
-- (NSArray*)willAddElementsToStroke:(NSArray*)elements fromPreviousElement:(AbstractBezierPathElement*)previousElement {
+- (NSArray*)willAddElements:(NSArray *)elements toStroke:(JotStroke *)stroke fromPreviousElement:(AbstractBezierPathElement *)previousElement{
     return elements;
 }
 
+-(BOOL) willBeginStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
+    return YES;
+}
+
+- (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
+    
+}
+
+- (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding{
+    
+}
+
+- (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
+    
+}
+
+- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
+    
+}
+
+- (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
+    
+}
 
 @end

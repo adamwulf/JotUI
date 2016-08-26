@@ -20,7 +20,7 @@
 - (JotBrushTexture*)textureForStroke;
 
 /**
- * The texture to use for the new stroke
+ * The distance between dots for the new brush
  */
 - (CGFloat)stepWidthForStroke;
 
@@ -93,13 +93,13 @@
 - (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 /**
- * the stroke for the input touch has been cancelled.
- */
-- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
-
-/**
  * the stroke for the input touch will been cancelled.
  */
 - (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
+
+/**
+ * the stroke for the input touch has been cancelled.
+ */
+- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch;
 
 @end

@@ -9,11 +9,9 @@
 /* Begin PBXBuildFile section */
 		6625FBB1174C219D009CC541 /* Filled.png in Resources */ = {isa = PBXBuildFile; fileRef = 6625FBB0174C219D009CC541 /* Filled.png */; };
 		6634758D17623366008EB6DA /* JotUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6634758C17623366008EB6DA /* JotUI.framework */; };
-		6634758E1762337A008EB6DA /* JotTouchSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AA213716FCE28100E86922 /* JotTouchSDK.framework */; };
 		6645055616EFCD7E00B90511 /* check.png in Resources */ = {isa = PBXBuildFile; fileRef = 6645055416EFCD7E00B90511 /* check.png */; };
 		6645055716EFCD7E00B90511 /* check@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6645055516EFCD7E00B90511 /* check@2x.png */; };
 		6661A70E16EE60BC00DD58D1 /* background.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 6661A70D16EE60BC00DD58D1 /* background.jpg */; };
-		66789D2C16793FE100E1EF75 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66789D2A16793F7800E1EF75 /* CoreBluetooth.framework */; };
 		668B560916F25B24000F6674 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B3AA11692BC7D00F12F42 /* CoreGraphics.framework */; };
 		668B560A16F25BA6000F6674 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 669B3AA31692BD6E00F12F42 /* QuartzCore.framework */; };
 		66910E8916803FCF0046EE12 /* Pen.m in Sources */ = {isa = PBXBuildFile; fileRef = 66910E8816803FCF0046EE12 /* Pen.m */; };
@@ -42,7 +40,6 @@
 		66F9215C16734FF000B1F868 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66F9215B16734FF000B1F868 /* Default@2x.png */; };
 		66F9215E16734FF000B1F868 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 66F9215D16734FF000B1F868 /* Default-568h@2x.png */; };
 		66F9216116734FF000B1F868 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F9216016734FF000B1F868 /* ViewController.m */; };
-		66F923021677C83F00B1F868 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66F923011677C83F00B1F868 /* AudioToolbox.framework */; };
 		C5018DED1C2BCE4A00A68A1C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */; };
 		C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */; };
 		C584F8321C37C14C00413840 /* point.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F8301C37C14C00413840 /* point.vsh */; };
@@ -56,7 +53,6 @@
 		6645055416EFCD7E00B90511 /* check.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = check.png; sourceTree = "<group>"; };
 		6645055516EFCD7E00B90511 /* check@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "check@2x.png"; sourceTree = "<group>"; };
 		6661A70D16EE60BC00DD58D1 /* background.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = background.jpg; sourceTree = "<group>"; };
-		66789D2A16793F7800E1EF75 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		66910E8716803FCF0046EE12 /* Pen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Pen.h; sourceTree = "<group>"; };
 		66910E8816803FCF0046EE12 /* Pen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Pen.m; sourceTree = "<group>"; };
 		66910E92168043400046EE12 /* Marker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Marker.h; sourceTree = "<group>"; };
@@ -68,7 +64,6 @@
 		669B3ACA1692CB4C00F12F42 /* Circle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Circle.png; sourceTree = "<group>"; };
 		669B3ACC169378DB00F12F42 /* Square.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Square.png; sourceTree = "<group>"; };
 		66A340211694D3890093E81A /* Rectangle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Rectangle.png; sourceTree = "<group>"; };
-		66AA213716FCE28100E86922 /* JotTouchSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotTouchSDK.framework; path = ../JotTouchSDK/JotTouchSDK.framework; sourceTree = "<group>"; };
 		66AA5F4D169946A60046CA26 /* button-reset-ruby.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset-ruby.png"; sourceTree = "<group>"; };
 		66AA5F4E169946A60046CA26 /* button-reset-ruby@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset-ruby@2x.png"; sourceTree = "<group>"; };
 		66AA5F4F169946A60046CA26 /* button-reset.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button-reset.png"; sourceTree = "<group>"; };
@@ -95,7 +90,6 @@
 		66F9215F16734FF000B1F868 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		66F9216016734FF000B1F868 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		66F922B416736C8600B1F868 /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../DerivedData/JotUI/Build/Products/Debug-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
-		66F923011677C83F00B1F868 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		C584F8301C37C14C00413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
@@ -110,10 +104,7 @@
 			files = (
 				C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */,
 				C5018DED1C2BCE4A00A68A1C /* SystemConfiguration.framework in Frameworks */,
-				6634758E1762337A008EB6DA /* JotTouchSDK.framework in Frameworks */,
 				6634758D17623366008EB6DA /* JotUI.framework in Frameworks */,
-				66F923021677C83F00B1F868 /* AudioToolbox.framework in Frameworks */,
-				66789D2C16793FE100E1EF75 /* CoreBluetooth.framework in Frameworks */,
 				668B560916F25B24000F6674 /* CoreGraphics.framework in Frameworks */,
 				669B3A9E1692BC4500F12F42 /* OpenGLES.framework in Frameworks */,
 				668B560A16F25BA6000F6674 /* QuartzCore.framework in Frameworks */,
@@ -203,7 +194,6 @@
 				C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */,
 				C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */,
 				66F923061677C85F00B1F868 /* JotUI */,
-				66F923051677C85100B1F868 /* JotTouchSDK */,
 				66F9214716734FF000B1F868 /* UIKit.framework */,
 				66F9214916734FF000B1F868 /* Foundation.framework */,
 			);
@@ -236,16 +226,6 @@
 				66F9215516734FF000B1F868 /* jotuiexample-Prefix.pch */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		66F923051677C85100B1F868 /* JotTouchSDK */ = {
-			isa = PBXGroup;
-			children = (
-				66AA213716FCE28100E86922 /* JotTouchSDK.framework */,
-				66789D2A16793F7800E1EF75 /* CoreBluetooth.framework */,
-				66F923011677C83F00B1F868 /* AudioToolbox.framework */,
-			);
-			name = JotTouchSDK;
 			sourceTree = "<group>";
 		};
 		66F923061677C85F00B1F868 /* JotUI */ = {
@@ -439,10 +419,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../JotTouchSDK\"",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "jotuiexample/jotuiexample-Prefix.pch";
 				INFOPLIST_FILE = "jotuiexample/jotuiexample-Info.plist";
@@ -466,10 +443,7 @@
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/../JotTouchSDK\"",
-				);
+				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "jotuiexample/jotuiexample-Prefix.pch";
 				INFOPLIST_FILE = "jotuiexample/jotuiexample-Info.plist";

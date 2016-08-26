@@ -8,12 +8,9 @@
 
 #import "ViewController.h"
 #import <JotUI/JotUI.h>
-#import <JotTouchSDK/JotStylusManager.h>
 
 
-@interface ViewController () <JotViewStateProxyDelegate> {
-    JotStylusManager* jotManager;
-}
+@interface ViewController () <JotViewStateProxyDelegate>
 
 @end
 
@@ -28,17 +25,6 @@
     pen = [[Pen alloc] init];
     marker = [[Marker alloc] init];
     eraser = [[Eraser alloc] init];
-
-
-    jotManager = [JotStylusManager sharedInstance];
-    jotManager.unconnectedPressure = 100;
-    jotManager.palmRejectorDelegate = jotView;
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(connectionChange:)
-                                                 name:JotStylusManagerDidChangeConnectionStatus
-                                               object:nil];
-    jotManager.rejectMode = NO;
-    [jotManager enable];
 
     jotView.frame = self.view.bounds;
 
@@ -84,11 +70,6 @@
 
 #pragma mark - IBAction
 
-
-- (IBAction)togglePalmRejection {
-    palmRejectionButton.selected = !palmRejectionButton.selected;
-    jotManager.rejectMode = palmRejectionButton.selected;
-}
 
 - (IBAction)changePenType:(id)sender {
     if ([[self activePen].color isEqual:blackButton.backgroundColor])
@@ -255,76 +236,60 @@
 
 
 #pragma mark - JotViewDelegate
-#pragma mark JotPalmRejectionDelegate
 
-
-- (NSArray*)willAddElementsToStroke:(NSArray*)elements fromPreviousElement:(AbstractBezierPathElement*)previousElement {
-    return [[self activePen] willAddElementsToStroke:elements fromPreviousElement:previousElement];
+-(JotBrushTexture*)textureForStroke{
+    return [[self activePen] textureForStroke];
 }
 
-- (BOOL)willBeginStrokeWithTouch:(JotTouch*)touch {
-    [[self activePen] willBeginStrokeWithTouch:touch];
+-(CGFloat) stepWidthForStroke{
+    return [[self activePen] stepWidthForStroke];
+}
+
+-(BOOL) supportsRotation{
+    return [[self activePen] supportsRotation];
+}
+
+- (NSArray*)willAddElements:(NSArray*)elements toStroke:(JotStroke*)stroke fromPreviousElement:(AbstractBezierPathElement*)previousElement {
+    return [[self activePen] willAddElements:elements toStroke:stroke fromPreviousElement:previousElement];
+}
+
+- (BOOL)willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
+    [[self activePen] willBeginStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
     return YES;
 }
 
-- (void)willMoveStrokeWithTouch:(JotTouch*)touch {
-    [[self activePen] willMoveStrokeWithTouch:touch];
+- (void)willMoveStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
+    [[self activePen] willMoveStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-- (void)willEndStrokeWithTouch:(JotTouch*)touch {
+- (void)willEndStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch shortStrokeEnding:(BOOL)shortStrokeEnding{
     NSLog(@"will end");
 }
 
-- (void)didEndStrokeWithTouch:(JotTouch*)touch {
-    [[self activePen] didEndStrokeWithTouch:touch];
+- (void)didEndStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
+    [[self activePen] didEndStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-- (void)willCancelStroke:(JotStroke*)stroke withTouch:(JotTouch*)touch {
-    [[self activePen] willCancelStroke:stroke withTouch:touch];
+- (void)willCancelStroke:(JotStroke *)stroke withCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch {
+    [[self activePen] willCancelStroke:stroke withCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-- (void)didCancelStroke:(JotStroke*)stroke withTouch:(JotTouch*)touch {
-    [[self activePen] didCancelStroke:stroke withTouch:touch];
+- (void)didCancelStroke:(JotStroke *)stroke withCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch {
+    [[self activePen] didCancelStroke:stroke withCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-- (UIColor*)colorForTouch:(JotTouch*)touch {
+- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     [[self activePen] setShouldUseVelocity:pressureVsVelocityControl.selectedSegmentIndex];
-    return [[self activePen] colorForTouch:touch];
+    return [[self activePen] colorForCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-- (CGFloat)widthForTouch:(JotTouch*)touch {
+- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     [[self activePen] setShouldUseVelocity:pressureVsVelocityControl.selectedSegmentIndex];
-    return [[self activePen] widthForTouch:touch];
-}
-- (CGFloat)smoothnessForTouch:(JotTouch*)touch {
-    return [[self activePen] smoothnessForTouch:touch];
+    return [[self activePen] widthForCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-#pragma mark - StylusConnectionDelegate
-
-- (void)connectionChange:(NSNotification*)note {
-    NSString* text;
-    switch ([[JotStylusManager sharedInstance] connectionStatus]) {
-        case JotConnectionStatusOff:
-            text = @"Off";
-            break;
-        case JotConnectionStatusScanning:
-            text = @"Scanning";
-            break;
-        case JotConnectionStatusPairing:
-            text = @"Pairing";
-            break;
-        case JotConnectionStatusConnected:
-            text = @"Connected";
-            break;
-        case JotConnectionStatusDisconnected:
-            text = @"Disconnected";
-            break;
-        default:
-            text = @"";
-            break;
-    }
-    [settingsButton setTitle:text forState:UIControlStateNormal];
+- (CGFloat)smoothnessForCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch {
+    return [[self activePen] smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
 #pragma mark - UIPopoverControllerDelegate
