@@ -137,9 +137,7 @@
  */
 - (void)updateStep:(NSInteger)stepNumber withBufferWithData:(NSData*)vertexData {
     [JotGLContext runBlock:^(JotGLContext* context) {
-        if (!lock) {
-            NSLog(@"what");
-        }
+        NSAssert(lock, @"must have a lock");
         [lock lock];
         GLintptr offset = stepNumber * stepMallocSize;
         GLsizeiptr len = vertexData.length;
@@ -160,9 +158,7 @@
  */
 - (void)bindForStep:(NSInteger)stepNumber {
     [JotGLContext runBlock:^(JotGLContext* context) {
-        if (!lock) {
-            NSLog(@"what");
-        }
+        NSAssert(lock, @"must have a lock");
         [lock lock];
         [context bindArrayBuffer:glBuffer.vbo];
 
@@ -191,9 +187,7 @@
  */
 - (void)bindForColor:(GLfloat[4])color andStep:(NSInteger)stepNumber {
     [JotGLContext runBlock:^(JotGLContext* context) {
-        if (!lock) {
-            NSLog(@"what");
-        }
+        NSAssert(lock, @"must have a lock");
         [lock lock];
 
         [[context colorlessPointProgram] use];
@@ -217,9 +211,7 @@
 }
 
 - (void)unbind {
-    if (!lock) {
-        NSLog(@"what");
-    }
+    NSAssert(lock, @"must have a lock");
     [JotGLContext runBlock:^(JotGLContext* context) {
         [context unbindArrayBuffer];
     }];

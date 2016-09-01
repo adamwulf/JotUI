@@ -99,21 +99,6 @@ dispatch_queue_t importExportStateQueue;
 
 static JotGLContext* mainThreadContext;
 
-//static int numAlive = 0;
-//
-//+(void) plusOne{
-//    @synchronized([JotView class]){
-//        numAlive += 1;
-//        NSLog(@"number alive: %d", numAlive);
-//    }
-//}
-//+(void) minusOne{
-//    @synchronized([JotView class]){
-//        numAlive -= 1;
-//        NSLog(@"number alive: %d", numAlive);
-//    }
-//}
-
 + (JotGLContext*)mainThreadContext {
     return mainThreadContext;
 }
@@ -358,29 +343,26 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
     }
 
     if (!state) {
-        //        NSLog(@"========== !state");
         exportFinishBlock(nil, nil, nil);
         return;
     }
 
     if (state.isForgetful) {
-        //        NSLog(@"========== state.isForgetful");
         DebugLog(@"forget: skipping export for forgetful jotview");
         exportFinishBlock(nil, nil, nil);
         return;
     }
 
     if ((![state isReadyToExport] || isCurrentlyExporting)) {
-        //        NSLog(@"========== ![state isReadyToExport] || isCurrentlyExporting");
         if (isCurrentlyExporting == [state undoHash]) {
             //
             // we're already currently saving this undo hash,
             // so we don't need to add another save to the
-            // exportLaterInvocation list
-            //            NSLog(@"========== already saving this undo hash");
+            // exportLaterInvocation list.
+            // already saving this undo hash
             exportFinishBlock(nil, nil, nil);
         } else if (![exportLaterInvocations count]) {
-            //            NSLog(@"========== export later invocation");
+            // export later invocation
             //
             // the issue here is that we want to export the drawn image to a file, but we're
             // also in the middle of writing all the strokes to the backing texture.
@@ -407,7 +389,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
             [saveInvocation retainArguments];
             [exportLaterInvocations addObject:saveInvocation];
         } else {
-            //            NSLog(@"========== already have an export later invocation, bailing");
+            // already have an export later invocation, bailing
             // we have to call the export finish block, no matter what.
             // so call the block and send nil b/c we're not actually done
             // exporting.
@@ -416,10 +398,10 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
         return;
     }
 
-    //    NSLog(@"========== starting to save page");
+    // starting to save page
     @synchronized(self) {
         isCurrentlyExporting = [state undoHash];
-        //        DebugLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
+        DebugLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
     }
 
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -440,7 +422,6 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
 
     [self exportInkTextureOnComplete:^(UIImage* image) {
         ink = image;
-        //        NSLog(@"========== signal ink");
         dispatch_semaphore_signal(sema2);
     }];
 
@@ -449,7 +430,6 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
     // and backing texture
     [self exportToImageOnComplete:^(UIImage* image) {
         thumb = image;
-        //        NSLog(@"========== signal thumbnail");
         dispatch_semaphore_signal(sema1);
     } withScale:[thumbScale floatValue]];
 
@@ -477,7 +457,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
 
     dispatch_async([JotView importExportStateQueue], ^(void) {
         @autoreleasepool {
-            //            NSLog(@"========== waiting on ink and thumbnail");
+            // waiting on ink and thumbnail
             dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
             // i could notify about the thumbnail here
             // which would let the UI swap to the cached thumbnail
@@ -491,7 +471,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
             dispatch_release(sema1);
             dispatch_release(sema2);
 
-            //            NSLog(@"========== done saving JotView");
+            // done saving JotView
             exportFinishBlock(ink, thumb, immutableState);
 
             if (state.isForgetful) {
@@ -519,7 +499,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
             // and write it to disk
             [immutableState writeToDisk:plistPath];
 
-            //        DebugLog(@"export complete");
+            // export complete
             @synchronized(self) {
                 // we only ever want to export one at a time.
                 // if anything has changed while we've been exporting
@@ -532,7 +512,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
             // I can verify later...
             [[JotTrashManager sharedInstance] addObjectToDealloc:immutableState];
 
-            //            DebugLog(@"export ends: %p", self);
+            // export ends
         }
     });
 }
@@ -1221,7 +1201,7 @@ static int undoCounter;
     CheckMainThread;
 
     if ([exportLaterInvocations count]) {
-        NSLog(@"waiting to export");
+        DebugLog(@"waiting to export");
     }
 
 
@@ -1242,7 +1222,7 @@ static int undoCounter;
                 [state tick];
 
                 if ([state.strokesBeingWrittenToBackingTexture count]) {
-                    NSLog(@"writing %d strokes to texture", (int)[state.strokesBeingWrittenToBackingTexture count]);
+                    DebugLog(@"writing %d strokes to texture", (int)[state.strokesBeingWrittenToBackingTexture count]);
                     [context runBlock:^{
 
                         undoCounter++;
