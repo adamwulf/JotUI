@@ -885,7 +885,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
     CGFloat duration = BNRTimeBlock2(^{
         glReadPixels(0, 0, size.width, size.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
     });
-    NSLog(@"total2 = %f", duration);
+    DebugLog(@"total2 = %f", duration);
     // timing end
     printOpenGLError();
 }
