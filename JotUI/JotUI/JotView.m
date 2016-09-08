@@ -1426,6 +1426,8 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
         JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:touch];
         [currentStroke lock];
 
+        BOOL needsRenderAgain = NO;
+
         for (UITouch* coalescedTouch in coalesced) {
             @autoreleasepool {
                 // check for other brands of stylus,
@@ -1443,7 +1445,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
 
                 [self.delegate willMoveStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
 
-                BOOL needsRenderAgain = NO;
                 if ([self.delegate supportsRotation] && [[currentStroke segments] count] < 10) {
                     CGFloat len = [[[currentStroke segments] jotReduce:^id(AbstractBezierPathElement* ele, NSUInteger index, id accum) {
                         return @([ele lengthOfElement] + [accum floatValue]);
@@ -1454,12 +1455,15 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                     CGPoint diff = CGPointMake(end.x - start.x, end.y - start.y);
                     CGFloat rot = atan2(diff.y, diff.x);
 
-                    if (([[currentStroke segments] count] <= 2) ||
-                        (len < 20 && distanceBetween2(start, end) < 5)) {
-                        needsRenderAgain = YES;
-                        [[currentStroke segments] enumerateObjectsUsingBlock:^(AbstractBezierPathElement* _Nonnull obj, NSUInteger idx, BOOL* _Nonnull stop) {
-                            obj.rotation = rot;
-                        }];
+                    if (([[currentStroke segments] count] <= 2) || (len < 20 && distanceBetween2(start, end) < 5)) {
+                        // if the rotation is off by at least 10 degrees, then updated the rotation on the stroke
+                        // otherwise let the previous rotation stand
+                        if(ABS([(AbstractBezierPathElement*)[[currentStroke segments] firstObject] rotation] - rot) > 0.2){
+                            needsRenderAgain = YES;
+                            [[currentStroke segments] enumerateObjectsUsingBlock:^(AbstractBezierPathElement* _Nonnull obj, NSUInteger idx, BOOL* _Nonnull stop) {
+                                obj.rotation = rot;
+                            }];
+                        }
                     }
                 }
 
@@ -1467,18 +1471,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                     CGPoint preciseLocInView = [coalescedTouch locationInView:self];
                     if ([coalescedTouch respondsToSelector:@selector(preciseLocationInView:)]) {
                         preciseLocInView = [coalescedTouch preciseLocationInView:self];
-                    }
-
-                    if (needsRenderAgain) {
-                        CGPoint glStartPoint = [[[currentStroke segments] firstObject] startPoint];
-                        CGPoint startPoint = glStartPoint;
-                        startPoint.y = self.bounds.size.height - glStartPoint.y;
-
-                        CGFloat scale = [[UIScreen mainScreen] scale];
-                        CGRect bounds = [currentStroke bounds];
-                        bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
-
-                        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:NO inRect:bounds];
                     }
 
                     // find the stroke that we're modifying, and then add an element and render it
@@ -1491,6 +1483,19 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                 }
             }
         }
+        
+        if (needsRenderAgain) {
+            CGPoint glStartPoint = [[[currentStroke segments] firstObject] startPoint];
+            CGPoint startPoint = glStartPoint;
+            startPoint.y = self.bounds.size.height - glStartPoint.y;
+            
+            CGFloat scale = [[UIScreen mainScreen] scale];
+            CGRect bounds = [currentStroke bounds];
+            bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
+            
+            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:NO inRect:bounds];
+        }
+
         [currentStroke unlock];
     }
     [JotGLContext validateEmptyContextStack];
@@ -1515,8 +1520,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
 
                 // now line to the end of the stroke
                 for (UITouch* coalescedTouch in coalesced) {
-                    // move to this endpoint
-                    [self touchesMoved:[NSSet setWithObject:coalescedTouch] withEvent:event];
                     // now line to the end of the stroke
 
                     CGPoint preciseLocInView = [coalescedTouch locationInView:self];
@@ -1530,8 +1533,10 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                                                    toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch]
                                                    toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
                                              andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                             withStepWidth:[self.delegate stepWidthForStroke]])
-                        ;
+                                             withStepWidth:[self.delegate stepWidthForStroke]]){
+                        // noop, the [addLineToAndRenderStroke:] will return YES after enough segments have been added
+                        // to ensure at least 1 point will render.
+                    }
 
                     // this stroke is now finished, so add it to our completed strokes stack
                     // and remove it from the current strokes, and reset our undo state if any
