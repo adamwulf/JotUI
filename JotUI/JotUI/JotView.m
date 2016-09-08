@@ -952,6 +952,19 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
     @autoreleasepool {
         CheckMainThread;
 
+        // disable scissorRect. scissors is clipping based on the point center
+        // not on the point center + size, which means that if the point
+        // is barely outside the scissor rect, it won't be rendered even if
+        // its pointSize would overlap the scissorRect.
+        //
+        // to get around this problem, I think I'd have to render with quads.
+        // This means that during undo/redo, or during a rotation change
+        // for the highlighter, the points on the edges of the scissor rect
+        // are not getting rendered, leading to some strange artifacts.
+        //
+        // filed at https://github.com/adamwulf/JotUI/issues/1
+        scissorRect = CGRectZero;
+
         if (!state)
             return;
 
@@ -1458,7 +1471,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                     if (([[currentStroke segments] count] <= 2) || (len < 20 && distanceBetween2(start, end) < 5)) {
                         // if the rotation is off by at least 10 degrees, then updated the rotation on the stroke
                         // otherwise let the previous rotation stand
-                        if(ABS([(AbstractBezierPathElement*)[[currentStroke segments] firstObject] rotation] - rot) > 0.2){
+                        if(ABS([(AbstractBezierPathElement*)[[currentStroke segments] firstObject] rotation] - rot) > M_PI_4){
                             needsRenderAgain = YES;
                             [[currentStroke segments] enumerateObjectsUsingBlock:^(AbstractBezierPathElement* _Nonnull obj, NSUInteger idx, BOOL* _Nonnull stop) {
                                 obj.rotation = rot;
