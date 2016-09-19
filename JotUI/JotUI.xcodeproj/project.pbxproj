@@ -232,14 +232,14 @@
 		C535AA601C3B99580032D688 /* JotGLProgram+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLProgram+Private.h"; sourceTree = "<group>"; };
 		C535AA611C3B99F10032D688 /* JotGLPointProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JotGLPointProgram.h; sourceTree = "<group>"; };
 		C535AA621C3B99F10032D688 /* JotGLPointProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JotGLPointProgram.m; sourceTree = "<group>"; };
-		C53F808A1D6FE73E00BA9A58 /* colorlesspoint.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = colorlesspoint.vsh; sourceTree = "<group>"; };
-		C53F808B1D6FE73E00BA9A58 /* coloredpoint.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = coloredpoint.vsh; sourceTree = "<group>"; };
-		C53F808C1D6FE73E00BA9A58 /* quad.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = quad.vsh; sourceTree = "<group>"; };
-		C53F808D1D6FE73E00BA9A58 /* quad.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = quad.fsh; sourceTree = "<group>"; };
-		C53F808E1D6FE73E00BA9A58 /* stencil.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = stencil.fsh; sourceTree = "<group>"; };
+		C53F808A1D6FE73E00BA9A58 /* colorlesspoint.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = colorlesspoint.vsh; path = JotUI/colorlesspoint.vsh; sourceTree = "<group>"; };
+		C53F808B1D6FE73E00BA9A58 /* coloredpoint.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = coloredpoint.vsh; path = JotUI/coloredpoint.vsh; sourceTree = "<group>"; };
+		C53F808C1D6FE73E00BA9A58 /* quad.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = quad.vsh; path = JotUI/quad.vsh; sourceTree = "<group>"; };
+		C53F808D1D6FE73E00BA9A58 /* quad.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = quad.fsh; path = JotUI/quad.fsh; sourceTree = "<group>"; };
+		C53F808E1D6FE73E00BA9A58 /* stencil.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = stencil.fsh; path = JotUI/stencil.fsh; sourceTree = "<group>"; };
 		C569DB331C38FE2300ABFEC8 /* JotGLTextureBackedFrameBuffer+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLTextureBackedFrameBuffer+Private.h"; sourceTree = "<group>"; };
 		C569DB351C39132200ABFEC8 /* JotGLTexture+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLTexture+Private.h"; sourceTree = "<group>"; };
-		C584F81F1C37B35400413840 /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.fsh; sourceTree = "<group>"; };
+		C584F81F1C37B35400413840 /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = point.fsh; path = JotUI/point.fsh; sourceTree = "<group>"; };
 		C584F8221C37B38C00413840 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
 		C584F8231C37B38C00413840 /* fileUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileUtil.h; sourceTree = "<group>"; };
 		C584F8241C37B38C00413840 /* fileUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = fileUtil.m; sourceTree = "<group>"; };
@@ -299,6 +299,7 @@
 			children = (
 				66B498801AA131D300D48094 /* JotGLTypes.h */,
 				669B39F21692B52800F12F42 /* JotUI.h */,
+				C573539C1D90891100398008 /* Resources To Copy */,
 				669B39AE1692B46A00F12F42 /* JotUI */,
 				669B39AB1692B46A00F12F42 /* Frameworks */,
 				669B39AA1692B46A00F12F42 /* Products */,
@@ -534,6 +535,19 @@
 			name = Shaders;
 			sourceTree = "<group>";
 		};
+		C573539C1D90891100398008 /* Resources To Copy */ = {
+			isa = PBXGroup;
+			children = (
+				C53F808A1D6FE73E00BA9A58 /* colorlesspoint.vsh */,
+				C53F808B1D6FE73E00BA9A58 /* coloredpoint.vsh */,
+				C53F808C1D6FE73E00BA9A58 /* quad.vsh */,
+				C53F808D1D6FE73E00BA9A58 /* quad.fsh */,
+				C53F808E1D6FE73E00BA9A58 /* stencil.fsh */,
+				C584F81F1C37B35400413840 /* point.fsh */,
+			);
+			name = "Resources To Copy";
+			sourceTree = "<group>";
+		};
 		C584F81D1C37B34A00413840 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
@@ -543,12 +557,6 @@
 				C584F8241C37B38C00413840 /* fileUtil.m */,
 				C584F8251C37B38C00413840 /* shaderUtil.h */,
 				C584F8261C37B38C00413840 /* shaderUtil.c */,
-				C53F808A1D6FE73E00BA9A58 /* colorlesspoint.vsh */,
-				C53F808B1D6FE73E00BA9A58 /* coloredpoint.vsh */,
-				C53F808C1D6FE73E00BA9A58 /* quad.vsh */,
-				C53F808D1D6FE73E00BA9A58 /* quad.fsh */,
-				C53F808E1D6FE73E00BA9A58 /* stencil.fsh */,
-				C584F81F1C37B35400413840 /* point.fsh */,
 			);
 			name = Shaders;
 			sourceTree = "<group>";
