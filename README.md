@@ -5,8 +5,17 @@ The JotUI framework provides an OpenGL drawing view with primary goals of:
 1. No lag during drawing
 2. Easy to customize pen textures and colors
 3. Low memory footprint
+4. Undo/Redo support
+5. Lots of control during drawing through view's delegate
 
 The JotUI framework was originally built as part of [Loose Leaf](http://getlooseleaf.com) - a gesture-based note taking iPad app. More of pieces and frameworks from Loose Leaf are also [available as open source](https://getlooseleaf.com/opensource/).
+
+
+## The JotView in Loose Leaf
+
+The JotUI.framework is the drawing engine used in [Loose Leaf](http://getlooseleaf.com).
+
+![example.jpg](example.png)
 
 
 ## Adding JotUI to Your Project
@@ -32,13 +41,13 @@ JotUI includes a spacecommander as a submodule to help with keeping code style c
 
 
 ## Sample Application
- - explain the sample app
+The Xcode workspace includes a jotuiexample project that shows a fully functional integration of the JotUI framework. You can refer to this example for any questions about how to integrate into your app.
 
 
 ## License
- - not sure yet. MIT? GPL? different for commercial?
+The JotUI framework and sample code are provided under the MIT License.
+
 
 ## Support This Project
- - link to twitter / email
- - link to loose leaf
- - button to star repo
+ - Follow [@adamwulf](http://twitter.com/adamwulf) on twitter.
+ - Support this project and [download Loose Leaf](https://itunes.apple.com/us/app/loose-leaf/id625659452?mt=8&uo=4&at=10lNUI)
