@@ -47,11 +47,11 @@ static float clamp(min, max, value) {
     return [JotDefaultBrushTexture sharedInstance];
 }
 
-- (CGFloat)stepWidthForStroke{
+- (CGFloat)stepWidthForStroke {
     return 2;
 }
 
--(BOOL) supportsRotation{
+- (BOOL)supportsRotation {
     return NO;
 }
 
@@ -110,7 +110,7 @@ static float clamp(min, max, value) {
  * but for our demo adjusting only the alpha
  * is the look we're going for.
  */
-- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
+- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     if (shouldUseVelocity) {
         CGFloat segmentAlpha = (velocity - 1);
         if (segmentAlpha > 0)
@@ -144,13 +144,15 @@ static float clamp(min, max, value) {
     } else {
         CGFloat width = (maxSize + minSize) / 2.0;
         width *= coalescedTouch.force;
-        if(width < minSize) width = minSize;
-        if(width > maxSize) width = maxSize;
+        if (width < minSize)
+            width = minSize;
+        if (width > maxSize)
+            width = maxSize;
         return width;
     }
 }
 
-- (JotBrushTexture*)textureForStroke{
+- (JotBrushTexture*)textureForStroke {
     return [JotDefaultBrushTexture sharedInstance];
 }
 
@@ -163,22 +165,22 @@ static float clamp(min, max, value) {
  * > 1 is loopy
  * < 0 is knotty
  */
-- (CGFloat)smoothnessForCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
+- (CGFloat)smoothnessForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     return 0.75;
 }
 
-- (NSArray*)willAddElements:(NSArray *)elements toStroke:(JotStroke *)stroke fromPreviousElement:(AbstractBezierPathElement *)previousElement{
+- (NSArray*)willAddElements:(NSArray*)elements toStroke:(JotStroke*)stroke fromPreviousElement:(AbstractBezierPathElement*)previousElement {
     return elements;
 }
 
--(BOOL) willBeginStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
+- (BOOL)willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     velocity = 1;
     lastDate = [NSDate date];
     numberOfTouches = 1;
     return YES;
 }
 
-- (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
+- (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     numberOfTouches++;
     if (numberOfTouches > 4)
         numberOfTouches = 4;
@@ -191,20 +193,16 @@ static float clamp(min, max, value) {
     lastLoc = [touch preciseLocationInView:nil];
 }
 
-- (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding{
-    
+- (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding {
 }
 
-- (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
-    
+- (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
 }
 
-- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
-    
+- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
 }
 
-- (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
-    
+- (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
 }
 
 @end

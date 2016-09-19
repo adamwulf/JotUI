@@ -1,2 +1,2 @@
 git add -A
-./Contributed/spacecommander/format-objc-files.sh -s
+./spacecommander/format-objc-files.sh -s

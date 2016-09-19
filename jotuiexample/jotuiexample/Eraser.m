@@ -23,7 +23,7 @@
  * we'll use pressure data to determine width if we can, otherwise
  * we'll fall back to use velocity data
  */
-- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
+- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     if (shouldUseVelocity) {
         //
         // velocity is reversed from the pen, this eraser
@@ -37,7 +37,7 @@
             width = 1;
         return width;
     } else {
-        CGFloat width = minSize + (maxSize-minSize) * coalescedTouch.force;
+        CGFloat width = minSize + (maxSize - minSize) * coalescedTouch.force;
         return MAX(minSize, MIN(maxSize, width));
     }
 }

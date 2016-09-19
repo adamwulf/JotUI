@@ -178,7 +178,7 @@ static int totalTextureBytes;
         [lock lock];
 
         NSAssert(!contextOfBinding || contextOfBinding == [JotGLContext currentContext], @"Our binding context must stay the same");
-        
+
         lockCount++;
         contextOfBinding = (JotGLContext*)[JotGLContext currentContext];
         // locked this texture while it's bound so that

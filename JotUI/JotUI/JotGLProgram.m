@@ -37,16 +37,16 @@ static NSMutableArray* _jotGLProgramAttributes;
     NSString* vertShaderPathname = [[NSBundle mainBundle] pathForResource:vShaderFilename ofType:@"vsh"];
     NSString* vShaderString = [NSString stringWithContentsOfFile:vertShaderPathname encoding:NSUTF8StringEncoding error:nil];
     NSURL* frameworkURL = [[NSBundle mainBundle] URLForResource:@"JotUI" withExtension:@"framework" subdirectory:@"Frameworks"];
-    
-    if(!vShaderString){
+
+    if (!vShaderString) {
         vertShaderPathname = [[NSBundle bundleWithURL:frameworkURL] pathForResource:vShaderFilename ofType:@"vsh"];
         vShaderString = [NSString stringWithContentsOfFile:vertShaderPathname encoding:NSUTF8StringEncoding error:nil];
     }
 
     NSString* fragShaderPathname = [[NSBundle mainBundle] pathForResource:fShaderFilename ofType:@"fsh"];
     NSString* fShaderString = [NSString stringWithContentsOfFile:fragShaderPathname encoding:NSUTF8StringEncoding error:nil];
-    
-    if(!fShaderString){
+
+    if (!fShaderString) {
         fragShaderPathname = [[NSBundle bundleWithURL:frameworkURL] pathForResource:fShaderFilename ofType:@"fsh"];
         fShaderString = [NSString stringWithContentsOfFile:fragShaderPathname encoding:NSUTF8StringEncoding error:nil];
     }

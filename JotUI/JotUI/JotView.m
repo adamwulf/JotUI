@@ -401,7 +401,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
     // starting to save page
     @synchronized(self) {
         isCurrentlyExporting = [state undoHash];
-        DebugLog(@"export begins: %p hash:%d", self, (int) state.undoHash);
+        DebugLog(@"export begins: %p hash:%d", self, (int)state.undoHash);
     }
 
     dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
@@ -1457,7 +1457,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                 [self.delegate willMoveStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
 
                 BOOL shouldSkipSegment = NO;
-                
+
                 if ([self.delegate supportsRotation] && [[currentStroke segments] count] < 10) {
                     CGFloat len = [[[currentStroke segments] jotReduce:^id(AbstractBezierPathElement* ele, NSUInteger index, id accum) {
                         return @([ele lengthOfElement] + [accum floatValue]);
@@ -1494,7 +1494,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                 }
             }
         }
-        
+
         [currentStroke unlock];
     }
     [JotGLContext validateEmptyContextStack];
@@ -1532,7 +1532,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                                                    toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch]
                                                    toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
                                              andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                             withStepWidth:[self.delegate stepWidthForStroke]]){
+                                             withStepWidth:[self.delegate stepWidthForStroke]]) {
                         // noop, the [addLineToAndRenderStroke:] will return YES after enough segments have been added
                         // to ensure at least 1 point will render.
                     }

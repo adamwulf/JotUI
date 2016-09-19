@@ -208,9 +208,9 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
         // when we bind, since our colors won't be in the VBO
         if (self.color) {
             [self.color getRGBAComponents:colorComponents];
-            
+
             NSAssert(colorComponents[3] / (self.width / kDivideStepBy) > 0, @"color can't be negative");
-            
+
             CGFloat stepWidth = self.width * scaleOfVertexBuffer;
             if (stepWidth < kAbsoluteMinWidth)
                 stepWidth = kAbsoluteMinWidth;

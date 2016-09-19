@@ -169,7 +169,7 @@
 
 
 - (IBAction)saveImage {
-    [jotView exportImageTo:[self jotViewStateInkPath] andThumbnailTo:[self jotViewStateThumbPath] andStateTo:[self jotViewStatePlistPath] withThumbnailScale:1.0 onComplete:^(UIImage *ink, UIImage *thumb, JotViewImmutableState *state) {
+    [jotView exportImageTo:[self jotViewStateInkPath] andThumbnailTo:[self jotViewStateThumbPath] andStateTo:[self jotViewStatePlistPath] withThumbnailScale:1.0 onComplete:^(UIImage* ink, UIImage* thumb, JotViewImmutableState* state) {
         UIImageWriteToSavedPhotosAlbum(thumb, nil, nil, nil);
         dispatch_async(dispatch_get_main_queue(), ^{
             UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Saved" message:@"The JotView's state has been saved to disk, and a full resolution image has been saved to the photo album." preferredStyle:UIAlertControllerStyleAlert];
@@ -232,22 +232,22 @@
     [jotView redo];
 }
 
--(IBAction)clearScreen:(id)sender{
+- (IBAction)clearScreen:(id)sender {
     [jotView clear:YES];
 }
 
 
 #pragma mark - JotViewDelegate
 
--(JotBrushTexture*)textureForStroke{
+- (JotBrushTexture*)textureForStroke {
     return [[self activePen] textureForStroke];
 }
 
--(CGFloat) stepWidthForStroke{
+- (CGFloat)stepWidthForStroke {
     return [[self activePen] stepWidthForStroke];
 }
 
--(BOOL) supportsRotation{
+- (BOOL)supportsRotation {
     return [[self activePen] supportsRotation];
 }
 
@@ -255,28 +255,28 @@
     return [[self activePen] willAddElements:elements toStroke:stroke fromPreviousElement:previousElement];
 }
 
-- (BOOL)willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch{
+- (BOOL)willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     [[self activePen] willBeginStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
     return YES;
 }
 
-- (void)willMoveStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
+- (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     [[self activePen] willMoveStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-- (void)willEndStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch shortStrokeEnding:(BOOL)shortStrokeEnding{
+- (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding {
     // noop
 }
 
-- (void)didEndStrokeWithCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch{
+- (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     [[self activePen] didEndStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-- (void)willCancelStroke:(JotStroke *)stroke withCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch {
+- (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     [[self activePen] willCancelStroke:stroke withCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-- (void)didCancelStroke:(JotStroke *)stroke withCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch {
+- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     [[self activePen] didCancelStroke:stroke withCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
@@ -290,7 +290,7 @@
     return [[self activePen] widthForCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
-- (CGFloat)smoothnessForCoalescedTouch:(UITouch *)coalescedTouch fromTouch:(UITouch *)touch {
+- (CGFloat)smoothnessForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     return [[self activePen] smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
