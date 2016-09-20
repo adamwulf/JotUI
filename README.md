@@ -7,6 +7,7 @@ The JotUI framework provides an OpenGL drawing view with primary goals of:
 3. Low memory footprint
 4. Undo/Redo support
 5. Lots of control during drawing through view's delegate
+6.  Saving and loading are asynchronous to keep your main thread running smoothly
 
 The JotUI framework was originally built as part of [Loose Leaf](http://getlooseleaf.com) - a gesture-based note taking iPad app. More of pieces and frameworks from Loose Leaf are also [available as open source](https://getlooseleaf.com/opensource/).
 
