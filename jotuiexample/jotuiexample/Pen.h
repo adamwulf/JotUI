@@ -12,7 +12,7 @@
 #import <JotUI/JotBrushTexture.h>
 
 #define VELOCITY_CLAMP_MIN 20
-#define VELOCITY_CLAMP_MAX 5000
+#define VELOCITY_CLAMP_MAX 3000
 
 
 @interface Pen : NSObject <JotViewDelegate> {

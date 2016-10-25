@@ -182,15 +182,21 @@ static float clamp(min, max, value) {
 
 - (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
     numberOfTouches++;
-    if (numberOfTouches > 4)
+    if (numberOfTouches > 4){
         numberOfTouches = 4;
-    if ([self velocityForTouch:touch]) {
-        velocity = [self velocityForTouch:touch];
-    } else {
-        // noop
     }
-    lastDate = [NSDate date];
-    lastLoc = [touch preciseLocationInView:nil];
+    
+    CGFloat dur = [[NSDate date] timeIntervalSinceDate:lastDate];
+    
+    if(dur > .01){
+        // require small duration, otherwise the pts/sec calculation can vary wildly
+        if ([self velocityForTouch:touch]) {
+            velocity = [self velocityForTouch:touch];
+        }
+
+        lastDate = [NSDate date];
+        lastLoc = [touch preciseLocationInView:nil];
+    }
 }
 
 - (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding {
