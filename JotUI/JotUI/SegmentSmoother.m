@@ -21,10 +21,10 @@
 
 - (id)init {
     if (self = [super init]) {
-        point0 = CGPointMake(-1, -1);
-        point1 = CGPointMake(-1, -1); // previous previous point
-        point2 = CGPointMake(-1, -1); // previous touch point
-        point3 = CGPointMake(-1, -1);
+        point0 = CGPointMake(-CGFLOAT_MAX, -CGFLOAT_MAX);
+        point1 = CGPointMake(-CGFLOAT_MAX, -CGFLOAT_MAX); // previous previous point
+        point2 = CGPointMake(-CGFLOAT_MAX, -CGFLOAT_MAX); // previous touch point
+        point3 = CGPointMake(-CGFLOAT_MAX, -CGFLOAT_MAX);
     }
     return self;
 }
@@ -48,9 +48,9 @@
     point3 = inPoint;
 
     // determine if we need a new segment
-    if (point1.x > -1) {
-        double x0 = (point0.x > -1) ? point0.x : point1.x; //after 4 touches we should have a back anchor point, if not, use the current anchor point
-        double y0 = (point0.y > -1) ? point0.y : point1.y; //after 4 touches we should have a back anchor point, if not, use the current anchor point
+    if (point1.x > -CGFLOAT_MAX) {
+        double x0 = (point0.x > -CGFLOAT_MAX) ? point0.x : point1.x; //after 4 touches we should have a back anchor point, if not, use the current anchor point
+        double y0 = (point0.y > -CGFLOAT_MAX) ? point0.y : point1.y; //after 4 touches we should have a back anchor point, if not, use the current anchor point
         double x1 = point1.x;
         double y1 = point1.y;
         double x2 = point2.x;
@@ -106,7 +106,7 @@
                                          andCurveTo:point2
                                         andControl1:CGPointMake(ctrl1_x, ctrl1_y)
                                         andControl2:CGPointMake(ctrl2_x, ctrl2_y)];
-    } else if (point2.x == -1) {
+    } else if (point2.x == -CGFLOAT_MAX) {
         return [MoveToPathElement elementWithMoveTo:point3];
     }
 

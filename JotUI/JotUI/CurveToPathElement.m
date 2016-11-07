@@ -443,13 +443,8 @@ static CGFloat screenHeight;
         screenHeight = CGRectGetHeight([[[UIScreen mainScreen] fixedCoordinateSpace] bounds]) * scale + 50;
     });
 
-    NSAssert(!(vertex.Color[0] < 0 || vertex.Color[0] > 1), @"valid vertex color");
-    NSAssert(!(vertex.Color[1] < 0 || vertex.Color[1] > 1), @"valid vertex color");
-    NSAssert(!(vertex.Color[2] < 0 || vertex.Color[2] > 1), @"valid vertex color");
-    NSAssert(!(vertex.Color[3] < 0 || vertex.Color[3] > 1), @"valid vertex color");
+
     NSAssert(!(vertex.Size < 1 || vertex.Size > 360), @"valid vertex size");
-    NSAssert(!(vertex.Position[0] < -50 || vertex.Position[0] > screenWidth), @"valid vertex position");
-    NSAssert(!(vertex.Position[1] < -50 || vertex.Position[1] > screenHeight), @"valid vertex position");
 }
 
 - (void)loadDataIntoVBOIfNeeded {
