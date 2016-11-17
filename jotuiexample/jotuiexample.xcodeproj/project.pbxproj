@@ -36,23 +36,15 @@
 		66F9216116734FF000B1F868 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F9216016734FF000B1F868 /* ViewController.m */; };
 		C5018DED1C2BCE4A00A68A1C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */; };
 		C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */; };
+		C56201CE1DDE74C200FF508E /* colorlesspoint.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201C81DDE74C200FF508E /* colorlesspoint.vsh */; };
+		C56201CF1DDE74C200FF508E /* coloredpoint.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201C91DDE74C200FF508E /* coloredpoint.vsh */; };
+		C56201D01DDE74C200FF508E /* quad.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201CA1DDE74C200FF508E /* quad.vsh */; };
+		C56201D11DDE74C200FF508E /* quad.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201CB1DDE74C200FF508E /* quad.fsh */; };
+		C56201D21DDE74C200FF508E /* stencil.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201CC1DDE74C200FF508E /* stencil.fsh */; };
+		C56201D31DDE74C200FF508E /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201CD1DDE74C200FF508E /* point.fsh */; };
 		C584F8351C37C4AB00413840 /* Particle.png in Resources */ = {isa = PBXBuildFile; fileRef = C584F8341C37C4AB00413840 /* Particle.png */; };
 		C5C459EA1DBF155900C50EA7 /* JotUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C459E91DBF155900C50EA7 /* JotUI.framework */; };
-		C5C459EB1DBF155F00C50EA7 /* JotUI.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = C5C459E91DBF155900C50EA7 /* JotUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		C53F80941D6FE79200BA9A58 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				C5C459EB1DBF155F00C50EA7 /* JotUI.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		6625FBB0174C219D009CC541 /* Filled.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Filled.png; sourceTree = "<group>"; };
@@ -92,6 +84,12 @@
 		66F9216016734FF000B1F868 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		C56201C81DDE74C200FF508E /* colorlesspoint.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = colorlesspoint.vsh; path = ../JotUI/JotUI/colorlesspoint.vsh; sourceTree = "<group>"; };
+		C56201C91DDE74C200FF508E /* coloredpoint.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = coloredpoint.vsh; path = ../JotUI/JotUI/coloredpoint.vsh; sourceTree = "<group>"; };
+		C56201CA1DDE74C200FF508E /* quad.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = quad.vsh; path = ../JotUI/JotUI/quad.vsh; sourceTree = "<group>"; };
+		C56201CB1DDE74C200FF508E /* quad.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = quad.fsh; path = ../JotUI/JotUI/quad.fsh; sourceTree = "<group>"; };
+		C56201CC1DDE74C200FF508E /* stencil.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = stencil.fsh; path = ../JotUI/JotUI/stencil.fsh; sourceTree = "<group>"; };
+		C56201CD1DDE74C200FF508E /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = point.fsh; path = ../JotUI/JotUI/point.fsh; sourceTree = "<group>"; };
 		C584F8301C37C14C00413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
 		C584F8341C37C4AB00413840 /* Particle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Particle.png; sourceTree = "<group>"; };
 		C5C459E91DBF155900C50EA7 /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../../../../Library/Developer/Xcode/DerivedData/JotUI-gwtuddnpdsuqegaloczvhymgkvbq/Build/Products/Debug-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
@@ -167,6 +165,12 @@
 		66F9213816734FF000B1F868 = {
 			isa = PBXGroup;
 			children = (
+				C56201C81DDE74C200FF508E /* colorlesspoint.vsh */,
+				C56201C91DDE74C200FF508E /* coloredpoint.vsh */,
+				C56201CA1DDE74C200FF508E /* quad.vsh */,
+				C56201CB1DDE74C200FF508E /* quad.fsh */,
+				C56201CC1DDE74C200FF508E /* stencil.fsh */,
+				C56201CD1DDE74C200FF508E /* point.fsh */,
 				C584F82F1C37C14100413840 /* Shaders */,
 				66F9214D16734FF000B1F868 /* jotuiexample */,
 				66F9214616734FF000B1F868 /* Frameworks */,
@@ -252,7 +256,6 @@
 				66F9213F16734FF000B1F868 /* Sources */,
 				66F9214016734FF000B1F868 /* Frameworks */,
 				66F9214116734FF000B1F868 /* Resources */,
-				C53F80941D6FE79200BA9A58 /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -301,6 +304,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				66F9215216734FF000B1F868 /* InfoPlist.strings in Resources */,
+				C56201CE1DDE74C200FF508E /* colorlesspoint.vsh in Resources */,
+				C56201CF1DDE74C200FF508E /* coloredpoint.vsh in Resources */,
+				C56201D01DDE74C200FF508E /* quad.vsh in Resources */,
+				C56201D11DDE74C200FF508E /* quad.fsh in Resources */,
+				C56201D21DDE74C200FF508E /* stencil.fsh in Resources */,
+				C56201D31DDE74C200FF508E /* point.fsh in Resources */,
 				66F9215A16734FF000B1F868 /* Default.png in Resources */,
 				66F9215C16734FF000B1F868 /* Default@2x.png in Resources */,
 				66F9215E16734FF000B1F868 /* Default-568h@2x.png in Resources */,
