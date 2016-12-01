@@ -1656,6 +1656,12 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
     [context runBlock:^{
         [viewFramebuffer clear];
 
+        [state.backgroundFramebuffer bind];
+        [state.backgroundFramebuffer clearOnCurrentContext];
+        [state.backgroundFramebuffer unbind];
+
+        [self renderAllStrokesToContext:nil inFramebuffer:nil andPresentBuffer:NO inRect:CGRectZero];
+        
         if (shouldPresent) {
             // Display the buffer
             [self setNeedsPresentRenderBuffer];

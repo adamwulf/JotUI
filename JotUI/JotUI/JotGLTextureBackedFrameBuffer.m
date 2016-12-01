@@ -65,11 +65,8 @@ dispatch_queue_t importExportTextureQueue;
     return importExportTextureQueue;
 }
 
-- (void)clear {
-    JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotTextureBackedFBOSubContext" andSharegroup:[JotGLContext currentContext].sharegroup andValidateThreadWith:^BOOL {
-        return [JotView isImportExportImageQueue];
-    }];
-    [subContext runBlock:^{
+-(void) clearOnCurrentContext{
+    [JotGLContext runBlock:^(JotGLContext* currentContext){
         // render it to the backing texture
         //
         //
@@ -77,11 +74,20 @@ dispatch_queue_t importExportTextureQueue;
         // and/or how this interacts later
         // with other threads
         [texture bind];
-        [subContext bindFramebuffer:framebufferID];
-        [subContext clear];
-
-        [subContext unbindFramebuffer];
+        [currentContext bindFramebuffer:framebufferID];
+        [currentContext clear];
+        
+        [currentContext unbindFramebuffer];
         [texture unbind];
+    }];
+}
+
+- (void)clear {
+    JotGLContext* subContext = [[JotGLContext alloc] initWithName:@"JotTextureBackedFBOSubContext" andSharegroup:[JotGLContext currentContext].sharegroup andValidateThreadWith:^BOOL {
+        return [JotView isImportExportImageQueue];
+    }];
+    [subContext runBlock:^{
+        [self clearOnCurrentContext];
     }];
 }
 
