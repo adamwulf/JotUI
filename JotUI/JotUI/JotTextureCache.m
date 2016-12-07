@@ -42,9 +42,17 @@
 
     @synchronized(self) {
         if ([cachedTextures count]) {
-            JotGLTexture* reusedTexture = [cachedTextures lastObject];
-            [cachedTextures removeLastObject];
-            return reusedTexture;
+            CGFloat targetPxCount = fullSize.width * fullSize.height;
+            for (NSInteger index = 0; index < [cachedTextures count]; index++) {
+                JotGLTexture* reusedTexture = cachedTextures[index];
+                CGFloat reusedPxCount = reusedTexture.pixelSize.width * reusedTexture.pixelSize.height;
+                if (reusedPxCount >= targetPxCount) {
+                    // Only return a cached texture if it could fit the requested texture size
+                    // in it's allocated size
+                    [cachedTextures removeObject:reusedTexture];
+                    return reusedTexture;
+                }
+            }
         }
 
         [context runBlock:^{
