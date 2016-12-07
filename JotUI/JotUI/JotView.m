@@ -584,9 +584,8 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
 
                 // create the texture
                 // maxTextureSize
-                CGSize maxTextureSize = [UIScreen mainScreen].portraitBounds.size;
-                maxTextureSize.width *= [UIScreen mainScreen].scale;
-                maxTextureSize.height *= [UIScreen mainScreen].scale;
+                CGSize maxTextureSize = exportSize;
+      
                 JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
                 [canvasTexture bind];
 
