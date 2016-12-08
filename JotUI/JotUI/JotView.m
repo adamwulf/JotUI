@@ -567,25 +567,24 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                 return [JotView isImportExportImageQueue];
             }];
             [secondSubContext runBlock:^{
-                //            // finish current gl calls
-                //            glFinish();
-
                 [secondSubContext glDisableDither];
                 [secondSubContext glEnableBlend];
 
                 // Set a blending function appropriate for premultiplied alpha pixel data
                 [secondSubContext glBlendFuncONE];
 
-                CGSize fullSize = viewFramebuffer.initialViewport;
+                // make sure our fullSize is in pts.
+                CGSize fullSize = self.layer.bounds.size;
+                // exportSize will scale if needed. this way our view can be at 2x scale
+                // for high res screens, and the caller can still export at 1x, or vice-versa
                 CGSize exportSize = CGSizeMake(ceilf(fullSize.width * outputScale), ceilf(fullSize.height * outputScale));
-                ;
 
                 [secondSubContext glViewportWithX:0 y:0 width:(GLsizei)fullSize.width height:(GLsizei)fullSize.height];
 
                 // create the texture
                 // maxTextureSize
                 CGSize maxTextureSize = exportSize;
-      
+
                 JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
                 [canvasTexture bind];
 
@@ -1660,7 +1659,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
         [state.backgroundFramebuffer unbind];
 
         [self renderAllStrokesToContext:nil inFramebuffer:nil andPresentBuffer:NO inRect:CGRectZero];
-        
+
         if (shouldPresent) {
             // Display the buffer
             [self setNeedsPresentRenderBuffer];
