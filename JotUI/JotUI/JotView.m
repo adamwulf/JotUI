@@ -573,19 +573,27 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                 // Set a blending function appropriate for premultiplied alpha pixel data
                 [secondSubContext glBlendFuncONE];
 
-                // make sure our fullSize is in pts.
-                CGSize fullSize = self.layer.bounds.size;
-                // exportSize will scale if needed. this way our view can be at 2x scale
-                // for high res screens, and the caller can still export at 1x, or vice-versa
-                CGSize exportSize = CGSizeMake(ceilf(fullSize.width * outputScale), ceilf(fullSize.height * outputScale));
+                // fullSize in px of our existing framebuffer
+                CGSize fullSize = viewFramebuffer.initialViewport;
+
+                // exportSize is px of our target export image
+                CGSize exportSize = CGSizeMake(ceilf(self.bounds.size.width * outputScale), ceilf(self.bounds.size.height * outputScale));
 
                 [secondSubContext glViewportWithX:0 y:0 width:(GLsizei)fullSize.width height:(GLsizei)fullSize.height];
 
-                // create the texture
-                // maxTextureSize
-                CGSize maxTextureSize = exportSize;
+                // create the texture that's at least as big as our screen
+                // (so that we can reuse the texture as much as possible)
+                // or make a larger texture if necessary
+                CGSize minTextureSize = [UIScreen mainScreen].portraitBounds.size;
+                minTextureSize.width *= [UIScreen mainScreen].scale;
+                minTextureSize.height *= [UIScreen mainScreen].scale;
 
-                JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:maxTextureSize];
+                CGSize targetTextureSize = exportSize;
+                if (minTextureSize.width * minTextureSize.height > exportSize.width * exportSize.height) {
+                    targetTextureSize = minTextureSize;
+                }
+
+                JotGLTexture* canvasTexture = [[JotTextureCache sharedManager] generateTextureForContext:secondSubContext ofSize:targetTextureSize];
                 [canvasTexture bind];
 
                 GLuint exportFramebuffer = [secondSubContext generateFramebufferWithTextureBacking:canvasTexture];
