@@ -119,6 +119,8 @@
 		C584F8211C37B35400413840 /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F81F1C37B35400413840 /* point.fsh */; };
 		C584F8291C37B38C00413840 /* fileUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = C584F8241C37B38C00413840 /* fileUtil.m */; };
 		C584F82B1C37B38C00413840 /* shaderUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = C584F8261C37B38C00413840 /* shaderUtil.c */; };
+		C5A5C4981DFE6E3100FD2555 /* MMDataCache.h in Headers */ = {isa = PBXBuildFile; fileRef = C5A5C4961DFE6E3100FD2555 /* MMDataCache.h */; };
+		C5A5C4991DFE6E3100FD2555 /* MMDataCache.m in Sources */ = {isa = PBXBuildFile; fileRef = C5A5C4971DFE6E3100FD2555 /* MMDataCache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -247,6 +249,8 @@
 		C584F8261C37B38C00413840 /* shaderUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shaderUtil.c; sourceTree = "<group>"; };
 		C584F82C1C37B41200413840 /* ShaderHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderHelper.h; sourceTree = "<group>"; };
 		C584F82D1C37B46B00413840 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		C5A5C4961DFE6E3100FD2555 /* MMDataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMDataCache.h; sourceTree = "<group>"; };
+		C5A5C4971DFE6E3100FD2555 /* MMDataCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMDataCache.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -328,6 +332,8 @@
 		669B39AE1692B46A00F12F42 /* JotUI */ = {
 			isa = PBXGroup;
 			children = (
+				C5A5C4961DFE6E3100FD2555 /* MMDataCache.h */,
+				C5A5C4971DFE6E3100FD2555 /* MMDataCache.m */,
 				66A340241694FF480093E81A /* Categories */,
 				669B3A2E1692B66B00F12F42 /* Classes */,
 				669B39AF1692B46A00F12F42 /* Supporting Files */,
@@ -619,6 +625,7 @@
 				66018A4819F61F4400228A0D /* DeleteAssets.h in Headers */,
 				667EC0401A0206EE0069FF33 /* JotImageWriteOperation.h in Headers */,
 				668D19E319F8652100A65DCF /* JotTextureCache.h in Headers */,
+				C5A5C4981DFE6E3100FD2555 /* MMDataCache.h in Headers */,
 				66F1F1FE18079BD700B8CE3B /* MMWeakTimerTarget.h in Headers */,
 				66F1F1FB18079BD700B8CE3B /* JotViewState.h in Headers */,
 				66696F821828505A00B7442F /* JotViewStateProxyDelegate.h in Headers */,
@@ -789,6 +796,7 @@
 				66AC157A18079B27005315C8 /* JotViewImmutableState.m in Sources */,
 				66AC157B18079B27005315C8 /* JotView.m in Sources */,
 				668D19E419F8652100A65DCF /* JotTextureCache.m in Sources */,
+				C5A5C4991DFE6E3100FD2555 /* MMDataCache.m in Sources */,
 				66C6AAE818A2E4D50036F4BB /* JotFilledPathStroke.m in Sources */,
 				66AC157C18079B27005315C8 /* MMWeakTimerTarget.m in Sources */,
 				66C6AAEC18A2E78E0036F4BB /* FilledPathElement.m in Sources */,

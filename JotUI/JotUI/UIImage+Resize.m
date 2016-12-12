@@ -6,6 +6,7 @@
 #import "UIImage+Resize.h"
 #import "UIImage+RoundedCorner.h"
 #import "UIImage+Alpha.h"
+#import "MMDataCache.h"
 
 
 @implementation UIImage (Resize)
@@ -113,8 +114,12 @@
     CGRect transposedRect = CGRectMake(0, 0, newRect.size.height, newRect.size.width);
     CGImageRef imageRef = self.CGImage;
 
+
+    NSUInteger byteSize = (((newRect.size.width * 32) + 7) / 8) * newRect.size.height;
+    NSData* data = [[MMDataCache sharedCache] dataOfSize:byteSize];
+
     // Build a context that's the same dimensions as the new size
-    CGContextRef bitmap = CGBitmapContextCreate(NULL,
+    CGContextRef bitmap = CGBitmapContextCreate([data bytes],
                                                 newRect.size.width,
                                                 newRect.size.height,
                                                 8,
@@ -141,6 +146,8 @@
     // Clean up
     CGContextRelease(bitmap);
     CGImageRelease(newImageRef);
+
+    [[MMDataCache sharedCache] returnDataToCache:data];
 
     return newImage;
 }
