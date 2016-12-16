@@ -25,20 +25,25 @@
     pen = [[Pen alloc] init];
     marker = [[Marker alloc] init];
     eraser = [[Eraser alloc] init];
-
-    jotView.frame = self.view.bounds;
-
-    JotViewStateProxy* paperState = [[JotViewStateProxy alloc] initWithDelegate:self];
-    paperState.delegate = self;
-    [paperState loadJotStateAsynchronously:NO withSize:jotView.bounds.size andScale:[[UIScreen mainScreen] scale] andContext:jotView.context andBufferManager:[JotBufferManager sharedInstance]];
-    [jotView loadState:paperState];
-
-    [self changePenType:nil];
-
-    [self tappedColorButton:blackButton];
-
     marker.color = [redButton backgroundColor];
     pen.color = [blackButton backgroundColor];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    if (!jotView) {
+        jotView = [[JotView alloc] initWithFrame:self.view.bounds];
+        jotView.delegate = self;
+        [self.view insertSubview:jotView atIndex:0];
+
+        JotViewStateProxy* paperState = [[JotViewStateProxy alloc] initWithDelegate:self];
+        paperState.delegate = self;
+        [paperState loadJotStateAsynchronously:NO withSize:jotView.bounds.size andScale:[[UIScreen mainScreen] scale] andContext:jotView.context andBufferManager:[JotBufferManager sharedInstance]];
+        [jotView loadState:paperState];
+
+        [self changePenType:nil];
+
+        [self tappedColorButton:blackButton];
+    }
 }
 
 

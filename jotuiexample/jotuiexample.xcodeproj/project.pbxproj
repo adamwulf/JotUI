@@ -44,6 +44,7 @@
 		C56201D31DDE74C200FF508E /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201CD1DDE74C200FF508E /* point.fsh */; };
 		C584F8351C37C4AB00413840 /* Particle.png in Resources */ = {isa = PBXBuildFile; fileRef = C584F8341C37C4AB00413840 /* Particle.png */; };
 		C5C459EA1DBF155900C50EA7 /* JotUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C459E91DBF155900C50EA7 /* JotUI.framework */; };
+		C5E0C8131E04A95900D8E301 /* ViewController~iphone.xib in Resources */ = {isa = PBXBuildFile; fileRef = C5E0C8121E04A95900D8E301 /* ViewController~iphone.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -93,6 +94,7 @@
 		C584F8301C37C14C00413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
 		C584F8341C37C4AB00413840 /* Particle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Particle.png; sourceTree = "<group>"; };
 		C5C459E91DBF155900C50EA7 /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../../../../Library/Developer/Xcode/DerivedData/JotUI-gwtuddnpdsuqegaloczvhymgkvbq/Build/Products/Debug-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
+		C5E0C8121E04A95900D8E301 /* ViewController~iphone.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "ViewController~iphone.xib"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -207,6 +209,7 @@
 				66F9215F16734FF000B1F868 /* ViewController.h */,
 				66F9216016734FF000B1F868 /* ViewController.m */,
 				66AA5F5D169949A90046CA26 /* ViewController.xib */,
+				C5E0C8121E04A95900D8E301 /* ViewController~iphone.xib */,
 				66910E8516803FA50046EE12 /* Pen Styles */,
 				66F9214E16734FF000B1F868 /* Supporting Files */,
 			);
@@ -313,6 +316,7 @@
 				66F9215A16734FF000B1F868 /* Default.png in Resources */,
 				66F9215C16734FF000B1F868 /* Default@2x.png in Resources */,
 				66F9215E16734FF000B1F868 /* Default-568h@2x.png in Resources */,
+				C5E0C8131E04A95900D8E301 /* ViewController~iphone.xib in Resources */,
 				669B3AC61692C6E300F12F42 /* FadedCircle.png in Resources */,
 				669B3ACB1692CB4C00F12F42 /* Circle.png in Resources */,
 				669B3ACD169378DB00F12F42 /* Square.png in Resources */,
@@ -451,6 +455,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.milestonemade.jotuiexample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -472,6 +477,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.milestonemade.jotuiexample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
