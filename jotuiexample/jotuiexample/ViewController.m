@@ -286,12 +286,12 @@
 }
 
 - (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
-    [[self activePen] setShouldUseVelocity:pressureVsVelocityControl.selectedSegmentIndex];
+    [[self activePen] setShouldUseVelocity:!pressureVsVelocityControl || pressureVsVelocityControl.selectedSegmentIndex];
     return [[self activePen] colorForCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
 - (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
-    [[self activePen] setShouldUseVelocity:pressureVsVelocityControl.selectedSegmentIndex];
+    [[self activePen] setShouldUseVelocity:!pressureVsVelocityControl || pressureVsVelocityControl.selectedSegmentIndex];
     return [[self activePen] widthForCoalescedTouch:coalescedTouch fromTouch:touch];
 }
 
