@@ -1106,7 +1106,7 @@ forStenciledPath:(UIBezierPath*)clippingPath
 
 #pragma mark - Buffers
 
-static NSInteger zeroedCacheNumber = -1;
+static GLsizeiptr zeroedCacheSize = -1;
 static void* zeroedDataCache = nil;
 
 - (GLuint)generateArrayBufferForSize:(GLsizeiptr)mallocSize forCacheNumber:(NSInteger)cacheNumber {
@@ -1114,13 +1114,13 @@ static void* zeroedDataCache = nil;
     // zeroedDataCache is a pointer to zero'd memory that we
     // use to initialze our VBO. This prevents "VBO uses uninitialized data"
     // warning in Instruments, and will only waste a few Kb of memory
-    if (cacheNumber > zeroedCacheNumber) {
+    if (mallocSize > zeroedCacheSize) {
         @synchronized([JotGLContext class]) {
             if (zeroedDataCache) {
                 free(zeroedDataCache);
             }
-            zeroedCacheNumber = cacheNumber;
-            zeroedDataCache = calloc(cacheNumber, kJotBufferBucketSize);
+            zeroedCacheSize = mallocSize;
+            zeroedDataCache = calloc(1, mallocSize);
             if (!zeroedDataCache) {
                 @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't calloc" userInfo:nil];
             }
