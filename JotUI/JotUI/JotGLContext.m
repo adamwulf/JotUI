@@ -12,7 +12,6 @@
 #import <OpenGLES/EAGLDrawable.h>
 #import <GLKit/GLKit.h>
 #import <mach/mach_time.h> // for mach_absolute_time() and friends
-#import "ShaderHelper.h"
 #import "JotGLLayerBackedFrameBuffer.h"
 #import "JotGLTextureBackedFrameBuffer+Private.h"
 #import "JotGLTexture+Private.h"

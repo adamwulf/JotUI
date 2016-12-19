@@ -10,9 +10,6 @@
 #define JotGLTexture_Private_h
 
 
-#import "ShaderHelper.h"
-
-
 @interface JotGLTexture ()
 
 - (void)bindForRenderToQuadWithCanvasSize:(CGSize)canvasSize forProgram:(JotGLProgram*)program;

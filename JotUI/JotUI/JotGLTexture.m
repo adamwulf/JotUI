@@ -12,7 +12,6 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 #import "AbstractBezierPathElement-Protected.h"
-#import "ShaderHelper.h"
 #import "JotGLTexture+Private.h"
 #import "JotGLQuadProgram.h"
 

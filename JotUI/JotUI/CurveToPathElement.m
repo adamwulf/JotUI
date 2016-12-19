@@ -332,7 +332,6 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
         @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
     }
 
-
     //
     // now setup what we need to calculate the changes in width
     // along the stroke

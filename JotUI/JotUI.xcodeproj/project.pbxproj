@@ -117,7 +117,6 @@
 		C53F80931D6FE73E00BA9A58 /* stencil.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C53F808E1D6FE73E00BA9A58 /* stencil.fsh */; };
 		C569DB341C38FF2800ABFEC8 /* JotGLTextureBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */; };
 		C584F8211C37B35400413840 /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F81F1C37B35400413840 /* point.fsh */; };
-		C584F8291C37B38C00413840 /* fileUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = C584F8241C37B38C00413840 /* fileUtil.m */; };
 		C584F82B1C37B38C00413840 /* shaderUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = C584F8261C37B38C00413840 /* shaderUtil.c */; };
 		C5A5C4981DFE6E3100FD2555 /* MMDataCache.h in Headers */ = {isa = PBXBuildFile; fileRef = C5A5C4961DFE6E3100FD2555 /* MMDataCache.h */; };
 		C5A5C4991DFE6E3100FD2555 /* MMDataCache.m in Sources */ = {isa = PBXBuildFile; fileRef = C5A5C4971DFE6E3100FD2555 /* MMDataCache.m */; };
@@ -243,11 +242,8 @@
 		C569DB351C39132200ABFEC8 /* JotGLTexture+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "JotGLTexture+Private.h"; sourceTree = "<group>"; };
 		C584F81F1C37B35400413840 /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = point.fsh; path = JotUI/point.fsh; sourceTree = "<group>"; };
 		C584F8221C37B38C00413840 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
-		C584F8231C37B38C00413840 /* fileUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fileUtil.h; sourceTree = "<group>"; };
-		C584F8241C37B38C00413840 /* fileUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = fileUtil.m; sourceTree = "<group>"; };
 		C584F8251C37B38C00413840 /* shaderUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shaderUtil.h; sourceTree = "<group>"; };
 		C584F8261C37B38C00413840 /* shaderUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shaderUtil.c; sourceTree = "<group>"; };
-		C584F82C1C37B41200413840 /* ShaderHelper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShaderHelper.h; sourceTree = "<group>"; };
 		C584F82D1C37B46B00413840 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		C5A5C4961DFE6E3100FD2555 /* MMDataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMDataCache.h; sourceTree = "<group>"; };
 		C5A5C4971DFE6E3100FD2555 /* MMDataCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMDataCache.m; sourceTree = "<group>"; };
@@ -557,10 +553,7 @@
 		C584F81D1C37B34A00413840 /* Shaders */ = {
 			isa = PBXGroup;
 			children = (
-				C584F82C1C37B41200413840 /* ShaderHelper.h */,
 				C584F8221C37B38C00413840 /* debug.h */,
-				C584F8231C37B38C00413840 /* fileUtil.h */,
-				C584F8241C37B38C00413840 /* fileUtil.m */,
 				C584F8251C37B38C00413840 /* shaderUtil.h */,
 				C584F8261C37B38C00413840 /* shaderUtil.c */,
 			);
@@ -784,7 +777,6 @@
 				66AC157418079B27005315C8 /* JotImmutableStroke.m in Sources */,
 				C518C8771C841C1B00F1895C /* UIImage+BrushTextures.m in Sources */,
 				66AC157518079B27005315C8 /* SegmentSmoother.m in Sources */,
-				C584F8291C37B38C00413840 /* fileUtil.m in Sources */,
 				C535AA5F1C3B98BD0032D688 /* JotGLQuadProgram.m in Sources */,
 				66AC157618079B27005315C8 /* AbstractBezierPathElement.m in Sources */,
 				66AC157718079B27005315C8 /* MoveToPathElement.m in Sources */,

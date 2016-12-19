@@ -10,7 +10,6 @@
 #import "JotGLContext.h"
 #import "DeleteAssets.h"
 #import "AbstractJotGLFrameBuffer.h"
-#import "ShaderHelper.h"
 
 
 @interface JotGLLayerBackedFrameBuffer : AbstractJotGLFrameBuffer <DeleteAssets>

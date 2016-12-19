@@ -9,7 +9,6 @@
 #import "JotGLTextureBackedFrameBuffer.h"
 #import "JotUI.h"
 #import <OpenGLES/EAGL.h>
-#import "ShaderHelper.h"
 #import "JotGLLayerBackedFrameBuffer.h"
 #import "JotGLTextureBackedFrameBuffer+Private.h"
 
@@ -65,8 +64,8 @@ dispatch_queue_t importExportTextureQueue;
     return importExportTextureQueue;
 }
 
--(void) clearOnCurrentContext{
-    [JotGLContext runBlock:^(JotGLContext* currentContext){
+- (void)clearOnCurrentContext {
+    [JotGLContext runBlock:^(JotGLContext* currentContext) {
         // render it to the backing texture
         //
         //
@@ -76,7 +75,7 @@ dispatch_queue_t importExportTextureQueue;
         [texture bind];
         [currentContext bindFramebuffer:framebufferID];
         [currentContext clear];
-        
+
         [currentContext unbindFramebuffer];
         [texture unbind];
     }];
