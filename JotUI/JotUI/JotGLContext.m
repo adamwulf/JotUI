@@ -19,6 +19,7 @@
 #import "JotGLPointProgram.h"
 #import "JotGLColorlessPointProgram.h"
 #import "JotGLColoredPointProgram.h"
+#import "MallocLog.h"
 
 int printOglError(char* file, int line) {
     GLenum glErr;
@@ -1116,10 +1117,10 @@ static void* zeroedDataCache = nil;
     if (mallocSize > zeroedCacheSize) {
         @synchronized([JotGLContext class]) {
             if (zeroedDataCache) {
-                free(zeroedDataCache);
+                freeLog(zeroedDataCache);
             }
             zeroedCacheSize = mallocSize;
-            zeroedDataCache = calloc(1, mallocSize);
+            zeroedDataCache = callocLog(1, mallocSize);
             if (!zeroedDataCache) {
                 @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't calloc" userInfo:nil];
             }

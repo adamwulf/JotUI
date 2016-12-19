@@ -52,7 +52,6 @@
 #include "ShaderUtil.h"
 #include "debug.h"
 
-
 #define LogInfo printf
 #define LogError printf
 

@@ -28,6 +28,7 @@
 #import <Foundation/Foundation.h>
 
 #import <JotUI/JotView.h>
+#import <JotUI/MallocLog.h>
 #import <JotUI/JotViewDelegate.h>
 #import <JotUI/MoveToPathElement.h>
 #import <JotUI/CurveToPathElement.h>

@@ -7,6 +7,7 @@
 //
 
 #import "MMDataCache.h"
+#import <JotUI/MallocLog.h>
 
 
 @implementation MMDataCache {
@@ -44,7 +45,7 @@ static MMDataCache* sharedCache;
     }
 
     if (!cachedNSData) {
-        cachedNSData = [NSData dataWithBytesNoCopy:malloc(byteSize) length:byteSize freeWhenDone:NO];
+        cachedNSData = [NSData dataWithBytesNoCopy:mallocLog(byteSize) length:byteSize freeWhenDone:NO];
     }
 
     return cachedNSData;
@@ -64,7 +65,7 @@ static MMDataCache* sharedCache;
         if ([memoryQueue count]) {
             NSData* cachedNSData = [memoryQueue firstObject];
             [memoryQueue removeObjectAtIndex:0];
-            free(cachedNSData.bytes);
+            freeLog(cachedNSData.bytes);
 
             // continue bleeding the cache every 3 seconds
             [self performSelector:@selector(bleedCache) withObject:nil afterDelay:3];

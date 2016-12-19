@@ -118,6 +118,7 @@
 		C569DB341C38FF2800ABFEC8 /* JotGLTextureBackedFrameBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 66455F91175FD8BF00C66DFA /* JotGLTextureBackedFrameBuffer.m */; };
 		C584F8211C37B35400413840 /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C584F81F1C37B35400413840 /* point.fsh */; };
 		C584F82B1C37B38C00413840 /* shaderUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = C584F8261C37B38C00413840 /* shaderUtil.c */; };
+		C59923C21E08772F00B42605 /* MallocLog.h in Headers */ = {isa = PBXBuildFile; fileRef = C59923C11E08772F00B42605 /* MallocLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		C5A5C4981DFE6E3100FD2555 /* MMDataCache.h in Headers */ = {isa = PBXBuildFile; fileRef = C5A5C4961DFE6E3100FD2555 /* MMDataCache.h */; };
 		C5A5C4991DFE6E3100FD2555 /* MMDataCache.m in Sources */ = {isa = PBXBuildFile; fileRef = C5A5C4971DFE6E3100FD2555 /* MMDataCache.m */; };
 /* End PBXBuildFile section */
@@ -245,6 +246,7 @@
 		C584F8251C37B38C00413840 /* shaderUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = shaderUtil.h; sourceTree = "<group>"; };
 		C584F8261C37B38C00413840 /* shaderUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = shaderUtil.c; sourceTree = "<group>"; };
 		C584F82D1C37B46B00413840 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		C59923C11E08772F00B42605 /* MallocLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MallocLog.h; path = JotUI/MallocLog.h; sourceTree = "<group>"; };
 		C5A5C4961DFE6E3100FD2555 /* MMDataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMDataCache.h; sourceTree = "<group>"; };
 		C5A5C4971DFE6E3100FD2555 /* MMDataCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMDataCache.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -299,6 +301,7 @@
 			children = (
 				66B498801AA131D300D48094 /* JotGLTypes.h */,
 				669B39F21692B52800F12F42 /* JotUI.h */,
+				C59923C11E08772F00B42605 /* MallocLog.h */,
 				C573539C1D90891100398008 /* Resources To Copy */,
 				669B39AE1692B46A00F12F42 /* JotUI */,
 				669B39AB1692B46A00F12F42 /* Frameworks */,
@@ -599,6 +602,7 @@
 				66F1F1F918079BD700B8CE3B /* MoveToPathElement.h in Headers */,
 				66F1F1FA18079BD700B8CE3B /* CurveToPathElement.h in Headers */,
 				66F1F1FC18079BD700B8CE3B /* JotViewImmutableState.h in Headers */,
+				C59923C21E08772F00B42605 /* MallocLog.h in Headers */,
 				66F1F1FD18079BD700B8CE3B /* JotView.h in Headers */,
 				6658ABD01A7B1A1F00F32506 /* JotGLLayerBackedFrameBuffer.h in Headers */,
 				66696F7F1828501B00B7442F /* JotViewStateProxy.h in Headers */,
