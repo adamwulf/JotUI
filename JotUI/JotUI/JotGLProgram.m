@@ -245,17 +245,19 @@ static NSMutableArray* _jotGLProgramAttributes;
 #pragma mark -
 
 - (void)dealloc {
-    if (_vertShader) {
-        glDeleteShader(_vertShader);
-    }
+    [JotGLContext runBlock:^(JotGLContext* context) {
+        if (_vertShader) {
+            glDeleteShader(_vertShader);
+        }
 
-    if (_fragShader) {
-        glDeleteShader(_fragShader);
-    }
+        if (_fragShader) {
+            glDeleteShader(_fragShader);
+        }
 
-    if (_programId) {
-        glDeleteProgram(_programId);
-    }
+        if (_programId) {
+            glDeleteProgram(_programId);
+        }
+    }];
 }
 
 @end

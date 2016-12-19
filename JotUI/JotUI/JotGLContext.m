@@ -881,11 +881,13 @@ forStenciledPath:(UIBezierPath*)clippingPath
 - (void)readPixelsInto:(GLubyte*)data ofSize:(GLSize)size {
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
 
-    // timing start
-    CGFloat duration = BNRTimeBlock2(^{
-        glReadPixels(0, 0, size.width, size.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    });
-    DebugLog(@"total2 = %f", duration);
+    @autoreleasepool {
+        // timing start
+        CGFloat duration = BNRTimeBlock2(^{
+            glReadPixels(0, 0, size.width, size.height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        });
+        DebugLog(@"total2 = %f", duration);
+    }
     // timing end
     printOpenGLError();
 }
@@ -1166,7 +1168,13 @@ static void* zeroedDataCache = nil;
     };
 
     [self runBlock:^{
-        [contextProperties removeAllObjects];
+        @autoreleasepool {
+            [contextProperties removeAllObjects];
+            coloredPointProgram = nil;
+            colorlessPointProgram = nil;
+            quadProgram = nil;
+            stencilProgram = nil;
+        }
     }];
 }
 
