@@ -120,8 +120,10 @@ static const void* const kDiskAssetQueueIdentifier = &kDiskAssetQueueIdentifier;
 - (JotImageWriteOperation*)cancelAnyOperationFor:(NSString*)path {
     JotImageWriteOperation* currentOperation = nil;
     @synchronized(inProcessDiskWrites) {
-        currentOperation = [inProcessDiskWrites objectForKey:path];
-        [inProcessDiskWrites removeObjectForKey:path];
+        if(path){
+            currentOperation = [inProcessDiskWrites objectForKey:path];
+            [inProcessDiskWrites removeObjectForKey:path];
+        }
     }
     [currentOperation cancel];
     return currentOperation;
