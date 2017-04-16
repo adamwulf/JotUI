@@ -563,12 +563,13 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                 return;
             }
 
+            __block CGImageRef cgImage;
+            __block UIImage* image;
+
             JotGLContext* secondSubContext = [[JotGLContext alloc] initWithName:@"JotViewExportToImageContext" andSharegroup:mainThreadContext.sharegroup andValidateThreadWith:^BOOL {
                 return [JotView isImportExportImageQueue];
             }];
             [secondSubContext runBlock:^{
-                CGImageRef cgImage;
-                UIImage* image;
                 @autoreleasepool {
                     [secondSubContext glDisableDither];
                     [secondSubContext glEnableBlend];
@@ -728,13 +729,6 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                     CGImageRelease(iref);
                     CGContextRelease(bitmapContext);
                 }
-
-                // ok, we're done exporting and cleaning up
-                // so pass the newly generated image to the completion block
-                @autoreleasepool {
-                    exportFinishBlock(image);
-                    CGImageRelease(cgImage);
-                }
             }];
 
             [JotGLContext validateEmptyContextStack];
@@ -742,7 +736,21 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                 // can't do this sync()
                 // because the main thread + the importExportImageQueue
                 // could deadlock
+                //
+                // from the docs: https://developer.apple.com/reference/foundation/nslock
+                // The NSLock class uses POSIX threads to implement its locking behavior. When sending an unlock message
+                // to an NSLock object, you must be sure that message is sent from the same thread that sent the initial
+                // lock message. Unlocking a lock from a different thread can result in undefined behavior.
                 [imageTextureLock unlock];
+
+                dispatch_async([JotView importExportImageQueue], ^{
+                    // ok, we're done exporting and cleaning up
+                    // so pass the newly generated image to the completion block
+                    @autoreleasepool {
+                        exportFinishBlock(image);
+                        CGImageRelease(cgImage);
+                    }
+                });
             }];
         }
     });
