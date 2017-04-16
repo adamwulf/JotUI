@@ -450,7 +450,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_LDFLAGS = (
 					"-fobjc-arc",
-					"-all_load",
 					"-ObjC",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.milestonemade.jotuiexample;
@@ -472,7 +471,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				OTHER_LDFLAGS = (
 					"-fobjc-arc",
-					"-all_load",
 					"-ObjC",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.milestonemade.jotuiexample;

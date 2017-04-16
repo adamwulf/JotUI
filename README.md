@@ -27,7 +27,8 @@ JotUI builds into a static framework that can be linked into your iOS app. The J
 2. Copy the *.vsh and *.fsh files into your project's Copy Resources phase
 3. Add `#import <JotUI/JotUI.h>`
 4. Create a `JotView` and implement the `JotViewDelegate` protocol
-5. Enjoy!
+5. Add "-ObjC" to the Other Linker Flags in the project's Settings
+6. Enjoy!
 
 
 ## Get Involved
