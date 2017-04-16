@@ -11,7 +11,6 @@
 #import <OpenGLES/ES1/gl.h>
 #import <OpenGLES/ES1/glext.h>
 #import "JotGLContext.h"
-#import "MallocLog.h"
 
 // TODO: remove the gl.h above, and have the brush texture use a proper JotGLTexture as its backing.
 
@@ -72,8 +71,7 @@
             // Allocate  memory needed for the bitmap context
             // calloc will zero out all the memory, so we don't have to
             // manually clear it w/ core graphics
-            GLubyte* brushData = (GLubyte*)callocLog(width * height * 4, sizeof(GLubyte));
-            long totalLen = width * height * 4 * sizeof(GLubyte);
+            GLubyte* brushData = (GLubyte*)calloc(width * height * 4, sizeof(GLubyte));
             if (!brushData) {
                 @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
             }
@@ -99,7 +97,7 @@
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, brushData);
 
             // Release  the image data; it's no longer needed
-            freeLog(brushData);
+            free(brushData);
             glFlush();
             ret = YES;
             return;

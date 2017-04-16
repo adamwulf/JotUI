@@ -35,7 +35,6 @@
 #import "JotGLColorlessPointProgram.h"
 #import "JotGLColoredPointProgram.h"
 #import "NSArray+JotMapReduce.h"
-#import "MallocLog.h"
 
 #define kJotValidateUndoTimer .06
 
@@ -90,40 +89,6 @@ dispatch_queue_t importExportStateQueue;
 
 
 @implementation JotView
-
-static NSMutableArray<NSData*>* ptrCache;
-
-+ (void)load {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        ptrCache = [NSMutableArray array];
-    });
-}
-
-+ (void)cachePtr:(void*)ptr len:(NSUInteger)len {
-    @synchronized([self class]) {
-        [ptrCache addObject:[NSData dataWithBytesNoCopy:ptr length:len freeWhenDone:NO]];
-        if ([ptrCache count] > 2) {
-            freeLog([ptrCache[0] bytes]);
-            [ptrCache removeObjectAtIndex:0];
-        }
-    }
-}
-
-+ (void*)uncachePtrForLen:(NSUInteger)len {
-    @synchronized([self class]) {
-        for (NSUInteger i = 0; i < [ptrCache count]; i++) {
-            NSData* data = ptrCache[i];
-            if ([data length] == len) {
-                [ptrCache removeObjectAtIndex:i];
-                return [data bytes];
-            }
-        }
-    }
-
-    return callocLog(1, len);
-}
-
 
 @synthesize delegate;
 @synthesize context;
@@ -700,8 +665,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                     // step 3:
                     // read the image from OpenGL and push it into a data buffer
                     NSInteger dataLength = fullSize.width * fullSize.height * 4;
-                    GLubyte* data = [JotView uncachePtrForLen:dataLength];
-                    long totalLength = fullSize.height * fullSize.width * 4;
+                    GLubyte* data = calloc(fullSize.height * fullSize.width, 4);
                     if (!data) {
                         @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                     }
@@ -758,7 +722,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                     image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
 
                     // Clean up
-                    [JotView cachePtr:data len:dataLength];
+                    free(data);
                     CFRelease(ref);
                     CFRelease(colorspace);
                     CGImageRelease(iref);
@@ -902,8 +866,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                 // step 3:
                 // read the image from OpenGL and push it into a data buffer
                 NSInteger dataLength = fullSize.width * fullSize.height * 4;
-                GLubyte* data = callocLog(fullSize.height * fullSize.width, 4);
-                long totalLength = fullSize.height * fullSize.width * 4;
+                GLubyte* data = calloc(fullSize.height * fullSize.width, 4);
                 if (!data) {
                     @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
                 }
@@ -960,7 +923,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                 UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
 
                 // Clean up
-                freeLog(data);
+                free(data);
                 CFRelease(ref);
                 CFRelease(colorspace);
                 CGImageRelease(iref);

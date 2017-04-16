@@ -6,7 +6,6 @@
 #import "JotGLProgram.h"
 #import <GLKit/GLKit.h>
 #import "JotGLContext.h"
-#import <JotUI/MallocLog.h>
 
 #pragma mark Function Pointer Definitions
 typedef void (*GLInfoFunction)(GLuint program, GLenum pname, GLint* params);
@@ -121,7 +120,7 @@ static NSMutableArray* _jotGLProgramAttributes;
         GLint logLength;
         glGetShaderiv(*shader, GL_INFO_LOG_LENGTH, &logLength);
         if (logLength > 0) {
-            GLchar* log = (GLchar*)mallocLog(logLength);
+            GLchar* log = (GLchar*)malloc(logLength);
             glGetShaderInfoLog(*shader, logLength, &logLength, log);
             if (shader == &_vertShader) {
                 _vertexShaderLog = [NSString stringWithFormat:@"%s", log];
@@ -129,7 +128,7 @@ static NSMutableArray* _jotGLProgramAttributes;
                 _fragmentShaderLog = [NSString stringWithFormat:@"%s", log];
             }
 
-            freeLog(log);
+            free(log);
         }
     }
 
@@ -210,10 +209,10 @@ static NSMutableArray* _jotGLProgramAttributes;
     glValidateProgram(_programId);
     glGetProgramiv(_programId, GL_INFO_LOG_LENGTH, &logLength);
     if (logLength > 0) {
-        GLchar* log = (GLchar*)mallocLog(logLength);
+        GLchar* log = (GLchar*)malloc(logLength);
         glGetProgramInfoLog(_programId, logLength, &logLength, log);
         _programLog = [NSString stringWithFormat:@"%s", log];
-        freeLog(log);
+        free(log);
     }
     if ([_programLog length]) {
         NSLog(@"Program Log: %@", _programLog);
