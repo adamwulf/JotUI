@@ -142,7 +142,11 @@ static JotGLContext* mainThreadContext;
     self.maxStrokeSize = 512 * 1024;
 
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkPresentRenderBuffer:)];
-    displayLink.frameInterval = 2;
+    if ([displayLink respondsToSelector:@selector(preferredFramesPerSecond)]) {
+        displayLink.preferredFramesPerSecond = 30;
+    } else {
+        displayLink.frameInterval = 2;
+    }
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
     initialFrameSize = self.bounds.size;
@@ -1060,6 +1064,11 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
  * cut our framerate by half
  */
 - (void)slowDownFPS {
+    if ([displayLink respondsToSelector:@selector(preferredFramesPerSecond)]) {
+        displayLink.preferredFramesPerSecond = 30;
+    } else {
+        displayLink.frameInterval = 2;
+    }
     viewFramebuffer.shouldslow = YES;
 }
 /**
@@ -1067,6 +1076,15 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
  * the full hardware limit
  */
 - (void)speedUpFPS {
+    if ([displayLink respondsToSelector:@selector(preferredFramesPerSecond)]) {
+        NSInteger maxFPS = 60;
+        if ([[UIScreen mainScreen] respondsToSelector:@selector(maximumFramesPerSecond)]){
+            maxFPS = [[UIScreen mainScreen] maximumFramesPerSecond];
+        }
+        displayLink.preferredFramesPerSecond = maxFPS;
+    } else {
+        displayLink.frameInterval = 1;
+    }
     viewFramebuffer.shouldslow = NO;
 }
 
