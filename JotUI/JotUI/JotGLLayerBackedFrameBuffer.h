@@ -15,7 +15,6 @@
 @interface JotGLLayerBackedFrameBuffer : AbstractJotGLFrameBuffer <DeleteAssets>
 
 @property(readonly) CGSize initialViewport;
-@property(assign) BOOL shouldslow;
 
 - (instancetype)init NS_UNAVAILABLE;
 

@@ -27,18 +27,12 @@
     // YES if we need to present our renderbuffer on the
     // next display link
     BOOL needsPresentRenderBuffer;
-    // YES if we should limit to 30fps, NO otherwise
-    BOOL shouldslow;
-    // helper var to toggle between frames for 30fps limit
-    BOOL slowtoggle;
-
 
     // TODO: pull this into somewhere else
     GLSize backingSize;
 }
 
 @synthesize initialViewport;
-@synthesize shouldslow;
 
 - (id)initForLayer:(CALayer<EAGLDrawable>*)_layer {
     if (self = [super init]) {
@@ -87,7 +81,7 @@
 
 - (void)presentRenderBufferInContext:(JotGLContext*)context {
     [context runBlock:^{
-        if (needsPresentRenderBuffer && (!shouldslow || slowtoggle)) {
+        if (needsPresentRenderBuffer) {
             [self bind];
             //        NSLog(@"presenting");
             [context assertCurrentBoundFramebufferIs:framebufferID andRenderBufferIs:viewRenderbuffer];
@@ -98,7 +92,6 @@
             needsPresentRenderBuffer = NO;
             [self unbind];
         }
-        slowtoggle = !slowtoggle;
         if ([context needsFlush]) {
             [context flush];
         }

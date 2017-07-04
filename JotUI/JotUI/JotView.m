@@ -142,11 +142,7 @@ static JotGLContext* mainThreadContext;
     self.maxStrokeSize = 512 * 1024;
 
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkPresentRenderBuffer:)];
-    if ([displayLink respondsToSelector:@selector(preferredFramesPerSecond)]) {
-        displayLink.preferredFramesPerSecond = 30;
-    } else {
-        displayLink.frameInterval = 2;
-    }
+    [self setPreferredFPS:30];
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
     initialFrameSize = self.bounds.size;
@@ -1061,31 +1057,33 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
 
 
 /**
- * cut our framerate by half
+ * cut our framerate to 15 FPS
  */
 - (void)slowDownFPS {
-    if ([displayLink respondsToSelector:@selector(preferredFramesPerSecond)]) {
-        displayLink.preferredFramesPerSecond = 30;
-    } else {
-        displayLink.frameInterval = 2;
-    }
-    viewFramebuffer.shouldslow = YES;
+    [self setPreferredFPS:15];
 }
 /**
  * call this to unlimit our FPS back to
  * the full hardware limit
  */
 - (void)speedUpFPS {
-    if ([displayLink respondsToSelector:@selector(preferredFramesPerSecond)]) {
-        NSInteger maxFPS = 60;
-        if ([[UIScreen mainScreen] respondsToSelector:@selector(maximumFramesPerSecond)]){
-            maxFPS = [[UIScreen mainScreen] maximumFramesPerSecond];
-        }
-        displayLink.preferredFramesPerSecond = maxFPS;
-    } else {
-        displayLink.frameInterval = 1;
+    NSInteger maxFPS = 60;
+    if ([[UIScreen mainScreen] respondsToSelector:@selector(maximumFramesPerSecond)]) {
+        maxFPS = [[UIScreen mainScreen] maximumFramesPerSecond];
     }
-    viewFramebuffer.shouldslow = NO;
+
+    [self setPreferredFPS:maxFPS];
+}
+
+/**
+ * set your own desired refresh rate
+ */
+- (void)setPreferredFPS:(NSInteger)preferredFramesPerSecond {
+    if ([displayLink respondsToSelector:@selector(preferredFramesPerSecond)]) {
+        displayLink.preferredFramesPerSecond = preferredFramesPerSecond;
+    } else {
+        displayLink.frameInterval = 60 / preferredFramesPerSecond;
+    }
 }
 
 CGFloat JotBNRTimeBlock(void (^block)(void)) {

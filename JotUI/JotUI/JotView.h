@@ -82,6 +82,7 @@
 
 - (void)slowDownFPS;
 - (void)speedUpFPS;
+- (void)setPreferredFPS:(NSInteger)preferredFramesPerSecond;
 
 - (NSInteger)maxCurrentStrokeByteSize;
 - (void)addElements:(NSArray*)elements withTexture:(JotBrushTexture*)texture;
