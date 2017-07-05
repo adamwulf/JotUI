@@ -142,7 +142,7 @@ static JotGLContext* mainThreadContext;
     self.maxStrokeSize = 512 * 1024;
 
     displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkPresentRenderBuffer:)];
-    [self setPreferredFPS:30];
+    [self speedUpFPS];
     [displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
 
     initialFrameSize = self.bounds.size;
