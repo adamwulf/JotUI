@@ -38,6 +38,7 @@
         [stateDict setObject:stackOfImmutableStrokes forKey:@"stackOfStrokes"];
         [stateDict setObject:stackOfImmutableUndoneStrokes forKey:@"stackOfUndoneStrokes"];
         [stateDict setObject:[stateInfo objectForKey:@"undoHash"] forKey:@"undoHash"];
+        [stateDict setObject:[stateInfo objectForKey:@"undoLimit"] forKey:@"undoLimit"];
 
         [stateDict setObject:[stateInfo objectForKey:@"screenSize.width"] forKey:@"screenSize.width"];
         [stateDict setObject:[stateInfo objectForKey:@"screenSize.height"] forKey:@"screenSize.height"];

@@ -284,7 +284,7 @@ static dispatch_queue_t loadUnloadStateQueue;
     [self.jotViewState addUndoLevelAndContinueStroke];
 }
 
-- (int)undoLimit {
+- (NSInteger)undoLimit {
     return [jotViewState undoLimit];
 }
 - (void)setUndoLimit:(int)undoLimit {

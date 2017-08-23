@@ -175,6 +175,8 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         // load the file
         NSDictionary* stateInfo = [NSDictionary dictionaryWithContentsOfFile:stateInfoFile];
 
+        undoLimit = [stateInfo[@"undoLimit"] integerValue] ?: kJotDefaultUndoLimit;
+
         if (stateInfo) {
             CGSize strokeStatePageSize = CGSizeMake([stateInfo[@"screenSize.width"] floatValue], [stateInfo[@"screenSize.height"] floatValue]);
 
@@ -261,6 +263,7 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
         // the ImmutableState object won't be able to calculate it, so we need to
         // send it in for it
         [stateDict setObject:[NSNumber numberWithUnsignedInteger:[self undoHash]] forKey:@"undoHash"];
+        [stateDict setObject:[NSNumber numberWithInteger:[self undoLimit]] forKey:@"undoLimit"];
 
         stateDict[@"screenSize.width"] = @(fullPtSize.width);
         stateDict[@"screenSize.height"] = @(fullPtSize.height);
