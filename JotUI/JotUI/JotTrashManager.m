@@ -66,10 +66,12 @@ static const void* const kJotTrashQueueIdentifier = &kJotTrashQueueIdentifier;
 #pragma mark - Public Interface
 
 - (void)setGLContext:(JotGLContext*)context {
+    JotGLContext* builtContext = [[JotGLContext alloc] initWithName:@"JotTrashQueueContext" andSharegroup:context.sharegroup andValidateThreadWith:^BOOL {
+        return [JotTrashManager isTrashManagerQueue];
+    }];
+
     dispatch_async([JotTrashManager trashQueue], ^{
-        backgroundContext = [[JotGLContext alloc] initWithName:@"JotTrashQueueContext" andSharegroup:context.sharegroup andValidateThreadWith:^BOOL {
-            return [JotTrashManager isTrashManagerQueue];
-        }];
+        backgroundContext = builtContext;
     });
 }
 
