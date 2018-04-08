@@ -64,7 +64,7 @@ static MMDataCache* sharedCache;
         if ([memoryQueue count]) {
             NSData* cachedNSData = [memoryQueue firstObject];
             [memoryQueue removeObjectAtIndex:0];
-            free(cachedNSData.bytes);
+            free((void*)cachedNSData.bytes);
 
             // continue bleeding the cache every 3 seconds
             [self performSelector:@selector(bleedCache) withObject:nil afterDelay:3];

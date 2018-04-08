@@ -625,25 +625,17 @@ typedef enum UndfBOOL {
 
 - (void)glTexParameteriWithPname:(GLenum)pname param:(GLint)param {
     if (pname == GL_TEXTURE_MIN_FILTER) {
-        if (YES || param != texparam_GL_TEXTURE_MIN_FILTER) {
-            texparam_GL_TEXTURE_MIN_FILTER = param;
-            glTexParameteri(GL_TEXTURE_2D, pname, param);
-        }
+        texparam_GL_TEXTURE_MIN_FILTER = param;
+        glTexParameteri(GL_TEXTURE_2D, pname, param);
     } else if (pname == GL_TEXTURE_MAG_FILTER) {
-        if (YES || param != texparam_GL_TEXTURE_MAG_FILTER) {
-            texparam_GL_TEXTURE_MAG_FILTER = param;
-            glTexParameteri(GL_TEXTURE_2D, pname, param);
-        }
+        texparam_GL_TEXTURE_MAG_FILTER = param;
+        glTexParameteri(GL_TEXTURE_2D, pname, param);
     } else if (pname == GL_TEXTURE_WRAP_S) {
-        if (YES || param != texparam_GL_TEXTURE_WRAP_S) {
-            texparam_GL_TEXTURE_WRAP_S = param;
-            glTexParameteri(GL_TEXTURE_2D, pname, param);
-        }
+        texparam_GL_TEXTURE_WRAP_S = param;
+        glTexParameteri(GL_TEXTURE_2D, pname, param);
     } else if (pname == GL_TEXTURE_WRAP_T) {
-        if (YES || param != texparam_GL_TEXTURE_WRAP_T) {
-            texparam_GL_TEXTURE_WRAP_T = param;
-            glTexParameteri(GL_TEXTURE_2D, pname, param);
-        }
+        texparam_GL_TEXTURE_WRAP_T = param;
+        glTexParameteri(GL_TEXTURE_2D, pname, param);
     } else {
         @throw [NSException exceptionWithName:@"TextureParamException" reason:@"Unknown texture parameter" userInfo:nil];
     }

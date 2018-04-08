@@ -119,7 +119,7 @@
     NSData* data = [[MMDataCache sharedCache] dataOfSize:byteSize];
 
     // Build a context that's the same dimensions as the new size
-    CGContextRef bitmap = CGBitmapContextCreate([data bytes],
+    CGContextRef bitmap = CGBitmapContextCreate((void*)[data bytes],
                                                 newRect.size.width,
                                                 newRect.size.height,
                                                 8,

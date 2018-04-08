@@ -468,9 +468,6 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
 
             dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
 
-            dispatch_release(sema1);
-            dispatch_release(sema2);
-
             // done saving JotView
             exportFinishBlock(ink, thumb, immutableState);
 
@@ -1495,10 +1492,6 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                 BOOL shouldSkipSegment = NO;
 
                 if ([self.delegate supportsRotation] && [[currentStroke segments] count] < 10) {
-                    CGFloat len = [[[currentStroke segments] jotReduce:^id(AbstractBezierPathElement* ele, NSUInteger index, id accum) {
-                        return @([ele lengthOfElement] + [accum floatValue]);
-                    }] floatValue];
-
                     CGPoint start = [[[currentStroke segments] firstObject] startPoint];
                     CGPoint end = glPreciseLocInView;
                     CGPoint diff = CGPointMake(end.x - start.x, end.y - start.y);

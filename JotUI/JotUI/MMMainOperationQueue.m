@@ -84,7 +84,6 @@ static MMMainOperationQueue* sharedQueue;
 
     // and now wait until it's complete
     dispatch_semaphore_wait(localSema, DISPATCH_TIME_FOREVER);
-    dispatch_release(localSema);
 }
 
 - (void)addOperationWithBlock:(void (^)(void))block NS_AVAILABLE(10_6, 4_0) {
@@ -101,9 +100,6 @@ static MMMainOperationQueue* sharedQueue;
 
 - (void)waitFor:(CGFloat)seconds {
     @synchronized([MMMainOperationQueue class]) {
-        if (sema) {
-            dispatch_release(sema);
-        }
         sema = dispatch_semaphore_create(0);
     }
     dispatch_time_t waitTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC));
