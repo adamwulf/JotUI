@@ -43,6 +43,7 @@
 		C56201D21DDE74C200FF508E /* stencil.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201CC1DDE74C200FF508E /* stencil.fsh */; };
 		C56201D31DDE74C200FF508E /* point.fsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201CD1DDE74C200FF508E /* point.fsh */; };
 		C584F8351C37C4AB00413840 /* Particle.png in Resources */ = {isa = PBXBuildFile; fileRef = C584F8341C37C4AB00413840 /* Particle.png */; };
+		C59C7D95207F00210030634A /* SquareBrushTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = C59C7D93207F00210030634A /* SquareBrushTexture.m */; };
 		C5C459EA1DBF155900C50EA7 /* JotUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5C459E91DBF155900C50EA7 /* JotUI.framework */; };
 		C5E0C8131E04A95900D8E301 /* ViewController~iphone.xib in Resources */ = {isa = PBXBuildFile; fileRef = C5E0C8121E04A95900D8E301 /* ViewController~iphone.xib */; };
 /* End PBXBuildFile section */
@@ -93,6 +94,8 @@
 		C56201CD1DDE74C200FF508E /* point.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = point.fsh; path = ../JotUI/JotUI/point.fsh; sourceTree = "<group>"; };
 		C584F8301C37C14C00413840 /* point.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = point.vsh; sourceTree = "<group>"; };
 		C584F8341C37C4AB00413840 /* Particle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Particle.png; sourceTree = "<group>"; };
+		C59C7D93207F00210030634A /* SquareBrushTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SquareBrushTexture.m; path = ../../JotUI/JotUI/SquareBrushTexture.m; sourceTree = "<group>"; };
+		C59C7D94207F00210030634A /* SquareBrushTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SquareBrushTexture.h; path = ../../JotUI/JotUI/SquareBrushTexture.h; sourceTree = "<group>"; };
 		C5C459E91DBF155900C50EA7 /* JotUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JotUI.framework; path = "../../../../Library/Developer/Xcode/DerivedData/JotUI-gwtuddnpdsuqegaloczvhymgkvbq/Build/Products/Debug-iphoneos/JotUI.framework"; sourceTree = "<group>"; };
 		C5E0C8121E04A95900D8E301 /* ViewController~iphone.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = "ViewController~iphone.xib"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -129,6 +132,8 @@
 		66910E8516803FA50046EE12 /* Pen Styles */ = {
 			isa = PBXGroup;
 			children = (
+				C59C7D94207F00210030634A /* SquareBrushTexture.h */,
+				C59C7D93207F00210030634A /* SquareBrushTexture.m */,
 				66910E8716803FCF0046EE12 /* Pen.h */,
 				66910E8816803FCF0046EE12 /* Pen.m */,
 				66910E92168043400046EE12 /* Marker.h */,
@@ -341,6 +346,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				66F9215416734FF000B1F868 /* main.m in Sources */,
+				C59C7D95207F00210030634A /* SquareBrushTexture.m in Sources */,
 				66F9215816734FF000B1F868 /* AppDelegate.m in Sources */,
 				66F9216116734FF000B1F868 /* ViewController.m in Sources */,
 				66910E8916803FCF0046EE12 /* Pen.m in Sources */,

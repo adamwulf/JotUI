@@ -7,6 +7,7 @@
 //
 
 #import "Marker.h"
+#import "SquareBrushTexture.h"
 
 
 @implementation Marker
@@ -19,11 +20,11 @@
 }
 
 - (id)init {
-    return [self initWithMinSize:22.0 andMaxSize:30.0 andMinAlpha:.3 andMaxAlpha:.5];
+    return [self initWithMinSize:40.0 andMaxSize:60.0 andMinAlpha:.3 andMaxAlpha:.5];
 }
 
-- (JotBrushTexture*)texture {
-    return [JotDefaultBrushTexture sharedInstance];
+- (JotBrushTexture*)textureForStroke {
+    return [SquareBrushTexture sharedInstance];
 }
 
 @end
