@@ -1163,7 +1163,7 @@ CGFloat JotBNRTimeBlock(void (^block)(void)) {
         // now tell the stroke that it's added
 
         // let our delegate have an opportunity to modify the element array
-        NSArray* elements = [self.delegate willAddElements:[NSArray arrayWithObject:addedElement] toStroke:currentStroke fromPreviousElement:previousElement];
+        NSArray* elements = [self.delegate willAddElements:[NSArray arrayWithObject:addedElement] toStroke:currentStroke fromPreviousElement:previousElement inJotView:self];
 
         // prepend the previous element, so that each of our new elements has a previous element to
         // render with
@@ -1354,7 +1354,7 @@ static int undoCounter;
 
     JotStroke* aStroke = state.currentStroke;
     if (aStroke == stroke) {
-        [self.delegate willCancelStroke:aStroke withCoalescedTouch:nil fromTouch:nil];
+        [self.delegate willCancelStroke:aStroke withCoalescedTouch:nil fromTouch:nil inJotView:self];
         state.currentStroke = nil;
         if ([aStroke.segments count] > 1 || ![[aStroke.segments firstObject] isKindOfClass:[MoveToPathElement class]]) {
             CGFloat scale = [[UIScreen mainScreen] scale];
@@ -1362,7 +1362,7 @@ static int undoCounter;
             bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
             [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
         }
-        [self.delegate didCancelStroke:aStroke withCoalescedTouch:nil fromTouch:nil];
+        [self.delegate didCancelStroke:aStroke withCoalescedTouch:nil fromTouch:nil inJotView:self];
         return;
     }
 }
@@ -1403,7 +1403,7 @@ static int undoCounter;
 
     [state forceAddStroke:newStroke];
 
-    [self.delegate didEndStrokeWithCoalescedTouch:nil fromTouch:nil];
+    [self.delegate didEndStrokeWithCoalescedTouch:nil fromTouch:nil inJotView:self];
     [newStroke unlock];
 }
 
@@ -1427,7 +1427,7 @@ static int undoCounter;
 
     for (UITouch* touch in touches) {
         @autoreleasepool {
-            if ([self.delegate willBeginStrokeWithCoalescedTouch:touch fromTouch:touch]) {
+            if ([self.delegate willBeginStrokeWithCoalescedTouch:touch fromTouch:touch inJotView:self]) {
                 NSAssert([self.delegate textureForStroke] != nil, @"somehow got nil texture");
 
                 JotStroke* newStroke = [[JotStrokeManager sharedInstance] makeStrokeForTouchHash:touch andTexture:[self.delegate textureForStroke] andBufferManager:state.bufferManager];
@@ -1440,9 +1440,9 @@ static int undoCounter;
                 }
                 [self addLineToAndRenderStroke:newStroke
                                        toPoint:preciseLocInView
-                                       toWidth:[self.delegate widthForCoalescedTouch:touch fromTouch:touch]
-                                       toColor:[self.delegate colorForCoalescedTouch:touch fromTouch:touch]
-                                 andSmoothness:[self.delegate smoothnessForCoalescedTouch:touch fromTouch:touch]
+                                       toWidth:[self.delegate widthForCoalescedTouch:touch fromTouch:touch inJotView:self]
+                                       toColor:[self.delegate colorForCoalescedTouch:touch fromTouch:touch inJotView:self]
+                                 andSmoothness:[self.delegate smoothnessForCoalescedTouch:touch fromTouch:touch inJotView:self]
                                  withStepWidth:[self.delegate stepWidthForStroke]];
             }
         }
@@ -1487,7 +1487,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                 CGPoint glPreciseLocInView = preciseLocInView;
                 glPreciseLocInView.y = self.bounds.size.height - glPreciseLocInView.y;
 
-                [self.delegate willMoveStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
+                [self.delegate willMoveStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch inJotView:self];
 
                 BOOL shouldSkipSegment = NO;
 
@@ -1516,9 +1516,9 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                     // find the stroke that we're modifying, and then add an element and render it
                     [self addLineToAndRenderStroke:currentStroke
                                            toPoint:preciseLocInView
-                                           toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                           toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                     andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
+                                           toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch inJotView:self]
+                                           toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch inJotView:self]
+                                     andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch inJotView:self]
                                      withStepWidth:[self.delegate stepWidthForStroke]];
                 }
             }
@@ -1541,7 +1541,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
         JotStroke* currentStroke = [[JotStrokeManager sharedInstance] getStrokeForTouchHash:touch];
         BOOL shortStrokeEnding = [currentStroke.segments count] <= 1;
 
-        [self.delegate willEndStrokeWithCoalescedTouch:touch fromTouch:touch shortStrokeEnding:shortStrokeEnding];
+        [self.delegate willEndStrokeWithCoalescedTouch:touch fromTouch:touch shortStrokeEnding:shortStrokeEnding inJotView:self];
         if (currentStroke) {
             @autoreleasepool {
                 [currentStroke lock];
@@ -1558,9 +1558,9 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                     // the while loop ensures we get at least a dot from the touch
                     while (![self addLineToAndRenderStroke:currentStroke
                                                    toPoint:preciseLocInView
-                                                   toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                                   toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch]
-                                             andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch]
+                                                   toWidth:[self.delegate widthForCoalescedTouch:coalescedTouch fromTouch:touch inJotView:self]
+                                                   toColor:[self.delegate colorForCoalescedTouch:coalescedTouch fromTouch:touch inJotView:self]
+                                             andSmoothness:[self.delegate smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch inJotView:self]
                                              withStepWidth:[self.delegate stepWidthForStroke]]) {
                         // noop, the [addLineToAndRenderStroke:] will return YES after enough segments have been added
                         // to ensure at least 1 point will render.
@@ -1581,7 +1581,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
 
                 [currentStroke unlock];
 
-                [self.delegate didEndStrokeWithCoalescedTouch:touch fromTouch:touch];
+                [self.delegate didEndStrokeWithCoalescedTouch:touch fromTouch:touch inJotView:self];
             }
         }
     }
