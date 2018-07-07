@@ -980,7 +980,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
         // are not getting rendered, leading to some strange artifacts.
         //
         // filed at https://github.com/adamwulf/JotUI/issues/1
-        scissorRect = CGRectZero;
+        scissorRect = CGRectInset(scissorRect, -20, -20);
 
         if (!state)
             return;
