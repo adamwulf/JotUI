@@ -15,8 +15,8 @@
     NSUInteger _hashCache;
 }
 
-- (id)initWithMoveTo:(CGPoint)_point {
-    if (self = [super initWithStart:_point]) {
+- (id)initWithMoveTo:(CGPoint)point {
+    if (self = [super initWithStart:point]) {
         NSUInteger prime = 31;
         _hashCache = 1;
         _hashCache = prime * _hashCache + _startPoint.x;

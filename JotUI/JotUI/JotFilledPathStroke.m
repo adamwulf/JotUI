@@ -13,16 +13,16 @@
 
 
 @implementation JotFilledPathStroke {
-    UIBezierPath* path;
+    UIBezierPath* _path;
 }
 
 /**
  * create an empty stroke with the input texture
  */
-- (id)initWithPath:(UIBezierPath*)_path andP1:(CGPoint)_p1 andP2:(CGPoint)_p2 andP3:(CGPoint)_p3 andP4:(CGPoint)_p4 andSize:(CGSize)size {
+- (id)initWithPath:(UIBezierPath*)path andP1:(CGPoint)p1 andP2:(CGPoint)p2 andP3:(CGPoint)p3 andP4:(CGPoint)p4 andSize:(CGSize)size {
     if (self = [self init]) {
-        path = _path;
-        [segments addObject:[FilledPathElement elementWithPath:_path andP1:_p1 andP2:_p2 andP3:_p3 andP4:_p4 andSize:(CGSize)size]];
+        _path = path;
+        [segments addObject:[FilledPathElement elementWithPath:_path andP1:p1 andP2:p2 andP3:p3 andP4:p4 andSize:(CGSize)size]];
         [self updateHashWithObject:[segments firstObject]];
     }
     return self;
