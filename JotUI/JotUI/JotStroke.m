@@ -158,7 +158,6 @@
             [segment setBufferManager:bufferManager];
             [self updateHashWithObject:segment];
             totalNumberOfBytes += [segment numberOfBytes];
-            // TODO intialize previousElement data if needed, and save render version
             [segment validateDataGivenPreviousElement:previousElement]; // nil out our dictionary loaded data if it's the wrong size
             [segment loadDataIntoVBOIfNeeded]; // generate if if needed
             previousElement = segment;
