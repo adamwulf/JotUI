@@ -78,7 +78,7 @@
 - (void)addElement:(AbstractBezierPathElement*)element {
     [self lock];
     element.bufferManager = self.bufferManager;
-    NSInteger numOfElementBytes = [element numberOfBytesGivenPreviousElement:[segments lastObject]];
+    NSInteger numOfElementBytes = [element numberOfBytes];
     int numOfCacheBytes = [JotBufferVBO cacheNumberForBytes:numOfElementBytes] * kJotBufferBucketSize;
     totalNumberOfBytes += numOfElementBytes + numOfCacheBytes;
 
@@ -157,7 +157,8 @@
             AbstractBezierPathElement* segment = [[class alloc] initFromDictionary:obj];
             [segment setBufferManager:bufferManager];
             [self updateHashWithObject:segment];
-            totalNumberOfBytes += [segment numberOfBytesGivenPreviousElement:previousElement];
+            totalNumberOfBytes += [segment numberOfBytes];
+            // TODO intialize previousElement data if needed, and save render version
             [segment validateDataGivenPreviousElement:previousElement]; // nil out our dictionary loaded data if it's the wrong size
             [segment loadDataIntoVBOIfNeeded]; // generate if if needed
             previousElement = segment;

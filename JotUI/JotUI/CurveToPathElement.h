@@ -12,11 +12,11 @@
 
 
 @interface CurveToPathElement : AbstractBezierPathElement {
-    CGPoint curveTo;
-    CGPoint ctrl1;
-    CGPoint ctrl2;
+    CGPoint _curveTo;
+    CGPoint _ctrl1;
+    CGPoint _ctrl2;
 
-    CGFloat length;
+    CGFloat _length;
 }
 
 @property(nonatomic, readonly) CGPoint curveTo;

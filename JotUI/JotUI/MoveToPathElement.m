@@ -12,15 +12,15 @@
 
 @implementation MoveToPathElement {
     // cache the hash, since it's expenseive to calculate
-    NSUInteger hashCache;
+    NSUInteger _hashCache;
 }
 
 - (id)initWithMoveTo:(CGPoint)_point {
     if (self = [super initWithStart:_point]) {
         NSUInteger prime = 31;
-        hashCache = 1;
-        hashCache = prime * hashCache + startPoint.x;
-        hashCache = prime * hashCache + startPoint.y;
+        _hashCache = 1;
+        _hashCache = prime * _hashCache + _startPoint.x;
+        _hashCache = prime * _hashCache + _startPoint.y;
     }
     return self;
 }
@@ -49,7 +49,7 @@
 }
 
 - (CGRect)bounds {
-    return CGRectInset(CGRectMake(startPoint.x, startPoint.y, 0, 0), -width, -width);
+    return CGRectInset(CGRectMake(_startPoint.x, _startPoint.y, 0, 0), -_width, -_width);
 }
 
 - (CGPoint)endPoint {
@@ -57,7 +57,7 @@
 }
 
 - (void)adjustStartBy:(CGPoint)adjustment {
-    startPoint = CGPointMake(startPoint.x + adjustment.x, startPoint.y + adjustment.y);
+    _startPoint = CGPointMake(_startPoint.x + adjustment.x, _startPoint.y + adjustment.y);
 }
 
 /**
@@ -67,16 +67,16 @@
     return 0;
 }
 
-- (NSInteger)numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
+- (NSInteger)numberOfBytes {
     return 0;
 }
 
-- (struct ColorfulVertex*)generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale {
+- (struct ColorfulVertex*)generatedVertexArrayForScale:(CGFloat)scale {
     return NULL;
 }
 
 - (NSString*)description {
-    return [NSString stringWithFormat:@"[Move to: %f,%f]", startPoint.x, startPoint.y];
+    return [NSString stringWithFormat:@"[Move to: %f,%f]", _startPoint.x, _startPoint.y];
 }
 
 #pragma mark - PlistSaving
@@ -84,25 +84,21 @@
 - (id)initFromDictionary:(NSDictionary*)dictionary {
     if (self = [super initFromDictionary:dictionary]) {
         NSUInteger prime = 31;
-        hashCache = 1;
-        hashCache = prime * hashCache + startPoint.x;
-        hashCache = prime * hashCache + startPoint.y;
+        _hashCache = 1;
+        _hashCache = prime * _hashCache + _startPoint.x;
+        _hashCache = prime * _hashCache + _startPoint.y;
 
         CGFloat currentScale = [[dictionary objectForKey:@"scale"] floatValue];
-        if (currentScale != scaleOfVertexBuffer) {
+        if (currentScale != _scaleOfVertexBuffer) {
             // the scale of the cached data in the dictionary is
             // different than the scael of the data that we need.
             // zero this out and it'll regenerate with the
             // correct scale on demand
-            scaleOfVertexBuffer = 0;
-            dataVertexBuffer = nil;
+            _scaleOfVertexBuffer = 0;
+            _dataVertexBuffer = nil;
         }
     }
     return self;
-}
-
-- (void)validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
-    // noop, we don't have data
 }
 
 - (UIBezierPath*)bezierPathSegment {
@@ -115,7 +111,7 @@
 #pragma mark - hashing and equality
 
 - (NSUInteger)hash {
-    return hashCache;
+    return _hashCache;
 }
 
 - (BOOL)isEqual:(id)object {

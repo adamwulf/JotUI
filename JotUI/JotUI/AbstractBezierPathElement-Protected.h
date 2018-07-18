@@ -23,19 +23,26 @@
 @property(nonatomic, assign) CGFloat rotation;
 @property(nonatomic, assign) CGFloat extraLengthWithoutDot;
 
+@property(nonatomic, assign) CGFloat previousExtraLengthWithoutDot;
+@property(nonatomic, strong) UIColor* previousColor;
+@property(nonatomic, assign) CGFloat previousWidth;
+@property(nonatomic, assign) CGFloat previousRotation;
+
+@property(nonatomic, assign) NSInteger renderVersion;
+
 - (id)initWithStart:(CGPoint)point;
 
 - (NSInteger)numberOfVerticesPerStep;
 
-- (NSInteger)numberOfStepsGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
+- (NSInteger)numberOfSteps;
 
-- (NSInteger)numberOfVerticesGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
+- (NSInteger)numberOfVertices;
 
-- (NSInteger)numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
+- (NSInteger)numberOfBytes;
 
-- (void)validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
+- (void)validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement NS_REQUIRES_SUPER;
 
-- (struct ColorfulVertex*)generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale;
+- (struct ColorfulVertex*)generatedVertexArrayForScale:(CGFloat)scale;
 
 - (CGFloat)angleBetweenPoint:(CGPoint)point1 andPoint:(CGPoint)point2;
 
@@ -45,7 +52,7 @@
 
 - (JotGLProgram*)glProgramForContext:(JotGLContext*)context;
 
-- (void)drawGivenPreviousElement:(AbstractBezierPathElement*)previousElement;
+- (void)draw;
 
 - (void)loadDataIntoVBOIfNeeded;
 

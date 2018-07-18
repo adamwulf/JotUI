@@ -12,22 +12,18 @@
 #import "JotUI.h"
 #import "JotGLColorlessPointProgram.h"
 
+// This value should change if we ever decide to change how strokes are rendered, which would
+// cause them to need to re-calculate their cached vertex buffer
+#define kJotUIRenderVersion 1
+
 
 @implementation AbstractBezierPathElement {
-    JotBufferManager* bufferManager;
+    BOOL _bakedPreviousElementProps;
 }
-
-@synthesize stepWidth;
-@synthesize rotation;
-@synthesize startPoint;
-@synthesize width;
-@synthesize color;
-@synthesize bufferManager;
-@synthesize extraLengthWithoutDot;
 
 - (id)initWithStart:(CGPoint)point {
     if (self = [super init]) {
-        startPoint = point;
+        _startPoint = point;
     }
     return self;
 }
@@ -79,12 +75,12 @@
  * the ideal number of steps we should take along
  * this line to render it with vertex points
  */
-- (NSInteger)numberOfStepsGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
-    NSInteger ret = MAX(floorf(([self lengthOfElement] + previousElement.extraLengthWithoutDot) / kBrushStepSize), 0);
+- (NSInteger)numberOfSteps {
+    NSInteger ret = MAX(floorf(([self lengthOfElement] + [self previousExtraLengthWithoutDot]) / kBrushStepSize), 0);
     // if we are beginning the stroke, then we have 1 more
     // dot to begin the stroke. otherwise we skip the first dot
     // and pick up after kBrushStepSize
-    if ([previousElement isKindOfClass:[MoveToPathElement class]]) {
+    if ([self followsMoveTo]) {
         ret += 1;
     }
     return ret;
@@ -93,16 +89,27 @@
 /**
  * returns the total number of vertices for this element
  */
-- (NSInteger)numberOfVerticesGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
-    return [self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep];
+- (NSInteger)numberOfVertices {
+    return [self numberOfSteps] * [self numberOfVerticesPerStep];
 }
 
-- (NSInteger)numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
+- (NSInteger)numberOfBytes {
     @throw kAbstractMethodException;
 }
 
 - (void)validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
-    @throw kAbstractMethodException;
+    if ([self renderVersion] != kJotUIRenderVersion && !_bakedPreviousElementProps) {
+        _previousColor = previousElement.color;
+        _previousWidth = previousElement.width;
+        _previousRotation = previousElement.rotation;
+        _previousExtraLengthWithoutDot = previousElement.extraLengthWithoutDot;
+        _renderVersion = kJotUIRenderVersion;
+        _followsMoveTo = [previousElement isKindOfClass:[MoveToPathElement class]];
+
+        _scaleOfVertexBuffer = 0;
+        _dataVertexBuffer = nil;
+        _bakedPreviousElementProps = YES;
+    }
 }
 
 /**
@@ -114,7 +121,7 @@
  * the generated vertex array should be stored in
  * vertexBuffer ivar
  */
-- (struct ColorfulVertex*)generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale {
+- (struct ColorfulVertex*)generatedVertexArrayForScale:(CGFloat)scale {
     @throw kAbstractMethodException;
 }
 
@@ -146,12 +153,12 @@
     return [context colorlessPointProgram];
 }
 
-- (void)drawGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
+- (void)draw {
     if ([self bind]) {
         // VBO
         [JotGLContext runBlock:^(JotGLContext* context) {
-            if ([self numberOfStepsGivenPreviousElement:previousElement]) {
-                [context drawPointCount:(int)([self numberOfStepsGivenPreviousElement:previousElement] * [self numberOfVerticesPerStep])
+            if ([self numberOfSteps]) {
+                [context drawPointCount:(int)([self numberOfSteps] * [self numberOfVerticesPerStep])
                             withProgram:[self glProgramForContext:context]];
             }
         }];
@@ -164,26 +171,41 @@
 
 - (NSDictionary*)asDictionary {
     return [NSDictionary dictionaryWithObjectsAndKeys:NSStringFromClass([self class]), @"class",
-                                                      [NSNumber numberWithFloat:startPoint.x], @"startPoint.x",
-                                                      [NSNumber numberWithFloat:startPoint.y], @"startPoint.y",
-                                                      [NSNumber numberWithFloat:rotation], @"rotation",
-                                                      [NSNumber numberWithFloat:width], @"width",
-                                                      [NSNumber numberWithFloat:stepWidth], @"stepWidth",
-                                                      [NSNumber numberWithFloat:extraLengthWithoutDot], @"extraLengthWithoutDot",
-                                                      (color ? [color asDictionary] : [NSDictionary dictionary]), @"color",
-                                                      [NSNumber numberWithFloat:scaleOfVertexBuffer], @"scaleOfVertexBuffer", nil];
+                                                      [NSNumber numberWithFloat:_startPoint.x], @"startPoint.x",
+                                                      [NSNumber numberWithFloat:_startPoint.y], @"startPoint.y",
+                                                      [NSNumber numberWithFloat:_rotation], @"rotation",
+                                                      [NSNumber numberWithFloat:_width], @"width",
+                                                      [NSNumber numberWithFloat:_stepWidth], @"stepWidth",
+                                                      [NSNumber numberWithFloat:_extraLengthWithoutDot], @"extraLengthWithoutDot",
+                                                      (_color ? [_color asDictionary] : [NSDictionary dictionary]), @"color",
+                                                      [NSNumber numberWithFloat:_scaleOfVertexBuffer], @"scaleOfVertexBuffer",
+                                                      [NSNumber numberWithBool:_followsMoveTo], @"followsMoveTo",
+                                                      [NSNumber numberWithFloat:_previousExtraLengthWithoutDot], @"previousExtraLengthWithoutDot",
+                                                      (_previousColor ? [_previousColor asDictionary] : [NSDictionary dictionary]), @"previousColor",
+                                                      [NSNumber numberWithFloat:_previousWidth], @"previousWidth",
+                                                      [NSNumber numberWithFloat:_previousRotation], @"previousRotation",
+                                                      [NSNumber numberWithInteger:_renderVersion], @"renderVersion",
+                                                      [NSNumber numberWithBool:_bakedPreviousElementProps], @"bakedPreviousElementProps",
+                                                      nil];
 }
 
 - (id)initFromDictionary:(NSDictionary*)dictionary {
     self = [super init];
     if (self) {
-        startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
-        width = [[dictionary objectForKey:@"width"] floatValue];
-        rotation = [[dictionary objectForKey:@"rotation"] floatValue];
-        stepWidth = [[dictionary objectForKey:@"stepWidth"] floatValue] ?: .5;
-        extraLengthWithoutDot = [[dictionary objectForKey:@"extraLengthWithoutDot"] floatValue];
-        color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
-        scaleOfVertexBuffer = [[dictionary objectForKey:@"scaleOfVertexBuffer"] floatValue];
+        _startPoint = CGPointMake([[dictionary objectForKey:@"startPoint.x"] floatValue], [[dictionary objectForKey:@"startPoint.y"] floatValue]);
+        _width = [[dictionary objectForKey:@"width"] floatValue];
+        _rotation = [[dictionary objectForKey:@"rotation"] floatValue];
+        _stepWidth = [[dictionary objectForKey:@"stepWidth"] floatValue] ?: .5;
+        _extraLengthWithoutDot = [[dictionary objectForKey:@"extraLengthWithoutDot"] floatValue];
+        _color = [UIColor colorWithDictionary:[dictionary objectForKey:@"color"]];
+        _scaleOfVertexBuffer = [[dictionary objectForKey:@"scaleOfVertexBuffer"] floatValue];
+        _followsMoveTo = [[dictionary objectForKey:@"followsMoveTo"] boolValue];
+        _previousWidth = [[dictionary objectForKey:@"previousWidth"] floatValue];
+        _previousRotation = [[dictionary objectForKey:@"previousRotation"] floatValue];
+        _previousExtraLengthWithoutDot = [[dictionary objectForKey:@"previousExtraLengthWithoutDot"] floatValue] ?: .5;
+        _previousColor = [UIColor colorWithDictionary:[dictionary objectForKey:@"previousColor"]];
+        _renderVersion = [[dictionary objectForKey:@"renderVersion"] integerValue];
+        _bakedPreviousElementProps = [[dictionary objectForKey:@"followsMoveTo"] boolValue];
     }
     return self;
 }
@@ -191,8 +213,8 @@
 #pragma mark - Scaling
 
 - (void)scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio {
-    startPoint.x = startPoint.x * widthRatio;
-    startPoint.y = startPoint.y * heightRatio;
+    _startPoint.x = _startPoint.x * widthRatio;
+    _startPoint.y = _startPoint.y * heightRatio;
 }
 
 @end

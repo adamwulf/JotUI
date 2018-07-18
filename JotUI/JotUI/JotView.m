@@ -980,7 +980,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
         // are not getting rendered, leading to some strange artifacts.
         //
         // filed at https://github.com/adamwulf/JotUI/issues/1
-        if(!CGRectEqualToRect(scissorRect, CGRectZero)){
+        if (!CGRectEqualToRect(scissorRect, CGRectZero)) {
             scissorRect = CGRectInset(scissorRect, -20, -20);
         }
 
@@ -1162,6 +1162,8 @@ CGFloat JotBNRTimeBlock(void (^block)(void)) {
         addedElement.stepWidth = stepWidth;
         addedElement.rotation = previousElement.rotation;
 
+        [addedElement validateDataGivenPreviousElement:previousElement];
+
         // now tell the stroke that it's added
 
         // let our delegate have an opportunity to modify the element array
@@ -1228,10 +1230,10 @@ CGFloat JotBNRTimeBlock(void (^block)(void)) {
     CGFloat scale = self.contentScaleFactor;
 
     // fetch the vertex data from the element
-    [element generatedVertexArrayWithPreviousElement:previousElement forScale:scale];
+    [element generatedVertexArrayForScale:scale];
 
     // now bind and draw the element
-    [element drawGivenPreviousElement:previousElement];
+    [element draw];
 
     if (frameBuffer) {
         [frameBuffer unbind];

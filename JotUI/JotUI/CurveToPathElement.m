@@ -25,54 +25,50 @@
 
 
 @implementation CurveToPathElement {
-    CGRect boundsCache;
+    CGRect _boundsCache;
     // cache the hash, since it's expenseive to calculate
-    NSUInteger hashCache;
+    NSUInteger _hashCache;
     // the VBO
-    JotBufferVBO* vbo;
+    JotBufferVBO* _vbo;
     // a boolean for if color information is encoded in the VBO
-    BOOL vertexBufferShouldContainColor;
+    BOOL _vertexBufferShouldContainColor;
     // store the number of bytes of data that we've generated
-    NSInteger numberOfBytesOfVertexData;
+    NSInteger _numberOfBytesOfVertexData;
     // cached color components so that we don't recalculate
     // every time we bind
-    BOOL hasCalculatedColorComponents;
-    GLfloat colorComponents[4];
+    BOOL _hasCalculatedColorComponents;
+    GLfloat _colorComponents[4];
 
-    CGFloat subBezierlengthCache[1000];
+    CGFloat _subBezierlengthCache[1000];
 
-    NSLock* lock;
+    NSLock* _lock;
 }
 
 const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
 
-@synthesize curveTo;
-@synthesize ctrl1;
-@synthesize ctrl2;
-
 - (id)initWithStart:(CGPoint)start
-         andCurveTo:(CGPoint)_curveTo
-        andControl1:(CGPoint)_ctrl1
-        andControl2:(CGPoint)_ctrl2 {
+         andCurveTo:(CGPoint)curveTo
+        andControl1:(CGPoint)ctrl1
+        andControl2:(CGPoint)ctrl2 {
     if (self = [super initWithStart:start]) {
-        curveTo = _curveTo;
-        ctrl1 = _ctrl1;
-        ctrl2 = _ctrl2;
+        _curveTo = curveTo;
+        _ctrl1 = ctrl1;
+        _ctrl2 = ctrl2;
 
         NSUInteger prime = 31;
-        hashCache = 1;
-        hashCache = prime * hashCache + startPoint.x;
-        hashCache = prime * hashCache + startPoint.y;
-        hashCache = prime * hashCache + curveTo.x;
-        hashCache = prime * hashCache + curveTo.y;
-        hashCache = prime * hashCache + ctrl1.x;
-        hashCache = prime * hashCache + ctrl1.y;
-        hashCache = prime * hashCache + ctrl2.x;
-        hashCache = prime * hashCache + ctrl2.y;
+        _hashCache = 1;
+        _hashCache = prime * _hashCache + _startPoint.x;
+        _hashCache = prime * _hashCache + _startPoint.y;
+        _hashCache = prime * _hashCache + _curveTo.x;
+        _hashCache = prime * _hashCache + _curveTo.y;
+        _hashCache = prime * _hashCache + _ctrl1.x;
+        _hashCache = prime * _hashCache + _ctrl1.y;
+        _hashCache = prime * _hashCache + _ctrl2.x;
+        _hashCache = prime * _hashCache + _ctrl2.y;
 
-        boundsCache.origin = JotCGNotFoundPoint;
+        _boundsCache.origin = JotCGNotFoundPoint;
 
-        lock = [[NSLock alloc] init];
+        _lock = [[NSLock alloc] init];
     }
     return self;
 }
@@ -90,7 +86,7 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
 }
 
 - (int)fullByteSize {
-    return vbo.fullByteSize;
+    return _vbo.fullByteSize;
 }
 
 
@@ -100,17 +96,17 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
  * the straight distance between start/end points
  */
 - (CGFloat)lengthOfElement {
-    if (length)
-        return length;
+    if (_length)
+        return _length;
 
     CGPoint bez[4];
-    bez[0] = startPoint;
-    bez[1] = ctrl1;
-    bez[2] = ctrl2;
-    bez[3] = curveTo;
+    bez[0] = _startPoint;
+    bez[1] = _ctrl1;
+    bez[2] = _ctrl2;
+    bez[3] = _curveTo;
 
-    length = jotLengthOfBezier(bez, .1);
-    return length;
+    _length = jotLengthOfBezier(bez, .1);
+    return _length;
 }
 
 - (CGPoint)cgPointDiff:(CGPoint)point1 withPoint:(CGPoint)point2 {
@@ -118,11 +114,11 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
 }
 
 - (CGFloat)angleOfStart {
-    return [self angleBetweenPoint:startPoint andPoint:ctrl1];
+    return [self angleBetweenPoint:_startPoint andPoint:_ctrl1];
 }
 
 - (CGFloat)angleOfEnd {
-    CGFloat possibleRet = [self angleBetweenPoint:ctrl2 andPoint:curveTo];
+    CGFloat possibleRet = [self angleBetweenPoint:_ctrl2 andPoint:_curveTo];
     CGFloat start = [self angleOfStart];
     if (ABS(start - possibleRet) > M_PI) {
         CGFloat rotateRight = possibleRet + 2 * M_PI;
@@ -140,26 +136,26 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
     return self.curveTo;
 }
 - (void)adjustStartBy:(CGPoint)adjustment {
-    startPoint = CGPointMake(startPoint.x + adjustment.x, startPoint.y + adjustment.y);
-    ctrl1 = CGPointMake(ctrl1.x + adjustment.x, ctrl1.y + adjustment.y);
+    _startPoint = CGPointMake(_startPoint.x + adjustment.x, _startPoint.y + adjustment.y);
+    _ctrl1 = CGPointMake(_ctrl1.x + adjustment.x, _ctrl1.y + adjustment.y);
 }
 
 
 - (CGRect)bounds {
-    if (boundsCache.origin.x == JotCGNotFoundPoint.x) {
-        CGFloat minX = MIN(MIN(MIN(startPoint.x, curveTo.x), ctrl1.x), ctrl2.x);
-        CGFloat minY = MIN(MIN(MIN(startPoint.y, curveTo.y), ctrl1.y), ctrl2.y);
-        CGFloat maxX = MAX(MAX(MAX(startPoint.x, curveTo.x), ctrl1.x), ctrl2.x);
-        CGFloat maxY = MAX(MAX(MAX(startPoint.y, curveTo.y), ctrl1.y), ctrl2.y);
-        boundsCache = CGRectMake(minX, minY, maxX - minX, maxY - minY);
-        boundsCache = CGRectInset(boundsCache, -width, -width);
+    if (_boundsCache.origin.x == JotCGNotFoundPoint.x) {
+        CGFloat minX = MIN(MIN(MIN(_startPoint.x, _curveTo.x), _ctrl1.x), _ctrl2.x);
+        CGFloat minY = MIN(MIN(MIN(_startPoint.y, _curveTo.y), _ctrl1.y), _ctrl2.y);
+        CGFloat maxX = MAX(MAX(MAX(_startPoint.x, _curveTo.x), _ctrl1.x), _ctrl2.x);
+        CGFloat maxY = MAX(MAX(MAX(_startPoint.y, _curveTo.y), _ctrl1.y), _ctrl2.y);
+        _boundsCache = CGRectMake(minX, minY, maxX - minX, maxY - minY);
+        _boundsCache = CGRectInset(_boundsCache, -_width, -_width);
     }
-    return boundsCache;
+    return _boundsCache;
 }
 
 
-- (BOOL)shouldContainVertexColorDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
-    if (!previousElement) {
+- (BOOL)shouldContainVertexColorData {
+    if (![self previousColor]) {
         return NO;
     }
     if (!self.color) {
@@ -170,7 +166,7 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
     // the previous stroke and this stroke
     GLfloat prevColor[4], myColor[4];
     GLfloat colorSteps[4];
-    [previousElement.color getRGBAComponents:prevColor];
+    [[self previousColor] getRGBAComponents:prevColor];
     [self.color getRGBAComponents:myColor];
     colorSteps[0] = myColor[0] - prevColor[0];
     colorSteps[1] = myColor[1] - prevColor[1];
@@ -188,11 +184,11 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
     return shouldContainColor;
 }
 
-- (NSInteger)numberOfBytesGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
+- (NSInteger)numberOfBytes {
     // find out how many steps we can put inside this segment length
-    NSInteger numberOfVertices = [self numberOfVerticesGivenPreviousElement:previousElement];
+    NSInteger numberOfVertices = [self numberOfVertices];
     NSInteger numberOfBytes;
-    if ([self shouldContainVertexColorDataGivenPreviousElement:previousElement]) {
+    if ([self shouldContainVertexColorData]) {
         numberOfBytes = numberOfVertices * sizeof(struct ColorfulVertex);
     } else {
         numberOfBytes = numberOfVertices * sizeof(struct ColorlessVertex);
@@ -202,50 +198,46 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
 
 
 - (void)calculateAndCacheColorComponents {
-    if (!hasCalculatedColorComponents) {
-        hasCalculatedColorComponents = YES;
+    if (!_hasCalculatedColorComponents) {
+        _hasCalculatedColorComponents = YES;
         // save color components, because we'll use these
         // when we bind, since our colors won't be in the VBO
         if (self.color) {
-            [self.color getRGBAComponents:colorComponents];
+            [self.color getRGBAComponents:_colorComponents];
 
-            NSAssert(colorComponents[3] / (self.width / kDivideStepBy) > 0, @"color can't be negative");
+            NSAssert(_colorComponents[3] / (self.width / kDivideStepBy) > 0, @"color can't be negative");
 
-            CGFloat stepWidth = self.width * scaleOfVertexBuffer;
+            CGFloat stepWidth = self.width * _scaleOfVertexBuffer;
             if (stepWidth < kAbsoluteMinWidth)
                 stepWidth = kAbsoluteMinWidth;
-            CGFloat alpha = colorComponents[3] / kDivideStepBy;
+            CGFloat alpha = _colorComponents[3] / kDivideStepBy;
             if (alpha > 1)
                 alpha = 1;
 
             // set alpha first, because we'll premultiply immediately after
-            colorComponents[3] = alpha;
-            colorComponents[0] = colorComponents[0] * colorComponents[3];
-            colorComponents[1] = colorComponents[1] * colorComponents[3];
-            colorComponents[2] = colorComponents[2] * colorComponents[3];
+            _colorComponents[3] = alpha;
+            _colorComponents[0] = _colorComponents[0] * _colorComponents[3];
+            _colorComponents[1] = _colorComponents[1] * _colorComponents[3];
+            _colorComponents[2] = _colorComponents[2] * _colorComponents[3];
         } else {
-            colorComponents[0] = 0;
-            colorComponents[1] = 0;
-            colorComponents[2] = 0;
-            colorComponents[3] = 1.0;
+            _colorComponents[0] = 0;
+            _colorComponents[1] = 0;
+            _colorComponents[2] = 0;
+            _colorComponents[3] = 1.0;
         }
     }
 }
 
-- (CGFloat)stepSizeWithPreviousElement:(AbstractBezierPathElement*)previousElement {
-    return self.stepWidth;
-    //    return .5; //MIN(kBrushStepSize, MIN(self.width, previousElement.width) / 3.0);
-}
 /**
  * the ideal number of steps we should take along
  * this line to render it with vertex points
  */
-- (NSInteger)numberOfStepsGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
-    NSInteger ret = MAX(floorf(([self lengthOfElement] + previousElement.extraLengthWithoutDot) / [self stepSizeWithPreviousElement:previousElement]), 0);
+- (NSInteger)numberOfSteps {
+    NSInteger ret = MAX(floorf(([self lengthOfElement] + [self previousExtraLengthWithoutDot]) / [self stepWidth]), 0);
     // if we are beginning the stroke, then we have 1 more
     // dot to begin the stroke. otherwise we skip the first dot
     // and pick up after kBrushStepSize
-    if ([previousElement isKindOfClass:[MoveToPathElement class]]) {
+    if ([self followsMoveTo]) {
         ret += 1;
     }
     return ret;
@@ -259,11 +251,11 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
  * a new scale is sent in later, then the cache will be rebuilt
  * for the new scale.
  */
-- (struct ColorfulVertex*)generatedVertexArrayWithPreviousElement:(AbstractBezierPathElement*)previousElement forScale:(CGFloat)scale {
+- (struct ColorfulVertex*)generatedVertexArrayForScale:(CGFloat)scale {
     // if we have a buffer generated and cached,
     // then just return that
-    if (dataVertexBuffer && scaleOfVertexBuffer == scale) {
-        return (struct ColorfulVertex*)dataVertexBuffer.bytes;
+    if (_dataVertexBuffer && _scaleOfVertexBuffer == scale) {
+        return (struct ColorfulVertex*)_dataVertexBuffer.bytes;
     }
 
     // now find the differences in color between
@@ -272,7 +264,7 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
     prevColor[0] = prevColor[1] = prevColor[2] = prevColor[3] = 0;
     myColor[0] = myColor[1] = myColor[2] = myColor[3] = 0;
     GLfloat colorSteps[4];
-    [previousElement.color getRGBAComponents:prevColor];
+    [[self previousColor] getRGBAComponents:prevColor];
     [self.color getRGBAComponents:myColor];
     colorSteps[0] = myColor[0] - prevColor[0];
     colorSteps[1] = myColor[1] - prevColor[1];
@@ -282,24 +274,24 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
 
     // check if we'll be saving the color information inside of our VBO
     // or if we'll set it during the bind instead
-    vertexBufferShouldContainColor = [self shouldContainVertexColorDataGivenPreviousElement:previousElement];
+    _vertexBufferShouldContainColor = [self shouldContainVertexColorData];
 
     // find out how many steps we can put inside this segment length
-    NSInteger numberOfVertices = [self numberOfVerticesGivenPreviousElement:previousElement];
-    numberOfBytesOfVertexData = [self numberOfBytesGivenPreviousElement:previousElement];
+    NSInteger numberOfVertices = [self numberOfVertices];
+    _numberOfBytesOfVertexData = [self numberOfBytes];
 
-    if (numberOfBytesOfVertexData < 0) {
+    if (_numberOfBytesOfVertexData < 0) {
         @throw [NSException exceptionWithName:@"MemoryException" reason:@"numberOfBytesOfVertexData must be larger than 0" userInfo:nil];
     }
 
     // malloc the memory for our buffer, if needed
-    dataVertexBuffer = nil;
+    _dataVertexBuffer = nil;
 
     // save our scale, we're only going to cache a vertex
     // buffer for 1 scale at a time
-    scaleOfVertexBuffer = scale;
+    _scaleOfVertexBuffer = scale;
 
-    if (!vertexBufferShouldContainColor) {
+    if (!_vertexBufferShouldContainColor) {
         [self calculateAndCacheColorComponents];
     }
 
@@ -310,8 +302,8 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
     // this'll help make the segment join its neighboring segments
     // without any artifacts of the start/end double drawing
     CGFloat realLength = [self lengthOfElement];
-    CGFloat realStepSize = [self stepSizeWithPreviousElement:previousElement]; // numberOfVertices ? realLength / numberOfVertices : 0;
-    CGFloat lengthPlusPrevExtra = realLength + previousElement.extraLengthWithoutDot;
+    CGFloat realStepSize = [self stepWidth]; // numberOfVertices ? realLength / numberOfVertices : 0;
+    CGFloat lengthPlusPrevExtra = realLength + [self previousExtraLengthWithoutDot];
     NSInteger divisionOfBrushStroke = floorf(lengthPlusPrevExtra / realStepSize);
     // our extra length is whatever's leftover after chopping our length + previous extra
     // into kBrushStepSize sized segments.
@@ -323,11 +315,11 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
     self.extraLengthWithoutDot = (lengthPlusPrevExtra - divisionOfBrushStroke * realStepSize);
 
     if (!numberOfVertices) {
-        dataVertexBuffer = [NSData data];
+        _dataVertexBuffer = [NSData data];
         return nil;
     }
 
-    void* vertexBuffer = malloc(numberOfBytesOfVertexData);
+    void* vertexBuffer = malloc(_numberOfBytesOfVertexData);
     if (!vertexBuffer) {
         @throw [NSException exceptionWithName:@"Memory Exception" reason:@"can't malloc" userInfo:nil];
     }
@@ -335,7 +327,7 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
     //
     // now setup what we need to calculate the changes in width
     // along the stroke
-    CGFloat prevWidth = previousElement.width;
+    CGFloat prevWidth = [self previousWidth];
     CGFloat widthDiff = self.width - prevWidth;
 
 
@@ -344,15 +336,15 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
     // later on
     CGPoint rightBez[4], leftBez[4];
     CGPoint bez[4];
-    bez[0] = startPoint;
-    bez[1] = ctrl1;
-    bez[2] = ctrl2;
-    bez[3] = curveTo;
+    bez[0] = _startPoint;
+    bez[1] = _ctrl1;
+    bez[2] = _ctrl2;
+    bez[3] = _curveTo;
 
     // track if we're the first element in a stroke. we know this
     // if we follow a moveTo. This way we know if we should
     // include the first dot in the stroke.
-    BOOL isFirstElementInStroke = [previousElement isKindOfClass:[MoveToPathElement class]];
+    BOOL isFirstElementInStroke = [self followsMoveTo];
 
     //
     // calculate points along the curve that are realStepSize
@@ -363,7 +355,7 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
         CGFloat t = (CGFloat)step / (CGFloat)numberOfVertices;
 
         // current width
-        CGFloat stepWidth = (prevWidth + widthDiff * t) * scaleOfVertexBuffer;
+        CGFloat stepWidth = (prevWidth + widthDiff * t) * _scaleOfVertexBuffer;
         // ensure min width for dots
         if (stepWidth < kAbsoluteMinWidth)
             stepWidth = kAbsoluteMinWidth;
@@ -375,8 +367,8 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
         // have the dot at the beginning of our element. otherwise, we should only
         // add an element after kBrushStepSize (including whatever distance was
         // leftover)
-        CGFloat distToDot = realStepSize * step + (isFirstElementInStroke ? 0 : realStepSize - previousElement.extraLengthWithoutDot);
-        subdivideBezierAtLength(bez, leftBez, rightBez, distToDot, .1, subBezierlengthCache);
+        CGFloat distToDot = realStepSize * step + (isFirstElementInStroke ? 0 : realStepSize - [self previousExtraLengthWithoutDot]);
+        subdivideBezierAtLength(bez, leftBez, rightBez, distToDot, .1, _subBezierlengthCache);
         CGPoint point = rightBez[0];
 
         GLfloat calcColor[4];
@@ -406,11 +398,11 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
             calcColor[2] = calcColor[2] * calcColor[3];
         }
         // Convert locations from screen Points to GL points (screen pixels)
-        if (vertexBufferShouldContainColor) {
+        if (_vertexBufferShouldContainColor) {
             struct ColorfulVertex* coloredVertexBuffer = (struct ColorfulVertex*)vertexBuffer;
             // set colors to the array
-            coloredVertexBuffer[step].Position[0] = (GLfloat)point.x * scaleOfVertexBuffer;
-            coloredVertexBuffer[step].Position[1] = (GLfloat)point.y * scaleOfVertexBuffer;
+            coloredVertexBuffer[step].Position[0] = (GLfloat)point.x * _scaleOfVertexBuffer;
+            coloredVertexBuffer[step].Position[1] = (GLfloat)point.y * _scaleOfVertexBuffer;
             coloredVertexBuffer[step].Color[0] = calcColor[0];
             coloredVertexBuffer[step].Color[1] = calcColor[1];
             coloredVertexBuffer[step].Color[2] = calcColor[2];
@@ -420,15 +412,15 @@ const CGPoint JotCGNotFoundPoint = {-10000000.2, -999999.6};
         } else {
             struct ColorlessVertex* colorlessVertexBuffer = (struct ColorlessVertex*)vertexBuffer;
             // set colors to the array
-            colorlessVertexBuffer[step].Position[0] = (GLfloat)point.x * scaleOfVertexBuffer;
-            colorlessVertexBuffer[step].Position[1] = (GLfloat)point.y * scaleOfVertexBuffer;
+            colorlessVertexBuffer[step].Position[0] = (GLfloat)point.x * _scaleOfVertexBuffer;
+            colorlessVertexBuffer[step].Position[1] = (GLfloat)point.y * _scaleOfVertexBuffer;
             colorlessVertexBuffer[step].Size = stepWidth;
         }
     }
 
-    dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:numberOfBytesOfVertexData];
+    _dataVertexBuffer = [NSData dataWithBytesNoCopy:vertexBuffer length:_numberOfBytesOfVertexData];
 
-    return (struct ColorfulVertex*)dataVertexBuffer.bytes;
+    return (struct ColorfulVertex*)_dataVertexBuffer.bytes;
 }
 
 static CGFloat screenWidth;
@@ -450,9 +442,9 @@ static CGFloat screenHeight;
     // we're only allowed to create vbo
     // on the main thread.
     // if we need a vbo, then create it
-    if (!vbo && dataVertexBuffer.length) {
+    if (!_vbo && _dataVertexBuffer.length) {
         NSAssert(self.bufferManager, @"Buffer manager exists");
-        vbo = [self.bufferManager bufferWithData:dataVertexBuffer];
+        _vbo = [self.bufferManager bufferWithData:_dataVertexBuffer];
     }
 }
 
@@ -473,12 +465,12 @@ static CGFloat screenHeight;
  * depending on which was created/bound in this method+thread
  */
 - (BOOL)bind {
-    if (![lock tryLock]) {
-        [lock lock];
+    if (![_lock tryLock]) {
+        [_lock lock];
     }
-    if (!dataVertexBuffer.length) {
+    if (!_dataVertexBuffer.length) {
         // refusing to bind, we have no data
-        [lock unlock];
+        [_lock unlock];
         return NO;
     }
     [JotGLContext runBlock:^(JotGLContext* context) {
@@ -490,13 +482,13 @@ static CGFloat screenHeight;
         [program use];
 
         [self loadDataIntoVBOIfNeeded];
-        if (vertexBufferShouldContainColor) {
-            [vbo bind];
+        if (_vertexBufferShouldContainColor) {
+            [_vbo bind];
         } else {
             // by this point, we've cached our components into
             // colorComponents, even if self.color is nil we've
             // set it appropriately
-            [vbo bindForColor:colorComponents];
+            [_vbo bindForColor:_colorComponents];
         }
     }];
     return YES;
@@ -504,22 +496,22 @@ static CGFloat screenHeight;
 
 - (void)unbind {
     [JotGLContext runBlock:^(JotGLContext* context) {
-        if (dataVertexBuffer.length) {
-            [vbo unbind];
+        if (_dataVertexBuffer.length) {
+            [_vbo unbind];
         }
-        [lock unlock];
+        [_lock unlock];
     }];
 }
 
 - (JotGLProgram*)glProgramForContext:(JotGLContext*)context {
-    if (vertexBufferShouldContainColor) {
+    if (_vertexBufferShouldContainColor) {
         return [context coloredPointProgram];
     } else {
         JotGLColorlessPointProgram* clpp = [context colorlessPointProgram];
-        clpp.colorRed = colorComponents[0];
-        clpp.colorGreen = colorComponents[1];
-        clpp.colorBlue = colorComponents[2];
-        clpp.colorAlpha = colorComponents[3];
+        clpp.colorRed = _colorComponents[0];
+        clpp.colorGreen = _colorComponents[1];
+        clpp.colorBlue = _colorComponents[2];
+        clpp.colorAlpha = _colorComponents[3];
 
         return [context colorlessPointProgram];
     }
@@ -527,9 +519,9 @@ static CGFloat screenHeight;
 
 
 - (void)dealloc {
-    if (vbo) {
-        [self.bufferManager recycleBuffer:vbo];
-        vbo = nil;
+    if (_vbo) {
+        [self.bufferManager recycleBuffer:_vbo];
+        _vbo = nil;
     }
 }
 
@@ -537,10 +529,10 @@ static CGFloat screenHeight;
  * helpful description when debugging
  */
 - (NSString*)description {
-    if (CGPointEqualToPoint(startPoint, ctrl1) && CGPointEqualToPoint(curveTo, ctrl2)) {
-        return [NSString stringWithFormat:@"[Line from: %f,%f  to: %f,%f]", startPoint.x, startPoint.y, curveTo.x, curveTo.y];
+    if (CGPointEqualToPoint(_startPoint, _ctrl1) && CGPointEqualToPoint(_curveTo, _ctrl2)) {
+        return [NSString stringWithFormat:@"[Line from: %f,%f  to: %f,%f]", _startPoint.x, _startPoint.y, _curveTo.x, _curveTo.y];
     } else {
-        return [NSString stringWithFormat:@"[Curve from: %f,%f  to: %f,%f]", startPoint.x, startPoint.y, curveTo.x, curveTo.y];
+        return [NSString stringWithFormat:@"[Curve from: %f,%f  to: %f,%f]", _startPoint.x, _startPoint.y, _curveTo.x, _curveTo.y];
     }
 }
 
@@ -550,8 +542,8 @@ static CGFloat screenHeight;
  * these bezier functions are licensed and used with permission from http://apptree.net/drawkit.htm
  */
 
-- (void)setColor:(UIColor*)_color {
-    color = _color;
+- (void)setColor:(UIColor*)color {
+    _color = color;
 }
 
 /**
@@ -679,57 +671,57 @@ static CGFloat subdivideBezierAtLength(const CGPoint bez[4],
 
 - (NSDictionary*)asDictionary {
     NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[super asDictionary]];
-    [dict setObject:[NSNumber numberWithFloat:curveTo.x] forKey:@"curveTo.x"];
-    [dict setObject:[NSNumber numberWithFloat:curveTo.y] forKey:@"curveTo.y"];
-    [dict setObject:[NSNumber numberWithFloat:ctrl1.x] forKey:@"ctrl1.x"];
-    [dict setObject:[NSNumber numberWithFloat:ctrl1.y] forKey:@"ctrl1.y"];
-    [dict setObject:[NSNumber numberWithFloat:ctrl2.x] forKey:@"ctrl2.x"];
-    [dict setObject:[NSNumber numberWithFloat:ctrl2.y] forKey:@"ctrl2.y"];
-    [dict setObject:[NSNumber numberWithBool:vertexBufferShouldContainColor] forKey:@"vertexBufferShouldContainColor"];
-    if (dataVertexBuffer) {
-        [dict setObject:dataVertexBuffer forKey:@"vertexBuffer"];
+    [dict setObject:[NSNumber numberWithFloat:_curveTo.x] forKey:@"curveTo.x"];
+    [dict setObject:[NSNumber numberWithFloat:_curveTo.y] forKey:@"curveTo.y"];
+    [dict setObject:[NSNumber numberWithFloat:_ctrl1.x] forKey:@"ctrl1.x"];
+    [dict setObject:[NSNumber numberWithFloat:_ctrl1.y] forKey:@"ctrl1.y"];
+    [dict setObject:[NSNumber numberWithFloat:_ctrl2.x] forKey:@"ctrl2.x"];
+    [dict setObject:[NSNumber numberWithFloat:_ctrl2.y] forKey:@"ctrl2.y"];
+    [dict setObject:[NSNumber numberWithBool:_vertexBufferShouldContainColor] forKey:@"vertexBufferShouldContainColor"];
+    if (_dataVertexBuffer) {
+        [dict setObject:_dataVertexBuffer forKey:@"vertexBuffer"];
     }
-    [dict setObject:[NSNumber numberWithFloat:numberOfBytesOfVertexData] forKey:@"numberOfBytesOfVertexData"];
+    [dict setObject:[NSNumber numberWithFloat:_numberOfBytesOfVertexData] forKey:@"numberOfBytesOfVertexData"];
     return [NSDictionary dictionaryWithDictionary:dict];
 }
 
 - (id)initFromDictionary:(NSDictionary*)dictionary {
     self = [super initFromDictionary:dictionary];
     if (self) {
-        lock = [[NSLock alloc] init];
-        boundsCache.origin = JotCGNotFoundPoint;
-        curveTo = CGPointMake([[dictionary objectForKey:@"curveTo.x"] floatValue], [[dictionary objectForKey:@"curveTo.y"] floatValue]);
-        ctrl1 = CGPointMake([[dictionary objectForKey:@"ctrl1.x"] floatValue], [[dictionary objectForKey:@"ctrl1.y"] floatValue]);
-        ctrl2 = CGPointMake([[dictionary objectForKey:@"ctrl2.x"] floatValue], [[dictionary objectForKey:@"ctrl2.y"] floatValue]);
-        dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
-        vertexBufferShouldContainColor = [[dictionary objectForKey:@"vertexBufferShouldContainColor"] boolValue];
-        numberOfBytesOfVertexData = [[dictionary objectForKey:@"numberOfBytesOfVertexData"] integerValue];
+        _lock = [[NSLock alloc] init];
+        _boundsCache.origin = JotCGNotFoundPoint;
+        _curveTo = CGPointMake([[dictionary objectForKey:@"curveTo.x"] floatValue], [[dictionary objectForKey:@"curveTo.y"] floatValue]);
+        _ctrl1 = CGPointMake([[dictionary objectForKey:@"ctrl1.x"] floatValue], [[dictionary objectForKey:@"ctrl1.y"] floatValue]);
+        _ctrl2 = CGPointMake([[dictionary objectForKey:@"ctrl2.x"] floatValue], [[dictionary objectForKey:@"ctrl2.y"] floatValue]);
+        _dataVertexBuffer = [dictionary objectForKey:@"vertexBuffer"];
+        _vertexBufferShouldContainColor = [[dictionary objectForKey:@"vertexBufferShouldContainColor"] boolValue];
+        _numberOfBytesOfVertexData = [[dictionary objectForKey:@"numberOfBytesOfVertexData"] integerValue];
 
         CGFloat currentScale = [[UIScreen mainScreen] scale];
-        if (currentScale != scaleOfVertexBuffer) {
+        if (currentScale != _scaleOfVertexBuffer) {
             // the scale of the cached data in the dictionary is
             // different than the scael of the data that we need.
             // zero this out and it'll regenerate with the
             // correct scale on demand
-            scaleOfVertexBuffer = 0;
-            dataVertexBuffer = nil;
-            numberOfBytesOfVertexData = 0;
+            _scaleOfVertexBuffer = 0;
+            _dataVertexBuffer = nil;
+            _numberOfBytesOfVertexData = 0;
         }
 
-        if (!vertexBufferShouldContainColor) {
+        if (!_vertexBufferShouldContainColor) {
             [self calculateAndCacheColorComponents];
         }
 
         NSUInteger prime = 31;
-        hashCache = 1;
-        hashCache = prime * hashCache + startPoint.x;
-        hashCache = prime * hashCache + startPoint.y;
-        hashCache = prime * hashCache + curveTo.x;
-        hashCache = prime * hashCache + curveTo.y;
-        hashCache = prime * hashCache + ctrl1.x;
-        hashCache = prime * hashCache + ctrl1.y;
-        hashCache = prime * hashCache + ctrl2.x;
-        hashCache = prime * hashCache + ctrl2.y;
+        _hashCache = 1;
+        _hashCache = prime * _hashCache + _startPoint.x;
+        _hashCache = prime * _hashCache + _startPoint.y;
+        _hashCache = prime * _hashCache + _curveTo.x;
+        _hashCache = prime * _hashCache + _curveTo.y;
+        _hashCache = prime * _hashCache + _ctrl1.x;
+        _hashCache = prime * _hashCache + _ctrl1.y;
+        _hashCache = prime * _hashCache + _ctrl2.x;
+        _hashCache = prime * _hashCache + _ctrl2.y;
     }
     return self;
 }
@@ -744,12 +736,14 @@ static CGFloat subdivideBezierAtLength(const CGPoint bez[4],
  */
 - (void)validateDataGivenPreviousElement:(AbstractBezierPathElement*)previousElement {
     // noop, we don't have data
-    NSInteger numberOfBytesThatWeNeed = [self numberOfBytesGivenPreviousElement:previousElement];
-    if (numberOfBytesThatWeNeed != numberOfBytesOfVertexData) {
+    [super validateDataGivenPreviousElement:previousElement];
+
+    NSInteger numberOfBytesThatWeNeed = [self numberOfBytes];
+    if (numberOfBytesThatWeNeed != _numberOfBytesOfVertexData) {
         // force reload
-        scaleOfVertexBuffer = 0;
-        dataVertexBuffer = nil;
-        numberOfBytesOfVertexData = 0;
+        _scaleOfVertexBuffer = 0;
+        _dataVertexBuffer = nil;
+        _numberOfBytesOfVertexData = 0;
     } else {
         // noop, we're good
     }
@@ -766,7 +760,7 @@ static CGFloat subdivideBezierAtLength(const CGPoint bez[4],
 #pragma mark - hashing and equality
 
 - (NSUInteger)hash {
-    return hashCache;
+    return _hashCache;
 }
 
 - (BOOL)isEqual:(id)object {
@@ -778,21 +772,21 @@ static CGFloat subdivideBezierAtLength(const CGPoint bez[4],
 - (void)scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio {
     [super scaleForWidth:widthRatio andHeight:heightRatio];
 
-    curveTo.x = curveTo.x * widthRatio;
-    curveTo.y = curveTo.y * heightRatio;
+    _curveTo.x = _curveTo.x * widthRatio;
+    _curveTo.y = _curveTo.y * heightRatio;
 
-    ctrl1.x = ctrl1.x * widthRatio;
-    ctrl1.y = ctrl1.y * heightRatio;
+    _ctrl1.x = _ctrl1.x * widthRatio;
+    _ctrl1.y = _ctrl1.y * heightRatio;
 
-    ctrl2.x = ctrl2.x * widthRatio;
-    ctrl2.y = ctrl2.y * heightRatio;
+    _ctrl2.x = _ctrl2.x * widthRatio;
+    _ctrl2.y = _ctrl2.y * heightRatio;
 
-    length = 0;
+    _length = 0;
 
-    dataVertexBuffer = nil;
-    if (vbo) {
-        [self.bufferManager recycleBuffer:vbo];
-        vbo = nil;
+    _dataVertexBuffer = nil;
+    if (_vbo) {
+        [self.bufferManager recycleBuffer:_vbo];
+        _vbo = nil;
     }
 }
 

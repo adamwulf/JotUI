@@ -41,12 +41,12 @@ struct ColorlessVertex {
 
 
 @interface AbstractBezierPathElement : NSObject <PlistSaving> {
-    CGPoint startPoint;
-    CGFloat width;
-    UIColor* color;
+    CGPoint _startPoint;
+    CGFloat _width;
+    UIColor* _color;
 
-    NSData* dataVertexBuffer;
-    CGFloat scaleOfVertexBuffer;
+    NSData* _dataVertexBuffer;
+    CGFloat _scaleOfVertexBuffer;
 }
 
 @property(nonatomic, readonly) CGFloat stepWidth;
@@ -59,6 +59,12 @@ struct ColorlessVertex {
 @property(nonatomic, strong) JotBufferManager* bufferManager;
 @property(nonatomic, readonly) int fullByteSize;
 @property(nonatomic, readonly) CGFloat extraLengthWithoutDot;
+
+@property(nonatomic, readonly) BOOL followsMoveTo;
+@property(nonatomic, readonly) CGFloat previousExtraLengthWithoutDot;
+@property(nonatomic, readonly) UIColor* previousColor;
+@property(nonatomic, readonly) CGFloat previousWidth;
+@property(nonatomic, readonly) CGFloat previousRotation;
 
 - (CGFloat)lengthOfElement;
 - (CGFloat)angleOfStart;
