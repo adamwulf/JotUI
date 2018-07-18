@@ -17,9 +17,7 @@
 #define kJotUIRenderVersion 1
 
 
-@implementation AbstractBezierPathElement {
-    BOOL _bakedPreviousElementProps;
-}
+@implementation AbstractBezierPathElement
 
 - (id)initWithStart:(CGPoint)point {
     if (self = [super init]) {

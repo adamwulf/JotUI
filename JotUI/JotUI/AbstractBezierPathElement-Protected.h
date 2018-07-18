@@ -28,6 +28,7 @@
 @property(nonatomic, assign) CGFloat previousWidth;
 @property(nonatomic, assign) CGFloat previousRotation;
 
+@property(nonatomic, assign) BOOL bakedPreviousElementProps;
 @property(nonatomic, assign) NSInteger renderVersion;
 
 - (id)initWithStart:(CGPoint)point;
