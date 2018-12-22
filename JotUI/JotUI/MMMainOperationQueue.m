@@ -34,7 +34,7 @@ static MMMainOperationQueue* sharedQueue;
 
 - (void)tick {
     CheckMainThread;
-    void (^block)();
+    void (^block)(void);
     @synchronized([MMMainOperationQueue class]) {
         if ([blockQueue count]) {
             block = [blockQueue firstObject];
@@ -66,7 +66,7 @@ static MMMainOperationQueue* sharedQueue;
 
     // create a new block that will signal
     // when it's complete
-    void (^waitingBlock)() = ^{
+    void (^waitingBlock)(void) = ^{
         block();
         dispatch_semaphore_signal(localSema);
     };

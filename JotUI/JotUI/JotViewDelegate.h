@@ -12,7 +12,7 @@
 
 @class JotView, JotTouch, JotStroke;
 
-@protocol JotViewDelegate <NSObject>
+@protocol JotViewDelegate
 
 /**
  * The texture to use for the new stroke

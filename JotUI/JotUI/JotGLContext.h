@@ -38,9 +38,9 @@ int printOglError(char* file, int line);
 
 - (id)initWithAPI:(EAGLRenderingAPI)api sharegroup:(EAGLSharegroup*)sharegroup __attribute__((unavailable("Must use initWithAPI:sharegroup:andValidateThreadWith: instead.")));
 
-- (id)initWithName:(NSString*)name andValidateThreadWith:(BOOL (^)())_validateThread;
+- (id)initWithName:(NSString*)name andValidateThreadWith:(BOOL (^)(void))_validateThread;
 
-- (id)initWithName:(NSString*)name andSharegroup:(EAGLSharegroup*)sharegroup andValidateThreadWith:(BOOL (^)())_validateThread;
+- (id)initWithName:(NSString*)name andSharegroup:(EAGLSharegroup*)sharegroup andValidateThreadWith:(BOOL (^)(void))_validateThread;
 
 #pragma mark - Shaders
 
@@ -58,7 +58,7 @@ int printOglError(char* file, int line);
 
 - (void)finish;
 
-- (void)runBlock:(void (^)())block
+- (void)runBlock:(void (^)(void))block
 forStenciledPath:(UIBezierPath*)clippingPath
             atP1:(CGPoint)p1
            andP2:(CGPoint)p2
@@ -69,9 +69,9 @@ forStenciledPath:(UIBezierPath*)clippingPath
  withVertexIndex:(GLuint)vertIndex
  andTextureIndex:(GLuint)texIndex;
 
-- (void)runBlockAndMaintainCurrentFramebuffer:(void (^)())block;
+- (void)runBlockAndMaintainCurrentFramebuffer:(void (^)(void))block;
 
-- (void)runBlock:(void (^)())block withScissorRect:(CGRect)scissorRect;
+- (void)runBlock:(void (^)(void))block withScissorRect:(CGRect)scissorRect;
 
 - (void)prepOpenGLBlendModeForColor:(UIColor*)color;
 

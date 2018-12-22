@@ -23,7 +23,7 @@
  * we'll use pressure data to determine width if we can, otherwise
  * we'll fall back to use velocity data
  */
-- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
     if (shouldUseVelocity) {
         //
         // velocity is reversed from the pen, this eraser
@@ -43,7 +43,7 @@
 }
 
 
-- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
     return nil; // nil means erase
 }
 

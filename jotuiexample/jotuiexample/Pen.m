@@ -110,7 +110,7 @@ static float clamp(min, max, value) {
  * but for our demo adjusting only the alpha
  * is the look we're going for.
  */
-- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
     if (shouldUseVelocity) {
         CGFloat segmentAlpha = (velocity - 1);
         if (segmentAlpha > 0)
@@ -132,7 +132,7 @@ static float clamp(min, max, value) {
  * we'll use pressure data to determine width if we can, otherwise
  * we'll fall back to use velocity data
  */
-- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
     if (shouldUseVelocity) {
         CGFloat width = (velocity - 1);
         if (width > 0)
@@ -165,30 +165,30 @@ static float clamp(min, max, value) {
  * > 1 is loopy
  * < 0 is knotty
  */
-- (CGFloat)smoothnessForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (CGFloat)smoothnessForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
     return 0.75;
 }
 
-- (NSArray*)willAddElements:(NSArray*)elements toStroke:(JotStroke*)stroke fromPreviousElement:(AbstractBezierPathElement*)previousElement {
+- (NSArray*)willAddElements:(NSArray*)elements toStroke:(JotStroke*)stroke fromPreviousElement:(AbstractBezierPathElement*)previousElement inJotView:(JotView*)jotView {
     return elements;
 }
 
-- (BOOL)willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (BOOL)willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
     velocity = 1;
     lastDate = [NSDate date];
     numberOfTouches = 1;
     return YES;
 }
 
-- (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
     numberOfTouches++;
-    if (numberOfTouches > 4){
+    if (numberOfTouches > 4) {
         numberOfTouches = 4;
     }
-    
+
     CGFloat dur = [[NSDate date] timeIntervalSinceDate:lastDate];
-    
-    if(dur > .01){
+
+    if (dur > .01) {
         // require small duration, otherwise the pts/sec calculation can vary wildly
         if ([self velocityForTouch:touch]) {
             velocity = [self velocityForTouch:touch];
@@ -199,16 +199,16 @@ static float clamp(min, max, value) {
     }
 }
 
-- (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding {
+- (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding inJotView:(JotView*)jotView {
 }
 
-- (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
 }
 
-- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
 }
 
-- (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
 }
 
 @end

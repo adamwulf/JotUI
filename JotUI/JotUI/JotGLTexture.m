@@ -282,7 +282,7 @@ static int totalTextureBytes;
         // now prep to draw the actual texture
         // always draw
 
-        void (^possiblyStenciledRenderBlock)() = ^{
+        void (^possiblyStenciledRenderBlock)(void) = ^{
 
             [context prepOpenGLBlendModeForColor:asErase ? nil : [UIColor whiteColor]];
 

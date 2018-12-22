@@ -11,6 +11,7 @@
 #import "Pen.h"
 #import "Marker.h"
 #import "Eraser.h"
+#import "Highlighter.h"
 
 
 @interface ViewController : UIViewController <JotViewDelegate, UIPopoverControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate> {
@@ -18,6 +19,7 @@
     Pen* pen;
     Marker* marker;
     Eraser* eraser;
+    Highlighter* highlighter;
 
     UIPopoverController* popoverController;
 

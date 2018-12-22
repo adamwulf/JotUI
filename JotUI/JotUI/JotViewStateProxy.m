@@ -65,7 +65,7 @@ static dispatch_queue_t loadUnloadStateQueue;
         isLoadingState = YES;
     }
 
-    void (^block2)() = ^(void) {
+    void (^block2)(void) = ^(void) {
         @autoreleasepool {
             BOOL shouldLoadState = NO;
             @synchronized(self) {

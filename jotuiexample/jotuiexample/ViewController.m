@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "Pen.h"
 #import <JotUI/JotUI.h>
 
 
@@ -27,6 +28,8 @@
     eraser = [[Eraser alloc] init];
     marker.color = [redButton backgroundColor];
     pen.color = [blackButton backgroundColor];
+    highlighter = [[Highlighter alloc] init];
+    highlighter.color = [redButton backgroundColor];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -60,8 +63,10 @@
         return pen;
     } else if (penVsMarkerControl.selectedSegmentIndex == 1) {
         return marker;
-    } else {
+    } else if (penVsMarkerControl.selectedSegmentIndex == 2) {
         return eraser;
+    } else {
+        return highlighter;
     }
 }
 
@@ -256,47 +261,47 @@
     return [[self activePen] supportsRotation];
 }
 
-- (NSArray*)willAddElements:(NSArray*)elements toStroke:(JotStroke*)stroke fromPreviousElement:(AbstractBezierPathElement*)previousElement {
-    return [[self activePen] willAddElements:elements toStroke:stroke fromPreviousElement:previousElement];
+- (NSArray*)willAddElements:(NSArray*)elements toStroke:(JotStroke*)stroke fromPreviousElement:(AbstractBezierPathElement*)previousElement inJotView:(JotView*)jotView {
+    return [[self activePen] willAddElements:elements toStroke:stroke fromPreviousElement:previousElement inJotView:jotView];
 }
 
-- (BOOL)willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
-    [[self activePen] willBeginStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
+- (BOOL)willBeginStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
+    [[self activePen] willBeginStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch inJotView:jotView];
     return YES;
 }
 
-- (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
-    [[self activePen] willMoveStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
+- (void)willMoveStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
+    [[self activePen] willMoveStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch inJotView:jotView];
 }
 
-- (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding {
+- (void)willEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch shortStrokeEnding:(BOOL)shortStrokeEnding inJotView:(JotView*)jotView {
     // noop
 }
 
-- (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
-    [[self activePen] didEndStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch];
+- (void)didEndStrokeWithCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
+    [[self activePen] didEndStrokeWithCoalescedTouch:coalescedTouch fromTouch:touch inJotView:jotView];
 }
 
-- (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
-    [[self activePen] willCancelStroke:stroke withCoalescedTouch:coalescedTouch fromTouch:touch];
+- (void)willCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
+    [[self activePen] willCancelStroke:stroke withCoalescedTouch:coalescedTouch fromTouch:touch inJotView:jotView];
 }
 
-- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
-    [[self activePen] didCancelStroke:stroke withCoalescedTouch:coalescedTouch fromTouch:touch];
+- (void)didCancelStroke:(JotStroke*)stroke withCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
+    [[self activePen] didCancelStroke:stroke withCoalescedTouch:coalescedTouch fromTouch:touch inJotView:jotView];
 }
 
-- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (UIColor*)colorForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
     [[self activePen] setShouldUseVelocity:!pressureVsVelocityControl || pressureVsVelocityControl.selectedSegmentIndex];
-    return [[self activePen] colorForCoalescedTouch:coalescedTouch fromTouch:touch];
+    return [[self activePen] colorForCoalescedTouch:coalescedTouch fromTouch:touch inJotView:jotView];
 }
 
-- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
+- (CGFloat)widthForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
     [[self activePen] setShouldUseVelocity:!pressureVsVelocityControl || pressureVsVelocityControl.selectedSegmentIndex];
-    return [[self activePen] widthForCoalescedTouch:coalescedTouch fromTouch:touch];
+    return [[self activePen] widthForCoalescedTouch:coalescedTouch fromTouch:touch inJotView:jotView];
 }
 
-- (CGFloat)smoothnessForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch {
-    return [[self activePen] smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch];
+- (CGFloat)smoothnessForCoalescedTouch:(UITouch*)coalescedTouch fromTouch:(UITouch*)touch inJotView:(JotView*)jotView {
+    return [[self activePen] smoothnessForCoalescedTouch:coalescedTouch fromTouch:touch inJotView:jotView];
 }
 
 #pragma mark - UIPopoverControllerDelegate

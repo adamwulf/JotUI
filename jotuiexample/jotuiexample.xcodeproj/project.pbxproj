@@ -36,6 +36,8 @@
 		66F9216116734FF000B1F868 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 66F9216016734FF000B1F868 /* ViewController.m */; };
 		C5018DED1C2BCE4A00A68A1C /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */; };
 		C5018DEF1C2BCE5100A68A1C /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */; };
+		C5395C2321CEEC2D0087B332 /* Highlighter.m in Sources */ = {isa = PBXBuildFile; fileRef = C5395C2221CEEC2D0087B332 /* Highlighter.m */; };
+		C5395C2521CEEE5C0087B332 /* highlighter.png in Resources */ = {isa = PBXBuildFile; fileRef = C5395C2421CEEE5C0087B332 /* highlighter.png */; };
 		C56201CE1DDE74C200FF508E /* colorlesspoint.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201C81DDE74C200FF508E /* colorlesspoint.vsh */; };
 		C56201CF1DDE74C200FF508E /* coloredpoint.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201C91DDE74C200FF508E /* coloredpoint.vsh */; };
 		C56201D01DDE74C200FF508E /* quad.vsh in Resources */ = {isa = PBXBuildFile; fileRef = C56201CA1DDE74C200FF508E /* quad.vsh */; };
@@ -86,6 +88,9 @@
 		66F9216016734FF000B1F868 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		C5018DEC1C2BCE4A00A68A1C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		C5018DEE1C2BCE5100A68A1C /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		C5395C2121CEEC2D0087B332 /* Highlighter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Highlighter.h; sourceTree = "<group>"; };
+		C5395C2221CEEC2D0087B332 /* Highlighter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Highlighter.m; sourceTree = "<group>"; };
+		C5395C2421CEEE5C0087B332 /* highlighter.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = highlighter.png; path = ../../JotUI/JotUI/highlighter.png; sourceTree = "<group>"; };
 		C56201C81DDE74C200FF508E /* colorlesspoint.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = colorlesspoint.vsh; path = ../JotUI/JotUI/colorlesspoint.vsh; sourceTree = "<group>"; };
 		C56201C91DDE74C200FF508E /* coloredpoint.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = coloredpoint.vsh; path = ../JotUI/JotUI/coloredpoint.vsh; sourceTree = "<group>"; };
 		C56201CA1DDE74C200FF508E /* quad.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = quad.vsh; path = ../JotUI/JotUI/quad.vsh; sourceTree = "<group>"; };
@@ -136,6 +141,8 @@
 				C59C7D93207F00210030634A /* SquareBrushTexture.m */,
 				66910E8716803FCF0046EE12 /* Pen.h */,
 				66910E8816803FCF0046EE12 /* Pen.m */,
+				C5395C2121CEEC2D0087B332 /* Highlighter.h */,
+				C5395C2221CEEC2D0087B332 /* Highlighter.m */,
 				66910E92168043400046EE12 /* Marker.h */,
 				66910E93168043400046EE12 /* Marker.m */,
 				66AA5F8A169E20420046CA26 /* Eraser.h */,
@@ -147,6 +154,7 @@
 		66A6E13116ADE24600651417 /* Pen Images */ = {
 			isa = PBXGroup;
 			children = (
+				C5395C2421CEEE5C0087B332 /* highlighter.png */,
 				6625FBB0174C219D009CC541 /* Filled.png */,
 				66A340211694D3890093E81A /* Rectangle.png */,
 				669B3AC51692C6E300F12F42 /* FadedCircle.png */,
@@ -322,6 +330,7 @@
 				66F9215C16734FF000B1F868 /* Default@2x.png in Resources */,
 				66F9215E16734FF000B1F868 /* Default-568h@2x.png in Resources */,
 				C5E0C8131E04A95900D8E301 /* ViewController~iphone.xib in Resources */,
+				C5395C2521CEEE5C0087B332 /* highlighter.png in Resources */,
 				669B3AC61692C6E300F12F42 /* FadedCircle.png in Resources */,
 				669B3ACB1692CB4C00F12F42 /* Circle.png in Resources */,
 				669B3ACD169378DB00F12F42 /* Square.png in Resources */,
@@ -352,6 +361,7 @@
 				66910E8916803FCF0046EE12 /* Pen.m in Sources */,
 				66910E94168043400046EE12 /* Marker.m in Sources */,
 				66AA5F8C169E20420046CA26 /* Eraser.m in Sources */,
+				C5395C2321CEEC2D0087B332 /* Highlighter.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

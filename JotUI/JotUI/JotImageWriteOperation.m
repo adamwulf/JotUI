@@ -12,7 +12,7 @@
 @implementation JotImageWriteOperation {
     UIImage* imageToWrite;
     NSString* pathToWriteImageTo;
-    void (^notifyBlock)();
+    void (^notifyBlock)(JotImageWriteOperation*);
     BOOL isRunning;
     NSObject* lock;
 }

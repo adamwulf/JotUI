@@ -1845,7 +1845,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
 
 #pragma mark - dealloc
 
-- (void)performBlockOnMainThreadSync:(void (^)())block {
+- (void)performBlockOnMainThreadSync:(void (^)(void))block {
     if ([NSThread isMainThread]) {
         block();
     } else {
