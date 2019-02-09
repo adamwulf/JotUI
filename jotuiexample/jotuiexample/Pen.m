@@ -48,7 +48,7 @@ static float clamp(min, max, value) {
 }
 
 - (CGFloat)stepWidthForStroke {
-    return 2;
+    return .5;
 }
 
 - (BOOL)supportsRotation {
