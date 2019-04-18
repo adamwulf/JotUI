@@ -49,6 +49,13 @@
     }
 }
 
+- (void)removeFromParentViewController {
+    [super removeFromParentViewController];
+
+    [jotView invalidate];
+    [jotView removeFromSuperview];
+    jotView = nil;
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -179,12 +186,13 @@
 
 
 - (IBAction)saveImage {
+    __weak typeof(self) weakSelf = self;
     [jotView exportImageTo:[self jotViewStateInkPath] andThumbnailTo:[self jotViewStateThumbPath] andStateTo:[self jotViewStatePlistPath] withThumbnailScale:1.0 onComplete:^(UIImage* ink, UIImage* thumb, JotViewImmutableState* state) {
         UIImageWriteToSavedPhotosAlbum(thumb, nil, nil, nil);
         dispatch_async(dispatch_get_main_queue(), ^{
             UIAlertController* alert = [UIAlertController alertControllerWithTitle:@"Saved" message:@"The JotView's state has been saved to disk, and a full resolution image has been saved to the photo album." preferredStyle:UIAlertControllerStyleAlert];
             [alert addAction:[UIAlertAction actionWithTitle:@"Ok" style:UIAlertActionStyleDefault handler:nil]];
-            [self presentViewController:alert animated:YES completion:nil];
+            [weakSelf presentViewController:alert animated:YES completion:nil];
         });
     }];
 }
