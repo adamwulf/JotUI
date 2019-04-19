@@ -399,7 +399,7 @@ typedef enum UndfBOOL {
     }
     if ([stackOfContexts lastObject] != context) {
         // only flush if we get a new context on this thread
-        [(JotGLContext*)[JotGLContext currentContext] flush];
+        [(JotGLContext*)[stackOfContexts lastObject] flush];
     }
     [stackOfContexts addObject:context];
     return [JotGLContext setCurrentContext:context];
