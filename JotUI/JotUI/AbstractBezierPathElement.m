@@ -208,6 +208,57 @@
     return self;
 }
 
+#pragma mark - NSCoding
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    
+    _startPoint = [decoder decodeCGPointForKey:@"startPoint"];
+    _width = [decoder decodeFloatForKey:@"width"];
+    _rotation = [decoder decodeFloatForKey:@"rotation"];
+    _stepWidth = [decoder decodeFloatForKey:@"stepWidth"];
+    _extraLengthWithoutDot = [decoder decodeFloatForKey:@"extraLengthWithoutDot"];
+    _scaleOfVertexBuffer = [decoder decodeFloatForKey:@"scaleOfVertexBuffer"];
+    _previousWidth = [decoder decodeFloatForKey:@"previousWidth"];
+    _previousRotation = [decoder decodeFloatForKey:@"previousRotation"];
+    _previousExtraLengthWithoutDot = [decoder decodeFloatForKey:@"previousExtraLengthWithoutDot"];
+    _renderVersion = [decoder decodeFloatForKey:@"renderVersion"];
+    _bakedPreviousElementProps = [decoder decodeFloatForKey:@"bakedPreviousElementProps"];
+    _followsMoveTo = [decoder decodeFloatForKey:@"followsMoveTo"];
+    
+    NSData *colorData = [decoder decodeObjectForKey:@"color"];
+    _color = [NSKeyedUnarchiver unarchiveObjectWithData:colorData];
+    
+    NSData *previousColorData = [decoder decodeObjectForKey:@"previousColor"];
+    _previousColor = [NSKeyedUnarchiver unarchiveObjectWithData:previousColorData];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeCGPoint:_startPoint forKey:@"startPoint"];
+    [encoder encodeFloat:_width forKey:@"width"];
+    [encoder encodeFloat:_rotation forKey:@"rotation"];
+    [encoder encodeFloat:_stepWidth forKey:@"stepWidth"];
+    [encoder encodeFloat:_extraLengthWithoutDot forKey:@"extraLengthWithoutDot"];
+    [encoder encodeFloat:_scaleOfVertexBuffer forKey:@"scaleOfVertexBuffer"];
+    [encoder encodeFloat:_previousWidth forKey:@"previousWidth"];
+    [encoder encodeFloat:_previousRotation forKey:@"previousRotation"];
+    [encoder encodeFloat:_previousExtraLengthWithoutDot forKey:@"previousExtraLengthWithoutDot"];
+    [encoder encodeFloat:_renderVersion forKey:@"renderVersion"];
+    [encoder encodeFloat:_bakedPreviousElementProps forKey:@"bakedPreviousElementProps"];
+    [encoder encodeFloat:_followsMoveTo forKey:@"followsMoveTo"];
+    
+    NSData *colorData = [NSKeyedArchiver archivedDataWithRootObject:_color];
+    [encoder encodeObject:colorData forKey:@"color"];
+    
+    NSData *previousColorData = [NSKeyedArchiver archivedDataWithRootObject:_previousColor];
+    [encoder encodeObject:previousColorData forKey:@"previousColor"];
+}
+
 #pragma mark - Scaling
 
 - (void)scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio {

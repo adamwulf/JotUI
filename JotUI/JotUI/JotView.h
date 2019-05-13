@@ -67,7 +67,7 @@
        andThumbnailTo:(NSString*)thumbnailPath
            andStateTo:(NSString*)plistPath
    withThumbnailScale:(CGFloat)thumbScale
-           onComplete:(void (^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock;
+           onComplete:(void (^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state, NSData* stateData))exportFinishBlock;
 
 - (void)exportToImageOnComplete:(void (^)(UIImage*))exportFinishBlock withScale:(CGFloat)outputScale;
 

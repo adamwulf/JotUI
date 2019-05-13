@@ -119,14 +119,17 @@
 }
 
 - (void)dealloc {
-    [JotGLContext runBlock:^(JotGLContext* context) {
-        if (glBrushTextureID) {
-            glDeleteTextures(1, &glBrushTextureID);
-            glBrushTextureID = 0;
-        }
-    }];
-}
+    JotGLContext* currentContext = (JotGLContext*)[JotGLContext currentContext];
 
+    if (currentContext != nil) {
+        [JotGLContext runBlock:^(JotGLContext* context) {
+            if (glBrushTextureID) {
+                glDeleteTextures(1, &glBrushTextureID);
+                glBrushTextureID = 0;
+            }
+        }];
+    }
+}
 
 #pragma mark - PlistSaving
 
@@ -145,6 +148,27 @@
     NSString* className = [dictionary objectForKey:@"class"];
     Class clz = NSClassFromString(className);
     return [[clz alloc] init];
+}
+
+#pragma mark - NSCoding
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    
+    glBrushTextureID = [[decoder decodeObjectForKey:@"glBrushTextureID"] unsignedIntValue];
+    name = [decoder decodeObjectForKey:@"name"];
+    //    lock = [decoder decodeObjectForKey:@"lock"];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[[NSNumber alloc] initWithUnsignedInt:glBrushTextureID]  forKey:@"glBrushTextureID"];
+    [encoder encodeObject:name forKey:@"name"];
+    //    [encoder encodeObject:lock forKey:@"lock"];
 }
 
 @end

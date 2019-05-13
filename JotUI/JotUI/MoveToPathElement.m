@@ -107,6 +107,23 @@
     return strokePath;
 }
 
+#pragma mark - NSCoding
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    
+    _hashCache = [[decoder decodeObjectForKey:@"_hashCache"] unsignedIntegerValue];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:[[NSNumber alloc] initWithUnsignedInteger:_hashCache] forKey:@"_hashCache"];
+}
+
 
 #pragma mark - hashing and equality
 

@@ -9,7 +9,7 @@
 #import <JotUI/JotUI.h>
 
 
-@interface JotImmutableStroke : JotStroke
+@interface JotImmutableStroke : JotStroke <NSCoding>
 
 
 - (id)initWithJotStroke:(JotStroke*)stroke;

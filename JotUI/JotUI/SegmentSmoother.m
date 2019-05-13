@@ -141,6 +141,29 @@
     return self;
 }
 
+#pragma mark - NSCoding
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    
+    point0 = [decoder decodeCGPointForKey:@"point0"];
+    point1 = [decoder decodeCGPointForKey:@"point1"];
+    point2 = [decoder decodeCGPointForKey:@"point2"];
+    point3 = [decoder decodeCGPointForKey:@"point3"];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeCGPoint:point0 forKey:@"point0"];
+    [encoder encodeCGPoint:point1 forKey:@"point1"];
+    [encoder encodeCGPoint:point2 forKey:@"point2"];
+    [encoder encodeCGPoint:point3 forKey:@"point3"];
+}
+
 #pragma mark - Scale
 
 - (void)scaleForWidth:(CGFloat)widthRatio andHeight:(CGFloat)heightRatio {

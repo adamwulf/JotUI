@@ -50,6 +50,8 @@
 
 - (void)loadJotStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager;
 
+- (void)loadJotStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager inkImage:(UIImage*)inkImage stateDict:(NSMutableDictionary*)stateDict;
+
 - (void)unload;
 
 - (BOOL)hasEditsToSave;

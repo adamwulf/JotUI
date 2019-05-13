@@ -14,7 +14,7 @@
  * a line segment, similar to the moveto 
  * CGPathElement
  */
-@interface MoveToPathElement : AbstractBezierPathElement
+@interface MoveToPathElement : AbstractBezierPathElement <NSCoding>
 
 + (id)elementWithMoveTo:(CGPoint)point;
 

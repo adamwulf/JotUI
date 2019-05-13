@@ -40,7 +40,7 @@ struct ColorlessVertex {
 #define kBrushStepSize 1
 
 
-@interface AbstractBezierPathElement : NSObject <PlistSaving> {
+@interface AbstractBezierPathElement : NSObject <PlistSaving, NSCoding> {
     CGPoint _startPoint;
     CGFloat _width;
     UIColor* _color;

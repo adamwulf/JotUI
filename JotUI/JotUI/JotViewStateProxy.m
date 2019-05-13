@@ -131,6 +131,89 @@ static dispatch_queue_t loadUnloadStateQueue;
     }
 }
 
+- (void)loadJotStateAsynchronously:(BOOL)async withSize:(CGSize)pagePtSize andScale:(CGFloat)scale andContext:(JotGLContext*)context andBufferManager:(JotBufferManager*)bufferManager inkImage:(UIImage*)inkImage stateDict:(NSMutableDictionary*)stateDict {
+    @synchronized(self) {
+        // if we're already loading our
+        // state, then bail early
+        if (isLoadingState) {
+            return;
+        }
+        // if we already have our state,
+        // then bail early
+        if (jotViewState) {
+            return;
+        }
+        
+        shouldKeepStateLoaded = YES;
+        isLoadingState = YES;
+    }
+    
+    void (^block2)(void) = ^(void) {
+        @autoreleasepool {
+            BOOL shouldLoadState = NO;
+            @synchronized(self) {
+                shouldLoadState = !jotViewState && shouldKeepStateLoaded;
+            }
+            
+            if (shouldLoadState) {
+                if (!shouldKeepStateLoaded) {
+                    DebugLog(@"will waste some time loading a JotViewState that we don't need...");
+                }
+                jotViewState = [[JotViewState alloc] initWithInkImage:inkImage
+                                                         andStateDict:stateDict
+                                                          andPageSize:pagePtSize
+                                                             andScale:scale
+                                                         andGLContext:context
+                                                     andBufferManager:bufferManager];
+                if (!shouldKeepStateLoaded) {
+                    DebugLog(@"wasted some time loading a JotViewState that we didn't need...");
+                }
+                BOOL shouldNotify = NO;
+                @synchronized(self) {
+                    if (shouldKeepStateLoaded) {
+                        lastSavedUndoHash = [jotViewState undoHash];
+                        shouldNotify = YES;
+                    } else {
+                        shouldNotify = NO;
+                        // when loading state, we were actually
+                        // told that we didn't really need the
+                        // state after all, so just throw it away :(
+                    }
+                }
+                if (shouldNotify) {
+                    // nothing changed in our goals since we started
+                    // to load state, so notify our delegate
+                    [self.delegate didLoadState:self];
+                } else {
+                    [[JotTrashManager sharedInstance] addObjectToDealloc:jotViewState];
+                    @synchronized(self) {
+                        jotViewState = nil;
+                        lastSavedUndoHash = 0;
+                    }
+                }
+                @synchronized(self) {
+                    isLoadingState = NO;
+                }
+            } else if (!shouldKeepStateLoaded) {
+                @synchronized(self) {
+                    // saved an excess load
+                    isLoadingState = NO;
+                }
+            } else {
+                @synchronized(self) {
+                    isLoadingState = NO;
+                }
+            }
+        }
+    };
+    
+    if (async) {
+        dispatch_async(([JotViewStateProxy loadUnloadStateQueue]), block2);
+    } else {
+        block2();
+    }
+}
+
 - (void)wasSavedAtImmutableState:(JotViewImmutableState*)immutableState {
     lastSavedUndoHash = [immutableState undoHash];
     lastSavedUndoHash = [immutableState undoHash];

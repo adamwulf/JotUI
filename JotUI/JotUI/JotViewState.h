@@ -46,6 +46,13 @@
            andGLContext:(JotGLContext*)glContext
        andBufferManager:(JotBufferManager*)bufferManager;
 
+- (id)initWithInkImage:(UIImage*)inkImage
+          andStateDict:(NSDictionary*)stateDict
+           andPageSize:(CGSize)_fullPtSize
+              andScale:(CGFloat)scale
+          andGLContext:(JotGLContext*)glContext
+      andBufferManager:(JotBufferManager*)_bufferManager;
+
 /**
  * this will return an immutable copy of the state
  * but only if we are ready to export

@@ -111,6 +111,46 @@
     return self;
 }
 
+- (id)initWithInkImage:(UIImage*)inkImage
+          andStateDict:(NSDictionary*)stateDict
+           andPageSize:(CGSize)_fullPtSize
+              andScale:(CGFloat)scale
+          andGLContext:(JotGLContext*)glContext
+      andBufferManager:(JotBufferManager*)_bufferManager {
+    if (self = [self init]) {
+        bufferManager = _bufferManager;
+        fullPtSize = _fullPtSize;
+        // we're going to wait for two background operations to complete
+        // using these semaphores
+        dispatch_semaphore_t sema1 = dispatch_semaphore_create(0);
+        dispatch_semaphore_t sema2 = dispatch_semaphore_create(0);
+        
+        
+        // the second item is loading the ink texture
+        // into Open GL
+        dispatch_async([JotView importExportImageQueue], ^{
+            @autoreleasepool {
+                [self loadTextureHelperWithGLContext:glContext andInkImage:inkImage andPixelSize:CGSizeMake(fullPtSize.width * scale, fullPtSize.height * scale)];
+                dispatch_semaphore_signal(sema1);
+            }
+        });
+        
+        // the first item is unserializing the plist
+        // information for our page state
+        dispatch_async([JotView importExportStateQueue], ^{
+            @autoreleasepool {
+                [self loadStrokesHelperWithGLContext:glContext andStateInfoDict:stateDict andScale:scale];
+                dispatch_semaphore_signal(sema2);
+            }
+        });
+        // wait here
+        // until both above items are complete
+        dispatch_semaphore_wait(sema1, DISPATCH_TIME_FOREVER);
+        dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
+    }
+    return self;
+}
+
 - (int)fullByteSize {
     int strokeTotal = 0;
     @synchronized(self) {
@@ -150,6 +190,28 @@ static JotGLContext* backgroundLoadTexturesThreadContext = nil;
         self.backgroundTexture = [[JotGLTexture alloc] initForImage:savedInkImage withSize:fullPixelSize];
 
         if (!savedInkImage) {
+            // no image was given, so it should be a blank texture
+            // lets erase it, since it defaults to uncleared memory
+            [self.backgroundFramebuffer clear];
+        }
+        [backgroundLoadTexturesThreadContext finish];
+    }];
+}
+
+- (void)loadTextureHelperWithGLContext:(JotGLContext*)glContext andInkImage:(UIImage*)inkImage andPixelSize:(CGSize)fullPixelSize {
+    if (![JotView isImportExportImageQueue]) {
+        @throw [NSException exceptionWithName:@"InconsistentQueueException" reason:@"loading texture in wrong queue" userInfo:nil];
+    }
+    if (!backgroundLoadTexturesThreadContext) {
+        backgroundLoadTexturesThreadContext = [[JotGLContext alloc] initWithName:@"JotBackgroundTextureLoadContext" andSharegroup:glContext.sharegroup andValidateThreadWith:^BOOL {
+            return [JotView isImportExportImageQueue];
+        }];
+    }
+    [backgroundLoadTexturesThreadContext runBlock:^{
+        // load new texture
+        self.backgroundTexture = [[JotGLTexture alloc] initForImage:inkImage withSize:fullPixelSize];
+        
+        if (!inkImage) {
             // no image was given, so it should be a blank texture
             // lets erase it, since it defaults to uncleared memory
             [self.backgroundFramebuffer clear];
@@ -217,6 +279,57 @@ static JotGLContext* backgroundLoadStrokesThreadContext = nil;
     }];
 }
 
+- (void)loadStrokesHelperWithGLContext:(JotGLContext*)glContext andStateInfoDict:(NSDictionary*)stateInfo andScale:(CGFloat)scale {
+    if (![JotView isImportExportStateQueue]) {
+        @throw [NSException exceptionWithName:@"InconsistentQueueException" reason:@"loading jotViewState in wrong queue" userInfo:nil];
+    }
+    if (!backgroundLoadStrokesThreadContext) {
+        backgroundLoadStrokesThreadContext = [[JotGLContext alloc] initWithName:@"JotBackgroundStrokeLoadContext" andSharegroup:glContext.sharegroup andValidateThreadWith:^BOOL {
+            return [JotView isImportExportStateQueue];
+        }];
+    }
+    [backgroundLoadStrokesThreadContext runBlock:^{
+        undoLimit = [stateInfo[@"undoLimit"] integerValue] ?: kJotDefaultUndoLimit;
+        
+        if (stateInfo) {
+            CGSize strokeStatePageSize = CGSizeMake([stateInfo[@"screenSize.width"] floatValue], [stateInfo[@"screenSize.height"] floatValue]);
+            
+            // load our undo state if we have it
+            id (^loadStrokeBlock)(id obj, NSUInteger index) = ^id(id obj, NSUInteger index) {
+                if (![obj isKindOfClass:[NSDictionary class]]) {
+                    obj = stateInfo[obj];
+                }
+                // pass in the buffer manager to use
+                [obj setObject:bufferManager forKey:@"bufferManager"];
+                [obj setObject:[NSNumber numberWithFloat:scale] forKey:@"scale"];
+                
+                NSString* className = [obj objectForKey:@"class"];
+                Class class = NSClassFromString(className);
+                JotStroke* stroke = [[class alloc] initFromDictionary:obj];
+                
+                if (!CGSizeEqualToSize(strokeStatePageSize, CGSizeZero)) {
+                    if (fullPtSize.width != strokeStatePageSize.width && fullPtSize.height != strokeStatePageSize.height) {
+                        didRequireScaleDuringLoad = YES;
+                        
+                        CGFloat widthRatio = fullPtSize.width / strokeStatePageSize.width;
+                        CGFloat heightRatio = fullPtSize.height / strokeStatePageSize.height;
+                        
+                        [stroke scaleSegmentsForWidth:widthRatio andHeight:heightRatio];
+                    }
+                }
+                
+                stroke.delegate = self;
+                return stroke;
+            };
+            
+            @synchronized(self) {
+                [stackOfStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfStrokes"] jotMap:loadStrokeBlock]];
+                [stackOfUndoneStrokes addObjectsFromArray:[[stateInfo objectForKey:@"stackOfUndoneStrokes"] jotMap:loadStrokeBlock]];
+            }
+        }
+        [backgroundLoadStrokesThreadContext finish];
+    }];
+}
 
 #pragma mark - Public Methods
 

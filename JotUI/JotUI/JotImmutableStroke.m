@@ -53,5 +53,29 @@
     return dict;
 }
 
+#pragma mark - NSCoding
+
+- (id)initWithCoder:(NSCoder *)decoder {
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    
+    segmentSmoother = [decoder decodeObjectForKey:@"segmentSmoother"];
+    segments = [decoder decodeObjectForKey:@"segments"];
+    texture = [decoder decodeObjectForKey:@"texture"];
+    uuid = [decoder decodeObjectForKey:@"uuid"];
+    strokeClassName = [decoder decodeObjectForKey:@"strokeClassName"];
+    
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)encoder {
+    [encoder encodeObject:segmentSmoother forKey:@"segmentSmoother"];
+    [encoder encodeObject:texture forKey:@"texture"];
+    [encoder encodeObject:uuid forKey:@"uuid"];
+    [encoder encodeObject:strokeClassName forKey:@"strokeClassName"];
+    [encoder encodeObject:segments forKey:@"segments"];
+}
 
 @end

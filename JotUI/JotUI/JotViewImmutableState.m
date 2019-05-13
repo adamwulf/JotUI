@@ -42,6 +42,8 @@
 
         [stateDict setObject:[stateInfo objectForKey:@"screenSize.width"] forKey:@"screenSize.width"];
         [stateDict setObject:[stateInfo objectForKey:@"screenSize.height"] forKey:@"screenSize.height"];
+        
+        self.immutableData = [NSKeyedArchiver archivedDataWithRootObject:stateDict];
     }
     return self;
 }
@@ -92,6 +94,35 @@
         DebugLog(@"couldn't write plist file");
     }
 }
+
+- (NSData*)stateData:(NSData*)savedData {
+    if (![JotView isImportExportStateQueue]) {
+        @throw [NSException exceptionWithName:@"InconsistentQueueException" reason:@"writing immutable jotViewState in wrong queue" userInfo:nil];
+    }
+    
+    stateDict = (NSMutableDictionary*) [NSKeyedUnarchiver unarchiveObjectWithData:savedData];
+    
+    if (![[stateDict objectForKey:@"hasConverted"] boolValue]) {
+        if (![[stateDict objectForKey:@"hasConverted"] boolValue]) {
+            // write each stroke to disk to its own file. this is because the
+            // vertex buffer for each stroke can be fairly large. writing it
+            // out will let us write each stroke once instead of every time the
+            // state is saved
+            [[[stateDict objectForKey:@"stackOfStrokes"] arrayByAddingObjectsFromArray:[stateDict objectForKey:@"stackOfUndoneStrokes"]] jotMap:^id(id obj, NSUInteger index) {
+                [stateDict setObject:[obj asDictionary] forKey:[obj uuid]];
+                
+                return obj;
+            }];
+            
+            [stateDict setObject:[[stateDict objectForKey:@"stackOfStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfStrokes"];
+            [stateDict setObject:[[stateDict objectForKey:@"stackOfUndoneStrokes"] jotMapWithSelector:@selector(uuid)] forKey:@"stackOfUndoneStrokes"];
+            [stateDict setObject:[NSNumber numberWithBool:YES] forKey:@"hasConverted"];
+        }
+    }
+    
+    return [NSKeyedArchiver archivedDataWithRootObject:stateDict];
+}
+
 
 /**
  * This hash isn't calculated here, because the objects in the

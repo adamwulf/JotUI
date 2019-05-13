@@ -314,7 +314,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
        andThumbnailTo:(NSString*)thumbnailPath
            andStateTo:(NSString*)plistPath
    withThumbnailScale:(CGFloat)thumbScale
-           onComplete:(void (^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock {
+           onComplete:(void (^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state, NSData* stateData))exportFinishBlock {
     // ask to save, and send in our state object
     // incase we need to defer saving until later
     [self exportImageTo:inkPath andThumbnailTo:thumbnailPath andStateTo:plistPath andJotState:state withThumbnailScale:@(thumbScale) onComplete:exportFinishBlock];
@@ -332,7 +332,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
            andStateTo:(NSString*)plistPath
           andJotState:(JotViewStateProxy*)stateToBeSaved
    withThumbnailScale:(NSNumber*)thumbScale
-           onComplete:(void (^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state))exportFinishBlock {
+           onComplete:(void (^)(UIImage* ink, UIImage* thumb, JotViewImmutableState* state, NSData* stateData))exportFinishBlock {
     CheckMainThread;
 
     if (stateToBeSaved != state) {
@@ -343,13 +343,13 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
     }
 
     if (!state) {
-        exportFinishBlock(nil, nil, nil);
+        exportFinishBlock(nil, nil, nil, nil);
         return;
     }
 
     if (state.isForgetful) {
         DebugLog(@"forget: skipping export for forgetful jotview");
-        exportFinishBlock(nil, nil, nil);
+        exportFinishBlock(nil, nil, nil, nil);
         return;
     }
 
@@ -360,7 +360,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
             // so we don't need to add another save to the
             // exportLaterInvocation list.
             // already saving this undo hash
-            exportFinishBlock(nil, nil, nil);
+            exportFinishBlock(nil, nil, nil, nil);
         } else if (![exportLaterInvocations count]) {
             // export later invocation
             //
@@ -393,7 +393,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
             // we have to call the export finish block, no matter what.
             // so call the block and send nil b/c we're not actually done
             // exporting.
-            exportFinishBlock(nil, nil, nil);
+            exportFinishBlock(nil, nil, nil, nil);
         }
         return;
     }
@@ -419,7 +419,8 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
     // to the exact strokes that are visible + not yet written
     // to the backing texture
     JotViewImmutableState* immutableState = [state immutableState];
-
+    NSData *stateData = [immutableState immutableData];
+    
     [self exportInkTextureOnComplete:^(UIImage* image) {
         ink = image;
         dispatch_semaphore_signal(sema2);
@@ -468,8 +469,10 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
 
             dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
 
+            NSData *completeData = [immutableState stateData:stateData];
+
             // done saving JotView
-            exportFinishBlock(ink, thumb, immutableState);
+            exportFinishBlock(ink, thumb, immutableState, completeData);
 
             if (state.isForgetful) {
                 @synchronized(self) {
