@@ -168,8 +168,8 @@ static JotGLContext* mainThreadContext;
     eaglLayer.opaque = NO;
     // In this application, we want to retain the EAGLDrawable contents after a call to presentRenderbuffer.
     eaglLayer.drawableProperties = [NSDictionary dictionaryWithObjectsAndKeys:
-                                                     [NSNumber numberWithBool:YES], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
-
+                                    [NSNumber numberWithBool:YES], kEAGLDrawablePropertyRetainedBacking, kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat, nil];
+    
     if (!mainThreadContext) {
         context = [[JotGLContext alloc] initWithName:@"JotViewMainThreadContext" andValidateThreadWith:^BOOL {
             return [NSThread isMainThread];
@@ -292,7 +292,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
     CheckMainThread;
     if (state != newState) {
         state = newState;
-        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero scale: self.contentScaleFactor];
         if ([state hasEditsToSave]) {
             // be explicit about not letting us change the state of
             // the drawable view if there are saves pending.
@@ -550,7 +550,12 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
     }
 
     NSArray* strokesAtTimeOfExport = [state everyVisibleStroke];
-
+    
+    // exportSize is px of our target export image
+    CGSize exportSize = CGSizeMake(ceilf(self.bounds.size.width * outputScale), ceilf(self.bounds.size.height * outputScale));
+    
+    CGFloat scale = self.contentScaleFactor;
+    
     //
     // the rest can be done in Core Graphics in a background thread
     dispatch_async([JotView importExportImageQueue], ^{
@@ -578,9 +583,6 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
 
                     // fullSize in px of our existing framebuffer
                     CGSize fullSize = viewFramebuffer.initialViewport;
-
-                    // exportSize is px of our target export image
-                    CGSize exportSize = CGSizeMake(ceilf(self.bounds.size.width * outputScale), ceilf(self.bounds.size.height * outputScale));
 
                     [secondSubContext glViewportWithX:0 y:0 width:(GLsizei)fullSize.width height:(GLsizei)fullSize.height];
 
@@ -639,7 +641,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                         // draw each stroke element
                         AbstractBezierPathElement* prevElement = nil;
                         for (AbstractBezierPathElement* element in stroke.segments) {
-                            [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil toContext:secondSubContext];
+                            [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil toContext:secondSubContext scale:scale];
                             prevElement = element;
                         }
                         [stroke.texture unbind];
@@ -718,9 +720,9 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                     if (!cgImage) {
                         @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
                     }
-
-                    image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
-
+                    
+                    image = [UIImage imageWithCGImage:cgImage scale:scale orientation:UIImageOrientationUp];
+                    
                     // Clean up
                     free(data);
                     CFRelease(ref);
@@ -791,7 +793,9 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
         exportFinishBlock(nil);
         return;
     }
-
+    
+    CGFloat scale = self.contentScaleFactor;
+    
     // the rest can be done in Core Graphics in a background thread
     dispatch_async([JotView importExportImageQueue], ^{
         @autoreleasepool {
@@ -926,8 +930,8 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                 if (!cgImage) {
                     @throw [NSException exceptionWithName:@"CGContext Exception" reason:@"can't create new context" userInfo:nil];
                 }
-
-                UIImage* image = [UIImage imageWithCGImage:cgImage scale:self.contentScaleFactor orientation:UIImageOrientationUp];
+                
+                UIImage* image = [UIImage imageWithCGImage:cgImage scale:scale orientation:UIImageOrientationUp];
 
                 // Clean up
                 free(data);
@@ -963,11 +967,11 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
  * a stroke. it will clear the screen and re-draw all
  * strokes except for that undone/cancelled stroke
  */
-- (void)renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(AbstractJotGLFrameBuffer*)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect {
-    [self renderAllStrokesToContext:renderContext inFramebuffer:theFramebuffer andPresentBuffer:shouldPresent inRect:scissorRect withBlock:nil];
+- (void)renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(AbstractJotGLFrameBuffer*)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect scale:(CGFloat)scale {
+    [self renderAllStrokesToContext:renderContext inFramebuffer:theFramebuffer andPresentBuffer:shouldPresent inRect:scissorRect scale:scale withBlock:nil];
 }
 
-- (void)renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(AbstractJotGLFrameBuffer*)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect withBlock:(void (^)(void))block {
+- (void)renderAllStrokesToContext:(JotGLContext*)renderContext inFramebuffer:(AbstractJotGLFrameBuffer*)theFramebuffer andPresentBuffer:(BOOL)shouldPresent inRect:(CGRect)scissorRect scale:(CGFloat)scale withBlock:(void (^)(void))block {
     @autoreleasepool {
         CheckMainThread;
 
@@ -1020,7 +1024,6 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
             // now draw the strokes
 
             BOOL hasScissor = !CGRectEqualToRect(scissorRect, CGRectZero);
-            CGFloat scale = self.contentScaleFactor;
             CGRect scissorRectPts = CGRectApplyAffineTransform(scissorRect, CGAffineTransformMakeScale(1 / scale, 1 / scale));
 
             for (JotStroke* stroke in [state everyVisibleStroke]) {
@@ -1032,7 +1035,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
                     // draw each stroke element
                     AbstractBezierPathElement* prevElement = nil;
                     for (AbstractBezierPathElement* element in stroke.segments) {
-                        [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil toContext:renderContext];
+                        [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:nil toContext:renderContext scale:scale];
                         prevElement = element;
                     }
                     [stroke.texture unbind];
@@ -1140,6 +1143,7 @@ CGFloat JotBNRTimeBlock(void (^block)(void)) {
         @throw [NSException exceptionWithName:@"StepWidthException" reason:@"Step width must be greater than zero" userInfo:nil];
     }
 
+    CGFloat scale = self.contentScaleFactor;
 
     // fetch the current and previous elements
     // of the stroke. these will help us
@@ -1179,7 +1183,7 @@ CGFloat JotBNRTimeBlock(void (^block)(void)) {
             [currentStroke addElement:[elements objectAtIndex:i]];
             // ok, now we have the current + previous stroke segment
             // so let's set to drawing it!
-            [self renderElement:[elements objectAtIndex:i] fromPreviousElement:[elements objectAtIndex:i - 1] includeOpenGLPrepForFBO:viewFramebuffer toContext:context];
+            [self renderElement:[elements objectAtIndex:i] fromPreviousElement:[elements objectAtIndex:i - 1] includeOpenGLPrepForFBO:viewFramebuffer toContext:context scale:scale];
         }
         [currentStroke.texture unbind];
 
@@ -1208,7 +1212,7 @@ CGFloat JotBNRTimeBlock(void (^block)(void)) {
  * teardown our openGL context/blending/etc. send in the framebuffer id to
  * setup the openGL state, or send in nil or 0 to bypass setup
  */
-- (void)renderElement:(AbstractBezierPathElement*)element fromPreviousElement:(AbstractBezierPathElement*)previousElement includeOpenGLPrepForFBO:(AbstractJotGLFrameBuffer*)frameBuffer toContext:(JotGLContext*)renderContext {
+- (void)renderElement:(AbstractBezierPathElement*)element fromPreviousElement:(AbstractBezierPathElement*)previousElement includeOpenGLPrepForFBO:(AbstractJotGLFrameBuffer*)frameBuffer toContext:(JotGLContext*)renderContext scale:(CGFloat)scale {
     if (!state)
         return;
 
@@ -1226,11 +1230,7 @@ CGFloat JotBNRTimeBlock(void (^block)(void)) {
     if ([[NSNull null] isEqual:previousElement]) {
         previousElement = nil;
     }
-
-    // find our screen scale so that we can convert from
-    // points to pixels
-    CGFloat scale = self.contentScaleFactor;
-
+    
     // fetch the vertex data from the element
     [element generatedVertexArrayForScale:scale];
 
@@ -1255,8 +1255,9 @@ static int undoCounter;
     if ([exportLaterInvocations count]) {
         DebugLog(@"waiting to export");
     }
-
-
+    
+    CGFloat scale = self.contentScaleFactor;
+    
     UIApplicationState applicationState = [[UIApplication sharedApplication] applicationState];
 
     if (applicationState == UIApplicationStateActive) {
@@ -1295,7 +1296,7 @@ static int undoCounter;
                         while ([strokeToWriteToTexture.segments count] && distance < 300) {
                             AbstractBezierPathElement* element = [strokeToWriteToTexture.segments objectAtIndex:0];
                             [strokeToWriteToTexture removeElementAtIndex:0];
-                            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil toContext:context];
+                            [self renderElement:element fromPreviousElement:prevElementForTextureWriting includeOpenGLPrepForFBO:nil toContext:context scale:scale];
                             prevElementForTextureWriting = element;
                             distance += [element lengthOfElement];
                             // this should dealloc the element immediately,
@@ -1366,7 +1367,7 @@ static int undoCounter;
             CGFloat scale = [[UIScreen mainScreen] scale];
             CGRect bounds = [stroke bounds];
             bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
-            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
+            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds scale:self.contentScaleFactor];
         }
         [self.delegate didCancelStroke:aStroke withCoalescedTouch:nil fromTouch:nil inJotView:self];
         return;
@@ -1610,7 +1611,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
     }
     // we need to erase the current stroke from the screen, so
     // clear the canvas and rerender all valid strokes
-    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+    [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero scale:self.contentScaleFactor];
     [JotGLContext validateEmptyContextStack];
 }
 
@@ -1638,7 +1639,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
         CGFloat scale = [[UIScreen mainScreen] scale];
         CGRect bounds = [undoneStroke bounds];
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
-        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds scale:self.contentScaleFactor];
     }
     [undoneStroke unlock];
 }
@@ -1656,7 +1657,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
         if ([lastKnownStroke.segments count] && !CGSizeEqualToSize(bounds.size, CGSizeZero)) {
             // don't bother re-rendering if the stroke was empty to begin with
-            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
+            [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds scale:self.contentScaleFactor];
         }
     }
     [lastKnownStroke unlock];
@@ -1673,7 +1674,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
         CGFloat scale = [[UIScreen mainScreen] scale];
         CGRect bounds = [redoneStroke bounds];
         bounds = CGRectApplyAffineTransform(bounds, CGAffineTransformMakeScale(scale, scale));
-        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds];
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:bounds scale:self.contentScaleFactor];
     }
     [redoneStroke unlock];
 }
@@ -1686,7 +1687,9 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
     CheckMainThread;
     if (!state)
         return;
-
+    
+    CGFloat scale = self.contentScaleFactor;
+    
     // set our context
     [context runBlock:^{
         [viewFramebuffer clear];
@@ -1694,8 +1697,8 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
         [state.backgroundFramebuffer bind];
         [state.backgroundFramebuffer clearOnCurrentContext];
         [state.backgroundFramebuffer unbind];
-
-        [self renderAllStrokesToContext:nil inFramebuffer:nil andPresentBuffer:NO inRect:CGRectZero];
+        
+        [self renderAllStrokesToContext:nil inFramebuffer:nil andPresentBuffer:NO inRect:CGRectZero scale:scale];
 
         if (shouldPresent) {
             // Display the buffer
@@ -1761,7 +1764,9 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
     CheckMainThread;
     if (!state)
         return;
-
+    
+    CGFloat scale = self.contentScaleFactor;
+    
     __block BOOL needsPresent = NO;
     [self.context runBlock:^{
 
@@ -1802,7 +1807,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
                 }
                 if (CGRectIntersectsRect(myBounds, eleBounds)) {
                     needsPresent = YES;
-                    [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:viewFramebuffer toContext:context];
+                    [self renderElement:element fromPreviousElement:prevElement includeOpenGLPrepForFBO:viewFramebuffer toContext:context scale:scale];
                 }
             }
         }
@@ -1839,7 +1844,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
         [state forceAddStroke:stroke];
 
         [stroke.texture bind];
-        [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:viewFramebuffer toContext:context];
+        [self renderElement:[stroke.segments firstObject] fromPreviousElement:nil includeOpenGLPrepForFBO:viewFramebuffer toContext:context scale:self.contentScaleFactor];
         [self setNeedsPresentRenderBuffer];
         [stroke.texture unbind];
     }];
@@ -1903,7 +1908,9 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
 
 - (JotGLTexture*)generateTexture {
     CheckMainThread;
-
+    
+    CGFloat scale = self.contentScaleFactor;
+    
     __block JotGLTexture* canvasTexture = nil;
     [context runBlock:^{
         CGSize maxTextureSize = [UIScreen mainScreen].portraitBounds.size;
@@ -1930,7 +1937,7 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
             // ok, everything is setup at this point, so render all
             // of the strokes over the backing texture to our
             // export texture
-            [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero withBlock:^{
+            [self renderAllStrokesToContext:context inFramebuffer:exportFramebuffer andPresentBuffer:NO inRect:CGRectZero scale:scale withBlock:^{
                 // we have to finish here to push all
                 // the pixels to the texture so they're
                 // available after this method returns
@@ -2002,6 +2009,8 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
         [state.backgroundFramebuffer unbind];
     }];
 
+    CGFloat scale = self.contentScaleFactor;
+
     //
     // we just drew to the backing texture, so be sure
     // to flush all openGL commands, so that when we rebind
@@ -2009,8 +2018,8 @@ static inline CGFloat distanceBetween2(CGPoint a, CGPoint b) {
     // issues of unsynchronized textures.
     [context runBlock:^{
         [viewFramebuffer bind];
-
-        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero];
+        
+        [self renderAllStrokesToContext:context inFramebuffer:viewFramebuffer andPresentBuffer:YES inRect:CGRectZero scale:scale];
         [viewFramebuffer unbind];
         // flush after drawing to texture
         [context flush];
