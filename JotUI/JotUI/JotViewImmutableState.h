@@ -15,7 +15,6 @@
 @property(nonatomic, assign) NSData* immutableData;
 
 - (void)writeToDisk:(NSString*)plistPath;
-- (NSData*)stateData:(NSData*)savedData;
 
 // a unique value that defines the current undo state.
 // if this value is the same as when this view was exported,

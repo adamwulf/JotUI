@@ -419,7 +419,6 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
     // to the exact strokes that are visible + not yet written
     // to the backing texture
     JotViewImmutableState* immutableState = [state immutableState];
-    NSData *stateData = [immutableState immutableData];
     
     [self exportInkTextureOnComplete:^(UIImage* image) {
         ink = image;
@@ -468,12 +467,7 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
             // on screen at a time + being exported simultaneously
 
             dispatch_semaphore_wait(sema2, DISPATCH_TIME_FOREVER);
-
-            NSData *completeData = [immutableState stateData:stateData];
-
-            // done saving JotView
-            exportFinishBlock(ink, thumb, immutableState, completeData);
-
+          
             if (state.isForgetful) {
                 @synchronized(self) {
                     isCurrentlyExporting = 0;
@@ -498,6 +492,11 @@ static const void* const kImportExportStateQueueIdentifier = &kImportExportState
             // this call will both serialize the state
             // and write it to disk
             [immutableState writeToDisk:plistPath];
+
+            NSData *stateData = [immutableState immutableData];
+            
+            // done saving JotView
+            exportFinishBlock(ink, thumb, immutableState, stateData);
 
             // export complete
             @synchronized(self) {
