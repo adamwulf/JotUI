@@ -120,7 +120,19 @@
 		C584F82B1C37B38C00413840 /* shaderUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = C584F8261C37B38C00413840 /* shaderUtil.c */; };
 		C5A5C4981DFE6E3100FD2555 /* MMDataCache.h in Headers */ = {isa = PBXBuildFile; fileRef = C5A5C4961DFE6E3100FD2555 /* MMDataCache.h */; };
 		C5A5C4991DFE6E3100FD2555 /* MMDataCache.m in Sources */ = {isa = PBXBuildFile; fileRef = C5A5C4971DFE6E3100FD2555 /* MMDataCache.m */; };
+		C5C5CC6D254F716700B6662F /* JotUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = C5C5CC6C254F716700B6662F /* JotUITests.m */; };
+		C5C5CC76254F717600B6662F /* JotUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66AC155718079A71005315C8 /* JotUI.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		C5C5CC74254F717000B6662F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 669B399C1692B46A00F12F42 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 66AC155618079A71005315C8;
+			remoteInfo = JotUI;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		66018A4719F61F4400228A0D /* DeleteAssets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DeleteAssets.h; sourceTree = "<group>"; };
@@ -247,6 +259,9 @@
 		C584F82D1C37B46B00413840 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		C5A5C4961DFE6E3100FD2555 /* MMDataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MMDataCache.h; sourceTree = "<group>"; };
 		C5A5C4971DFE6E3100FD2555 /* MMDataCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MMDataCache.m; sourceTree = "<group>"; };
+		C5C5CC6A254F716700B6662F /* JotUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JotUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C5C5CC6C254F716700B6662F /* JotUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JotUITests.m; sourceTree = "<group>"; };
+		C5C5CC6E254F716700B6662F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -256,6 +271,14 @@
 			files = (
 				66AC157D18079B35005315C8 /* UIKit.framework in Frameworks */,
 				66AC155818079A72005315C8 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5C5CC67254F716700B6662F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5C5CC76254F717600B6662F /* JotUI.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -301,6 +324,7 @@
 				669B39F21692B52800F12F42 /* JotUI.h */,
 				C573539C1D90891100398008 /* Resources To Copy */,
 				669B39AE1692B46A00F12F42 /* JotUI */,
+				C5C5CC6B254F716700B6662F /* JotUITests */,
 				669B39AB1692B46A00F12F42 /* Frameworks */,
 				669B39AA1692B46A00F12F42 /* Products */,
 			);
@@ -310,6 +334,7 @@
 			isa = PBXGroup;
 			children = (
 				66AC155718079A71005315C8 /* JotUI.framework */,
+				C5C5CC6A254F716700B6662F /* JotUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -560,6 +585,15 @@
 			name = Shaders;
 			sourceTree = "<group>";
 		};
+		C5C5CC6B254F716700B6662F /* JotUITests */ = {
+			isa = PBXGroup;
+			children = (
+				C5C5CC6C254F716700B6662F /* JotUITests.m */,
+				C5C5CC6E254F716700B6662F /* Info.plist */,
+			);
+			path = JotUITests;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -650,6 +684,24 @@
 			productReference = 66AC155718079A71005315C8 /* JotUI.framework */;
 			productType = "com.apple.product-type.framework.static";
 		};
+		C5C5CC69254F716700B6662F /* JotUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C5C5CC71254F716700B6662F /* Build configuration list for PBXNativeTarget "JotUITests" */;
+			buildPhases = (
+				C5C5CC66254F716700B6662F /* Sources */,
+				C5C5CC67254F716700B6662F /* Frameworks */,
+				C5C5CC68254F716700B6662F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				C5C5CC75254F717000B6662F /* PBXTargetDependency */,
+			);
+			name = JotUITests;
+			productName = JotUITests;
+			productReference = C5C5CC6A254F716700B6662F /* JotUITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -659,12 +711,20 @@
 				LastTestingUpgradeCheck = 0510;
 				LastUpgradeCheck = 1010;
 				ORGANIZATIONNAME = "Milestone Made";
+				TargetAttributes = {
+					C5C5CC69254F716700B6662F = {
+						CreatedOnToolsVersion = 12.2;
+						DevelopmentTeam = MU27A4SCKC;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = 669B399F1692B46A00F12F42 /* Build configuration list for PBXProject "JotUI" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 669B399A1692B46A00F12F42;
@@ -673,6 +733,7 @@
 			projectRoot = "";
 			targets = (
 				66AC155618079A71005315C8 /* JotUI */,
+				C5C5CC69254F716700B6662F /* JotUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -689,6 +750,13 @@
 				C518C87D1C841F0700F1895C /* highlighter.png in Resources */,
 				C53F80921D6FE73E00BA9A58 /* quad.fsh in Resources */,
 				C53F808F1D6FE73E00BA9A58 /* colorlesspoint.vsh in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C5C5CC68254F716700B6662F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -795,7 +863,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C5C5CC66254F716700B6662F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C5C5CC6D254F716700B6662F /* JotUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		C5C5CC75254F717000B6662F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 66AC155618079A71005315C8 /* JotUI */;
+			targetProxy = C5C5CC74254F717000B6662F /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		669B39B11692B46A00F12F42 /* InfoPlist.strings */ = {
@@ -961,6 +1045,69 @@
 			};
 			name = Release;
 		};
+		C5C5CC6F254F716700B6662F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = MU27A4SCKC;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = JotUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.milestonemade.JotUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C5C5CC70254F716700B6662F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = MU27A4SCKC;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				INFOPLIST_FILE = JotUITests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.milestonemade.JotUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -978,6 +1125,15 @@
 			buildConfigurations = (
 				66AC156118079A72005315C8 /* Debug */,
 				66AC156218079A72005315C8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		C5C5CC71254F716700B6662F /* Build configuration list for PBXNativeTarget "JotUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C5C5CC6F254F716700B6662F /* Debug */,
+				C5C5CC70254F716700B6662F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
