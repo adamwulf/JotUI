@@ -97,4 +97,28 @@
     [self assertNear:[curve ctrl2].y and:105.49122619628906];
 }
 
+- (void)testFivePointsWithForcedEnd {
+    SegmentSmoother *smoother = [[SegmentSmoother alloc] init];
+
+    [smoother addPoint:CGPointMake(100, 100) andSmoothness:0.7];
+    [smoother addPoint:CGPointMake(200, 150) andSmoothness:0.7];
+    [smoother addPoint:CGPointMake(300, 150) andSmoothness:0.7];
+    [smoother addPoint:CGPointMake(400, 100) andSmoothness:0.7];
+    [smoother addPoint:CGPointMake(500, 120) andSmoothness:0.7];
+    AbstractBezierPathElement *ele = [smoother addPoint:CGPointMake(500, 120) andSmoothness:0.7];
+
+    XCTAssertTrue([ele isKindOfClass:[CurveToPathElement class]]);
+
+    CurveToPathElement *curve = (CurveToPathElement*)ele;
+
+    XCTAssertEqual([curve startPoint].x, 400);
+    XCTAssertEqual([curve startPoint].y, 100);
+    XCTAssertEqual([curve endPoint].x, 500);
+    XCTAssertEqual([curve endPoint].y, 120);
+    [self assertNear:[curve ctrl1].x and:433.39181518554688];
+    [self assertNear:[curve ctrl1].y and:94.991226196289063];
+    [self assertNear:[curve ctrl2].x and:465];
+    [self assertNear:[curve ctrl2].y and:113];
+}
+
 @end
